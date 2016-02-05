@@ -3,7 +3,7 @@
   "authors": [
     "Samuel Baptista <samuel.baptista@ecodev.ch>"
   ],
-  "description": "Generates an infinite scroll gallery with photoswipe focus view from json data",
+  "description": "A lazy load, infinite scroll and natural layout list gallery",
   "main": "",
   "moduleType": [],
   "license": "MIT",
