@@ -1,0 +1,27 @@
+{
+  "name": "natural-gallery",
+  "authors": [
+    "Samuel Baptista <samuel.baptista@ecodev.ch>"
+  ],
+  "description": "Generates an infinite scroll gallery with photoswipe focus view from json data",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "homepage": "http://ecodev.ch",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "src/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "photoswipe": "^4.1.1",
+    "jquery": "^2.2.0",
+  },
+  "devDependencies": {
+    "bootstrap": "^3.3.6",
+    "lodash": "^4.2.1"
+  }
+}

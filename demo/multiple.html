@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../bower_components/photoswipe/dist/default-skin/default-skin.css">
+		<link rel="stylesheet" href="../bower_components/photoswipe/dist/photoswipe.css">
+		<link rel="stylesheet" href="../dist/css/natural-gallery.css">
+
+		<script src="../bower_components/lodash/dist/lodash.min.js"></script>
+		<script src="../bower_components/jquery/dist/jquery.js"></script>
+
+		<script>
+			var images = [];
+			var categories = [[], [1], [2], [3], [1, 2], [1, 3], [1, 2, 3]]; // hand made list of categories
+			var thumbnailMaximumHeight = 300;
+
+			$.ajax({
+				dataType: "json",
+				async: false,
+				url: "https://api.unsplash.com/categories/7/photos",
+				data: {
+					client_id: '04902b80294822aa86dbe5c57ee47e1c1f0e8a0f0f360979746970a1239001dd',
+					per_page: 30
+				},
+				success: function(data) {
+					for (var i = 0; i < data.length; i++) {
+						var image = data[i];
+						var ratio = image.width / image.height;
+						var categoryIdb = i % categories.length;
+
+						var formatedImage = {
+							uid: i,
+							thumbnail: image.urls.regular,
+							enlarged: data[i].urls.full,
+							title: image.user.name,
+							categories: categories[categoryIdb],
+							tWidth: thumbnailMaximumHeight * ratio,
+							tHeight: thumbnailMaximumHeight,
+							eWidth: image.width,
+							eHeight: image.height
+						};
+
+						images.push(formatedImage);
+					}
+				}
+			});
+
+			function getImages(number) {
+				var randomStart = Math.floor(Math.random() * (images.length - number));
+				return images.splice(randomStart, number);
+			}
+		</script>
+
+	</head>
+
+	<body>
+		<div class="container-fluid">
+
+			<h1>Natural Gallery : multiple</h1>
+
+			<p>With multiple gallery on the same page, infinite scroll is automatically disabled to avoid to be stuck on first gallery is it has big amounts of picts.</p>
+
+			<h2> Gallery 1 </h2>
+			<div data-galleryid="1" class="natural-gallery" id="natural-gallery-1">
+
+				<script type="text/javascript">
+					window.naturalGalleries = window.naturalGalleries || [];
+
+					var naturalGallery = {};
+					naturalGallery.id = "1";
+					naturalGallery.images = images;
+					naturalGallery.thumbnailMaximumHeight = thumbnailMaximumHeight;
+					naturalGallery.round = 999;
+					naturalGallery.thumbnailFormat = 'square'; // or square
+					naturalGallery.imagesPerRow = 5; // only considered when format is square
+					naturalGallery.margin = 1;
+					naturalGallery.limit = 3; // number of rows per page. If 0 = auto/lazy load on mouse scroll
+
+					window.naturalGalleries.push(naturalGallery);
+				</script>
+
+				<div class="natural-gallery-form form-inline" id="natural-gallery-form-1">
+					<input type="search"
+						   id="natural-gallery-searchTerm-1"
+						   placeholder="Search"
+						   class="natural-gallery-searchTerm search placeholder"
+						   name="search"/>
+
+						<div class="natural-gallery-categories form-group">
+							<label>
+								<input type="checkbox" checked="checked" data-uid="none" class="natural-gallery-category" id="natural-gallery-category-all">
+								Without
+							</label>
+							<label>
+								<input type="checkbox" checked="checked" data-uid="1" class="natural-gallery-category" id="natural-gallery-category-1">
+								Nature
+							</label>
+							<label>
+								<input type="checkbox" checked="checked" data-uid="2" class="natural-gallery-category" id="natural-gallery-category-2">
+								Buildings
+							</label>
+							<label>
+								<input type="checkbox" checked="checked" data-uid="3" class="natural-gallery-category" id="natural-gallery-category-3">
+								Other
+							</label>
+						</div>
+				</div>
+
+				<div class="natural-gallery-body">
+					<div class="natural-gallery-noresults">none</div>
+				</div>
+				<div class="natural-gallery-footer">
+					<div class="natural-gallery-next">
+						<a href=""><span>more</span></a>
+					</div>
+					<div class="natural-gallery-recordnumber">
+						<span class="natural-gallery-numberOfVisibleImages"></span> /
+						<span class="natural-gallery-totalImages"></span>
+					</div>
+				</div>
+			</div>
+
+			<h2> Gallery 2 </h2>
+			<div data-galleryid="2" class="natural-gallery" id="natural-gallery-2">
+
+				<script type="text/javascript">
+					window.naturalGalleries = window.naturalGalleries || [];
+
+					var naturalGallery = {};
+					naturalGallery.id = "2";
+					naturalGallery.images = _.cloneDeep(images);
+					naturalGallery.thumbnailMaximumHeight = thumbnailMaximumHeight;
+					naturalGallery.round = 10;
+					naturalGallery.thumbnailFormat = 'natural'; // or square
+					naturalGallery.imagesPerRow = 4; // only considered when format is square
+					naturalGallery.margin = 5;
+					naturalGallery.limit = 3; // number of rows per page. If 0 = auto/lazy load on mouse scroll
+
+					window.naturalGalleries.push(naturalGallery);
+				</script>
+
+				<div class="natural-gallery-form form-inline" id="natural-gallery-form-2">
+					<input type="search"
+						   id="natural-gallery-searchTerm-2"
+						   placeholder="Search"
+						   class="natural-gallery-searchTerm search placeholder"
+						   name="search"/>
+
+						<div class="natural-gallery-categories form-group">
+							<label>
+								<input type="checkbox" checked="checked" data-uid="none" class="natural-gallery-category" id="natural-gallery-category-all">
+								Without
+							</label>
+							<label>
+								<input type="checkbox" checked="checked" data-uid="1" class="natural-gallery-category" id="natural-gallery-category-1">
+								Nature
+							</label>
+							<label>
+								<input type="checkbox" checked="checked" data-uid="2" class="natural-gallery-category" id="natural-gallery-category-2">
+								Buildings
+							</label>
+							<label>
+								<input type="checkbox" checked="checked" data-uid="3" class="natural-gallery-category" id="natural-gallery-category-3">
+								Other
+							</label>
+						</div>
+				</div>
+
+				<div class="natural-gallery-body">
+					<div class="natural-gallery-noresults">none</div>
+				</div>
+				<div class="natural-gallery-footer">
+					<div class="natural-gallery-next">
+						<a href=""><span>more</span></a>
+					</div>
+					<div class="natural-gallery-recordnumber">
+						<span class="natural-gallery-numberOfVisibleImages"></span> /
+						<span class="natural-gallery-totalImages"></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="pswp__bg"></div>
+				<div class="pswp__scroll-wrap">
+					<div class="pswp__container">
+						<div class="pswp__item"></div>
+						<div class="pswp__item"></div>
+						<div class="pswp__item"></div>
+					</div>
+					<div class="pswp__ui pswp__ui--hidden">
+						<div class="pswp__top-bar">
+							<div class="pswp__counter"></div>
+							<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+							<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+							<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+							<div class="pswp__preloader">
+								<div class="pswp__preloader__icn">
+									<div class="pswp__preloader__cut">
+										<div class="pswp__preloader__donut"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class="pswp__share-tooltip"></div></div>
+						<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+						<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+						<div class="pswp__caption">
+							<div class="pswp__caption__center"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		<div style="clear:both;height:100px;border-top:1px solid #ccc;">footer</div>
+
+		<script src="../bower_components/photoswipe/dist/photoswipe.js"></script>
+		<script src="../bower_components/photoswipe/dist/photoswipe-ui-default.js"></script>
+		<script src="../dist/js/natural-gallery-organizer.js"></script>
+		<script src="../dist/js/natural-gallery.js"></script>
+
+	</body>
+</html>
