@@ -6,7 +6,7 @@ Demo
 Install dependencies
 ```bower install```
 
-Then open demo/index.html and demo/multiple.html with your awesome prefered browser.
+Then open demo/index.html and demo/multiple.html with your preferred browser.
 
 
 Production
