@@ -143,9 +143,12 @@
         function getFigure(element, gallery) {
 
             var $figure = $('<figure></figure>');
-            var $image = $('<a></a>')
-                .css('background-image', 'url(' + element.thumbnail + ')')
-                .attr('href', element.enlarged);
+
+            var $image = $('<a></a>').css('background-image', 'url(' + element.thumbnail + ')');
+
+            if (gallery.lightbox) {
+                $image.attr('href', element.enlarged);
+            }
 
             if (gallery.round) {
                 $image.css('border-radius', gallery.round)
@@ -195,6 +198,10 @@
 
             image.on('click', function(e) {
                 e.preventDefault();
+
+                if (!gallery.lightbox) {
+                    return;
+                }
 
                 var self = this;
                 var options = {
