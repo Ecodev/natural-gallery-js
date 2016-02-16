@@ -1,11 +1,11 @@
 {
   "name": "natural-gallery",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "authors": [
     "Samuel Baptista <samuel.baptista@ecodev.ch>"
   ],
   "description": "A lazy load, infinite scroll and natural layout list gallery",
-  "main": "",
+  "main": "dist/natural-gallery.min.js",
   "moduleType": [],
   "license": "MIT",
   "homepage": "http://ecodev.ch",
