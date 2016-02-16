@@ -4,5 +4,3 @@
 .DS_store
 bower_components
 node_modules
-dist
-
