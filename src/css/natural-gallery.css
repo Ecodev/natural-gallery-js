@@ -47,7 +47,7 @@
 .natural-gallery-body figure {
     display: block;
     float: left;
-    background: white url('../images/ajax-loader.gif') no-repeat center center;
+    background: white url('ajax-loader.gif') no-repeat center center;
     margin: 0;
 }
 .natural-gallery-body figure a {

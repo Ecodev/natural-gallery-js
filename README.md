@@ -1,36 +1,46 @@
 Natural Gallery
 ============================
 
-Demo
+Use distribution on your project 
 -----
-Install dependencies
-```bower install```
 
-Then open demo/index.html and demo/multiple.html with your preferred browser.
+Install natural-gallery :
+
+```bower install natural-gallery --save```
 
 
-Production
+Include photoswipe and natural gallery stylesheets + jquery script in your headers : 
+
+```
+<link rel="stylesheet" href="bower_components/photoswipe/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="bower_components/photoswipe/dist/photoswipe.css">
+<link rel="stylesheet" href="bower_components/natural-gallery/dist/natural-gallery.min.css">
+<script src="bower_components/jquery/dist/jquery.js"></script>
+```
+
+Includes photoswipe and natural gallery scripts in your footer: 
+
+```
+<script src="bower_components/photoswipe/dist/photoswipe.js"></script>
+<script src="bower_components/photoswipe/dist/photoswipe-ui-default.js"></script>
+<script src="bower_components/natural-gallery/dist/natural-gallery.min.js"></script>
+```
+
+
+Watch demo for code implementation
 -----
-```bower install --production```
 
+Clone project on your local disk
 
-Includes in header
-------
 ```
-<link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="/bower_components/photoswipe/dist/default-skin/default-skin.css">
-<link rel="stylesheet" href="/bower_components/photoswipe/dist/photoswipe.css">
-<link rel="stylesheet" href="/bower_components/natural-gallery/dist/css/natural-gallery.css">
-<script src="/bower_components/jquery/dist/jquery.js"></script>
+git clone https://github.com/Ecodev/natural-gallery 
+cd natural-gallery
 ```
 
+Install production and dev dependencies and run build :
 
-Includes in footer
-------
 ```
-<script src="/bower_components/photoswipe/dist/photoswipe.js"></script>
-<script src="/bower_components/photoswipe/dist/photoswipe-ui-default.js"></script>
-<script src="/bower_components/natural-gallery/dist/js/natural-gallery-organizer.js"></script>
-<script src="/bower_components/natural-gallery/dist/js/natural-gallery.js"></script>
+bower install && npm run build
 ```
 
+Open demo/*.html with your preferred browser and editor.
