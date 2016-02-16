@@ -1,8 +1,7 @@
 {
   "name": "natural-gallery",
-  "version": "1.2.1",
   "description": "A lazy load, infinite scroll and natural layout list gallery",
-  "main": "dist/js/natural-gallery.min.js",
+  "main": "dist/natural-gallery.min.js",
   "dependencies": {},
   "devDependencies": {
     "gulp-concat": "^2.6.0",

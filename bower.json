@@ -1,6 +1,6 @@
 {
   "name": "natural-gallery",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "authors": [
     "Samuel Baptista <samuel.baptista@ecodev.ch>"
   ],
@@ -11,7 +11,9 @@
   "homepage": "http://ecodev.ch",
   "ignore": [
     "*",
-    "!dist/*"
+    "!dist/*",
+    "!LICENCE",
+    "!README.md"
   ],
   "dependencies": {
     "photoswipe": "^4.1.1",

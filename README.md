@@ -4,6 +4,8 @@ Natural Gallery
 Use distribution on your project 
 -----
 
+The bower install does not include sources and build process. To run the demo, look at the end of this readme. 
+
 Install natural-gallery :
 
 ```bower install natural-gallery --save```
@@ -26,11 +28,10 @@ Includes photoswipe and natural gallery scripts in your footer:
 <script src="bower_components/natural-gallery/dist/natural-gallery.min.js"></script>
 ```
 
-
-Watch demo for code implementation
+Run and look at the demo for code implementation
 -----
 
-Clone project on your local disk
+Clone project on your local disk :
 
 ```
 git clone https://github.com/Ecodev/natural-gallery 
