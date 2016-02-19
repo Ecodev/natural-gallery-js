@@ -4,10 +4,13 @@
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
+		<link href='https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
+
 		<link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css">
 		<link rel="stylesheet" href="../bower_components/photoswipe/dist/default-skin/default-skin.css">
 		<link rel="stylesheet" href="../bower_components/photoswipe/dist/photoswipe.css">
 		<link rel="stylesheet" href="../dist/natural-gallery.min.css">
+		<link rel="stylesheet" href="demo.css">
 
 		<script src="../bower_components/lodash/dist/lodash.min.js"></script>
 		<script src="../bower_components/jquery/dist/jquery.js"></script>
@@ -57,9 +60,21 @@
 	</head>
 
 	<body>
-		<div class="container-fluid">
+		<div class="container">
 
-			<h1>Natural Gallery : multiple</h1>
+			<h1>Natural gallery</h1>
+
+			<nav class="navbar navbar-default">
+				<div class="container-fluid">
+					<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+						<ul class="nav navbar-nav">
+							<li><a href="index.html">Example 1</a></li>
+							<li><a href="multiple.html">Example 2</a></li>
+							<li><a href="no-lightbox.html">Example 3</a></li>
+						</ul>
+					</div>
+				</div>
+			</nav>
 
 			<p>With multiple gallery on the same page, infinite scroll is automatically disabled to avoid to be stuck on first gallery is it has big amounts of picts.</p>
 
@@ -90,24 +105,12 @@
 						   class="natural-gallery-searchTerm search placeholder"
 						   name="search"/>
 
-						<div class="natural-gallery-categories form-group">
-							<label>
-								<input type="checkbox" checked="checked" data-uid="none" class="natural-gallery-category" id="natural-gallery-category-all">
-								Without
-							</label>
-							<label>
-								<input type="checkbox" checked="checked" data-uid="1" class="natural-gallery-category" id="natural-gallery-category-1">
-								Nature
-							</label>
-							<label>
-								<input type="checkbox" checked="checked" data-uid="2" class="natural-gallery-category" id="natural-gallery-category-2">
-								Buildings
-							</label>
-							<label>
-								<input type="checkbox" checked="checked" data-uid="3" class="natural-gallery-category" id="natural-gallery-category-3">
-								Other
-							</label>
-						</div>
+					<div class="natural-gallery-categories form-group">
+						<label><input type="checkbox" checked="checked" data-uid="none" class="natural-gallery-category" id="natural-gallery-category-all"> Without</label>
+						<label><input type="checkbox" checked="checked" data-uid="1" class="natural-gallery-category" id="natural-gallery-category-1"> Nature</label>
+						<label><input type="checkbox" checked="checked" data-uid="2" class="natural-gallery-category" id="natural-gallery-category-2"> Buildings</label>
+						<label><input type="checkbox" checked="checked" data-uid="3" class="natural-gallery-category" id="natural-gallery-category-3"> Other</label>
+					</div>
 				</div>
 
 				<div class="natural-gallery-body">
@@ -118,8 +121,7 @@
 						<a href=""><span>more</span></a>
 					</div>
 					<div class="natural-gallery-recordnumber">
-						<span class="natural-gallery-numberOfVisibleImages"></span> /
-						<span class="natural-gallery-totalImages"></span>
+						<span class="natural-gallery-numberOfVisibleImages"></span> / <span class="natural-gallery-totalImages"></span>
 					</div>
 				</div>
 			</div>
@@ -151,24 +153,20 @@
 						   class="natural-gallery-searchTerm search placeholder"
 						   name="search"/>
 
-						<div class="natural-gallery-categories form-group">
-							<label>
-								<input type="checkbox" checked="checked" data-uid="none" class="natural-gallery-category" id="natural-gallery-category-all">
-								Without
-							</label>
-							<label>
-								<input type="checkbox" checked="checked" data-uid="1" class="natural-gallery-category" id="natural-gallery-category-1">
-								Nature
-							</label>
-							<label>
-								<input type="checkbox" checked="checked" data-uid="2" class="natural-gallery-category" id="natural-gallery-category-2">
-								Buildings
-							</label>
-							<label>
-								<input type="checkbox" checked="checked" data-uid="3" class="natural-gallery-category" id="natural-gallery-category-3">
-								Other
-							</label>
-						</div>
+					<div class="natural-gallery-categories form-group">
+						<label>
+							<input type="checkbox" checked="checked" data-uid="none" class="natural-gallery-category" id="natural-gallery-category-all"> Without
+						</label>
+						<label>
+							<input type="checkbox" checked="checked" data-uid="1" class="natural-gallery-category" id="natural-gallery-category-1"> Nature
+						</label>
+						<label>
+							<input type="checkbox" checked="checked" data-uid="2" class="natural-gallery-category" id="natural-gallery-category-2"> Buildings
+						</label>
+						<label>
+							<input type="checkbox" checked="checked" data-uid="3" class="natural-gallery-category" id="natural-gallery-category-3"> Other
+						</label>
+					</div>
 				</div>
 
 				<div class="natural-gallery-body">
@@ -179,8 +177,7 @@
 						<a href=""><span>more</span></a>
 					</div>
 					<div class="natural-gallery-recordnumber">
-						<span class="natural-gallery-numberOfVisibleImages"></span> /
-						<span class="natural-gallery-totalImages"></span>
+						<span class="natural-gallery-numberOfVisibleImages"></span> / <span class="natural-gallery-totalImages"></span>
 					</div>
 				</div>
 			</div>
@@ -207,7 +204,9 @@
 								</div>
 							</div>
 						</div>
-						<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class="pswp__share-tooltip"></div></div>
+						<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+							<div class="pswp__share-tooltip"></div>
+						</div>
 						<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
 						<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
 						<div class="pswp__caption">
@@ -218,12 +217,11 @@
 			</div>
 
 		</div>
-		<div style="clear:both;height:100px;border-top:1px solid #ccc;">footer</div>
+		<div style="clear:both;height:100px;border-top:1px solid #cccccc;">footer</div>
 
 		<script src="../bower_components/photoswipe/dist/photoswipe.js"></script>
 		<script src="../bower_components/photoswipe/dist/photoswipe-ui-default.js"></script>
 		<script src="../dist/natural-gallery.min.js"></script>
-
 
 	</body>
 </html>
