@@ -10,6 +10,7 @@
 		<link rel="stylesheet" href="../bower_components/photoswipe/dist/default-skin/default-skin.css">
 		<link rel="stylesheet" href="../bower_components/photoswipe/dist/photoswipe.css">
 		<link rel="stylesheet" href="../dist/natural-gallery.min.css">
+		<link rel="stylesheet" href="../dist/default-skin/skin.css">
 		<link rel="stylesheet" href="demo.css">
 
 		<script src="../bower_components/jquery/dist/jquery.js"></script>
@@ -75,7 +76,6 @@
 				</div>
 			</nav>
 
-
 			<div data-galleryid="1" class="natural-gallery" id="natural-gallery-1">
 
 				<script type="text/javascript">
@@ -95,35 +95,54 @@
 					window.naturalGalleries.push(naturalGallery);
 				</script>
 
-				<div class="natural-gallery-form form-inline" id="natural-gallery-form-1">
-					<input type="search"
-						   id="natural-gallery-searchTerm-1"
-						   placeholder="Search"
-						   class="natural-gallery-searchTerm search placeholder"
-						   name="search"/>
+				<div class="natural-gallery-header">
 
-					<div class="natural-gallery-categories form-group">
-						<label><input type="checkbox" checked="checked" data-uid="none" class="natural-gallery-category" id="natural-gallery-category-all"> <span>Without</span></label>
-						<label><input type="checkbox" checked="checked" data-uid="1" class="natural-gallery-category" id="natural-gallery-category-1"> <span>Nature</span></label>
-						<label><input type="checkbox" checked="checked" data-uid="2" class="natural-gallery-category" id="natural-gallery-category-2"> <span>Buildings</span></label>
-						<label><input type="checkbox" checked="checked" data-uid="3" class="natural-gallery-category" id="natural-gallery-category-3"><span>Other</span></label>
+					<div class="natural-gallery-searchTerm sectionContainer">
+						<input type="text" required />
+						<label class="sectionName">Search</label>
+						<span class="bar"></span>
 					</div>
-				</div>
+
+					<div class="natural-gallery-categories sectionContainer">
+						<div class="sectionName">Categories</div>
+						<label>
+							<input type="checkbox" checked="checked" data-uid="none" class="natural-gallery-category" id="natural-gallery-category-without">
+							<span class="label">Without</span>
+							<span class="bar"></span>
+						</label>
+						<label>
+							<input type="checkbox" checked="checked" data-uid="1" class="natural-gallery-category" id="natural-gallery-category-1">
+							<span class="label">Nature</span>
+							<span class="bar"></span>
+						</label>
+						<label>
+							<input type="checkbox" checked="checked" data-uid="2" class="natural-gallery-category" id="natural-gallery-category-2">
+							<span class="label">Buildings</span>
+							<span class="bar"></span>
+						</label>
+						<label>
+							<input type="checkbox" checked="checked" data-uid="3" class="natural-gallery-category" id="natural-gallery-category-3">
+							<span class="label">Other</span>
+							<span class="bar"></span>
+						</label>
+					</div>
+
+					<div class="natural-gallery-images sectionContainer">
+						<div class="sectionName">Images</div>
+						<span class="natural-gallery-visible"></span> / <span class="natural-gallery-total"></span>
+					</div>
+
+				</div> <!-- end of header -->
 
 				<div class="natural-gallery-body">
 					<div class="natural-gallery-noresults">none</div>
 				</div>
 
 				<div class="natural-gallery-footer">
-					<div class="natural-gallery-next">
-						<a href=""><span>more</span></a>
-					</div>
-					<div class="natural-gallery-recordnumber">
-						<span class="natural-gallery-numberOfVisibleImages"></span> / <span class="natural-gallery-totalImages"></span>
-					</div>
-				</div>
+					<a class="natural-gallery-next">more</a>
+				</div> <!-- end of footer -->
 
-			</div>
+			</div> <!-- end of gallery -->
 
 			<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 				<div class="pswp__bg"></div>

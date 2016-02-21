@@ -1,5 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
 
+*.log
 .idea
 .DS_store
 bower_components

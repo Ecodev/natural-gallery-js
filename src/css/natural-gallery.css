@@ -4,21 +4,11 @@
     z-index: 9999999;
 }
 
-/**
- * Filters
- */
-.natural-gallery-form {
-    margin: 10px 0;
-    vertical-align: middle;
+.natural-gallery {
+    margin-top:2em;
 }
-.natural-gallery-form:after {
-    content: '';
-    display: block;
-    clear: both;
-}
-.natural-gallery-searchTerm, .natural-gallery-categories  {
-    float:left;
-}
+
+
 
 /**
 * Body
@@ -68,19 +58,11 @@
     display: block;
     clear: both;
 }
-.natural-gallery-recordnumber {
-    float: left;
-    width: 30%;
-    text-align: right;
-    margin: 0;
-}
 .natural-gallery-hidden {
     display: none;
 }
 .natural-gallery-next {
     display: block;
-    float: left;
-    width: 40%;
-    margin-left: 30%;
+    margin:auto;
     text-align: center;
 }

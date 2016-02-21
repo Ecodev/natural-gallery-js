@@ -65,6 +65,12 @@
 
             var collection = gallery.filtered ? gallery.selection : gallery.images;
 
+            var nextButton = gallery.rootElement.find('.natural-gallery-next');
+            nextButton.show(); // display because filters may add more images and we have to show it again
+            if (!collection.length) {
+                nextButton.hide();
+            }
+
             if (gallery.pswpContainer.length === collection.length) {
                 return;
             }
@@ -100,16 +106,14 @@
                 }
 
                 // Show / Hide "more" button.
-                var nextButton = gallery.rootElement.find('.natural-gallery-next span');
-                nextButton.show(); // display because filters may add more images and we have to show it again
                 if (gallery.pswpContainer.length === collection.length) {
                     nextButton.hide();
                 }
             }
 
             gallery.rootElement.find('.natural-gallery-noresults').hide();
-            gallery.rootElement.find('.natural-gallery-numberOfVisibleImages').text(gallery.pswpContainer.length);
-            gallery.rootElement.find('.natural-gallery-totalImages').text(collection.length);
+            gallery.rootElement.find('.natural-gallery-visible').text(gallery.pswpContainer.length);
+            gallery.rootElement.find('.natural-gallery-total').text(collection.length);
         }
 
         /**
@@ -265,7 +269,6 @@
             reset(gallery);
             organizer.organize(gallery);
             addElements(gallery);
-
         }
 
         function filterByTerm(gallery) {
@@ -361,7 +364,7 @@
         /**
          * Attach event to next button
          */
-        $('.natural-gallery-next a').on('click', function(e) {
+        $('.natural-gallery-next').on('click', function(e) {
             e.preventDefault();
             addElements(getGallery(this)); // don't specify number of rows, addElements is smart enough to guess it
         });
@@ -498,6 +501,7 @@
             }
         }
 
+        // @off
         // Source = http://web.archive.org/web/20120918093154/http://lehelk.com/2011/05/06/script-to-remove-diacritics/
         var defaultDiacriticsRemovalMap = [
             {'base':'A', 'letters':/[\u0041\u24B6\uFF21\u00C0\u00C1\u00C2\u1EA6\u1EA4\u1EAA\u1EA8\u00C3\u0100\u0102\u1EB0\u1EAE\u1EB4\u1EB2\u0226\u01E0\u00C4\u01DE\u1EA2\u00C5\u01FA\u01CD\u0200\u0202\u1EA0\u1EAC\u1EB6\u1E00\u0104\u023A\u2C6F]/g},
@@ -585,6 +589,7 @@
             {'base':'y','letters':/[\u0079\u24E8\uFF59\u1EF3\u00FD\u0177\u1EF9\u0233\u1E8F\u00FF\u1EF7\u1E99\u1EF5\u01B4\u024F\u1EFF]/g},
             {'base':'z','letters':/[\u007A\u24E9\uFF5A\u017A\u1E91\u017C\u017E\u1E93\u1E95\u01B6\u0225\u0240\u2C6C\uA763]/g}
         ];
+        // @on
 
         function removeDiacritics(str) {
 
