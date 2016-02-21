@@ -1,4 +1,3 @@
-
 /*
  * Colors
  * -----------------------------------------
@@ -10,9 +9,8 @@
 .natural-gallery .natural-gallery-searchTerm:hover .sectionName,
 .natural-gallery .natural-gallery-searchTerm:hover input,
 .natural-gallery .natural-gallery-searchTerm:hover .sectionName,
-.natural-gallery .natural-gallery-images:hover .sectionName
-{
-    color:#0089e0;
+.natural-gallery .natural-gallery-images:hover .sectionName {
+    color: #0089e0;
 }
 
 /*
@@ -30,26 +28,23 @@
 /* Inactive */
 .natural-gallery .natural-gallery-searchTerm,
 .natural-gallery .natural-gallery-categories label,
-.natural-gallery .natural-gallery-images
-{
-    border-bottom-color:#999;
+.natural-gallery .natural-gallery-images {
+    border-bottom-color: #999999;
 }
 
 .natural-gallery .natural-gallery-searchTerm input,
-.natural-gallery .natural-gallery-categories input[type=checkbox]:checked + .label
-{
-    color: #444;
+.natural-gallery .natural-gallery-categories input[type=checkbox]:checked + .label {
+    color: #444444;
 }
 
 .natural-gallery .sectionName,
-.natural-gallery .natural-gallery-categories .label{
-    color: #999;
+.natural-gallery .natural-gallery-categories .label {
+    color: #999999;
 }
 
 .natural-gallery .natural-gallery-next:hover {
-    background-color:#eee;
+    background-color: #eeeeee;
 }
-
 
 /*
  * Icons
@@ -91,7 +86,6 @@
     background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 792 792"><path fill="#999" d="M701.993,35.963l-576.029,576.03L90,576.03L666.03,0L701.993,35.963z M507.262,45.579l-391.1,389.128V45.579H507.262z   M301.408,164.719c0-37.59-30.472-68.062-68.062-68.062c-37.924,0-68.062,30.866-68.062,68.062  c0,37.199,30.136,68.062,68.062,68.062C270.937,232.781,301.408,202.309,301.408,164.719z M631.466,505.483  c-20.816,0-155.697,0-176.822,0l-36.476-70.991l-37.216,37.026l16.94,33.963c-5.234,0-18.073,0-51.076,0l-61.236,60.93h390.262  V178.116L537.054,316.207C568.943,380.142,629.047,500.637,631.466,505.483z"/></svg>');
 }
 
-
 /*
  * Basics root
  * -----------------------------------------
@@ -116,28 +110,26 @@
 }
 
 .natural-gallery .sectionContainer {
-    margin-top:30px;
+    margin-top: 30px;
     position: relative;
 }
 
 .natural-gallery .natural-gallery-searchTerm,
 .natural-gallery .natural-gallery-categories label,
-.natural-gallery .natural-gallery-categories
-{
+.natural-gallery .natural-gallery-categories {
     float: left;
     margin-right: 5px;
 }
 
 .natural-gallery .natural-gallery-images {
-    float:right;
-    margin-right:0;
-    margin-left:5px;
+    float: right;
+    margin-right: 0;
+    margin-left: 5px;
 }
 
-.natural-gallery .natural-gallery-categories label
-{
+.natural-gallery .natural-gallery-categories label {
     position: relative;
-    cursor:pointer;
+    cursor: pointer;
 }
 
 .natural-gallery .natural-gallery-categories .label {
@@ -148,8 +140,7 @@
 /* Base for icons */
 .natural-gallery .natural-gallery-searchTerm:before,
 .natural-gallery .natural-gallery-categories .label:before,
-.natural-gallery .natural-gallery-images:before
-{
+.natural-gallery .natural-gallery-images:before {
     content: "";
     float: left;
     top: 0.5em;
@@ -157,15 +148,14 @@
     left: 5px;
     width: 1.2em;
     height: 1.2em;
-    font-size:16px;
-    background-repeat:no-repeat;
+    font-size: 16px;
+    background-repeat: no-repeat;
 }
 
 .natural-gallery .natural-gallery-searchTerm input,
 .natural-gallery .natural-gallery-searchTerm .sectionName,
 .natural-gallery .natural-gallery-categories .label,
-.natural-gallery .natural-gallery-images
-{
+.natural-gallery .natural-gallery-images {
     display: block;
     padding: 9px 5px 6px;
     font-size: 16px;
@@ -173,11 +163,11 @@
 }
 
 .natural-gallery .natural-gallery-images {
-    padding-left:2em;
+    padding-left: 2em;
 }
 
 .natural-gallery .natural-gallery-searchTerm input {
-    border:none;
+    border: none;
 }
 
 .natural-gallery .natural-gallery-searchTerm input,
@@ -187,13 +177,12 @@
 
 .natural-gallery .natural-gallery-searchTerm input {
     width: 300px;
-    padding-left:2em;
+    padding-left: 2em;
 }
 
 .natural-gallery .natural-gallery-searchTerm input:focus {
     outline: none;
 }
-
 
 /* Section name ======================================= */
 .natural-gallery .sectionName,
@@ -204,7 +193,7 @@
 .natural-gallery .sectionName {
     left: 5px;
     top: 0;
-    margin-left:1.5em;
+    margin-left: 1.5em;
     font-size: 16px;
     font-weight: normal;
     position: absolute;
@@ -222,42 +211,40 @@
 .natural-gallery .natural-gallery-searchTerm input:valid ~ .sectionName {
     top: -1.2em;
     font-size: 14px !important;
-    line-height:1em;
-    padding:0;
-    margin:0;
+    line-height: 1em;
+    padding: 0;
+    margin: 0;
 }
-
 
 /* NO RESULTS ================================= */
 
 .natural-gallery .natural-gallery-noresults {
     text-indent: -99999em;
-    margin:3em auto 2em;
-    width:100px;
-    height:100px;
+    margin: 3em auto 2em;
+    width: 100px;
+    height: 100px;
 }
 
 /* NEXT BUTTONS ================================= */
 
 .natural-gallery .natural-gallery-next {
-    cursor:pointer;
+    cursor: pointer;
     content: "";
-    font-size:16px;
-    min-width:100%;
-    height:2em;
-    background-repeat:no-repeat;
-    background-position:center center;
-    text-indent:-99999em;
+    font-size: 16px;
+    min-width: 100%;
+    height: 2em;
+    background-repeat: no-repeat;
+    background-position: center center;
+    text-indent: -99999em;
 }
 
 /* BOTTOM BARS ================================= */
 .natural-gallery .natural-gallery-searchTerm,
 .natural-gallery .natural-gallery-categories label,
-.natural-gallery .natural-gallery-images
-{
+.natural-gallery .natural-gallery-images {
     border: none;
-    border-bottom-width:1px;
-    border-bottom-style:solid;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
 }
 
 .natural-gallery .natural-gallery .bar {
@@ -291,7 +278,6 @@
 .natural-gallery .natural-gallery-searchTerm input:valid ~ .bar:before,
 .natural-gallery .natural-gallery-searchTerm input:valid ~ .bar:after,
 .natural-gallery .natural-gallery-categories input[type=checkbox]:checked ~ .bar:before,
-.natural-gallery .natural-gallery-categories input[type=checkbox]:checked ~ .bar:after
-{
+.natural-gallery .natural-gallery-categories input[type=checkbox]:checked ~ .bar:after {
     width: 50%;
 }

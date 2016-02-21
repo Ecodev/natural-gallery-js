@@ -434,28 +434,28 @@
          * scrollbar appear
          */
         $('<iframe id="scrollbar-listener"/>').css({
-            'position'      : 'fixed',
-            'width'         : '100%',
-            'height'        : 0,
-            'bottom'        : 0,
-            'border'        : 0,
-            'background-color'  : 'transparent'
-        }).on('load',function() {
-            var vsb     = (document.body.scrollHeight > document.body.clientHeight);
-            var timer   = null;
+            'position': 'fixed',
+            'width': '100%',
+            'height': 0,
+            'bottom': 0,
+            'border': 0,
+            'background-color': 'transparent'
+        }).on('load', function() {
+            var vsb = (document.body.scrollHeight > document.body.clientHeight);
+            var timer = null;
             this.contentWindow.addEventListener('resize', function() {
                 clearTimeout(timer);
                 timer = setTimeout(function() {
                     var vsbnew = (document.body.scrollHeight > document.body.clientHeight);
                     if (vsbnew) {
                         if (!vsb) {
-                            $(top.window).trigger('scrollbar',[true]);
-                            vsb=true;
+                            $(top.window).trigger('scrollbar', [true]);
+                            vsb = true;
                         }
                     } else {
                         if (vsb) {
-                            $(top.window).trigger('scrollbar',[false]);
-                            vsb=false;
+                            $(top.window).trigger('scrollbar', [false]);
+                            vsb = false;
                         }
                     }
                 }, 100);
@@ -468,7 +468,7 @@
         });
 
         // On windows scrollbar (dis)appear
-        $(window).on('scrollbar', function(){
+        $(window).on('scrollbar', function() {
             resize();
         });
 
@@ -488,6 +488,7 @@
                 }
             }
         }
+
         /**
          * Empty a gallery and add the same elements with new size
          */
