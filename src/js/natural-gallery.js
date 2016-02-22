@@ -67,11 +67,9 @@
 
             var nextButton = gallery.rootElement.find('.natural-gallery-next');
             nextButton.show(); // display because filters may add more images and we have to show it again
-            if (!collection.length) {
-                nextButton.hide();
-            }
 
-            if (gallery.pswpContainer.length === collection.length) {
+            if (gallery.pswpContainer.length === collection.length || !collection.length) {
+                nextButton.hide();
                 return;
             }
 
