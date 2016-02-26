@@ -25,8 +25,7 @@ gulp.task('scripts', function() {
 gulp.task('styles', function() {
 
     gulp.src(paths.themes)
-               .pipe(cssnano())
-               .pipe(gulp.dest(paths.dest));
+        .pipe(gulp.dest(paths.dest));
 
     return gulp.src(paths.styles)
                .pipe(cssnano())
