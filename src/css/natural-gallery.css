@@ -1,5 +1,8 @@
-/* set style to thumbnail of image*/
 
+/**
+* General
+* ===================================================
+*/
 .pswp {
     z-index: 9999999;
 }
@@ -9,20 +12,21 @@
 }
 
 /**
-* Body
+* Pictures
+* ===================================================
 */
-.natural-gallery-body {
+.natural-gallery .natural-gallery-body {
     padding: 0;
     margin: 0
 }
 
-.natural-gallery-body:after {
+.natural-gallery .natural-gallery-body:after {
     content: '';
     display: block;
     clear: both;
 }
 
-.natural-gallery-noresults {
+.natural-gallery .natural-gallery-noresults {
     margin: 20px auto;
     width: 20%;
     text-align: center;
@@ -31,28 +35,234 @@
     color: #888888;
 }
 
-.natural-gallery-thumbnail a img {
+.natural-gallery .natural-gallery-thumbnail a img {
     box-shadow: 3px 3px 5px #999999;
     text-align: center;
 }
 
-.natural-gallery-body figure {
+.natural-gallery .natural-gallery-body figure {
     display: block;
     float: left;
     background: white url('ajax-loader.gif') no-repeat center center;
     margin: 0;
 }
 
-.natural-gallery-body figure a {
+.natural-gallery .natural-gallery-body figure a {
     display: block;
     background-repeat: no-repeat;
     background-position: center center;
     background-size: cover;
 }
 
+
 /**
- * Footer
- */
+* Header
+* ===================================================
+*/
+
+
+/* Basics root */
+.natural-gallery * {
+    box-sizing: border-box;
+}
+
+.natural-gallery .natural-gallery-header {
+    margin: 0 0 10px 0;
+}
+
+/* Hide checkboxes */
+.natural-gallery .natural-gallery-categories input[type=checkbox] {
+    display: none;
+}
+
+.natural-gallery .natural-gallery-header:after {
+    content: '';
+    display: block;
+    clear: both;
+}
+
+.natural-gallery .sectionContainer {
+    margin-top: 30px;
+    position: relative;
+}
+
+.natural-gallery .natural-gallery-searchTerm,
+.natural-gallery .natural-gallery-categories label,
+.natural-gallery .natural-gallery-categories {
+    float: left;
+    margin-right: 5px;
+}
+
+.natural-gallery .natural-gallery-images {
+    float: right;
+    margin-right: 0;
+    margin-left: 5px;
+}
+
+.natural-gallery .natural-gallery-categories label {
+    position: relative;
+    cursor: pointer;
+}
+
+.natural-gallery .natural-gallery-categories .label {
+    margin-left: 1.5em;
+    margin-right: 5px;
+}
+
+/* Base for icons */
+.natural-gallery .natural-gallery-searchTerm > svg,
+.natural-gallery .natural-gallery-categories .label > svg,
+.natural-gallery .natural-gallery-images > svg {
+    content: "";
+    float: left;
+    position: absolute;
+
+    left: 5px;
+    font-size: 16px;
+    background-repeat: no-repeat;
+}
+
+.natural-gallery .natural-gallery-categories .label > svg,
+.natural-gallery .natural-gallery-images > svg {
+    width: 1.2em;
+    height: 1.2em;
+    top: 0.5em;
+}
+
+.natural-gallery .natural-gallery-searchTerm > svg {
+    width: 1.4em;
+    height: 1.4em;
+    top: 0.4em;
+}
+
+.natural-gallery .natural-gallery-searchTerm input,
+.natural-gallery .natural-gallery-searchTerm .sectionName,
+.natural-gallery .natural-gallery-categories .label,
+.natural-gallery .natural-gallery-images {
+    display: block;
+    padding: 9px 5px 6px;
+    font-size: 16px;
+    line-height: 1.3em;
+}
+
+.natural-gallery .natural-gallery-images {
+    padding-left: 2em;
+}
+
+.natural-gallery .natural-gallery-searchTerm input {
+    border: none;
+}
+
+.natural-gallery .natural-gallery-searchTerm input,
+.natural-gallery .natural-gallery-categories .label {
+    font-weight: normal;
+}
+
+.natural-gallery .natural-gallery-searchTerm input {
+    width: 300px;
+    padding-left: 2em;
+}
+
+.natural-gallery .natural-gallery-searchTerm input:focus {
+    outline: none;
+}
+
+/* Section name ======================================= */
+.natural-gallery .sectionName,
+.natural-gallery .natural-gallery-categories label {
+    margin-bottom: 0;
+}
+
+.natural-gallery .sectionName {
+    left: 5px;
+    top: 0;
+    margin-left: 1.5em;
+    font-size: 16px;
+    font-weight: normal;
+    position: absolute;
+    pointer-events: none;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+}
+
+/* active state */
+.natural-gallery .natural-gallery-images .sectionName,
+.natural-gallery .natural-gallery-categories .sectionName,
+.natural-gallery .natural-gallery-searchTerm:hover .sectionName,
+.natural-gallery .natural-gallery-searchTerm input:focus ~ .sectionName,
+.natural-gallery .natural-gallery-searchTerm input:valid ~ .sectionName {
+    top: -2.2em;
+    font-size: 14px !important;
+    line-height: 1em;
+    padding: 0;
+    margin: 1.2em 0 0 0;
+}
+
+/* NO RESULTS ================================= */
+.natural-gallery .natural-gallery-noresults {
+    margin: 3em auto 2em;
+    width: 100px;
+    height: 100px;
+}
+
+/* NEXT BUTTONS ================================= */
+.natural-gallery .natural-gallery-next svg {
+    cursor: pointer;
+    font-size: 16px;
+    height: 30px;
+}
+
+/* BOTTOM BARS ================================= */
+.natural-gallery .natural-gallery-searchTerm,
+.natural-gallery .natural-gallery-categories label,
+.natural-gallery .natural-gallery-images {
+    border: none;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+}
+
+.natural-gallery .natural-gallery .bar {
+    position: relative;
+    display: block;
+}
+
+.natural-gallery .bar:before,
+.natural-gallery .bar:after {
+    content: '';
+    height: 3px;
+    width: 0;
+    bottom: -2px;
+    position: absolute;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+}
+
+.natural-gallery .bar:before {
+    left: 50%;
+}
+
+.natural-gallery .bar:after {
+    right: 50%;
+}
+
+/* active state */
+.natural-gallery .natural-gallery-searchTerm input:focus ~ .bar:before,
+.natural-gallery .natural-gallery-searchTerm input:focus ~ .bar:after,
+.natural-gallery .natural-gallery-searchTerm input:valid ~ .bar:before,
+.natural-gallery .natural-gallery-searchTerm input:valid ~ .bar:after,
+.natural-gallery .natural-gallery-categories input[type=checkbox]:checked ~ .bar:before,
+.natural-gallery .natural-gallery-categories input[type=checkbox]:checked ~ .bar:after {
+    width: 50%;
+}
+
+
+
+/**
+* Footer
+* ===================================================
+*/
 .natural-gallery-footer {
     margin: 10px 0;
 }

@@ -1,0 +1,53 @@
+/*
+ * Colors
+ * -----------------------------------------
+ */
+
+.natural-gallery .bar:before,
+.natural-gallery .bar:after {
+    background-color: #0089e0;
+}
+
+/* Inactive */
+.natural-gallery .natural-gallery-searchTerm,
+.natural-gallery .natural-gallery-categories label,
+.natural-gallery .natural-gallery-images {
+    border-bottom-color: #999999;
+}
+
+/* Disabled */
+.natural-gallery .sectionName,
+.natural-gallery .natural-gallery-categories .label,
+.natural-gallery .natural-gallery-categories input[type=checkbox] ~ .label svg,
+.natural-gallery .natural-gallery-noresults svg {
+    color: #999999;
+    fill: #999999;
+}
+
+/* Normal */
+.natural-gallery .natural-gallery-searchTerm input,
+.natural-gallery .natural-gallery-categories input[type=checkbox]:checked ~ .label {
+    color: #444444;
+}
+
+/* Highlighted */
+.natural-gallery .natural-gallery-next svg,
+.natural-gallery .natural-gallery-header svg,
+.natural-gallery .natural-gallery-categories input[type=checkbox]:checked,
+.natural-gallery .natural-gallery-categories label:hover .label,
+.natural-gallery .natural-gallery-categories:hover .sectionName,
+.natural-gallery .natural-gallery-searchTerm:hover .sectionName,
+.natural-gallery .natural-gallery-searchTerm:hover input,
+.natural-gallery .natural-gallery-searchTerm:hover .sectionName,
+.natural-gallery .natural-gallery-images:hover .sectionName {
+    color: #0089e0 !important;
+    fill: currentColor;
+}
+
+.natural-gallery .natural-gallery-categories input[type=checkbox]:checked ~ .label svg {
+    fill: #0089e0;
+}
+
+.natural-gallery .natural-gallery-next:hover {
+    background-color: #eeeeee;
+}
