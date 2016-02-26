@@ -34,7 +34,7 @@ Run and look at the demo for code implementation
 Clone project on your local disk :
 
 ```
-git clone https://github.com/Ecodev/natural-gallery 
+git clone git@github.com:Ecodev/natural-gallery.git 
 cd natural-gallery
 ```
 
