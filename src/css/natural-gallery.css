@@ -65,7 +65,10 @@
     font-size: 14px;
     line-height: 2em;
     padding: 10px;
-    transition: all 0.5s ease-in;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+    overflow:hidden;
 }
 
 .natural-gallery .natural-gallery-body figure > span.hover {
