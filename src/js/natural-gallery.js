@@ -48,6 +48,7 @@
                 gallery.bodyElementWidth = Math.floor(gallery.bodyElement[0].getBoundingClientRect().width);
                 organizer.organize(gallery);
                 addElements(gallery);
+                cleanCategories(gallery);
             }
         }
 
@@ -112,6 +113,56 @@
             gallery.rootElement.find('.natural-gallery-noresults').hide();
             gallery.rootElement.find('.natural-gallery-visible').text(gallery.pswpContainer.length);
             gallery.rootElement.find('.natural-gallery-total').text(collection.length);
+        }
+
+        function cleanCategories(gallery) {
+
+            var categoriesCount = {};
+            for (var i = 0; i < gallery.images.length; i++ ) {
+
+                var image = gallery.images[i];
+                var categories = getImageCategories(image);
+
+                if (!categories) {
+                    continue;
+                }
+
+                // Create list of used categories
+                if (categories.length == 0) {
+                    categoriesCount['none'] = null;
+                    continue;
+                }
+
+                for (var j = 0; j < categories.length; j++) {
+                    categoriesCount[image.categories[j]] = null;
+                }
+
+            }
+
+            gallery.rootElement.find('.natural-gallery-categories label').each(function() {
+                var el = $(this);
+                var catId = el.data('id');
+                if (typeof categoriesCount[catId] == 'undefined') {
+                    el.hide();
+                }
+            });
+        }
+
+        function getImageCategories (image, filterEmpty) {
+
+            if (typeof image.categories == 'undefined') {
+                return null;
+            }
+
+            if (image.categories.constructor !== Array) {
+                return null;
+            }
+
+            if (image.categories.length == 0 && filterEmpty) {
+                return null;
+            }
+
+            return image.categories;
         }
 
         /**
@@ -304,8 +355,8 @@
             // Create an array with id of each selected categories
             var selectedCategories = [];
 
-            gallery.rootElement.find('.natural-gallery-category:checked').each(function() {
-                selectedCategories.push($(this).data('uid'));
+            gallery.rootElement.find('.natural-gallery-categories input:checked').each(function() {
+                selectedCategories.push($(this).parent().data('id'));
             });
 
             var filteredImages = [];
@@ -378,7 +429,7 @@
         /**
          * On category checkboxes change
          */
-        $('.natural-gallery-category').on('change', function(e) {
+        $('.natural-gallery-categories input').on('change', function() {
             filterSelection(getGallery(this));
         });
 
