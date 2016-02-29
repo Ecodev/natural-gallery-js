@@ -309,12 +309,15 @@
             var filteredByTerm = filterByTerm(gallery);
             var filteredByCategory = filterByCategory(gallery);
 
+            console.log('filteredByTerm', filteredByTerm.length);
+            console.log('filteredByCategory', filteredByCategory.length);
+
             for (var i = 0; i < filteredByTerm.length; i++) {
                 var img1 = filteredByTerm[i];
 
                 for (var j = 0; j < filteredByCategory.length; j++) {
                     var img2 = filteredByCategory[j];
-                    if (img1.uid == img2.uid) {
+                    if (img1.id == img2.id) {
                         filtered.push(img1);
                         break;
                     }
@@ -330,8 +333,10 @@
 
         function filterByTerm(gallery) {
 
-            var term = removeDiacritics(gallery.rootElement.find('.natural-gallery-searchTerm').val()).toLowerCase();
+            var term = removeDiacritics(gallery.rootElement.find('.natural-gallery-searchTerm input').val()).toLowerCase();
             var filteredImages = [];
+
+            console.log('term', term, gallery.rootElement.find('.natural-gallery-searchTerm input').val());
 
             // show all if empty
             if (term.length === 0) {
@@ -358,6 +363,8 @@
             gallery.rootElement.find('.natural-gallery-categories input:checked').each(function() {
                 selectedCategories.push($(this).parent().data('id'));
             });
+
+            console.log('selectedCategories', selectedCategories);
 
             var filteredImages = [];
             for (var i = 0; i < gallery.images.length; i++) {
@@ -436,9 +443,16 @@
         /**
          * Attach event to the search field
          */
-        $('.natural-gallery-searchTerm').on('keydown', function(event) {
+        $('.natural-gallery-searchTerm input').on('keydown', function(event) {
             // True when key 'enter' hit
-            if (event.keyCode == 13) {
+
+            // On escape, empty field
+            if (event.keyCode == 27) {
+                $(this).val('');
+            }
+
+            // On escape or enter, search
+            if (event.keyCode == 13 || event.keyCode == 27) {
                 event.preventDefault();
                 var gallery = getGallery(this);
                 if (gallery.lastSearch != $(this).val()) {
@@ -446,9 +460,7 @@
                     filterSelection(gallery);
                 }
             }
-        });
-
-        $('.natural-gallery-searchTerm').on('blur', function() {
+        }).on('blur', function() {
             var gallery = getGallery(this);
             if (gallery.lastSearch != $(this).val()) {
                 gallery.lastSearch = $(this).val();
