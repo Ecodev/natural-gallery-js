@@ -145,7 +145,6 @@
         function getFigure(element, gallery) {
 
             var $figure = $('<figure></figure>');
-
             var $image = $('<a></a>').css('background-image', 'url(' + element.thumbnail + ')');
 
             if (gallery.lightbox) {
@@ -157,6 +156,15 @@
             }
 
             $figure.append($image);
+
+            if (element.title && (gallery.showLabels == 'true' || gallery.showLabels === true || gallery.showLabels == 'hover')) {
+                var $label = $('<span></span>').text(element.title);
+                if (gallery.showLabels == 'hover') {
+                    $label.addClass('hover');
+                }
+
+                $figure.append($label);
+            }
 
             return {
                 figure: $figure,
