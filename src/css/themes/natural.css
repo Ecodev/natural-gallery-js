@@ -5,14 +5,14 @@
 
 .natural-gallery .bar:before,
 .natural-gallery .bar:after {
-    background-color: #0089e0;
+    background-color: #0089e0 !important;
 }
 
 /* Inactive */
 .natural-gallery .natural-gallery-searchTerm,
 .natural-gallery .natural-gallery-categories label,
 .natural-gallery .natural-gallery-images {
-    border-bottom-color: #999999;
+    border-bottom-color: #999999 !important;
 }
 
 /* Disabled */
@@ -20,14 +20,14 @@
 .natural-gallery .natural-gallery-categories .label,
 .natural-gallery .natural-gallery-categories input[type=checkbox] ~ .label svg,
 .natural-gallery .natural-gallery-noresults svg {
-    color: #999999;
-    fill: #999999;
+    color: #999999 !important;
+    fill: #999999 !important;
 }
 
 /* Normal */
 .natural-gallery .natural-gallery-searchTerm input,
 .natural-gallery .natural-gallery-categories input[type=checkbox]:checked ~ .label {
-    color: #444444;
+    color: #444444 !important;
 }
 
 /* Highlighted */
@@ -41,13 +41,13 @@
 .natural-gallery .natural-gallery-searchTerm:hover .sectionName,
 .natural-gallery .natural-gallery-images:hover .sectionName {
     color: #0089e0 !important;
-    fill: currentColor;
+    fill: currentColor !important;
 }
 
 .natural-gallery .natural-gallery-categories input[type=checkbox]:checked ~ .label svg {
-    fill: #0089e0;
+    fill: #0089e0 !important;
 }
 
 .natural-gallery .natural-gallery-next:hover {
-    background-color: #eeeeee;
+    background-color: #eeeeee !important;
 }
