@@ -309,9 +309,6 @@
             var filteredByTerm = filterByTerm(gallery);
             var filteredByCategory = filterByCategory(gallery);
 
-            console.log('filteredByTerm', filteredByTerm.length);
-            console.log('filteredByCategory', filteredByCategory.length);
-
             for (var i = 0; i < filteredByTerm.length; i++) {
                 var img1 = filteredByTerm[i];
 
@@ -335,8 +332,6 @@
 
             var term = removeDiacritics(gallery.rootElement.find('.natural-gallery-searchTerm input').val()).toLowerCase();
             var filteredImages = [];
-
-            console.log('term', term, gallery.rootElement.find('.natural-gallery-searchTerm input').val());
 
             // show all if empty
             if (term.length === 0) {
@@ -363,8 +358,6 @@
             gallery.rootElement.find('.natural-gallery-categories input:checked').each(function() {
                 selectedCategories.push($(this).parent().data('id'));
             });
-
-            console.log('selectedCategories', selectedCategories);
 
             var filteredImages = [];
             for (var i = 0; i < gallery.images.length; i++) {
