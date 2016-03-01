@@ -139,8 +139,10 @@
             gallery.rootElement.find('.natural-gallery-categories label').each(function() {
                 var el = $(this);
                 var catId = el.data('id');
+
                 if (typeof categoriesCount[catId] == 'undefined') {
-                    el.hide();
+                    el.remove();
+
                 }
             });
 
@@ -356,6 +358,11 @@
             gallery.rootElement.find('.natural-gallery-categories input:checked').each(function() {
                 selectedCategories.push($(this).parent().data('id'));
             });
+
+            // ignore categories filtering if no one is selected
+            if (selectedCategories.length === 0) {
+                return gallery.images;
+            }
 
             var filteredImages = [];
             for (var i = 0; i < gallery.images.length; i++) {
