@@ -144,13 +144,13 @@
                 var el = $(this);
                 var catId = el.data('id');
                 if (typeof categoriesCount[catId] == 'undefined') {
-                    //el.hide();
+                    el.hide();
                 }
             });
 
             // Hide container if no category visible
             if (!gallery.rootElement.find('.natural-gallery-categories label:visible').length) {
-                //gallery.rootElement.find('.natural-gallery-categories').hide();
+                gallery.rootElement.find('.natural-gallery-categories').hide();
             }
         }
 
