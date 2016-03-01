@@ -118,7 +118,7 @@
         function cleanCategories(gallery) {
 
             var categoriesCount = {};
-            for (var i = 0; i < gallery.images.length; i++ ) {
+            for (var i = 0; i < gallery.images.length; i++) {
 
                 var image = gallery.images[i];
                 var categories = getImageCategories(image);
@@ -139,26 +139,28 @@
 
             }
 
+            // Hide unsused categories
             gallery.rootElement.find('.natural-gallery-categories label').each(function() {
                 var el = $(this);
                 var catId = el.data('id');
                 if (typeof categoriesCount[catId] == 'undefined') {
-                    el.hide();
+                    //el.hide();
                 }
             });
+
+            // Hide container if no category visible
+            if (!gallery.rootElement.find('.natural-gallery-categories label:visible').length) {
+                //gallery.rootElement.find('.natural-gallery-categories').hide();
+            }
         }
 
-        function getImageCategories (image, filterEmpty) {
+        function getImageCategories(image) {
 
             if (typeof image.categories == 'undefined') {
                 return null;
             }
 
             if (image.categories.constructor !== Array) {
-                return null;
-            }
-
-            if (image.categories.length == 0 && filterEmpty) {
                 return null;
             }
 
@@ -362,13 +364,15 @@
             var filteredImages = [];
             for (var i = 0; i < gallery.images.length; i++) {
                 var image = gallery.images[i];
+                var categories = getImageCategories(image);
 
-                // If not categories, dont filter, add to elements to consider
-                // !image.hasOwnProperty('categories') && !Array.isArray(image.categories) &&
-                if (image.categories.length === 0 && selectedCategories.indexOf("none") != -1) {
+                categories = categories ? categories : []; // set no categories attribute as empty list
+
+                // If not categories, don't filter, add to elements to consider
+                if (categories.length === 0 && selectedCategories.indexOf("none") != -1) {
                     filteredImages.push(image);
 
-                } else if (image.categories.length > 0) {
+                } else if (categories.length > 0) {
                     // Set image as responding to filter if at least one category is found
                     for (var j = 0; j < image.categories.length; j++) {
                         var category = image.categories[j];
