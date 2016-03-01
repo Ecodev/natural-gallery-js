@@ -123,10 +123,6 @@
                 var image = gallery.images[i];
                 var categories = getImageCategories(image);
 
-                if (!categories) {
-                    continue;
-                }
-
                 // Create list of used categories
                 if (categories.length == 0) {
                     categoriesCount['none'] = null;
@@ -157,11 +153,11 @@
         function getImageCategories(image) {
 
             if (typeof image.categories == 'undefined') {
-                return null;
+                return [];
             }
 
             if (image.categories.constructor !== Array) {
-                return null;
+                return [];
             }
 
             return image.categories;
@@ -365,8 +361,6 @@
             for (var i = 0; i < gallery.images.length; i++) {
                 var image = gallery.images[i];
                 var categories = getImageCategories(image);
-
-                categories = categories ? categories : []; // set no categories attribute as empty list
 
                 // If not categories, don't filter, add to elements to consider
                 if (categories.length === 0 && selectedCategories.indexOf("none") != -1) {
