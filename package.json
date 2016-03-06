@@ -2,7 +2,10 @@
   "name": "natural-gallery",
   "description": "A lazy load, infinite scroll and natural layout list gallery",
   "main": "dist/natural-gallery.min.js",
-  "dependencies": {},
+  "dependencies": {
+    "gulp-notify": "^2.2.0",
+    "gutil": "^1.6.4"
+  },
   "devDependencies": {
     "browser-sync": "^2.11.1",
     "gulp-concat": "^2.6.0",
