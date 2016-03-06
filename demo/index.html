@@ -17,7 +17,7 @@
 
 		<script>
 			var images = [];
-			var categories = [[], [1], [2], [3], [1, 2], [1, 3], [1, 2, 3]]; // hand made list of categories @todo : implement images without categories attribute (actually crashes)
+			var categories = [[], [1], [2], [3], [1, 2], [1, 3], [1, 2, 3]]; // hand made list of categories
 			var thumbnailMaximumHeight = 300;
 
 			$.ajax({
@@ -199,11 +199,9 @@
 					</div>
 				</div>
 
-				<div class="natural-gallery-footer">
-					<a class="natural-gallery-next">
-						<svg viewBox="0 0 100 100"><use xlink:href="#icon-next"></use></svg>
-					</a>
-				</div> <!-- end of footer -->
+				<div class="natural-gallery-next">
+					<svg viewBox="0 0 100 100"><use xlink:href="#icon-next"></use></svg>
+				</div>
 
 			</div> <!-- end of gallery -->
 

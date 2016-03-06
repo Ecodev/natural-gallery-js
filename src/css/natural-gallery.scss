@@ -1,0 +1,298 @@
+/**
+* General
+* ===================================================
+*/
+.pswp {
+    z-index: 9999999;
+}
+
+.natural-gallery {
+    margin-top: 2em;
+
+
+    /**
+    * Pictures
+    * ===================================================
+    */
+    .natural-gallery-body {
+        padding: 0;
+        margin: 0
+    }
+
+    .natural-gallery-body:after {
+        content: '';
+        display: block;
+        clear: both;
+    }
+
+    .natural-gallery-noresults {
+        margin: 20px auto;
+        width: 20%;
+        text-align: center;
+        font-weight: bold;
+        font-size: 15px;
+        color: #888888;
+    }
+
+    .natural-gallery-thumbnail a img {
+        box-shadow: 3px 3px 5px #999999;
+        text-align: center;
+    }
+
+    .natural-gallery-body figure {
+        position: relative;
+        display: block;
+        float: left;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0;
+    }
+
+    .natural-gallery-body figure > a {
+        display: block;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: cover;
+    }
+
+    .natural-gallery-body figure > span {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.6);
+        text-align: center;
+        color: white;
+        font-size: 14px;
+        line-height: 2em;
+        padding: 10px;
+        transition: 0.2s ease all;
+        overflow: hidden;
+    }
+
+    .natural-gallery-body figure > span.hover {
+        padding: 0 10px;
+        max-height: 0;
+    }
+
+    .natural-gallery-body figure:hover > span.hover {
+        padding: 10px;
+        max-height: 100px;
+    }
+
+    /**
+    * Header
+    * ===================================================
+    */
+
+    /* Basics root */
+    * {
+        box-sizing: border-box;
+    }
+
+    .natural-gallery-header {
+        margin: 0 0 10px 0;
+    }
+
+    /* Hide checkboxes */
+    .natural-gallery-categories input[type=checkbox] {
+        display: none;
+    }
+
+    .natural-gallery-header:after {
+        content: '';
+        display: block;
+        clear: both;
+    }
+
+    .sectionContainer {
+        margin-top: 30px;
+        position: relative;
+    }
+
+    .natural-gallery-searchTerm,
+    .natural-gallery-categories label,
+    .natural-gallery-categories {
+        float: left;
+        margin-right: 5px;
+    }
+
+    .natural-gallery-images {
+        float: right;
+        margin-right: 0;
+        margin-left: 5px;
+    }
+
+    .natural-gallery-categories label {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .natural-gallery-categories .label {
+        margin-left: 1.5em;
+        margin-right: 5px;
+    }
+
+    /* Base for icons */
+    .natural-gallery-searchTerm > svg,
+    .natural-gallery-categories .label > svg,
+    .natural-gallery-images > svg {
+        content: "";
+        float: left;
+        position: absolute;
+
+        left: 5px;
+        font-size: 16px;
+        background-repeat: no-repeat;
+    }
+
+    .natural-gallery-categories .label > svg,
+    .natural-gallery-images > svg {
+        width: 1.2em;
+        height: 1.2em;
+        top: 0.5em;
+    }
+
+    .natural-gallery-searchTerm > svg {
+        width: 1.4em;
+        height: 1.4em;
+        top: 0.4em;
+    }
+
+    .natural-gallery-searchTerm input,
+    .natural-gallery-searchTerm .sectionName,
+    .natural-gallery-categories .label,
+    .natural-gallery-images {
+        display: block;
+        padding: 9px 5px 6px;
+        font-size: 16px;
+        line-height: 1.3em;
+        height: 35px;
+    }
+
+    .natural-gallery-images {
+        padding-left: 2em;
+    }
+
+    .natural-gallery-searchTerm input {
+        border: none;
+        background: none;
+    }
+
+    .natural-gallery-searchTerm input,
+    .natural-gallery-categories .label {
+        font-weight: normal;
+    }
+
+    .natural-gallery-searchTerm input {
+        width: 300px;
+        padding-left: 2em;
+    }
+
+    .natural-gallery-searchTerm input:focus {
+        outline: none;
+    }
+
+    /* Section name ======================================= */
+    .sectionName,
+    .natural-gallery-categories label {
+        margin-bottom: 0;
+    }
+
+    .sectionName {
+        left: 5px;
+        top: 0;
+        margin-left: 1.5em;
+        font-size: 16px;
+        font-weight: normal;
+        position: absolute;
+        pointer-events: none;
+        transition: 0.2s ease all;
+    }
+
+    /* active state */
+    .natural-gallery-images .sectionName,
+    .natural-gallery-categories .sectionName,
+    .natural-gallery-searchTerm:hover .sectionName,
+    .natural-gallery-searchTerm input:focus ~ .sectionName,
+    .natural-gallery-searchTerm input:valid ~ .sectionName {
+        top: -2.2em;
+        font-size: 14px !important;
+        line-height: 1em;
+        padding: 0;
+        margin: 1.2em 0 0 0;
+    }
+
+    /* NO RESULTS ================================= */
+    .natural-gallery-noresults {
+        margin: 3em auto 2em;
+        width: 100px;
+        height: 100px;
+    }
+
+    /* NEXT BUTTONS ================================= */
+    .natural-gallery-next svg {
+        cursor: pointer;
+        font-size: 16px;
+        height: 30px;
+    }
+
+    /* BOTTOM BARS ================================= */
+    .natural-gallery-searchTerm,
+    .natural-gallery-categories label,
+    .natural-gallery-images {
+        border: none;
+        border-bottom-width: 1px;
+        border-bottom-style: solid;
+    }
+
+    .bar {
+        position: relative;
+        display: block;
+    }
+
+
+    .bar:before,
+    .bar:after {
+        content: '';
+        height: 3px;
+        width: 0;
+        bottom: -2px;
+        position: absolute;
+        transition: 0.2s ease all;
+    }
+
+    .bar:before {
+        left: 50%;
+    }
+
+    .bar:after {
+        right: 50%;
+    }
+
+    /* active state */
+    .natural-gallery-searchTerm input:focus ~ .bar:before,
+    .natural-gallery-searchTerm input:focus ~ .bar:after,
+    .natural-gallery-searchTerm input:valid ~ .bar:before,
+    .natural-gallery-searchTerm input:valid ~ .bar:after,
+    .natural-gallery-categories input[type=checkbox]:checked ~ .bar:before,
+    .natural-gallery-categories input[type=checkbox]:checked ~ .bar:after {
+        width: 50%;
+    }
+
+    /**
+    * Next
+    * ===================================================
+    */
+    .natural-gallery-next {
+        display: block;
+        margin: 10px auto;
+        text-align: center;
+
+        &:after {
+            content: '';
+            display: block;
+            clear: both;
+        }
+    }
+
+}
