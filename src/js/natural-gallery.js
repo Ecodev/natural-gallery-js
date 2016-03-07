@@ -98,6 +98,10 @@
                     var figure = getFigure(element, gallery);
                     element.figure = figure;
 
+                    $('<img />').data('id', i).attr('src', collection[i].thumbnail).on('load', function() {
+                        collection[$(this).data('id')].figure.figure.toggleClass('loading loaded');
+                    });
+
                     gallery.bodyElement.append(figure.figure);
 
                     bindClick(figure.image, gallery);
@@ -195,7 +199,7 @@
          */
         function getFigure(element, gallery) {
 
-            var $figure = $('<figure></figure>');
+            var $figure = $('<figure></figure>').addClass('loading');
             var $image = $('<a></a>').css('background-image', 'url(' + element.thumbnail + ')');
 
             if (gallery.lightbox) {
@@ -203,7 +207,8 @@
             }
 
             if (gallery.round) {
-                $image.css('border-radius', gallery.round)
+                $figure.css('border-radius', gallery.round);
+                $image.css('border-radius', gallery.round);
             }
 
             $figure.append($image);
@@ -242,11 +247,8 @@
             }
 
             element.figure.image
-                   .css('display', 'none')
                    .css('width', element.width)
                    .css('height', element.height);
-
-            element.figure.image.fadeIn({duration: 1000});
         }
 
         /**

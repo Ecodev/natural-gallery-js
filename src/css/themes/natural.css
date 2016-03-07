@@ -3,6 +3,7 @@
  * -----------------------------------------
  */
 
+.natural-gallery .natural-gallery-body figure:before,
 .natural-gallery .bar:before,
 .natural-gallery .bar:after {
     background-color: #0089e0 !important;

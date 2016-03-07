@@ -9,6 +9,13 @@
 .natural-gallery {
     margin-top: 2em;
 
+    *,
+    *::after,
+    *::before {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 
     /**
     * Pictures
@@ -37,21 +44,47 @@
     .natural-gallery-thumbnail a img {
         box-shadow: 3px 3px 5px #999999;
         text-align: center;
+        will-change: opacity;
+
     }
 
     .natural-gallery-body figure {
         position: relative;
         display: block;
         float: left;
-        background: rgba(0, 0, 0, 0.1);
+        overflow: hidden;
         margin: 0;
+
+        &.loading::before {
+            content: "";
+            position: absolute;
+            z-index: 990;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation-name: loading;
+            animation-duration: 1s;
+            animation-delay: 0.2s;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-out;
+            will-change: width, height, opacity;
+        }
+
+        &.loaded > a{
+            opacity:1;
+        }
     }
 
     .natural-gallery-body figure > a {
         display: block;
+        position: relative;
+        z-index: 100;
+        opacity:0;
         background-repeat: no-repeat;
         background-position: center center;
         background-size: cover;
+        transition:1s ease-out opacity;
     }
 
     .natural-gallery-body figure > span {
@@ -250,8 +283,7 @@
         display: block;
     }
 
-
-    .bar:before,
+    .bar::before,
     .bar:after {
         content: '';
         height: 3px;
@@ -261,7 +293,7 @@
         transition: 0.2s ease all;
     }
 
-    .bar:before {
+    .bar::before {
         left: 50%;
     }
 
@@ -270,11 +302,11 @@
     }
 
     /* active state */
-    .natural-gallery-searchTerm input:focus ~ .bar:before,
+    .natural-gallery-searchTerm input:focus ~ .bar::before,
     .natural-gallery-searchTerm input:focus ~ .bar:after,
-    .natural-gallery-searchTerm input:valid ~ .bar:before,
+    .natural-gallery-searchTerm input:valid ~ .bar::before,
     .natural-gallery-searchTerm input:valid ~ .bar:after,
-    .natural-gallery-categories input[type=checkbox]:checked ~ .bar:before,
+    .natural-gallery-categories input[type=checkbox]:checked ~ .bar::before,
     .natural-gallery-categories input[type=checkbox]:checked ~ .bar:after {
         width: 50%;
     }
@@ -292,6 +324,23 @@
             content: '';
             display: block;
             clear: both;
+        }
+    }
+
+    /**
+    * Next
+    * ===================================================
+    */
+    @keyframes loading {
+        0% {
+            width: 0px;
+            height: 0px;
+            opacity: 0.5;
+        }
+        100% {
+            width: 700px;
+            height:  700px;
+            opacity: 0;
         }
     }
 
