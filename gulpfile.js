@@ -42,8 +42,8 @@ gulp.task('styles', function() {
         .pipe(gulp.dest(paths.dest));
 
     return gulp.src(paths.styles)
-               .pipe(postcss([autoprefixer()]).on('error', handleErrors))
                .pipe(sass({outputStyle:'compressed'}).on('error', sass.logError))
+               .pipe(postcss([autoprefixer()]).on('error', handleErrors))
                .pipe(rename(paths.filename + ".min.css"))
                .pipe(gulp.dest(paths.dest));
 });
