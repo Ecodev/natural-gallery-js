@@ -349,16 +349,16 @@
 
         function filterByCategory(gallery) {
 
-            // Create an array with id of each selected categories
-            var selectedCategories = [];
+            var selectedCategories = getSelectedCategories(gallery);
 
-            gallery.rootElement.find('.natural-gallery-categories input:checked').each(function() {
-                selectedCategories.push($(this).parent().data('id'));
-            });
-
-            // ignore categories filtering if no one is selected
-            if (selectedCategories.length === 0) {
+            // if no categories at all on gallery, return all images to avoid any filter on it by categories
+            if (selectedCategories === null) {
                 return gallery.images;
+            }
+
+            // if there are categories, but they are not selected, return no images
+            if (selectedCategories.length === 0) {
+                return [];
             }
 
             var filteredImages = [];
@@ -384,6 +384,24 @@
             }
 
             return filteredImages;
+        }
+
+        function getSelectedCategories(gallery) {
+
+            // Create an array with id of each selected categories
+
+            var inputs = gallery.rootElement.find('.natural-gallery-categories input');
+
+            if (inputs.length === 0) {
+                return null;
+            }
+
+            var selectedCategories = [];
+            gallery.rootElement.find('.natural-gallery-categories input:checked').each(function() {
+                selectedCategories.push($(this).parent().data('id'));
+            });
+
+            return selectedCategories;
         }
 
         /**
