@@ -71,7 +71,7 @@
             will-change: width, height, opacity;
         }
 
-        &.loaded > a{
+        &.loaded > a {
             opacity:1;
         }
     }
@@ -255,6 +255,11 @@
         margin: 1.2em 0 0 0;
     }
 
+    .natural-gallery-categories .sectionName:last-child {
+        display:none;
+    }
+
+
     /* NO RESULTS ================================= */
     .natural-gallery-noresults {
         margin: 3em auto 2em;
@@ -335,7 +340,7 @@
         0% {
             width: 0px;
             height: 0px;
-            opacity: 0.5;
+            opacity: 0.3;
         }
         100% {
             width: 700px;

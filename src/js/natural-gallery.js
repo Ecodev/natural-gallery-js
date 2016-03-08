@@ -146,14 +146,9 @@
 
                 if (typeof categoriesCount[catId] == 'undefined') {
                     el.remove();
-
                 }
             });
 
-            // Hide container if no category visible
-            if (!gallery.rootElement.find('.natural-gallery-categories label:visible').length) {
-                gallery.rootElement.find('.natural-gallery-categories').hide();
-            }
         }
 
         function getImageCategories(image) {
