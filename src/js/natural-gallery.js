@@ -43,7 +43,7 @@
                 var gallery = naturalGalleries[i];
                 gallery.pswpContainer = [];
                 gallery.selection = []; // for filtered elements
-                gallery.rootElement = $('#natural-gallery-' + gallery.id);
+                gallery.rootElement = $($('.natural-gallery').get(i));
                 gallery.bodyElement = gallery.rootElement.find('.natural-gallery-body');
                 gallery.bodyElementWidth = Math.floor(gallery.bodyElement[0].getBoundingClientRect().width);
                 organizer.organize(gallery);
@@ -422,20 +422,13 @@
          * @returns {*}
          */
         function getGallery(element) {
-
-            var gallery = naturalGalleries[0];
             if (element) {
-                var galleryId = $(element).parents('.natural-gallery').data('galleryid');
-
-                var gallery = null;
-                for (var i = 0; i < naturalGalleries.length; i++) {
-                    if (naturalGalleries[i].id == Number(galleryId)) {
-                        gallery = naturalGalleries[i];
-                        break;
-                    }
-                }
+                var element = $(element).parents('.natural-gallery').get(0);
+                var position = $('.natural-gallery').index(element);
+                return naturalGalleries[position];
+            } else {
+                return naturalGalleries[0];
             }
-            return gallery;
         }
 
         /**
