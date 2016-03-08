@@ -64,9 +64,10 @@
             border-radius: 50%;
             transform: translate(-50%, -50%);
             animation-name: loading;
-            animation-duration: 1s;
+            animation-duration: 2s;
             animation-delay: 0.2s;
-            animation-iteration-count: infinite;
+            animation-iteration-count: 1;
+            animation-fill-mode:forwards;
             animation-timing-function: ease-out;
             will-change: width, height, opacity;
         }
@@ -346,7 +347,7 @@
         100% {
             width: 700px;
             height:  700px;
-            opacity: 0;
+            opacity: 0.05;
         }
     }
 
