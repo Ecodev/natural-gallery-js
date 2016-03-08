@@ -456,23 +456,19 @@
         /**
          * Attach event to the search field
          */
-        $('.natural-gallery-searchTerm input').on('keydown', function(event) {
-            // True when key 'enter' hit
+        $('.natural-gallery-searchTerm input[type="text"]').on('keydown', function(event) {
 
             // On escape, empty field
             if (event.keyCode == 27) {
                 $(this).val('');
             }
 
-            // On escape or enter, search
-            if (event.keyCode == 13 || event.keyCode == 27) {
-                event.preventDefault();
-                var gallery = getGallery(this);
-                if (gallery.lastSearch != $(this).val()) {
-                    gallery.lastSearch = $(this).val();
-                    filterSelection(gallery);
-                }
+            var gallery = getGallery(this);
+            if (gallery.lastSearch != $(this).val()) {
+                gallery.lastSearch = $(this).val();
+                filterSelection(gallery);
             }
+
         }).on('blur', function() {
             var gallery = getGallery(this);
             if (gallery.lastSearch != $(this).val()) {
