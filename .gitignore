@@ -5,3 +5,4 @@
 .DS_store
 bower_components
 node_modules
+app/build.js
