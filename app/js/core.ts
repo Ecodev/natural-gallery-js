@@ -34,7 +34,6 @@ module Natural.Gallery {
         private utility: Natural.Gallery.Utility;
 
         public constructor() {
-            console.log('create core');
             this.organizer = new Natural.Gallery.Organizer();
             this.utility = new Natural.Gallery.Utility();
             this.bindEvents();
@@ -46,17 +45,19 @@ module Natural.Gallery {
          * For each gallery in the page, set a body container (dom element) and compute images sizes, then add elements to dom container
          */
         private initGallery() {
-            for (let i = 0; i < naturalGalleries.length; i++) {
-                let gallery = naturalGalleries[i];
+
+            let vm = this;
+
+            _.each(naturalGalleries, function(gallery, i) {
                 gallery.pswpContainer = [];
                 gallery.selection = []; // for filtered elements
                 gallery.rootElement = $($('.natural-gallery').get(i));
                 gallery.bodyElement = gallery.rootElement.find('.natural-gallery-body');
                 gallery.bodyElementWidth = Math.floor(gallery.bodyElement[0].getBoundingClientRect().width);
-                this.organizer.organize(gallery);
-                this.addElements(gallery);
-                this.cleanCategories(gallery);
-            }
+                vm.organizer.organize(gallery);
+                vm.addElements(gallery);
+                vm.cleanCategories(gallery);
+            });
         }
 
         /**
@@ -128,23 +129,22 @@ module Natural.Gallery {
 
         private cleanCategories(gallery) {
 
+            let vm = this;
             let categoriesCount = {};
-            for (let i = 0; i < gallery.images.length; i++) {
 
-                let image = gallery.images[i];
-                let categories = this.getImageCategories(image);
+            _.each(gallery.images, function(image) {
+                let categories = vm.getImageCategories(image);
 
                 // Create list of used categories
                 if (categories.length == 0) {
                     categoriesCount['none'] = null;
-                    continue;
+                    return true;
                 }
 
-                for (let j = 0; j < categories.length; j++) {
+                _.each(categories, function(category, j){
                     categoriesCount[image.categories[j]] = null;
-                }
-
-            }
+                });
+            });
 
             // Hide unsused categories
             gallery.rootElement.find('.natural-gallery-categories label').each(function() {
@@ -311,7 +311,6 @@ module Natural.Gallery {
         private filterSelection(gallery) {
 
             let filtered = [];
-
             let filteredByTerm = this.filterByTerm(gallery);
             let filteredByCategory = this.filterByCategory(gallery);
 
