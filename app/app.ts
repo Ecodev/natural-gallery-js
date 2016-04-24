@@ -1,11 +1,11 @@
-///<reference path="references.ts"/>
+///<reference path="../cache/typings/references.ts"/>
 
 declare var require: (moduleId: string) => any;
-declare var naturalGalleries: any;
-declare var $: any;
+declare var naturalGalleries: any[];
+declare var $: JQueryStatic;
 
-let _ = require('lodash');
+require('lodash');
 let PhotoSwipe = require('PhotoSwipe');
 let PhotoSwipeUI_Default = require('../node_modules/photoswipe/dist/photoswipe-ui-default');
 
-let naturalGallery = new Natural.Gallery.Core();
+let naturalGalleryController = new Natural.Gallery.Controller();

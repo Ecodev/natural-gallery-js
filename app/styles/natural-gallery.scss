@@ -76,8 +76,9 @@
                 will-change: width, height, opacity;
             }
 
-            &.loaded > a {
+            &.loaded.visible > a {
                 opacity: 1;
+                transition: 1s ease-out opacity;
             }
 
             & > a {
@@ -88,7 +89,6 @@
                 background-repeat: no-repeat;
                 background-position: center center;
                 background-size: cover;
-                transition: 1s ease-out opacity;
             }
 
             & > span {

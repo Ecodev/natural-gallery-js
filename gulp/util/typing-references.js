@@ -22,7 +22,7 @@ module.exports = function(outname, appFile) {
     var relativizePath = function(path) {
         var basedir = __dirname.replace('/gulp/util', '') + '/';
 
-        path = path.replace(basedir, '../');
+        path = path.replace(basedir, '../../');
 
         return path;
     };

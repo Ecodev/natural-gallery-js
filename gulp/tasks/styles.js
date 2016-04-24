@@ -26,6 +26,7 @@ gulp.task('styles', function() {
                    sourceComments: !global.isProd,
                    outputStyle: 'compressed'
                }))
+               .on('error', handleErrors)
                .pipe(autoprefixer('last 2 versions', '> 1%', 'ie 8'))
                .on('error', handleErrors)
                .pipe(gulpif(createSourcemap, sourcemaps.write(global.isProd ? './' : null)))

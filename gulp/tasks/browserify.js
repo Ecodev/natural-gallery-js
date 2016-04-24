@@ -8,8 +8,11 @@ gulp.task('browserify', ['tsc', 'compile-js']);
 gulp.task('references', function() {
     var config = require('../config');
     var mixer = require('../util/typing-references');
+
+    var src = config.scripts.src.concat([config.browserify.typings + '/tsd.d.ts']);
+
     return gulp
-        .src(config.scripts.src)
+        .src(src)
         .pipe(mixer(referenceFileName))
         .pipe(gulp.dest(config.browserify.typings));
 });
@@ -17,7 +20,7 @@ gulp.task('references', function() {
 gulp.task('tsc', function() {
     var config = require('../config');
     var ts = require('gulp-typescript');
-    var tsResult = gulp.src(config.browserify.entries).pipe(ts({out: 'build.js'}));
+    var tsResult = gulp.src(config.browserify.entries).pipe(ts({out: 'build.js', target:'es5'}));
     return tsResult.js.pipe(gulp.dest(config.browserify.tmp));
 });
 

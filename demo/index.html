@@ -17,7 +17,7 @@
 
 		<script>
 			var images = [];
-			var categories = [[], [1,5], [2,6], [3,6], [1, 2], [1, 3], [1, 2, 3]]; // hand made list of categories
+			var categories = [[], [1, 5], [2, 6], [3, 6], [1, 2], [1, 3], [1, 2, 3]]; // hand made list of categories
 			var thumbnailMaximumHeight = 300;
 
 			$.ajax({
@@ -35,7 +35,7 @@
 						var image = data[i];
 						var ratio = image.width / image.height;
 
-						// some times unsplash it send corrupted (?) data
+						// some times unsplash.it sends invalid (?) data
 						if (isNaN(ratio)) {
 							continue;
 						}
@@ -112,111 +112,56 @@
 				</g>
 			</svg>
 
-			<div class="natural-gallery">
-
 				<script type="text/javascript">
 					window.naturalGalleries = window.naturalGalleries || [];
 
 					var naturalGallery = {};
 					naturalGallery.images = images;
-					naturalGallery.thumbnailMaximumHeight = thumbnailMaximumHeight;
-					naturalGallery.round = 3;
-					naturalGallery.thumbnailFormat = 'natural'; // or square
-					naturalGallery.imagesPerRow = 4; // only considered when format is square
-					naturalGallery.margin = 5;
-					naturalGallery.limit = 0; // number of rows per page. If 0 = auto/lazy load on mouse scroll
-					naturalGallery.lightbox = true;
-					naturalGallery.showLabels = 'hover'; // true, false, hover
 
 					window.naturalGalleries.push(naturalGallery);
 				</script>
 
-				<div class="natural-gallery-header">
+				<!-- Category model ------
+				<div class="natural-gallery-header"></div>
 
-					<div class="natural-gallery-searchTerm sectionContainer">
-						<svg viewBox="0 0 100 100">
-							<use xlink:href="#icon-search"></use>
-						</svg>
-						<input type="text" required/>
-						<label class="sectionName">Search</label>
-						<span class="bar"></span>
-					</div>
 
-					<div class="natural-gallery-categories sectionContainer">
-						<div class="sectionName">Categories</div>
-						<label data-id="none">
-							<input type="checkbox" checked>
-							<span class="label">
-								<svg viewBox="0 0 100 100">
-									<use xlink:href="#icon-category"></use>
-								</svg>
-								Without
-							</span> <span class="bar"></span>
-						</label>
-						<label data-id="1">
-							<input type="checkbox" checked>
-							<span class="label">
-								<svg viewBox="0 0 100 100">
-									<use xlink:href="#icon-category"></use>
-								</svg>
-								Nature
-							</span> <span class="bar"></span>
-						</label>
-						<label data-id="2">
-							<input type="checkbox" checked>
-							<span class="label">
-								<svg viewBox="0 0 100 100">
-									<use xlink:href="#icon-category"></use>
-								</svg>
-								Buildings
-							</span> <span class="bar"></span>
-						</label>
-						<label data-id="3">
-							<input type="checkbox" checked>
-							<span class="label">
-								<svg viewBox="0 0 100 100">
-									<use xlink:href="#icon-category"></use>
-								</svg>
-								Other
-							</span> <span class="bar"></span>
-						</label>
-						<label data-id="4">
-							<input type="checkbox" checked>
-							<span class="label">
-								<svg viewBox="0 0 100 100">
-									<use xlink:href="#icon-category"></use>
-								</svg>
-								Invisible
-							</span> <span class="bar"></span>
-						</label>
-					</div>
-
-					<div class="natural-gallery-images sectionContainer">
-						<svg viewBox="0 0 100 100">
-							<use xlink:href="#icon-pict"></use>
-						</svg>
-						<div class="sectionName">Images</div>
-						<span class="natural-gallery-visible"></span> / <span class="natural-gallery-total"></span>
-					</div>
-
-				</div> <!-- end of header -->
-
-				<div class="natural-gallery-body">
-					<div class="natural-gallery-noresults">
-						<svg viewBox="0 0 100 100">
-							<use xlink:href="#icon-noresults"></use>
-						</svg>
-					</div>
+				<div class="natural-gallery-categories sectionContainer">
+					<div class="sectionName">Categories</div>
 				</div>
 
-				<div class="natural-gallery-next">
+				<label data-id="none">
+					<input type="checkbox" checked>
+					<span class="label">
+						<svg viewBox="0 0 100 100">
+							<use xlink:href="#icon-category"></use>
+						</svg>
+						Without
+					</span> <span class="bar"></span>
+				</label>
+				-->
+
+				<!-- Search term --------
+				<div class="natural-gallery-searchTerm sectionContainer">
+					<svg viewBox="0 0 100 100"><use xlink:href="#icon-search"></use></svg>
+					<input type="text" required/>
+					<label class="sectionName">Search</label>
+					<span class="bar"></span>
+				</div>
+				-->
+
+				<!-- Images -------
+				<div class="natural-gallery-images sectionContainer">
 					<svg viewBox="0 0 100 100">
-						<use xlink:href="#icon-next"></use>
+						<use xlink:href="#icon-pict"></use>
 					</svg>
+					<div class="sectionName">Images</div>
+					<span class="natural-gallery-visible"></span> / <span class="natural-gallery-total"></span>
 				</div>
+				-->
 
-			</div> <!-- end of gallery -->
+			<div class="natural-gallery"></div>
 
+			<!-- Photoswipe template -->
 			<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 				<div class="pswp__bg"></div>
 				<div class="pswp__scroll-wrap">
@@ -250,9 +195,7 @@
 					</div>
 				</div>
 			</div>
-
 		</div>
-
 
 		<script src="../dist/natural-gallery.js"></script>
 

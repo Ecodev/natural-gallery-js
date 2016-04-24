@@ -17,8 +17,8 @@ module.exports = {
     },
     browserify: {
         entries: 'app/app.ts',
-        typings: 'app',
-        tmp: 'app',
+        typings: 'cache/typings',
+        tmp: 'cache'
     },
     browsersync: {
         browserPort: 3000,
