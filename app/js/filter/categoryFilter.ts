@@ -23,7 +23,7 @@ module Natural.Gallery {
             });
         }
 
-        public filter(): Item[] {
+        public filter(): void {
 
             let selectedCategories = this.getSelectedCategories();
 
@@ -59,7 +59,6 @@ module Natural.Gallery {
             }
 
             this.collection = filteredImages;
-            return filteredImages;
         }
 
         private getSelectedCategories() {

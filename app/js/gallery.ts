@@ -261,8 +261,9 @@ module Natural.Gallery {
             }
         }
 
-        public update() {
+        public refresh() {
             this.reset();
+            Organizer.organize(this);
             this.addElements();
         }
 
@@ -286,6 +287,10 @@ module Natural.Gallery {
 
         get collection(): Item[] {
             return this.header && this.header.isFiltered() ? this.header.collection : this._collection;
+        }
+
+        public getOriginalCollection(): Item[] {
+            return this._collection;
         }
 
         set collection(items: Item[]) {

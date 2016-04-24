@@ -13,7 +13,7 @@ module Natural.Gallery {
 
         private _element: JQuery;
 
-        private filters: AbstractFilter[];
+        private _filters: AbstractFilter[] = [];
 
         private _gallery: Gallery;
 
@@ -22,15 +22,16 @@ module Natural.Gallery {
          * @param gallery
          */
         public constructor(gallery: Gallery) {
-            this._gallery = gallery;
+            this.gallery = gallery;
         }
 
         public addFilter(filter: AbstractFilter): void {
             this.filters.push(filter);
-            this.element.append(filter.render());
         }
 
         public render(): JQuery {
+
+            let self = this;
 
             let imagesLayout = $('<div></div>')
                 .addClass('natural-gallery-images sectionContainer')
@@ -40,11 +41,17 @@ module Natural.Gallery {
                 .append($('<span></span>').text('/'))
                 .append($('<span></span>').addClass('natural-gallery-total'));
 
-            let headerLayout = $('<div></div>')
+            this.element = $('<div></div>');
+
+            _.each(this.filters, function(filter) {
+                self.element.append(filter.render());
+            });
+
+            this.element
                 .addClass('natural-gallery-header')
                 .append(imagesLayout);
 
-            return headerLayout;
+            return this.element;
         }
 
         public isFiltered(): boolean {
@@ -55,15 +62,22 @@ module Natural.Gallery {
          * Filter first by term, then by categories
          * @param gallery
          */
-        private filter(): Item[] {
+        public filter(): void {
 
-            let filteredCollections = [];
+            let filteredCollections = null;
+
             _.each(this.filters, function(filter: AbstractFilter) {
-                filteredCollections.push(filter.filter());
+                if (filter.isActive()) {
+
+                    if (_.isNull(filteredCollections)) {
+                        filteredCollections = filter.collection
+                    }
+                }
             });
 
-            this.collection = filteredCollections[0]; // @todo : do some intelligent things here
-            return this.collection;
+
+            this.collection = filteredCollections; // @todo : do some intelligent things here
+            this.gallery.refresh();
         }
 
         get collection(): Item[] {
@@ -88,6 +102,14 @@ module Natural.Gallery {
 
         set gallery(value: Natural.Gallery.Gallery) {
             this._gallery = value;
+        }
+
+        get filters(): AbstractFilter[] {
+            return this._filters;
+        }
+
+        set filters(value: AbstractFilter[]) {
+            this._filters = value;
         }
     }
 }

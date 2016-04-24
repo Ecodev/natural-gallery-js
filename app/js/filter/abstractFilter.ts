@@ -2,17 +2,24 @@ module Natural.Gallery {
 
     export abstract class AbstractFilter {
 
-        protected _collection: Item[];
+        /**
+         * If null, means no filter active
+         * If empty, means filter active, but no results
+         * If not empty, means filter active, and there are wanted items
+         * @type {null}
+         * @private
+         */
+        protected _collection: Item[] = null;
 
         public constructor(protected header: Header) {
         }
 
         abstract render(): JQuery;
 
-        abstract filter(): Item[];
+        abstract filter(value?: string): void;
 
-        public isFiltered(): boolean {
-            return _.isNull(this.collection);
+        public isActive(): boolean {
+            return !_.isNull(this.collection);
         }
 
         get collection(): Item[] {
