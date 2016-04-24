@@ -5,6 +5,7 @@ module Natural.Gallery {
         thumbnail: string;
         enlarged: string;
         title: string;
+        description: string;
         tWidth: number;
         tHeight: number;
         eWidth: number;
@@ -19,6 +20,7 @@ module Natural.Gallery {
         private _thumbnail: string;
         private _enlarged: string;
         private _title: string;
+        private _description: string;
         private _last: boolean;
         private _categories: any[];
         private _row: number;
@@ -316,6 +318,14 @@ module Natural.Gallery {
 
         set width(value: number) {
             this._width = value;
+        }
+
+        get description(): string {
+            return this._description;
+        }
+
+        set description(value: string) {
+            this._description = value;
         }
 
     }

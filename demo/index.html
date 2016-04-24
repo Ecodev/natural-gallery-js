@@ -117,17 +117,15 @@
 
 					var naturalGallery = {};
 					naturalGallery.images = images;
+					naturalGallery.options = {
+						showCount: true
+					};
 
 					window.naturalGalleries.push(naturalGallery);
 				</script>
 
 				<!-- Category model ------
-				<div class="natural-gallery-header"></div>
 
-
-				<div class="natural-gallery-categories sectionContainer">
-					<div class="sectionName">Categories</div>
-				</div>
 
 				<label data-id="none">
 					<input type="checkbox" checked>
@@ -140,14 +138,6 @@
 				</label>
 				-->
 
-				<!-- Search term --------
-				<div class="natural-gallery-searchTerm sectionContainer">
-					<svg viewBox="0 0 100 100"><use xlink:href="#icon-search"></use></svg>
-					<input type="text" required/>
-					<label class="sectionName">Search</label>
-					<span class="bar"></span>
-				</div>
-				-->
 
 				<!-- Images -------
 				<div class="natural-gallery-images sectionContainer">

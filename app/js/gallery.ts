@@ -10,6 +10,9 @@ module Natural.Gallery {
         showLabels: string;
         lightbox: boolean;
         minRowsAtStart: number;
+        showCount : boolean;
+        searchFilter : boolean;
+        categoriesFilter : boolean;
     }
 
     export class Gallery {
@@ -26,7 +29,10 @@ module Natural.Gallery {
             limit: 0,
             showLabels: 'hover',
             lightbox: true,
-            minRowsAtStart: 2
+            minRowsAtStart: 2,
+            showCount: false,
+            searchFilter: false,
+            categoriesFilter: false
         };
 
         /**
@@ -73,6 +79,7 @@ module Natural.Gallery {
          * @type {Array}
          */
         private _collection: Item[] = [];
+        private _header: Header;
 
         /**
          * Search and Categories filters
@@ -84,6 +91,7 @@ module Natural.Gallery {
          * Initiate gallery
          * @param position
          * @param options
+         * @param pswp
          */
         public constructor(position, options, pswp: any) {
 
@@ -93,12 +101,30 @@ module Natural.Gallery {
             this.position = position;
 
             this.rootElement = $($('.natural-gallery').get(this.position));
-            this.initLayout();
+
+            // header
+            if (this.options.searchFilter || this.options.categoriesFilter || this.options.showCount) {
+
+                this.header = new Header(this);
+
+                if (this.options.searchFilter) {
+                    this.header.addFilter(new SearchFilter(this.header));
+                }
+
+                if (this.options.categoriesFilter) {
+                    this.header.addFilter(new CategoryFilter(this.header));
+                }
+            }
+
+            this.render();
+            this.bodyWidth = Math.floor(this.bodyElement[0].getBoundingClientRect().width);
+
         }
 
-        public initLayout() {
+        public render() {
 
             let self = this;
+
             let noResults = $('<div></div>').addClass('natural-gallery-noresults').append(Utility.getIcon('icon-noresults'));
             let nextButton = $('<div></div>').addClass('natural-gallery-next').append(Utility.getIcon('icon-next')).on('click', function(e) {
                 e.preventDefault();
@@ -107,13 +133,15 @@ module Natural.Gallery {
 
             this.bodyElement = $('<div></div>').addClass('natural-gallery-body').append(noResults);
 
+            if (this.header) {
+                this.rootElement.append(this.header.render());
+            }
+
             this.rootElement
                 .append(this.bodyElement)
                 .append(nextButton);
 
-            this.bodyWidth = Math.floor(this.bodyElement[0].getBoundingClientRect().width);
         }
-
 
         /**
          * Initialize items
@@ -143,7 +171,7 @@ module Natural.Gallery {
         }
 
         public style(): void {
-            _.each(this.collection, function(item:Item) {
+            _.each(this.collection, function(item: Item) {
                 item.style();
             });
         }
@@ -233,6 +261,11 @@ module Natural.Gallery {
             }
         }
 
+        public update() {
+            this.reset();
+            this.addElements();
+        }
+
         /**
          * Empty DOM container and Photoswipe container
          * @param gallery
@@ -243,7 +276,6 @@ module Natural.Gallery {
             this.rootElement.find('.natural-gallery-noresults').show();
         }
 
-
         get pswpContainer(): any[] {
             return this._pswpContainer;
         }
@@ -253,7 +285,7 @@ module Natural.Gallery {
         }
 
         get collection(): Item[] {
-            return this._collection; //this.filter.isFiltered() ? this.filter.getCollection() : this.collection;
+            return this.header && this.header.isFiltered() ? this.header.collection : this._collection;
         }
 
         set collection(items: Item[]) {
@@ -301,7 +333,7 @@ module Natural.Gallery {
             this._pswpElement = value;
         }
 
-        get options(): Natural.Gallery.iGalleryOptions {
+        get options(): iGalleryOptions {
             return this._options;
         }
 
@@ -311,6 +343,14 @@ module Natural.Gallery {
 
         set position(value: number) {
             this._position = value;
+        }
+
+        get header(): Header {
+            return this._header;
+        }
+
+        set header(value: Header) {
+            this._header = value;
         }
     }
 
