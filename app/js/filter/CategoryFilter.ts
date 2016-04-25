@@ -46,27 +46,39 @@ module Natural.Gallery {
                 galleryCategories.push(new Category(cat.id, cat.title, self));
             });
 
-            self.none = new Category(-1, 'None');
-            self.others = new Category(-2, 'Others');
-
-            let itemCategories = [];
-            _.each(this.header.gallery.getOriginalCollection(), function(item: Item) {
-
-                // Set category "none"
-                if (!item.categories || item.categories && item.categories.length === 0 && self.header.gallery.options.showNone) {
-                    item.categories = [self.none];
-                }
-
-                _.each(item.categories, function(cat) {
-                    itemCategories.push(new Category(cat.id, cat.title, self));
-                });
-            });
+            this.none = new Category(-1, 'None', this);
+            this.others = new Category(-2, 'Others', this);
 
             // If show unclassified
             if (this.header.gallery.options.showNone && galleryCategories.length) {
                 galleryCategories.push(self.none);
             }
 
+            // If show others and there are main categories
+            if (this.header.gallery.options.showOthers && galleryCategories.length) {
+                galleryCategories.push(self.others);
+            }
+
+            let itemCategories = [];
+            _.each(this.header.gallery.getOriginalCollection(), function(item: Item) {
+
+                // Set category "none" if empty
+                if (!item.categories || item.categories && item.categories.length === 0 && self.header.gallery.options.showNone) {
+                    item.categories = [self.none];
+                }
+
+                // Set category "others" if none of categories are used in gallery categories
+                if (galleryCategories.length && _.differenceBy(item.categories, galleryCategories, 'id').length === item.categories.length && self.header.gallery.options.showOthers) {
+                    item.categories = [self.others];
+                }
+
+                // Assign categories as object
+                _.each(item.categories, function(cat) {
+                    itemCategories.push(new Category(cat.id, cat.title, self));
+                });
+            });
+
+            // Avoid duplicates
             galleryCategories = _.uniqBy(galleryCategories, 'id');
             itemCategories = _.uniqBy(itemCategories, 'id');
 

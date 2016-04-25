@@ -14,6 +14,7 @@ module Natural.Gallery {
         searchFilter: boolean;
         categoriesFilter: boolean;
         showNone: boolean;
+        showOthers: boolean;
     }
 
     export class Gallery {
@@ -34,7 +35,8 @@ module Natural.Gallery {
             showCount: false,
             searchFilter: false,
             categoriesFilter: false,
-            showNone: false
+            showNone: false,
+            showOthers: false
         };
 
         /**
