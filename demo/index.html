@@ -140,12 +140,11 @@
 
 						var image = data[i];
 						var ratio = image.width / image.height;
-
 						var formatedImage = {
 							id: i,
 							thumbnail: image.urls.small,
 							enlarged: image.urls.regular,
-							title: image.user.name,
+							title: image.user.name + " " + _.map(image.categories, 'title').join(', '),
 							categories: image.categories,
 							tWidth: thumbnailMaximumHeight * ratio,
 							tHeight: thumbnailMaximumHeight,
