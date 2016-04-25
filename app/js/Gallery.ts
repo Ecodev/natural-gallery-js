@@ -207,6 +207,7 @@ module Natural.Gallery {
                 if (item.row < lastRow) {
                     this.pswpContainer.push(item.getPswpItem());
                     this.bodyElement.append(item.getElement());
+                    item.bindClick();
                     item.flash();
                 }
 

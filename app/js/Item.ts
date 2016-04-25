@@ -111,7 +111,6 @@ module Natural.Gallery {
                 self.element.toggleClass('loading loaded');
             });
 
-            this.bindClick();
         }
 
         /**
@@ -158,7 +157,7 @@ module Natural.Gallery {
          * @param image
          * @param gallery
          */
-        private bindClick() {
+        public bindClick() {
 
             let self = this;
 
