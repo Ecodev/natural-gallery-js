@@ -1,9 +1,6 @@
 module Natural.Gallery {
 
     export class CategoryFilter extends AbstractFilter {
-        get element(): JQuery {
-            return this._element;
-        }
 
         set element(value: JQuery) {
             this._element = value;
@@ -12,6 +9,9 @@ module Natural.Gallery {
         private _categories: Category[] = [];
 
         private _element: JQuery;
+
+        private _none: Category;
+        private _others: Category;
 
         public constructor(protected header: Header) {
             super(header);
@@ -40,17 +40,32 @@ module Natural.Gallery {
         public prepare(): void {
 
             let self = this;
+
             let galleryCategories = [];
             _.each(this.header.gallery.categories, function(cat) {
                 galleryCategories.push(new Category(cat.id, cat.title, self));
             });
 
+            self.none = new Category(-1, 'None');
+            self.others = new Category(-2, 'Others');
+
             let itemCategories = [];
-            _.each(this.header.gallery.getOriginalCollection(), function(item) {
+            _.each(this.header.gallery.getOriginalCollection(), function(item: Item) {
+
+                // Set category "none"
+                if (!item.categories || item.categories && item.categories.length === 0 && self.header.gallery.options.showNone) {
+                    item.categories = [self.none];
+                }
+
                 _.each(item.categories, function(cat) {
                     itemCategories.push(new Category(cat.id, cat.title, self));
                 });
             });
+
+            // If show unclassified
+            if (this.header.gallery.options.showNone && galleryCategories.length) {
+                galleryCategories.push(self.none);
+            }
 
             galleryCategories = _.uniqBy(galleryCategories, 'id');
             itemCategories = _.uniqBy(itemCategories, 'id');
@@ -60,9 +75,12 @@ module Natural.Gallery {
             } else {
                 this.categories = itemCategories;
             }
+
         }
 
         public filter(): void {
+
+            let self = this;
 
             let selectedCategories = _.filter(this.categories, function(cat) {
                 return cat.isActive;
@@ -76,10 +94,11 @@ module Natural.Gallery {
             } else {
 
                 let filteredItems = [];
-
                 _.each(this.header.gallery.getOriginalCollection(), function(item) {
                     if (!item.categories || item.categories && item.categories.length === 0) {
-                        // if no categories
+                        if (self.none) {
+                            filteredItems.push(item);
+                        }
                     } else {
                         _.each(item.categories, function(cat: Category) {
                             if (_.find(selectedCategories, {'id': cat.id})) {
@@ -89,7 +108,6 @@ module Natural.Gallery {
                         });
                     }
                 });
-
                 this.collection = filteredItems;
             }
 
@@ -116,6 +134,26 @@ module Natural.Gallery {
 
         set categories(value: Category[]) {
             this._categories = value;
+        }
+
+        get others(): Natural.Gallery.Category {
+            return this._others;
+        }
+
+        set others(value: Natural.Gallery.Category) {
+            this._others = value;
+        }
+
+        get none(): Natural.Gallery.Category {
+            return this._none;
+        }
+
+        set none(value: Natural.Gallery.Category) {
+            this._none = value;
+        }
+
+        get element(): JQuery {
+            return this._element;
         }
 
     }

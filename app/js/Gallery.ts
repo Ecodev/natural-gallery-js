@@ -10,9 +10,10 @@ module Natural.Gallery {
         showLabels: string;
         lightbox: boolean;
         minRowsAtStart: number;
-        showCount : boolean;
-        searchFilter : boolean;
-        categoriesFilter : boolean;
+        showCount: boolean;
+        searchFilter: boolean;
+        categoriesFilter: boolean;
+        showNone: boolean;
     }
 
     export class Gallery {
@@ -32,7 +33,8 @@ module Natural.Gallery {
             minRowsAtStart: 2,
             showCount: false,
             searchFilter: false,
-            categoriesFilter: false
+            categoriesFilter: false,
+            showNone: false
         };
 
         /**
