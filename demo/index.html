@@ -14,56 +14,6 @@
 		<link rel="stylesheet" href="demo.css">
 
 		<script src="../node_modules/jquery/dist/jquery.js"></script>
-
-		<script>
-			var images = [];
-			var categories = [[], [1, 5], [2, 6], [3, 6], [1, 2], [1, 3], [1, 2, 3]]; // hand made list of categories
-			var thumbnailMaximumHeight = 300;
-
-			$.ajax({
-				dataType: "json",
-				async: false,
-				url: "https://api.unsplash.com/categories/7/photos",
-				data: {
-					client_id: '04902b80294822aa86dbe5c57ee47e1c1f0e8a0f0f360979746970a1239001dd',
-					per_page: 30
-				},
-				success: function(data) {
-
-					for (var i = 0; i < data.length; i++) {
-
-						var image = data[i];
-						var ratio = image.width / image.height;
-
-						// some times unsplash.it sends invalid (?) data
-						if (isNaN(ratio)) {
-							continue;
-						}
-
-						var categoryIdb = i % categories.length;
-						var formatedImage = {
-							id: i,
-							thumbnail: image.urls.small,
-							enlarged: image.urls.regular,
-							title: image.user.name,
-							categories: categories[categoryIdb],
-							tWidth: thumbnailMaximumHeight * ratio,
-							tHeight: thumbnailMaximumHeight,
-							eWidth: image.width,
-							eHeight: image.height
-						};
-
-						images.push(formatedImage);
-					}
-				}
-			});
-
-			function getImages(number) {
-				var randomStart = Math.floor(Math.random() * (images.length - number));
-				return images.splice(randomStart, number);
-			}
-		</script>
-
 	</head>
 
 	<body>
@@ -116,7 +66,6 @@
 				window.naturalGalleries = window.naturalGalleries || [];
 
 				var naturalGallery = {};
-				naturalGallery.images = images;
 				naturalGallery.options = {
 					showCount: true,
 					searchFilter:true
@@ -124,20 +73,6 @@
 
 				window.naturalGalleries.push(naturalGallery);
 			</script>
-
-			<!-- Category model ------
-
-
-			<label data-id="none">
-				<input type="checkbox" checked>
-				<span class="label">
-					<svg viewBox="0 0 100 100">
-						<use xlink:href="#icon-category"></use>
-					</svg>
-					Without
-				</span> <span class="bar"></span>
-			</label>
-			-->
 
 			<div class="natural-gallery"></div>
 
@@ -178,6 +113,45 @@
 		</div>
 
 		<script src="../dist/natural-gallery.js"></script>
+
+		<script>
+			var images = [];
+			var thumbnailMaximumHeight = 300;
+
+			$.ajax({
+				url: 'data.json',
+				// dataType: "json",
+				// url: 'https://api.unsplash.com/photos',
+				// data: {
+				// 	 client_id: '04902b80294822aa86dbe5c57ee47e1c1f0e8a0f0f360979746970a1239001dd',
+				// 	 per_page: 30
+				// },
+				success: function(data) {
+
+					for (var i = 0; i < data.length; i++) {
+
+						var image = data[i];
+						var ratio = image.width / image.height;
+
+						var formatedImage = {
+							id: i,
+							thumbnail: image.urls.small,
+							enlarged: image.urls.regular,
+							title: image.user.name,
+							categories: images.categories,
+							tWidth: thumbnailMaximumHeight * ratio,
+							tHeight: thumbnailMaximumHeight,
+							eWidth: image.width,
+							eHeight: image.height
+						};
+
+						images.push(formatedImage);
+					}
+
+					naturalGalleries[0].appendItems(images);
+				}
+			});
+		</script>
 
 	</body>
 </html>
