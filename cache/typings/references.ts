@@ -4,6 +4,7 @@
 ///<reference path="../../app/js/Organizer.ts" />
 ///<reference path="../../app/js/Utility.ts" />
 ///<reference path="../../app/js/filter/AbstractFilter.ts" />
+///<reference path="../../app/js/filter/Category.ts" />
 ///<reference path="../../app/js/filter/CategoryFilter.ts" />
 ///<reference path="../../app/js/filter/Header.ts" />
 ///<reference path="../../app/js/filter/SearchFilter.ts" />

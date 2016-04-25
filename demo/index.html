@@ -66,9 +66,15 @@
 				window.naturalGalleries = window.naturalGalleries || [];
 
 				var naturalGallery = {};
+				naturalGallery.categories = [
+					{id:2, title:'Buildings 2'},
+					{id:8, title:'Objects 2'},
+					{id:123, title:'asdf'}
+				];
 				naturalGallery.options = {
 					showCount: true,
-					searchFilter:true
+					searchFilter:true,
+					categoriesFilter:true
 				};
 
 				window.naturalGalleries.push(naturalGallery);
@@ -138,7 +144,7 @@
 							thumbnail: image.urls.small,
 							enlarged: image.urls.regular,
 							title: image.user.name,
-							categories: images.categories,
+							categories: image.categories,
 							tWidth: thumbnailMaximumHeight * ratio,
 							tHeight: thumbnailMaximumHeight,
 							eWidth: image.width,

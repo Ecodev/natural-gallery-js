@@ -18,7 +18,7 @@ module Natural.Gallery {
             let pswp = $('.pswp')[0];
 
             _.each(naturalGalleries, function(gallery, i) {
-                naturalGalleries[i] = new Gallery(i, gallery.options, pswp);
+                naturalGalleries[i] = new Gallery(i, gallery.options, gallery.categories, pswp);
                 if (!_.isEmpty(gallery.images)) {
                     naturalGalleries[i].collection = gallery.images;
                 }

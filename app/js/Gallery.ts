@@ -79,6 +79,8 @@ module Natural.Gallery {
          * @type {Array}
          */
         private _collection: Item[] = [];
+        private _categories: any[] = [];
+
         private _header: Header;
 
         /**
@@ -93,12 +95,14 @@ module Natural.Gallery {
          * @param options
          * @param pswp
          */
-        public constructor(position, options, pswp: any) {
+        public constructor(position, options, categories, pswp: any) {
 
             this.pswpElement = pswp;
 
             this._options = <iGalleryOptions> _.defaults(options, this._options);
             this.position = position;
+
+            this.categories = categories;
 
             this.rootElement = $($('.natural-gallery').get(this.position));
 
@@ -152,7 +156,7 @@ module Natural.Gallery {
             let self = this;
             let display = false;
 
-            // if first addition of items, add them to container for display
+            // if it's first addition of items, display them
             if (this.collection.length === 0) {
                 display = true;
             }
@@ -164,6 +168,10 @@ module Natural.Gallery {
 
             // Compute sizes
             Organizer.organize(this);
+
+            if (this.header) {
+                this.header.refresh();
+            }
 
             if (display) {
                 this.addElements();
@@ -357,6 +365,14 @@ module Natural.Gallery {
 
         set header(value: Header) {
             this._header = value;
+        }
+
+        get categories(): any[] {
+            return this._categories;
+        }
+
+        set categories(value: any[]) {
+            this._categories = value;
         }
     }
 

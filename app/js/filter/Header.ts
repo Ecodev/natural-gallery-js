@@ -29,6 +29,12 @@ module Natural.Gallery {
             this.filters.push(filter);
         }
 
+        public refresh():void {
+            _.each(this.filters, function(filter) {
+                filter.render();
+            });
+        }
+
         public render(): JQuery {
 
             let self = this;
@@ -68,13 +74,13 @@ module Natural.Gallery {
 
             _.each(this.filters, function(filter: AbstractFilter) {
                 if (filter.isActive()) {
-
                     if (_.isNull(filteredCollections)) {
                         filteredCollections = filter.collection
+                    } else {
+                        filteredCollections = _.intersectionBy(filteredCollections, filter.collection, 'id');
                     }
                 }
             });
-
 
             this.collection = filteredCollections; // @todo : do some intelligent things here
             this.gallery.refresh();
