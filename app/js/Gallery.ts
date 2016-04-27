@@ -27,7 +27,7 @@ module Natural.Gallery {
             format: 'natural',
             round: 3,
             imagesPerRow: 4,
-            margin: 5,
+            margin: 3,
             limit: 0,
             showLabels: 'hover',
             lightbox: true,
