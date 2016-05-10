@@ -1,7 +1,37 @@
 {
-  "name": "natural-gallery",
+  "name": "natural-gallery-js",
+  "version": "2.0.0",
   "description": "A lazy load, infinite scroll and natural layout list gallery",
+  "author": "Samuel Baptista <samuel.baptista@ecodev.ch>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Ecodev/natural-gallery-js/issues"
+  },
+  "homepage": "https://github.com/Ecodev/natural-gallery-js#readme",
   "main": "dist/natural-gallery.js",
+  "scripts": {
+    "dev": "gulp dev",
+    "prod": "gulp prod",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ecodev/natural-gallery.git"
+  },
+  "keywords": [
+    "gallery",
+    "image",
+    "images",
+    "slideshow",
+    "lightbox",
+    "zoom",
+    "list",
+    "autoload",
+    "lazyload",
+    "infinite",
+    "scroll",
+    "infinite scroll"
+  ],
   "dependencies": {
     "photoswipe": "^4.1.1"
   },
@@ -54,21 +84,5 @@
     "tslint": "^2.5.1",
     "uglifyify": "^3.0.1",
     "vinyl-source-stream": "^1.1.0"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Ecodev/natural-gallery.git"
-  },
-  "keywords": [
-    "gallery"
-  ],
-  "author": "Samuel Baptista <samuel.baptista@ecodev.ch>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Ecodev/natural-gallery/issues"
-  },
-  "homepage": "https://github.com/Ecodev/natural-gallery#readme"
+  }
 }

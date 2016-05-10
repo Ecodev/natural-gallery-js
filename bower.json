@@ -1,25 +1,24 @@
 {
-  "name": "natural-gallery",
-  "version": "1.5.10",
+  "name": "natural-gallery-js",
+  "version": "2.0.0",
   "authors": [
     "Samuel Baptista <samuel.baptista@ecodev.ch>"
   ],
   "description": "A lazy load, infinite scroll and natural layout list gallery",
-  "main": "dist/natural-gallery.min.js",
+  "main": "dist/natural-gallery.js",
   "moduleType": [],
   "license": "MIT",
-  "homepage": "http://ecodev.ch",
+  "homepage": "https://github.com/Ecodev/natural-gallery-js#readme",
   "ignore": [
     "*",
     "!dist/**/*",
     "!LICENCE",
     "!README.md"
   ],
-  "dependencies": {
-    "photoswipe": "^4.1.1",
-    "jquery": "^2.2.0"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "jquery": "^2.2.0",
+    "photoswipe": "^4.1.1",
     "bootstrap": "^3.3.6",
     "lodash": "^4.2.1"
   }

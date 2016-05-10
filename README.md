@@ -6,26 +6,24 @@ Use distribution on your project
 
 The bower install does not include sources and build process. To run the demo, look at the end of this readme. 
 
-Install natural-gallery :
+Install natural-gallery-js :
 
-```bower install natural-gallery --save```
+```npm install natural-gallery-js --save```
 
 Include photoswipe and natural gallery stylesheets + jquery script in your headers : 
 
 ```
-<link rel="stylesheet" href="bower_components/photoswipe/dist/default-skin/default-skin.css">
-<link rel="stylesheet" href="bower_components/photoswipe/dist/photoswipe.css">
-<link rel="stylesheet" href="bower_components/natural-gallery/dist/themes/natural.css">
-<link rel="stylesheet" href="bower_components/natural-gallery/dist/natural-gallery.min.css">
-<script src="bower_components/jquery/dist/jquery.js"></script>
+<link rel="stylesheet" href="[...]/photoswipe/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="[...]/photoswipe/dist/photoswipe.css">
+<link rel="stylesheet" href="[...]/natural-gallery/dist/themes/natural.css">
+<link rel="stylesheet" href="[...]/natural-gallery/dist/natural-gallery.min.css">
+<script src="[...]/jquery/dist/jquery.js"></script>
 ```
 
-Includes photoswipe and natural gallery scripts in your footer: 
+Includes natural gallery scripts in your footer (includes photoswipe JS): 
 
 ```
-<script src="bower_components/photoswipe/dist/photoswipe.js"></script>
-<script src="bower_components/photoswipe/dist/photoswipe-ui-default.js"></script>
-<script src="bower_components/natural-gallery/dist/natural-gallery.min.js"></script>
+<script src="[...]/natural-gallery/dist/natural-gallery.min.js"></script>
 ```
 
 Run and look at the demo for code implementation
@@ -41,7 +39,7 @@ cd natural-gallery
 Install production and dev dependencies and run build :
 
 ```
-bower install && npm run build
+npm install && npm run prod
 ```
 
 Open demo/*.html with your preferred browser and editor.
