@@ -139,6 +139,18 @@ module Natural.Gallery {
                 self.addElements();
             });
 
+            // Add iframe at root level that launches a resize when width change
+            let iframe = $('<iframe></iframe>').on('load', function() {
+                let timer = null;
+
+                this.contentWindow.addEventListener('resize', function() {
+                    clearTimeout(timer);
+                    timer = setTimeout(function() {
+                        self.resize();
+                    }, 100);
+                });
+            });
+
             this.bodyElement = $('<div></div>').addClass('natural-gallery-body').append(noResults);
 
             if (this.header) {
@@ -147,7 +159,8 @@ module Natural.Gallery {
 
             this.rootElement
                 .append(this.bodyElement)
-                .append(nextButton);
+                .append(nextButton)
+                .append(iframe);
 
         }
 

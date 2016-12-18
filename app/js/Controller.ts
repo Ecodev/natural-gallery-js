@@ -43,17 +43,6 @@ module Natural.Gallery {
 
             let self = this;
 
-            // When browser size change
-            $(window).on('resize', function() {
-                self.resize();
-            });
-
-            // On windows scrollbar (dis)appear
-            Utility.addScrollResizeEvent();
-            $(window).on('scrollbar', function() {
-                self.resize();
-            });
-
             /**
              * Scroll
              * Load new images when scrolling down

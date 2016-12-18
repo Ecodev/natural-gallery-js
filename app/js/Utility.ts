@@ -11,41 +11,6 @@ module Natural.Gallery.Utility {
         return str;
     }
 
-    /**
-     * This little plugin add an invisible iframe with 100% and fires custom event "scrollbar" when it's size changes, including when parent window scrollbar appear
-     */
-    export function addScrollResizeEvent() {
-
-        $('<iframe id="scrollbar-listener"/>').css({
-            'position': 'fixed',
-            'width': '100%',
-            'height': 0,
-            'bottom': 0,
-            'border': 0,
-            'background-color': 'transparent'
-        }).on('load', function() {
-            let vsb = (document.body.scrollHeight > document.body.clientHeight);
-            let timer = null;
-            this.contentWindow.addEventListener('resize', function() {
-                clearTimeout(timer);
-                timer = setTimeout(function() {
-                    let vsbnew = (document.body.scrollHeight > document.body.clientHeight);
-                    if (vsbnew) {
-                        if (!vsb) {
-                            $(top.window).trigger('scrollbar', [true]);
-                            vsb = true;
-                        }
-                    } else {
-                        if (vsb) {
-                            $(top.window).trigger('scrollbar', [false]);
-                            vsb = false;
-                        }
-                    }
-                }, 100);
-            });
-        }).appendTo('body');
-    }
-
     // @off
     // Source = http://web.archive.org/web/20120918093154/http://lehelk.com/2011/05/06/script-to-remove-diacritics/
     let defaultDiacriticsRemovalMap = [
