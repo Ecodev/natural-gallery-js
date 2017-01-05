@@ -9,7 +9,7 @@ gulp.task('references', function() {
     var config = require('../config');
     var mixer = require('../util/typing-references');
 
-    var src = config.scripts.src.concat([config.browserify.typings + '/tsd.d.ts']);
+    var src = config.scripts.src;
 
     return gulp
         .src(src)
