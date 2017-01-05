@@ -8,31 +8,43 @@ module Natural.Gallery {
 
         private _isActive: boolean = true;
 
-        private _element: JQuery;
+        private _element: HTMLElement;
 
         public constructor(id: number, title: string, private filter?: AbstractFilter) {
             this.id = id;
             this.title = title;
         }
 
-        public render(): JQuery {
+        public render(): HTMLElement {
 
             let self = this;
 
-            this.element = $('<label></label>')
-                .attr('data-id', this.id)
-                .append($('<input>')
-                    .attr('type', 'checkbox')
-                    .attr('checked', 'checked')
-                    .on('change', function() {
-                        self.isActive = !self.isActive;
-                        self.filter.filter();
-                    }))
-                .append($('<span></span>')
-                    .addClass('label')
-                    .append(Utility.getIcon('icon-category'))
-                    .append($('<span></span>').text(this.title)))
-                .append($('<span></span>').addClass('bar'));
+            this.element = document.createElement('label');
+            this.element.setAttribute('data-id', String(this.id));
+
+            let input = document.createElement('input');
+            input.setAttribute('type', 'checkbox');
+            input.setAttribute('checked', 'checked');
+            input.addEventListener('change', function() {
+                    self.isActive = !self.isActive;
+                    self.filter.filter();
+                });
+
+            this.element.appendChild(input);
+
+            let title = document.createElement('span');
+            title.textContent = this.title;
+
+            let label = document.createElement('span');
+            Utility.addClass(label, 'label');
+            label.appendChild(Utility.getIcon('icon-category'));
+            label.appendChild(title);
+
+            this.element.appendChild(label);
+
+            let bar = document.createElement('span');
+            Utility.addClass(bar, 'bar');
+            this.element.appendChild(bar);
 
             return this.element;
         }
@@ -61,11 +73,11 @@ module Natural.Gallery {
             this._isActive = value;
         }
 
-        get element(): JQuery {
+        get element(): HTMLElement {
             return this._element;
         }
 
-        set element(value: JQuery) {
+        set element(value: HTMLElement) {
             this._element = value;
         }
     }

@@ -11,7 +11,7 @@ module Natural.Gallery {
          */
         private _collection: Item[] = null;
 
-        private _element: JQuery;
+        private _element: Element;
 
         private _filters: AbstractFilter[] = [];
 
@@ -35,27 +35,39 @@ module Natural.Gallery {
             });
         }
 
-        public render(): JQuery {
+        public render(): Element {
 
             let self = this;
 
-            let imagesLayout = $('<div></div>')
-                .addClass('natural-gallery-images sectionContainer')
-                .append(Utility.getIcon('icon-pict'))
-                .append($('<div></div>').addClass('sectionName').text('Images'))
-                .append($('<span></span>').addClass('natural-gallery-visible'))
-                .append($('<span></span>').text('/'))
-                .append($('<span></span>').addClass('natural-gallery-total'));
+            let imagesLayout = document.createElement('div');
+            Utility.addClass(imagesLayout, 'natural-gallery-images sectionContainer');
+            imagesLayout.appendChild(Utility.getIcon('icon-pict'));
 
-            this.element = $('<div></div>');
+            let sectionName = document.createElement('div');
+            Utility.addClass(sectionName, 'sectionName');
+            sectionName.textContent = 'Images';
+            imagesLayout.appendChild(sectionName);
+
+            let galleryVisible = document.createElement('span');
+            imagesLayout.appendChild(galleryVisible);
+
+            Utility.addClass(galleryVisible, 'natural-gallery-visible');
+            let slash = document.createElement('span');
+            slash.textContent = '/';
+            imagesLayout.appendChild(slash);
+
+            let total = document.createElement('span');
+            Utility.addClass(total, 'natural-gallery-total');
+            imagesLayout.appendChild(total);
+
+            this.element = document.createElement('div');
 
             _.each(this.filters, function(filter) {
-                self.element.append(filter.render());
+                self.element.appendChild(filter.render());
             });
 
-            this.element
-                .addClass('natural-gallery-header')
-                .append(imagesLayout);
+            Utility.addClass(this.element, 'natural-gallery-header');
+            this.element.appendChild(imagesLayout);
 
             return this.element;
         }
@@ -94,11 +106,11 @@ module Natural.Gallery {
             this._collection = value;
         }
 
-        get element(): JQuery {
+        get element(): Element {
             return this._element;
         }
 
-        set element(value: JQuery) {
+        set element(value: Element) {
             this._element = value;
         }
 

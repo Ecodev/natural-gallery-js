@@ -44,10 +44,10 @@ module Natural.Gallery {
         private _eHeight: number;
 
         /**
-         * jquery
+         * Dom elements
          */
-        private element: JQuery;
-        private image: JQuery;
+        private element: HTMLElement;
+        private image: HTMLElement;
 
         /**
          * @param fields
@@ -79,38 +79,50 @@ module Natural.Gallery {
 
             let self = this;
 
-            let $element = $('<figure></figure>').addClass('loading').addClass('visible');
-            let $image = $('<a></a>').css('background-image', 'url(' + this.thumbnail + ')');
+            let element = document.createElement('figure');
+            Utility.addClass(element, 'loading visible');
+
+            let image = document.createElement('a');
+            image.style.backgroundImage = 'url(' + this.thumbnail + ')';
 
             var options = this.gallery.options;
 
             if (options.lightbox) {
-                $image.attr('href', this.enlarged);
+                image.setAttribute('href', this.enlarged);
             }
 
             if (options.round) {
-                $element.css('border-radius', options.round);
-                $image.css('border-radius', options.round);
+                let radius = String(options.round + 'px');
+                element.style.borderRadius = radius;
+                image.style.borderRadius = radius;
             }
 
-            $element.append($image);
+            element.appendChild(image);
 
             if (this.title && (options.showLabels == 'true' || options.showLabels == 'hover')) {
-                let $label = $('<span></span>').text(this.title);
+                let label = document.createElement('span');
+                label.textContent = this.title;
                 if (options.showLabels == 'hover') {
-                    $label.addClass('hover');
+                    Utility.addClass(label, 'hover');
                 }
 
-                $element.append($label);
+                element.appendChild(label);
             }
 
-            this.element = $element;
-            this.image = $image;
+            this.element = element;
+            this.image = image;
 
-            $('<img />').data('id', this.id).attr('src', this.thumbnail).on('load', function() {
-                self.element.toggleClass('loading loaded');
-            });
+            let img = document.createElement('img');
+            img.setAttribute('data-id', this.id + '');
+            img.setAttribute('src', this.thumbnail);
 
+            img.onload = function() {
+                Utility.toggleClass(self.element, 'loading');
+                Utility.toggleClass(self.element, 'loaded');
+            };
+
+            // For further implementation. Hiding errored images involve recompute everything and restart gallery
+            // img.onerror = function() {};
         }
 
         /**
@@ -121,33 +133,31 @@ module Natural.Gallery {
          */
         public style() {
 
-            this.element.removeClass('visible');
+            Utility.removeClass(this.element, 'visible');
 
-            this.element
-                .css('width', this.width)
-                .css('height', this.height)
-                .css('margin-right', this.gallery.options.margin)
-                .css('margin-bottom', this.gallery.options.margin);
+            this.element.style.width = String(this.width + 'px');
+            this.element.style.height = String(this.height + 'px');
+            this.element.style.marginRight = String(this.gallery.options.margin + 'px');
+            this.element.style.marginBottom = String(this.gallery.options.margin + 'px');
 
             if (this.last) {
-                this.element.css('margin-right', 0);
+                this.element.style.marginRight = '0';
             }
 
-            this.image
-                .css('width', this.width)
-                .css('height', this.height);
+            this.image.style.width = String(this.width + 'px');
+            this.image.style.height = String(this.height + 'px');
 
             let self = this;
             window.setTimeout(function() {
-                self.element.addClass('visible');
+                Utility.addClass(self.element, 'visible');
             }, 0);
         }
 
         public flash() {
             let self = this;
-            this.element.removeClass('visible');
+            Utility.removeClass(this.element, 'visible');
             window.setTimeout(function() {
-                self.element.addClass('visible');
+                Utility.addClass(self.element, 'visible');
             }, 0);
         }
 
@@ -161,15 +171,18 @@ module Natural.Gallery {
 
             let self = this;
 
-            this.element.on('click', function(e) {
+            this.element.addEventListener('click', function(e) {
                 e.preventDefault();
 
                 if (!self.gallery.options.lightbox) {
                     return;
                 }
 
+                let nodeList = Array.prototype.slice.call(this.parentNode.children);
+                let index = nodeList.indexOf(this) - 1;
+
                 let options = {
-                    index: $(this).index() - 1,
+                    index: index,
                     bgOpacity: 0.85,
                     showHideOpacity: true,
                     loop: false
@@ -211,7 +224,7 @@ module Natural.Gallery {
             }
         }
 
-        public getElement(): JQuery {
+        public getElement(): HTMLElement {
             return this.element;
         }
 

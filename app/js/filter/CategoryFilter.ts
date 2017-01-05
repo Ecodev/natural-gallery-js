@@ -2,13 +2,13 @@ module Natural.Gallery {
 
     export class CategoryFilter extends AbstractFilter {
 
-        set element(value: JQuery) {
+        set element(value: HTMLElement) {
             this._element = value;
         }
 
         private _categories: Category[] = [];
 
-        private _element: JQuery;
+        private _element: HTMLElement;
 
         private _none: Category;
         private _others: Category;
@@ -17,21 +17,28 @@ module Natural.Gallery {
             super(header);
         }
 
-        public render(): JQuery {
+        public render(): HTMLElement {
 
             let self = this;
             this.prepare();
 
             if (!this.element) {
-                this.element = $('<div></div>')
-                    .addClass('natural-gallery-categories sectionContainer')
-                    .append($('<div></div>').addClass('sectionName').text('Categories'));
+                this.element = document.createElement('div');
+                Utility.addClass(this.element, 'natural-gallery-categories sectionContainer');
+
+                let sectionName = document.createElement('div');
+                Utility.addClass(sectionName, 'sectionName');
+                sectionName.textContent = 'Categories';
+                this.element.appendChild(sectionName);
             }
 
-            this.element.find('label').remove();
+            let label = this.element.getElementsByTagName('label')[0];
+            if (label) {
+                label.parentNode.removeChild(label);
+            }
 
             _.each(this.categories, function(cat: Category) {
-                self.element.append(cat.render());
+                self.element.appendChild(cat.render());
             });
 
             return self.element;
@@ -164,7 +171,7 @@ module Natural.Gallery {
             this._none = value;
         }
 
-        get element(): JQuery {
+        get element(): HTMLElement {
             return this._element;
         }
 

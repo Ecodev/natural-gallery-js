@@ -1,7 +1,40 @@
 module Natural.Gallery.Utility {
 
-    export function getIcon(name: string): JQuery {
-        return $('<svg viewBox="0 0 100 100"> <use xlink:href="#' + name + '"></use> </svg>');
+    export function getIcon(name: string): SVGSVGElement {
+        let svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+        svg.setAttribute('viewBox', '0 0 100 100');
+        svg.innerHTML = '<use xlink:href="#' + name + '"></use>';
+        return svg;
+    }
+
+    export function toggleClass(element: Element, className) {
+
+        if (!element || !className) {
+            return;
+        }
+
+        let classString = element.className;
+        let nameIndex = classString.indexOf(className);
+        if (nameIndex == -1) {
+            element.className += ' ' + className;
+        }
+        else {
+            this.removeClass(element, className);
+        }
+    }
+
+    export function removeClass(element: Element, className) {
+        let nameIndex = element.className.indexOf(className);
+        if (nameIndex > -1 ) {
+            element.className = element.className.substr(0, nameIndex) + element.className.substr(nameIndex + className.length);
+        }
+    }
+
+    export function addClass(element: Element, className) {
+        let nameIndex = element.className.indexOf(className);
+        if (nameIndex == -1) {
+            element.className += ' ' + className;
+        }
     }
 
     export function removeDiacritics(str) {

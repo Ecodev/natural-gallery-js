@@ -48,12 +48,12 @@ module Natural.Gallery {
         /**
          * Root div containing the gallery
          */
-        private _rootElement: JQuery;
+        private _rootElement: Element;
 
         /**
          * Images wrapper container
          */
-        private _bodyElement: JQuery;
+        private _bodyElement: Element;
 
         /**
          * Last saved wrapper width
@@ -108,7 +108,7 @@ module Natural.Gallery {
 
             this.categories = categories;
 
-            this.rootElement = $($('.natural-gallery').get(this.position));
+            this.rootElement = document.getElementsByClassName('natural-gallery').item(this.position);
 
             // header
             if (this.options.searchFilter || this.options.categoriesFilter || this.options.showCount) {
@@ -125,7 +125,7 @@ module Natural.Gallery {
             }
 
             this.render();
-            this.bodyWidth = Math.floor(this.bodyElement[0].getBoundingClientRect().width);
+            this.bodyWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
 
         }
 
@@ -133,14 +133,21 @@ module Natural.Gallery {
 
             let self = this;
 
-            let noResults = $('<div></div>').addClass('natural-gallery-noresults').append(Utility.getIcon('icon-noresults'));
-            let nextButton = $('<div></div>').addClass('natural-gallery-next').append(Utility.getIcon('icon-next')).on('click', function(e) {
+            let noResults = document.createElement('div');
+            Utility.addClass(noResults, 'natural-gallery-noresults');
+            noResults.appendChild(Utility.getIcon('icon-noresults'));
+
+            let nextButton = document.createElement('div');
+            Utility.addClass(nextButton, 'natural-gallery-next');
+            nextButton.appendChild(Utility.getIcon('icon-next'));
+            nextButton.addEventListener('click', function(e) {
                 e.preventDefault();
                 self.addElements();
             });
 
             // Add iframe at root level that launches a resize when width change
-            let iframe = $('<iframe></iframe>').on('load', function() {
+            let iframe = document.createElement('iframe');
+            iframe.addEventListener('load', function() {
                 let timer = null;
 
                 this.contentWindow.addEventListener('resize', function() {
@@ -151,16 +158,17 @@ module Natural.Gallery {
                 });
             });
 
-            this.bodyElement = $('<div></div>').addClass('natural-gallery-body').append(noResults);
+            this.bodyElement = document.createElement('div');
+            Utility.addClass(this.bodyElement, 'natural-gallery-body');
+            this.bodyElement.appendChild(noResults);
 
             if (this.header) {
-                this.rootElement.append(this.header.render());
+                this.rootElement.appendChild(this.header.render());
             }
 
-            this.rootElement
-                .append(this.bodyElement)
-                .append(nextButton)
-                .append(iframe);
+            this.rootElement.appendChild(this.bodyElement);
+            this.rootElement.appendChild(nextButton);
+            this.rootElement.appendChild(iframe);
 
         }
 
@@ -211,11 +219,12 @@ module Natural.Gallery {
 
             let collection = this.collection;
 
-            let nextButton = this.rootElement.find('.natural-gallery-next');
-            nextButton.show(); // display because filters may add more images and we have to show it again
+            // display because filters may add more images and we have to show it again
+            let nextButton = <HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-next')[0];
+            nextButton.style.display = 'block';
 
             if (this.pswpContainer.length === collection.length || !collection.length) {
-                nextButton.hide();
+                nextButton.style.display = 'none';
                 return;
             }
 
@@ -231,20 +240,20 @@ module Natural.Gallery {
                 let item = collection[i];
                 if (item.row < lastRow) {
                     this.pswpContainer.push(item.getPswpItem());
-                    this.bodyElement.append(item.getElement());
+                    this.bodyElement.appendChild(item.getElement());
                     item.bindClick();
                     item.flash();
                 }
 
                 // Show / Hide "more" button.
                 if (this.pswpContainer.length === collection.length) {
-                    nextButton.hide();
+                    nextButton.style.display = 'none';
                 }
             }
 
-            this.rootElement.find('.natural-gallery-noresults').hide();
-            this.rootElement.find('.natural-gallery-visible').text(this.pswpContainer.length);
-            this.rootElement.find('.natural-gallery-total').text(collection.length);
+            (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-noresults')[0]).style.display = 'none';
+            this.rootElement.getElementsByClassName('natural-gallery-visible')[0].textContent = String(this.pswpContainer.length);
+            this.rootElement.getElementsByClassName('natural-gallery-total')[0].textContent = String(collection.length);
         }
 
         /**
@@ -261,8 +270,8 @@ module Natural.Gallery {
                 return this.options.limit;
             }
 
-            let winHeight = $(window).height();
-            let galleryVisibleHeight = winHeight - gallery.bodyElement.offset().top;
+            let winHeight = window.outerHeight;
+            let galleryVisibleHeight = winHeight - gallery.bodyElement.offsetTop;
             let nbRows = Math.floor(galleryVisibleHeight / (this.options.rowHeight * 0.7 )); // ratio to be more close from reality average row height
 
             return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
@@ -274,7 +283,7 @@ module Natural.Gallery {
          */
         public resize() {
 
-            let containerWidth = Math.floor(this.bodyElement[0].getBoundingClientRect().width);
+            let containerWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
 
             if (containerWidth != this.bodyWidth) {
                 this.bodyWidth = containerWidth;
@@ -299,8 +308,15 @@ module Natural.Gallery {
          */
         public reset(): void {
             this.pswpContainer = [];
-            this.bodyElement.find('figure').remove();
-            this.rootElement.find('.natural-gallery-noresults').show();
+            let figures = this.bodyElement.getElementsByTagName('figure');
+            for (let i = (figures.length - 1); i >= 0; i--) {
+                figures[i].parentNode.removeChild(figures[i]);
+            }
+
+            let results = <HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-noresults')[0];
+            if (results) {
+                results.style.display = 'none';
+            }
         }
 
         get pswpContainer(): any[] {
@@ -332,19 +348,19 @@ module Natural.Gallery {
             this._bodyWidth = value;
         }
 
-        get bodyElement(): JQuery {
+        get bodyElement(): Element {
             return this._bodyElement;
         }
 
-        set bodyElement(value: JQuery) {
+        set bodyElement(value: Element) {
             this._bodyElement = value;
         }
 
-        get rootElement(): JQuery {
+        get rootElement(): Element {
             return this._rootElement;
         }
 
-        set rootElement(value: JQuery) {
+        set rootElement(value: Element) {
             this._rootElement = value;
         }
 

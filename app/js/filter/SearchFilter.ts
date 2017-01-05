@@ -2,30 +2,39 @@ module Natural.Gallery {
 
     export class SearchFilter extends AbstractFilter {
 
-        public render(): JQuery {
+        public render(): HTMLElement {
 
-            let element = $('<div></div>')
-                .addClass('natural-gallery-searchTerm sectionContainer')
-                .append(Utility.getIcon('icon-search'))
-                .append(this.getInput())
-                .append($('<label></label>').addClass('sectionName').text('Search'))
-                .append($('<span></span>').addClass('bar'));
+            let element = document.createElement('div');
+            Utility.addClass(element, 'natural-gallery-searchTerm sectionContainer');
+            element.appendChild(Utility.getIcon('icon-search'));
+            element.appendChild(this.getInput());
+
+            let label = document.createElement('label');
+            Utility.addClass(label, 'sectionName');
+            label.textContent = 'Search';
+            element.appendChild(label);
+
+            let bar = document.createElement('span');
+            Utility.addClass(bar, 'bar');
+            element.appendChild(bar);
 
             return element;
         }
 
-        private getInput(): JQuery {
+        private getInput(): HTMLElement {
 
             let self = this;
 
-            let input = $('<input type="text" required/>').on('keyup', function(event) {
+            let input = document.createElement('input');
+            input.setAttribute('required', '');
+            input.addEventListener('keyup', function(event) {
 
                 // On escape, empty field
                 if (event.keyCode == 27) {
-                    $(this).val('');
+                    this.value = '';
                 }
 
-                self.filter($(this).val());
+                self.filter(this.value);
             });
 
             return input;

@@ -13,7 +13,6 @@
 		<link rel="stylesheet" href="../dist/themes/natural.css">
 		<link rel="stylesheet" href="demo.css">
 
-		<script src="../node_modules/jquery/dist/jquery.js"></script>
 	</head>
 
 	<body>
@@ -126,38 +125,45 @@
 			var images = [];
 			var thumbnailMaximumHeight = 300;
 
-			$.ajax({
-				url: 'data.json',
-				// dataType: "json",
-				// url: 'https://api.unsplash.com/photos',
-				// data: {
-				// 	 client_id: '04902b80294822aa86dbe5c57ee47e1c1f0e8a0f0f360979746970a1239001dd',
-				// 	 per_page: 30
-				// },
-				success: function(data) {
+            function success(data) {
 
-					for (var i = 0; i < data.length; i++) {
+                for (var i = 0; i < data.length; i++) {
 
-						var image = data[i];
-						var ratio = image.width / image.height;
-						var formatedImage = {
-							id: i,
-							thumbnail: image.urls.small,
-							enlarged: image.urls.regular,
-							title: image.user.name + " " + _.map(image.categories, 'title').join(', '),
-							categories: image.categories,
-							tWidth: thumbnailMaximumHeight * ratio,
-							tHeight: thumbnailMaximumHeight,
-							eWidth: image.width,
-							eHeight: image.height
-						};
+                    var image = data[i];
+                    var ratio = image.width / image.height;
+                    var formatedImage = {
+                        id: i,
+                        thumbnail: image.urls.small,
+                        enlarged: image.urls.regular,
+                        title: image.user.name + " " + _.map(image.categories, 'title').join(', '),
+                        categories: image.categories,
+                        tWidth: thumbnailMaximumHeight * ratio,
+                        tHeight: thumbnailMaximumHeight,
+                        eWidth: image.width,
+                        eHeight: image.height
+                    };
 
-						images.push(formatedImage);
-					}
+                    images.push(formatedImage);
+                }
 
-					naturalGalleries[0].appendItems(images);
-				}
-			});
+                naturalGalleries[0].appendItems(images);
+            }
+
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', 'data.json');
+			xhr.send(null);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    success(JSON.parse(xhr.responseText));
+                }
+            };
+
+            // url: 'https://api.unsplash.com/photos',
+            // data: {
+            // 	 client_id: '04902b80294822aa86dbe5c57ee47e1c1f0e8a0f0f360979746970a1239001dd',
+            // 	 per_page: 30
+            // },
+
 		</script>
 
 	</body>

@@ -14,7 +14,7 @@ module Natural.Gallery {
         public constructor(protected header: Header) {
         }
 
-        abstract render(): JQuery;
+        abstract render(): HTMLElement;
 
         abstract filter(value?: string): void;
 

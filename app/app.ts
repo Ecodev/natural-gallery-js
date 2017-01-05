@@ -2,7 +2,6 @@
 
 declare var require: (moduleId: string) => any;
 declare var naturalGalleries: any[];
-declare var $: JQueryStatic;
 
 _ = require('lodash');
 let PhotoSwipe = require('PhotoSwipe');

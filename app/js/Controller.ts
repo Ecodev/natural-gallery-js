@@ -15,7 +15,7 @@ module Natural.Gallery {
          */
         public constructor() {
 
-            let pswp = $('.pswp')[0];
+            let pswp = document.getElementsByClassName('pswp')[0];
 
             _.each(naturalGalleries, function(gallery, i) {
                 naturalGalleries[i] = new Gallery(i, gallery.options, gallery.categories, pswp);
@@ -51,13 +51,14 @@ module Natural.Gallery {
              */
             if (naturalGalleries.length == 1 && naturalGalleries[0].options.limit === 0) {
 
-                $(document).on('scroll', function() {
+                document.addEventListener('scroll', function() {
                     let gallery = naturalGalleries[0];
-                    let endOfGalleryAt = gallery.rootElement.offset().top + gallery.rootElement.height() + 60;
+                    let endOfGalleryAt = gallery.rootElement.offsetTop + gallery.rootElement.offsetHeight + 60;
 
                     // Avoid to expand gallery if we are scrolling up
-                    let current_scroll_top = $(document).scrollTop();
-                    let window_size = $(window).height();//document.body.clientHeight;
+                    let current_scroll_top = (window.pageYOffset || document.documentElement.scrollTop)  - (document.documentElement.clientTop || 0);
+                    let window_size = window.innerHeight;
+
                     let scroll_delta = current_scroll_top - self.old_scroll_top;
                     self.old_scroll_top = current_scroll_top;
 
