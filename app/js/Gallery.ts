@@ -103,7 +103,7 @@ module Natural.Gallery {
 
             this.pswpElement = pswp;
 
-            this._options = <iGalleryOptions> _.defaults(options, this._options);
+            this._options = <iGalleryOptions> defaults(options, this._options);
             this.position = position;
 
             this.categories = categories;
@@ -187,7 +187,7 @@ module Natural.Gallery {
             }
 
             // Complete collection
-            _.each(items, function(item) {
+            each(items, function(item) {
                 self.collection.push(new Item(<IItemFields> item, self));
             });
 
@@ -204,7 +204,7 @@ module Natural.Gallery {
         }
 
         public style(): void {
-            _.each(this.collection, function(item: Item) {
+            each(this.collection, function(item: Item) {
                 item.style();
             });
         }

@@ -30,7 +30,7 @@ module Natural.Gallery {
         }
 
         public refresh():void {
-            _.each(this.filters, function(filter) {
+            each(this.filters, function(filter) {
                 filter.render();
             });
         }
@@ -62,7 +62,7 @@ module Natural.Gallery {
 
             this.element = document.createElement('div');
 
-            _.each(this.filters, function(filter) {
+            each(this.filters, function(filter) {
                 self.element.appendChild(filter.render());
             });
 
@@ -73,7 +73,7 @@ module Natural.Gallery {
         }
 
         public isFiltered(): boolean {
-            return !_.isNull(this.collection);
+            return this.collection !== null;
         }
 
         /**
@@ -84,12 +84,12 @@ module Natural.Gallery {
 
             let filteredCollections = null;
 
-            _.each(this.filters, function(filter: AbstractFilter) {
+            each(this.filters, function(filter: AbstractFilter) {
                 if (filter.isActive()) {
-                    if (_.isNull(filteredCollections)) {
+                    if (filteredCollections === null) {
                         filteredCollections = filter.collection
                     } else {
-                        filteredCollections = _.intersectionBy(filteredCollections, filter.collection, 'id');
+                        filteredCollections = intersectionBy(filteredCollections, filter.collection, 'id');
                     }
                 }
             });

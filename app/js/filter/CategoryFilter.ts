@@ -37,7 +37,7 @@ module Natural.Gallery {
                 label.parentNode.removeChild(label);
             }
 
-            _.each(this.categories, function(cat: Category) {
+            each(this.categories, function(cat: Category) {
                 self.element.appendChild(cat.render());
             });
 
@@ -49,7 +49,7 @@ module Natural.Gallery {
             let self = this;
 
             let galleryCategories = [];
-            _.each(this.header.gallery.categories, function(cat) {
+            each(this.header.gallery.categories, function(cat) {
                 galleryCategories.push(new Category(cat.id, cat.title, self));
             });
 
@@ -67,7 +67,7 @@ module Natural.Gallery {
             }
 
             let itemCategories = [];
-            _.each(this.header.gallery.getOriginalCollection(), function(item: Item) {
+            each(this.header.gallery.getOriginalCollection(), function(item: Item) {
 
                 // Set category "none" if empty
                 if (!item.categories || item.categories && item.categories.length === 0 && self.header.gallery.options.showNone) {
@@ -75,22 +75,22 @@ module Natural.Gallery {
                 }
 
                 // Set category "others" if none of categories are used in gallery categories
-                if (galleryCategories.length && _.differenceBy(item.categories, galleryCategories, 'id').length === item.categories.length && self.header.gallery.options.showOthers) {
+                if (galleryCategories.length && differenceBy(item.categories, galleryCategories, 'id').length === item.categories.length && self.header.gallery.options.showOthers) {
                     item.categories = [self.others];
                 }
 
                 // Assign categories as object
-                _.each(item.categories, function(cat) {
+                each(item.categories, function(cat) {
                     itemCategories.push(new Category(cat.id, cat.title, self));
                 });
             });
 
             // Avoid duplicates
-            galleryCategories = _.uniqBy(galleryCategories, 'id');
-            itemCategories = _.uniqBy(itemCategories, 'id');
+            galleryCategories = uniqBy(galleryCategories, 'id');
+            itemCategories = uniqBy(itemCategories, 'id');
 
             if (galleryCategories.length) {
-                this.categories = _.intersectionBy(galleryCategories, itemCategories, 'id');
+                this.categories = intersectionBy(galleryCategories, itemCategories, 'id');
             } else {
                 this.categories = itemCategories;
             }
@@ -101,7 +101,7 @@ module Natural.Gallery {
 
             let self = this;
 
-            let selectedCategories = _.filter(this.categories, function(cat) {
+            let selectedCategories = filter(this.categories, function(cat) {
                 return cat.isActive;
             });
 
@@ -113,14 +113,14 @@ module Natural.Gallery {
             } else {
 
                 let filteredItems = [];
-                _.each(this.header.gallery.getOriginalCollection(), function(item) {
+                each(this.header.gallery.getOriginalCollection(), function(item) {
                     if (!item.categories || item.categories && item.categories.length === 0) {
                         if (self.none) {
                             filteredItems.push(item);
                         }
                     } else {
-                        _.each(item.categories, function(cat: Category) {
-                            if (_.find(selectedCategories, {'id': cat.id})) {
+                        each(item.categories, function(cat: Category) {
+                            if (find(selectedCategories, {'id': cat.id})) {
                                 filteredItems.push(item);
                                 return false;
                             }

@@ -17,9 +17,9 @@ module Natural.Gallery {
 
             let pswp = document.getElementsByClassName('pswp')[0];
 
-            _.each(naturalGalleries, function(gallery, i) {
+            each(naturalGalleries, function(gallery, i) {
                 naturalGalleries[i] = new Gallery(i, gallery.options, gallery.categories, pswp);
-                if (!_.isEmpty(gallery.images)) {
+                if (gallery.images && gallery.images.constructor === Array && gallery.images.length) {
                     naturalGalleries[i].collection = gallery.images;
                 }
             });
@@ -31,7 +31,7 @@ module Natural.Gallery {
          * Check whetever we need to resize a gallery (only if parent container width changes)
          */
         private resize() {
-            _.each(naturalGalleries, function(gallery: Gallery) {
+            each(naturalGalleries, function(gallery: Gallery) {
                 gallery.resize();
             });
         }

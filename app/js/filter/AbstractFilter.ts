@@ -19,7 +19,7 @@ module Natural.Gallery {
         abstract filter(value?: string): void;
 
         public isActive(): boolean {
-            return !_.isNull(this.collection);
+            return this.collection !== null;
         }
 
         get collection(): Item[] {

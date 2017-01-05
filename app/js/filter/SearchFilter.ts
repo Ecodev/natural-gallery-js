@@ -51,7 +51,7 @@ module Natural.Gallery {
             if (term.length > 0) {
 
                 self.collection = []; // filter is active, and at least empty !
-                _.each(this.header.gallery.getOriginalCollection(), function(item) {
+                each(this.header.gallery.getOriginalCollection(), function(item) {
                     let needle = Utility.removeDiacritics(item.title + " " + (item.description ? item.description : '')).toLowerCase();
                     if (needle.search(term) != -1) {
                         self.collection.push(item);
