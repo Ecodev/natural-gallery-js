@@ -119,8 +119,11 @@ module Natural.Gallery {
                             filteredItems.push(item);
                         }
                     } else {
-                        item.categories.some(function(cat: Category) {
-                            if (find(selectedCategories, {'id': cat.id})) {
+                        item.categories.some(function(cat1: Category) {
+                            let found = selectedCategories.find(function(cat2: Category) {
+                                return cat1.id === cat2.id;
+                            });
+                            if (found) {
                                 filteredItems.push(item);
                                 return true;
                             }
