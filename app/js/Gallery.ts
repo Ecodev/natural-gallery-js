@@ -97,9 +97,10 @@ module Natural.Gallery {
          * Initiate gallery
          * @param position
          * @param options
+         * @param categories
          * @param pswp
          */
-        public constructor(position, options, categories, pswp: any) {
+        public constructor(position, options, categories: Category[] = [], pswp: any) {
 
             this.pswpElement = pswp;
 
@@ -178,7 +179,6 @@ module Natural.Gallery {
          */
         public appendItems(items): void {
 
-            let self = this;
             let display = false;
 
             // if it's first addition of items, display them
@@ -187,9 +187,9 @@ module Natural.Gallery {
             }
 
             // Complete collection
-            each(items, function(item) {
-                self.collection.push(new Item(<IItemFields> item, self));
-            });
+            items.forEach(function(item) {
+                this.collection.push(new Item(<IItemFields> item, this));
+            }, this);
 
             // Compute sizes
             Organizer.organize(this);
@@ -204,7 +204,7 @@ module Natural.Gallery {
         }
 
         public style(): void {
-            each(this.collection, function(item: Item) {
+            this.collection.forEach(function(item: Item) {
                 item.style();
             });
         }

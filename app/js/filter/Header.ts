@@ -29,15 +29,13 @@ module Natural.Gallery {
             this.filters.push(filter);
         }
 
-        public refresh():void {
-            each(this.filters, function(filter) {
+        public refresh(): void {
+            this.filters.forEach(function(filter) {
                 filter.render();
             });
         }
 
         public render(): Element {
-
-            let self = this;
 
             let imagesLayout = document.createElement('div');
             Utility.addClass(imagesLayout, 'natural-gallery-images sectionContainer');
@@ -62,9 +60,9 @@ module Natural.Gallery {
 
             this.element = document.createElement('div');
 
-            each(this.filters, function(filter) {
-                self.element.appendChild(filter.render());
-            });
+            this.filters.forEach(function(filter) {
+                this.element.appendChild(filter.render());
+            }, this);
 
             Utility.addClass(this.element, 'natural-gallery-header');
             this.element.appendChild(imagesLayout);
@@ -84,10 +82,10 @@ module Natural.Gallery {
 
             let filteredCollections = null;
 
-            each(this.filters, function(filter: AbstractFilter) {
+            this.filters.forEach(function(filter: AbstractFilter) {
                 if (filter.isActive()) {
                     if (filteredCollections === null) {
-                        filteredCollections = filter.collection
+                        filteredCollections = filter.collection;
                     } else {
                         filteredCollections = intersectionBy(filteredCollections, filter.collection, 'id');
                     }

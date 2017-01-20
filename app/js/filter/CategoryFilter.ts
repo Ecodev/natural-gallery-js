@@ -19,7 +19,6 @@ module Natural.Gallery {
 
         public render(): HTMLElement {
 
-            let self = this;
             this.prepare();
 
             if (!this.element) {
@@ -37,53 +36,52 @@ module Natural.Gallery {
                 label.parentNode.removeChild(label);
             }
 
-            each(this.categories, function(cat: Category) {
-                self.element.appendChild(cat.render());
-            });
+            this.categories.forEach(function(cat: Category) {
+                this.element.appendChild(cat.render());
+            }, this);
 
-            return self.element;
+            return this.element;
         }
 
         public prepare(): void {
 
-            let self = this;
-
             let galleryCategories = [];
-            each(this.header.gallery.categories, function(cat) {
-                galleryCategories.push(new Category(cat.id, cat.title, self));
-            });
+            this.header.gallery.categories.forEach(function(cat) {
+                galleryCategories.push(new Category(cat.id, cat.title, this));
+            }, this);
 
             this.none = new Category(-1, 'None', this);
             this.others = new Category(-2, 'Others', this);
 
             // If show unclassified
             if (this.header.gallery.options.showNone && galleryCategories.length) {
-                galleryCategories.push(self.none);
+                galleryCategories.push(this.none);
             }
 
             // If show others and there are main categories
             if (this.header.gallery.options.showOthers && galleryCategories.length) {
-                galleryCategories.push(self.others);
+                galleryCategories.push(this.others);
             }
 
             let itemCategories = [];
-            each(this.header.gallery.getOriginalCollection(), function(item: Item) {
+            this.header.gallery.getOriginalCollection().forEach(function(item: Item) {
 
                 // Set category "none" if empty
-                if (!item.categories || item.categories && item.categories.length === 0 && self.header.gallery.options.showNone) {
-                    item.categories = [self.none];
+                if (!item.categories || item.categories && item.categories.length === 0 && this.header.gallery.options.showNone) {
+                    item.categories = [this.none];
                 }
 
                 // Set category "others" if none of categories are used in gallery categories
-                if (galleryCategories.length && differenceBy(item.categories, galleryCategories, 'id').length === item.categories.length && self.header.gallery.options.showOthers) {
-                    item.categories = [self.others];
+                if (galleryCategories.length && differenceBy(item.categories, galleryCategories, 'id').length === item.categories.length && this.header.gallery.options.showOthers) {
+                    item.categories = [this.others];
                 }
 
                 // Assign categories as object
-                each(item.categories, function(cat) {
-                    itemCategories.push(new Category(cat.id, cat.title, self));
-                });
-            });
+                item.categories.forEach(function(cat) {
+                    itemCategories.push(new Category(cat.id, cat.title, this));
+                }, this);
+
+            }, this);
 
             // Avoid duplicates
             galleryCategories = uniqBy(galleryCategories, 'id');
@@ -99,52 +97,41 @@ module Natural.Gallery {
 
         public filter(): void {
 
-            let self = this;
-
             let selectedCategories = filter(this.categories, function(cat) {
                 return cat.isActive;
             });
 
-            // if filter inactive
             if (selectedCategories.length === this.categories.length) {
+                // if all categories are selected
                 this.collection = null;
+
             } else if (selectedCategories.length === 0) {
+                // if no category is selected
                 this.collection = [];
+
             } else {
 
                 let filteredItems = [];
-                each(this.header.gallery.getOriginalCollection(), function(item) {
+
+                this.header.gallery.getOriginalCollection().forEach(function(item) {
                     if (!item.categories || item.categories && item.categories.length === 0) {
-                        if (self.none) {
+                        if (this.none) {
                             filteredItems.push(item);
                         }
                     } else {
-                        each(item.categories, function(cat: Category) {
+                        item.categories.some(function(cat: Category) {
                             if (find(selectedCategories, {'id': cat.id})) {
                                 filteredItems.push(item);
-                                return false;
+                                return true;
                             }
                         });
                     }
-                });
+                }, this);
+
                 this.collection = filteredItems;
             }
 
             this.header.filter();
-        }
-
-        // peut etre dans imge
-        private getImageCategories(image) {
-
-            if (typeof image._categories == 'undefined') {
-                return [];
-            }
-
-            if (image._categories.constructor !== Array) {
-                return [];
-            }
-
-            return image._categories;
         }
 
         get categories(): Category[] {

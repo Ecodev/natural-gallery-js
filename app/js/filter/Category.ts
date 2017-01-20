@@ -26,9 +26,9 @@ module Natural.Gallery {
             input.setAttribute('type', 'checkbox');
             input.setAttribute('checked', 'checked');
             input.addEventListener('change', function() {
-                    self.isActive = !self.isActive;
-                    self.filter.filter();
-                });
+                self.isActive = !self.isActive;
+                self.filter.filter();
+            });
 
             this.element.appendChild(input);
 

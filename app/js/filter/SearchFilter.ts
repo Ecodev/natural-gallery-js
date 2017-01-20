@@ -42,21 +42,20 @@ module Natural.Gallery {
 
         public filter(val: string): void {
 
-            let self = this;
-
             this.collection = null; // set filter inactive
 
             let term = Utility.removeDiacritics(val).toLowerCase();
 
             if (term.length > 0) {
 
-                self.collection = []; // filter is active, and at least empty !
-                each(this.header.gallery.getOriginalCollection(), function(item) {
+                this.collection = []; // filter is active, and at least empty !
+                this.header.gallery.getOriginalCollection().forEach(function(item) {
                     let needle = Utility.removeDiacritics(item.title + " " + (item.description ? item.description : '')).toLowerCase();
                     if (needle.search(term) != -1) {
-                        self.collection.push(item);
+                        this.collection.push(item);
                     }
-                });
+                }, this);
+
             }
 
             this.header.filter();

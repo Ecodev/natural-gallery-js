@@ -1,7 +1,7 @@
 module Natural.Gallery.Utility {
 
     export function getIcon(name: string): SVGSVGElement {
-        let svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+        let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('viewBox', '0 0 100 100');
         svg.innerHTML = '<use xlink:href="#' + name + '"></use>';
         return svg;
@@ -25,7 +25,7 @@ module Natural.Gallery.Utility {
 
     export function removeClass(element: Element, className) {
         let nameIndex = element.className.indexOf(className);
-        if (nameIndex > -1 ) {
+        if (nameIndex > -1) {
             element.className = element.className.substr(0, nameIndex) + element.className.substr(nameIndex + className.length);
         }
     }

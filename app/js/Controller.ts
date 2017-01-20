@@ -17,7 +17,7 @@ module Natural.Gallery {
 
             let pswp = document.getElementsByClassName('pswp')[0];
 
-            each(naturalGalleries, function(gallery, i) {
+            naturalGalleries.forEach(function(gallery, i) {
                 naturalGalleries[i] = new Gallery(i, gallery.options, gallery.categories, pswp);
                 if (gallery.images && gallery.images.constructor === Array && gallery.images.length) {
                     naturalGalleries[i].collection = gallery.images;
@@ -31,7 +31,7 @@ module Natural.Gallery {
          * Check whetever we need to resize a gallery (only if parent container width changes)
          */
         private resize() {
-            each(naturalGalleries, function(gallery: Gallery) {
+            naturalGalleries.forEach(function(gallery: Gallery) {
                 gallery.resize();
             });
         }
@@ -56,7 +56,7 @@ module Natural.Gallery {
                     let endOfGalleryAt = gallery.rootElement.offsetTop + gallery.rootElement.offsetHeight + 60;
 
                     // Avoid to expand gallery if we are scrolling up
-                    let current_scroll_top = (window.pageYOffset || document.documentElement.scrollTop)  - (document.documentElement.clientTop || 0);
+                    let current_scroll_top = (window.pageYOffset || document.documentElement.scrollTop) - (document.documentElement.clientTop || 0);
                     let window_size = window.innerHeight;
 
                     let scroll_delta = current_scroll_top - self.old_scroll_top;
