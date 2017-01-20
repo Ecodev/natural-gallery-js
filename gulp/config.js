@@ -21,6 +21,7 @@ module.exports = {
         tmp: 'cache'
     },
     browsersync: {
+        https: true,
         browserPort: 3000,
         UIPort: 3001,
         proxy: 'natural-gallery.lan/demo',
