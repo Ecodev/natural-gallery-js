@@ -4,7 +4,6 @@ declare var require: (moduleId: string) => any;
 declare var naturalGalleries: any[];
 
 // lodash
-let defaults = require('lodash/defaults'); // 91
 let differenceBy = require('lodash/differenceBy'); // 126
 let intersectionBy = require('lodash/intersectionBy'); //  126
 let uniqBy = require('lodash/uniqBy'); // 122

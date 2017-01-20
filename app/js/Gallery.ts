@@ -104,11 +104,15 @@ module Natural.Gallery {
 
             this.pswpElement = pswp;
 
-            this._options = <iGalleryOptions> defaults(options, this._options);
+            for (var key in this.options) {
+                if (typeof options[key] === 'undefined') {
+                    options[key] = this.options[key];
+                }
+            }
+
+            this.options = options;
             this.position = position;
-
             this.categories = categories;
-
             this.rootElement = document.getElementsByClassName('natural-gallery').item(this.position);
 
             // header
@@ -382,6 +386,10 @@ module Natural.Gallery {
 
         get options(): iGalleryOptions {
             return this._options;
+        }
+
+        set options(value: iGalleryOptions) {
+            this._options = value;
         }
 
         get position(): number {
