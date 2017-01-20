@@ -97,7 +97,7 @@ module Natural.Gallery {
 
         public filter(): void {
 
-            let selectedCategories = filter(this.categories, function(cat) {
+            let selectedCategories = this.categories.filter(function(cat) {
                 return cat.isActive;
             });
 
