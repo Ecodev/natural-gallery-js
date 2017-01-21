@@ -3,10 +3,10 @@
 var gulp = require('gulp');
 
 var referenceFileName = 'references.ts';
-gulp.task('browserify', ['tsc', 'compile-js']);
 
 gulp.task('references', function() {
     var config = require('../config');
+    var tsconfig = require('../../tsconfig.json');
     var mixer = require('../util/typing-references');
 
     var src = config.scripts.src;
@@ -14,19 +14,21 @@ gulp.task('references', function() {
     return gulp
         .src(src)
         .pipe(mixer(referenceFileName))
-        .pipe(gulp.dest(config.browserify.typings));
+        .pipe(gulp.dest(tsconfig.compilerOptions.outDir));
 });
 
 gulp.task('tsc', function() {
-    var config = require('../config');
+    var tsconfig = require('../../tsconfig.json');
     var ts = require('gulp-typescript');
-    var tsResult = gulp.src(config.browserify.entries).pipe(ts({out: 'build.js', target:'es5'}));
-    return tsResult.js.pipe(gulp.dest(config.browserify.tmp));
+    var tsProject = ts.createProject('tsconfig.json');
+    var tsResult = tsProject.src().pipe(tsProject());
+    return tsResult.js.pipe(gulp.dest('./'));
 });
 
-gulp.task('compile-js', function() {
+gulp.task('browserify', ['tsc'], function() {
 
     var config = require('../config');
+    var tsconfig = require('../../tsconfig.json');
     var handleErrors = require('../util/handleErrors');
 
     var source = require('vinyl-source-stream');
@@ -36,7 +38,7 @@ gulp.task('compile-js', function() {
     var browserSync = require('browser-sync');
 
     var bundler = browserify({
-        entries: config.browserify.tmp + '/build.js',
+        entries: tsconfig.compilerOptions.outFile,
         debug: true,
         cache: {},
         packageCache: {},

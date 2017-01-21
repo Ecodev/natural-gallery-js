@@ -15,11 +15,6 @@ module.exports = {
         src: ['app/**/*.ts'],
         dest: 'dist'
     },
-    browserify: {
-        entries: 'app/app.ts',
-        typings: 'cache',
-        tmp: 'cache'
-    },
     browsersync: {
         https: true,
         browserPort: 3000,
