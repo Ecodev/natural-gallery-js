@@ -87,7 +87,7 @@ module Natural.Gallery {
                     if (filteredCollections === null) {
                         filteredCollections = filter.collection;
                     } else {
-                        filteredCollections = intersectionBy(filteredCollections, filter.collection, 'id');
+                        filteredCollections = Utility.intersectionBy(filteredCollections, filter.collection, 'id');
                     }
                 }
             });

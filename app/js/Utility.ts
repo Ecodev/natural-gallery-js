@@ -62,6 +62,36 @@ module Natural.Gallery.Utility {
         return newCollection;
     }
 
+    export function differenceBy(col1: any[], col2: any[], attr: string) {
+        let collection = [];
+
+        col1.forEach(function(el1) {
+            let found = col2.some(function(el2) {
+                return el1[attr] == el2[attr];
+            });
+            if (!found) {
+                collection.push(el1);
+            }
+        });
+
+        return collection;
+    }
+
+    export function intersectionBy(col1: any[], col2: any[], attr: string) {
+        let collection = [];
+
+        col1.forEach(function(el1) {
+            let found = col2.some(function(el2) {
+                return el1[attr] == el2[attr];
+            });
+            if (found) {
+                collection.push(el1);
+            }
+        });
+
+        return collection;
+    }
+
     // @off
     // Source = http://web.archive.org/web/20120918093154/http://lehelk.com/2011/05/06/script-to-remove-diacritics/
     let defaultDiacriticsRemovalMap = [

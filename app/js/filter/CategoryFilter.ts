@@ -72,7 +72,7 @@ module Natural.Gallery {
                 }
 
                 // Set category "others" if none of categories are used in gallery categories
-                if (galleryCategories.length && differenceBy(item.categories, galleryCategories, 'id').length === item.categories.length && this.header.gallery.options.showOthers) {
+                if (galleryCategories.length && Utility.differenceBy(item.categories, galleryCategories, 'id').length === item.categories.length && this.header.gallery.options.showOthers) {
                     item.categories = [this.others];
                 }
 
@@ -88,7 +88,7 @@ module Natural.Gallery {
             itemCategories = Utility.uniqBy(itemCategories, 'id');
 
             if (galleryCategories.length) {
-                this.categories = intersectionBy(galleryCategories, itemCategories, 'id');
+                this.categories = Utility.intersectionBy(galleryCategories, itemCategories, 'id');
             } else {
                 this.categories = itemCategories;
             }
