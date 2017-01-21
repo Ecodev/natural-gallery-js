@@ -120,7 +120,7 @@ module Natural.Gallery {
                         }
                     } else {
                         item.categories.some(function(cat1: Category) {
-                            let found = selectedCategories.find(function(cat2: Category) {
+                            let found = selectedCategories.some(function(cat2: Category) {
                                 return cat1.id === cat2.id;
                             });
                             if (found) {
