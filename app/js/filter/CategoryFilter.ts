@@ -84,8 +84,8 @@ module Natural.Gallery {
             }, this);
 
             // Avoid duplicates
-            galleryCategories = uniqBy(galleryCategories, 'id');
-            itemCategories = uniqBy(itemCategories, 'id');
+            galleryCategories = Utility.uniqBy(galleryCategories, 'id');
+            itemCategories = Utility.uniqBy(itemCategories, 'id');
 
             if (galleryCategories.length) {
                 this.categories = intersectionBy(galleryCategories, itemCategories, 'id');

@@ -29,12 +29,14 @@ module Natural.Gallery {
             input.setAttribute('required', '');
             input.addEventListener('keyup', function(event) {
 
-                // On escape, empty field
+                let el = <HTMLInputElement> this;
+
+                // On escape key, empty field
                 if (event.keyCode == 27) {
-                    this.value = '';
+                    el.value = '';
                 }
 
-                self.filter(this.value);
+                self.filter(el.value);
             });
 
             return input;

@@ -44,6 +44,24 @@ module Natural.Gallery.Utility {
         return str;
     }
 
+    export function uniqBy(collection, attr: string) {
+
+        let newCollection = [];
+
+        collection.forEach(function(item) {
+
+            let found = newCollection.some(function(el) {
+                return item[attr] == el[attr];
+            });
+
+            if (!found) {
+                newCollection.push(item);
+            }
+        });
+
+        return newCollection;
+    }
+
     // @off
     // Source = http://web.archive.org/web/20120918093154/http://lehelk.com/2011/05/06/script-to-remove-diacritics/
     let defaultDiacriticsRemovalMap = [
