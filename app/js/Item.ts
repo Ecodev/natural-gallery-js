@@ -51,6 +51,7 @@ module Natural.Gallery {
 
         /**
          * @param fields
+         * @param gallery
          */
         public constructor(private fields: IItemFields, private gallery: Gallery) {
 
@@ -178,7 +179,7 @@ module Natural.Gallery {
                     return;
                 }
 
-                let nodeList = Array.prototype.slice.call(this.parentNode.children);
+                let nodeList = Array.prototype.slice.call((<HTMLElement> this.parentNode).children);
                 let index = nodeList.indexOf(this) - 1;
 
                 let options = {
