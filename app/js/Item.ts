@@ -24,6 +24,7 @@ module Natural.Gallery {
         private _last: boolean;
         private _categories: any[];
         private _row: number;
+        private _binded: boolean = false;
 
         /**
          * Computed size (real used size)
@@ -172,47 +173,60 @@ module Natural.Gallery {
 
             let self = this;
 
-            this.element.addEventListener('click', function(e) {
-                e.preventDefault();
+            // Avoid multiple bindings
+            if (this.binded) {
+                return;
+            }
 
-                if (!self.gallery.options.lightbox) {
-                    return;
+            this.binded = true;
+
+            let openPhotoSwipe = function(e) {
+              self.openPhotoSwipe.call(self, e, this);
+            };
+
+            this.element.addEventListener('click', openPhotoSwipe);
+        }
+
+        public openPhotoSwipe(e, el) {
+            e.preventDefault();
+
+            if (!this.gallery.options.lightbox) {
+                return;
+            }
+
+            let nodeList = Array.prototype.slice.call((<HTMLElement> el.parentNode).children);
+            let index = nodeList.indexOf(el) - 1;
+
+            let options = {
+                index: index,
+                bgOpacity: 0.85,
+                showHideOpacity: true,
+                loop: false
+            };
+
+            let pswp = new PhotoSwipe(this.gallery.pswpElement, PhotoSwipeUI_Default, this.gallery.pswpContainer, options);
+            this.gallery.pswpApi = pswp;
+            pswp.init();
+
+            let overrideLoop = null;
+
+            // Loading one more page when going to next image
+            pswp.listen('beforeChange', function(delta) {
+                // Positive delta indicates "go to next" action, we don't load more objects on looping back the gallery (same logic when scrolling)
+                if (delta > 0 && pswp.getCurrentIndex() == pswp.items.length - 1) {
+                    this.gallery.addElements();
+                } else if (delta === -1 * (pswp.items.length - 1)) {
+                    overrideLoop = pswp.items.length;
+                    this.gallery.addElements();
                 }
+            });
 
-                let nodeList = Array.prototype.slice.call((<HTMLElement> this.parentNode).children);
-                let index = nodeList.indexOf(this) - 1;
-
-                let options = {
-                    index: index,
-                    bgOpacity: 0.85,
-                    showHideOpacity: true,
-                    loop: false
-                };
-
-                let pswp = new PhotoSwipe(self.gallery.pswpElement, PhotoSwipeUI_Default, self.gallery.pswpContainer, options);
-                self.gallery.pswpApi = pswp;
-                pswp.init();
-
-                let overrideLoop = null;
-
-                // Loading one more page when going to next image
-                pswp.listen('beforeChange', function(delta) {
-                    // Positive delta indicates "go to next" action, we don't load more objects on looping back the gallery (same logic when scrolling)
-                    if (delta > 0 && pswp.getCurrentIndex() == pswp.items.length - 1) {
-                        self.gallery.addElements();
-                    } else if (delta === -1 * (pswp.items.length - 1)) {
-                        overrideLoop = pswp.items.length;
-                        self.gallery.addElements();
-                    }
-                });
-
-                // After change cannot detect if we are returning back from last to first
-                pswp.listen('afterChange', function() {
-                    if (overrideLoop) {
-                        pswp.goTo(overrideLoop);
-                        overrideLoop = null;
-                    }
-                });
+            // After change cannot detect if we are returning back from last to first
+            pswp.listen('afterChange', function() {
+                if (overrideLoop) {
+                    pswp.goTo(overrideLoop);
+                    overrideLoop = null;
+                }
             });
         }
 
@@ -340,6 +354,15 @@ module Natural.Gallery {
         set description(value: string) {
             this._description = value;
         }
+
+        get binded(): boolean {
+            return this._binded;
+        }
+
+        set binded(value: boolean) {
+            this._binded = value;
+        }
+
 
     }
 }
