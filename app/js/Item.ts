@@ -118,13 +118,13 @@ module Natural.Gallery {
             img.setAttribute('data-id', this.id + '');
             img.setAttribute('src', this.thumbnail);
 
-            img.onload = function() {
+            img.addEventListener('load', function() {
                 Utility.toggleClass(self.element, 'loading');
                 Utility.toggleClass(self.element, 'loaded');
-            };
+            });
 
             // For further implementation. Hiding errored images involve recompute everything and restart gallery
-            // img.onerror = function() {};
+            // img.addEventListener('error', function() {});
         }
 
         /**
