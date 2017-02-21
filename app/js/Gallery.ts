@@ -227,8 +227,14 @@ module Natural.Gallery {
             let nextButton = <HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-next')[0];
             nextButton.style.display = 'block';
 
-            if (this.pswpContainer.length === collection.length || !collection.length) {
+            if (this.pswpContainer.length === collection.length ) {
                 nextButton.style.display = 'none';
+
+                if (collection.length === 0) {
+                    (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-noresults')[0]).style.display = 'block';
+                    (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-images')[0]).style.display = 'none';
+                }
+
                 return;
             }
 
@@ -256,6 +262,7 @@ module Natural.Gallery {
             }
 
             (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-noresults')[0]).style.display = 'none';
+            (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-images')[0]).style.display = 'block';
             this.rootElement.getElementsByClassName('natural-gallery-visible')[0].textContent = String(this.pswpContainer.length);
             this.rootElement.getElementsByClassName('natural-gallery-total')[0].textContent = String(collection.length);
         }
