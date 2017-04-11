@@ -261,10 +261,17 @@ module Natural.Gallery {
                 }
             }
 
-            (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-noresults')[0]).style.display = 'none';
-            (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-images')[0]).style.display = 'block';
-            this.rootElement.getElementsByClassName('natural-gallery-visible')[0].textContent = String(this.pswpContainer.length);
-            this.rootElement.getElementsByClassName('natural-gallery-total')[0].textContent = String(collection.length);
+            let noResults = (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-noresults')[0]);
+            if (noResults) noResults.style.display = 'none';
+
+            let imageContainer = (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-images')[0]);
+            if (imageContainer) imageContainer.style.display = 'block';
+
+            let galleryVisible = this.rootElement.getElementsByClassName('natural-gallery-visible')[0];
+            if (galleryVisible) galleryVisible.textContent = String(this.pswpContainer.length);
+
+            let galleryTotal = this.rootElement.getElementsByClassName('natural-gallery-total')[0];
+            if (galleryTotal) galleryTotal.textContent = String(collection.length);
         }
 
         /**
