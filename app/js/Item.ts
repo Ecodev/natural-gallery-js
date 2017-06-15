@@ -56,10 +56,13 @@ module Natural.Gallery {
          */
         public constructor(private fields: IItemFields, private gallery: Gallery) {
 
+            let title = document.createElement('div');
+            title.innerHTML = fields.title;
+
             this.id = fields.id;
             this.thumbnail = fields.thumbnail;
             this.enlarged = fields.enlarged;
-            this.title = fields.title;
+            this.title = title.textContent || title.innerText;
             this.tWidth = fields.tWidth;
             this.tHeight = fields.tHeight;
             this.eWidth = fields.eWidth;
