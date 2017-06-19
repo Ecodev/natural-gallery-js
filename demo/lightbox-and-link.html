@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
+    <head>
 
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<link href='https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
 
-		<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
-		<link rel="stylesheet" href="../node_modules/photoswipe/dist/default-skin/default-skin.css">
-		<link rel="stylesheet" href="../node_modules/photoswipe/dist/photoswipe.css">
-		<link rel="stylesheet" href="../dist/natural-gallery.min.css">
-		<link rel="stylesheet" href="../dist/themes/natural.css">
-		<link rel="stylesheet" href="demo.css">
+        <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../node_modules/photoswipe/dist/default-skin/default-skin.css">
+        <link rel="stylesheet" href="../node_modules/photoswipe/dist/photoswipe.css">
+        <link rel="stylesheet" href="../dist/natural-gallery.min.css">
+        <link rel="stylesheet" href="../dist/themes/natural.css">
+        <link rel="stylesheet" href="demo.css">
 
-	</head>
+    </head>
 
-	<body>
-		<div class="container">
+    <body>
+        <div class="container">
 
-			<h1>Natural gallery</h1>
-			<h2 class="text-center">lightbox, no link</h2>
+            <h1>Natural gallery</h1>
+            <h2 class="text-center">lightbox + link</h2>
 
-			<svg version="1.1" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 100 100"  xml:space="preserve" style="display:none;">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 100 100"  xml:space="preserve" style="display:none;">
 
 				<g id="icon-search">
 					<path d="M67.647,61.054c1.74-1.741,3.046-3.706,3.916-5.896c0.87-2.19,1.305-4.422,1.305-6.696c0-2.274-0.435-4.52-1.305-6.738
@@ -62,69 +62,69 @@
 				</g>
 			</svg>
 
-			<script type="text/javascript">
-				window.naturalGalleries = window.naturalGalleries || [];
+            <script type="text/javascript">
+                window.naturalGalleries = window.naturalGalleries || [];
 
-				var naturalGallery = {};
-//				naturalGallery.categories = [
-//					{id:2, title:'My buildings'},
-//					{id:8, title:'My objects'},
-//					{id:-123, title:'is never used'}
-//				];
+                var naturalGallery = {};
+                //				naturalGallery.categories = [
+                //					{id:2, title:'My buildings'},
+                //					{id:8, title:'My objects'},
+                //					{id:-123, title:'is never used'}
+                //				];
                 naturalGallery.options = {
                     showCount: true,
                     searchFilter: true,
                     categoriesFilter: true,
                     showNone: true,
-                    showOthers: true,
+                    showOthers: true
                 };
 
-				window.naturalGalleries.push(naturalGallery);
-			</script>
+                window.naturalGalleries.push(naturalGallery);
+            </script>
 
-			<div class="natural-gallery"></div>
+            <div class="natural-gallery"></div>
 
-			<!-- Photoswipe template -->
-			<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-				<div class="pswp__bg"></div>
-				<div class="pswp__scroll-wrap">
-					<div class="pswp__container">
-						<div class="pswp__item"></div>
-						<div class="pswp__item"></div>
-						<div class="pswp__item"></div>
-					</div>
-					<div class="pswp__ui pswp__ui--hidden">
-						<div class="pswp__top-bar">
-							<div class="pswp__counter"></div>
-							<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-							<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-							<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-							<div class="pswp__preloader">
-								<div class="pswp__preloader__icn">
-									<div class="pswp__preloader__cut">
-										<div class="pswp__preloader__donut"></div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-							<div class="pswp__share-tooltip"></div>
-						</div>
-						<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
-						<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
-						<div class="pswp__caption">
-							<div class="pswp__caption__center"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+            <!-- Photoswipe template -->
+            <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="pswp__bg"></div>
+                <div class="pswp__scroll-wrap">
+                    <div class="pswp__container">
+                        <div class="pswp__item"></div>
+                        <div class="pswp__item"></div>
+                        <div class="pswp__item"></div>
+                    </div>
+                    <div class="pswp__ui pswp__ui--hidden">
+                        <div class="pswp__top-bar">
+                            <div class="pswp__counter"></div>
+                            <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                            <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                            <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                            <div class="pswp__preloader">
+                                <div class="pswp__preloader__icn">
+                                    <div class="pswp__preloader__cut">
+                                        <div class="pswp__preloader__donut"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                            <div class="pswp__share-tooltip"></div>
+                        </div>
+                        <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+                        <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+                        <div class="pswp__caption">
+                            <div class="pswp__caption__center"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-		<script src="../dist/natural-gallery.js"></script>
+        <script src="../dist/natural-gallery.js"></script>
 
-		<script>
-			var images = [];
-			var thumbnailMaximumHeight = 300;
+        <script>
+            var images = [];
+            var thumbnailMaximumHeight = 300;
 
             function success(data) {
 
@@ -133,16 +133,17 @@
                     var image = data[i];
                     var ratio = image.width / image.height;
 
-					let categoriesNames = image.categories.map(function(cat) {
-						return cat.name;
-					});
+                    let categoriesNames = image.categories.map(function(cat) {
+                        return cat.name;
+                    });
 
                     var formatedImage = {
                         id: i,
                         thumbnail: image.urls.small,
                         enlarged: image.urls.regular,
                         title: image.user.name + " " + categoriesNames.join(', '),
-                        link: null,
+                        link: 'https://www.google.ch/search?q=' + image.user.name,
+                        linkTarget: '_blank',
                         categories: image.categories,
                         tWidth: thumbnailMaximumHeight * ratio,
                         tHeight: thumbnailMaximumHeight,
@@ -156,9 +157,9 @@
                 naturalGalleries[0].appendItems(images);
             }
 
-			var xhr = new XMLHttpRequest();
-			xhr.open('GET', 'data.json');
-			xhr.send(null);
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'data.json');
+            xhr.send(null);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     success(JSON.parse(xhr.responseText));
@@ -171,7 +172,7 @@
             // 	 per_page: 30
             // },
 
-		</script>
+        </script>
 
-	</body>
+    </body>
 </html>
