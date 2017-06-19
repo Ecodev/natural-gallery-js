@@ -4,6 +4,9 @@
 */
 .pswp {
     z-index: 9999999;
+    .pswp__caption__center {
+        text-align:center
+    }
 }
 
 .natural-gallery {

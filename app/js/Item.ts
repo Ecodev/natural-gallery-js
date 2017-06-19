@@ -60,14 +60,12 @@ module Natural.Gallery {
          */
         public constructor(private fields: IItemFields, private gallery: Gallery) {
 
-            let title = fields.title ? ((document.createElement('div')).innerHTML = fields.title) : null;
-
             this.id = fields.id;
             this.thumbnail = fields.thumbnail;
             this.enlarged = fields.enlarged;
-            this.title = title;
-            this.link = fields.link;
-            this.linkTarget = fields.linkTarget;
+            this.title = this.getTitle(fields);
+            this.link = this.getLink(fields);
+            this.linkTarget = this.getLinkTarget(fields);
             this.tWidth = fields.tWidth;
             this.tHeight = fields.tHeight;
             this.eWidth = fields.eWidth;
@@ -76,6 +74,52 @@ module Natural.Gallery {
             this.last = fields.last;
 
             this.createElement();
+        }
+
+        private getTitle(fields):string {
+
+            if (!fields.title) {
+                return null;
+            }
+
+            return this.getTitleDetails(fields.title).title;
+        }
+
+        private getLink(fields): string {
+
+            if (fields.link) {
+                return fields.link;
+            }
+
+            return this.getTitleDetails(fields.title).link;
+        }
+        private getLinkTarget(fields): string {
+
+            if (fields.linkTarget) {
+                return fields.linkTarget;
+            }
+
+            return this.getTitleDetails(fields.title).linkTarget;
+        }
+
+        private getTitleDetails(title) {
+
+            let container = document.createElement('div');
+            container.innerHTML = title;
+            let links = container.getElementsByTagName("a");
+
+            let details =  {
+                title: container.textContent,
+                link: null,
+                linkTarget: null
+            };
+
+            if (links[0]) {
+                details.link = links[0].getAttribute('href');
+                details.linkTarget = links[0].getAttribute('target');
+            }
+
+            return details;
         }
 
         /**
@@ -97,7 +141,7 @@ module Natural.Gallery {
 
             let element = document.createElement('figure');
             let image = document.createElement('div');
-            let link = this.getLink();
+            let link = this.getLinkElement();
 
             if (options.lightbox && label && link) {
                 label = link;
@@ -165,7 +209,7 @@ module Natural.Gallery {
         }
 
 
-        private getLink() {
+        private getLinkElement() {
             let link = null;
 
             if (this.link) {
