@@ -133,16 +133,11 @@
                     var image = data[i];
                     var ratio = image.width / image.height;
 
-					let categoriesNames = image.categories.map(function(cat) {
-						return cat.name;
-					});
-
                     var formatedImage = {
                         id: i,
                         thumbnail: image.urls.small,
                         enlarged: image.urls.regular,
-                        title: image.user.name + " " + categoriesNames.join(', '),
-                        link: null,
+                        title: '<a href="https://www.google.ch/search?q=' + image.user.name + '" target="_blank">' + image.user.name + ' (1st link)</a>,  <a href="/ignored/link">2nd link to text</a>',
                         categories: image.categories,
                         tWidth: thumbnailMaximumHeight * ratio,
                         tHeight: thumbnailMaximumHeight,
