@@ -42,6 +42,9 @@
             clear: both;
         }
 
+        &[href] {
+            cursor: pointer;
+        }
         .natural-gallery-noresults {
             margin: 3em auto 2em;
             width: 100px;
@@ -58,16 +61,25 @@
             will-change: opacity;
         }
 
-        figure {
+        @mixin button() {
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            text-decoration: none;
+        }
+
+        .figure {
             position: relative;
             display: block;
             float: left;
             overflow: hidden;
             margin: 0;
 
-            &:hover > span.hover {
-                padding: 10px;
-                max-height: 100px;
+            &:hover {
+                .title.hover, .title.hover {
+                    transform: translateY(0%);
+                }
             }
 
             &.loading::before {
@@ -87,12 +99,12 @@
                 will-change: width, height, opacity;
             }
 
-            &.loaded.visible > a {
+            &.loaded.visible > .image {
                 opacity: 1;
-                transition: 1s ease-out opacity;
+                transition: 1s ease-out opacity, 1s ease-out transform;
             }
 
-            & > a {
+            .image {
                 display: block;
                 position: relative;
                 z-index: 100;
@@ -102,7 +114,11 @@
                 background-size: cover;
             }
 
-            & > span {
+            &[href] .title {
+                @include button();
+            }
+
+            .title {
                 position: absolute;
                 bottom: 0;
                 left: 0;
@@ -113,16 +129,42 @@
                 color: white;
                 font-size: 14px;
                 line-height: 2em;
+                font-weight: normal;
                 padding: 10px;
-                transition: 0.2s ease all;
+                transition: .2s ease all;
                 overflow: hidden;
+                white-space: normal;
 
+                &[href]:hover {
+                    margin-bottom: 12px;
+                    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+                }
+
+                // Status : Mouse out
                 &.hover {
-                    padding: 0 10px;
-                    max-height: 0;
+                    padding: 10px;
+                    // + the margin of &[href]
+                    transform: translateY(calc(100% + 10px));
                 }
             }
+
         }
+
+        .link {
+            cursor: pointer;
+        }
+
+        .button {
+            @include button();
+        }
+
+        .zoomable {
+            cursor:pointer;
+        }
+        .image.zoomable:hover, .zoomable:hover .image {
+            transform: rotate(2deg) scale(1.4);
+        }
+
     }
 
     /**

@@ -6,6 +6,8 @@ module Natural.Gallery {
         enlarged: string;
         title: string;
         description: string;
+        link: string;
+        linkTarget: string;
         tWidth: number;
         tHeight: number;
         eWidth: number;
@@ -21,6 +23,8 @@ module Natural.Gallery {
         private _enlarged: string;
         private _title: string;
         private _description: string;
+        private _link: string;
+        private _linkTarget: string;
         private _last: boolean;
         private _categories: any[];
         private _row: number;
@@ -56,13 +60,14 @@ module Natural.Gallery {
          */
         public constructor(private fields: IItemFields, private gallery: Gallery) {
 
-            let title = document.createElement('div');
-            title.innerHTML = fields.title;
+            let title = fields.title ? ((document.createElement('div')).innerHTML = fields.title) : null;
 
             this.id = fields.id;
             this.thumbnail = fields.thumbnail;
             this.enlarged = fields.enlarged;
-            this.title = title.textContent || title.innerText;
+            this.title = title;
+            this.link = fields.link;
+            this.linkTarget = fields.linkTarget;
             this.tWidth = fields.tWidth;
             this.tHeight = fields.tHeight;
             this.eWidth = fields.eWidth;
@@ -83,18 +88,50 @@ module Natural.Gallery {
         private createElement() {
 
             let self = this;
+            let options = this.gallery.options;
+
+            let label = null;
+            if (this.title && ['true', 'hover'].indexOf(options.showLabels) > -1) {
+                label = true;
+            }
 
             let element = document.createElement('figure');
-            Utility.addClass(element, 'loading visible');
+            let image = document.createElement('div');
+            let link = this.getLink();
 
-            let image = document.createElement('a');
+            if (options.lightbox && label && link) {
+                label = link;
+                Utility.addClass(label, 'button');
+                Utility.addClass(image, 'zoomable');
+
+            } else if (options.lightbox && label && !link) {
+                label = document.createElement('div');
+                Utility.addClass(element, 'zoomable');
+
+            } else if (options.lightbox && !label) {
+                // Actually, lightbox has priority on the link that is ignored...
+                Utility.addClass(element, 'zoomable');
+
+            } else if (!options.lightbox && label && link) {
+                element = link;
+                label = document.createElement('div');
+
+            } else if (!options.lightbox && label && !link) {
+                label = document.createElement('div');
+
+            } else if (!options.lightbox && !label && link) {
+                element = link;
+                // Pointer cursor is shown, but additionnal effect could be even better.
+
+            } else if (!options.lightbox && !label && !link) {
+
+            }
+
+            Utility.addClass(image, 'image');
+            Utility.addClass(element, 'figure loading visible');
             image.style.backgroundImage = 'url(' + this.thumbnail + ')';
 
-            var options = this.gallery.options;
-
-            if (options.lightbox) {
-                image.setAttribute('href', this.enlarged);
-            }
+            element.appendChild(image);
 
             if (options.round) {
                 let radius = String(options.round + 'px');
@@ -102,20 +139,17 @@ module Natural.Gallery {
                 image.style.borderRadius = radius;
             }
 
-            element.appendChild(image);
+            this.element = element;
+            this.image = image;
 
-            if (this.title && (options.showLabels == 'true' || options.showLabels == 'hover')) {
-                let label = document.createElement('span');
+            if (label) {
                 label.textContent = this.title;
+                Utility.addClass(label, 'title');
                 if (options.showLabels == 'hover') {
                     Utility.addClass(label, 'hover');
                 }
-
                 element.appendChild(label);
             }
-
-            this.element = element;
-            this.image = image;
 
             let img = document.createElement('img');
             img.setAttribute('data-id', this.id + '');
@@ -128,6 +162,22 @@ module Natural.Gallery {
 
             // For further implementation. Hiding errored images involve recompute everything and restart gallery
             // img.addEventListener('error', function() {});
+        }
+
+
+        private getLink() {
+            let link = null;
+
+            if (this.link) {
+                link = document.createElement('a');
+                link.setAttribute('href', this.link);
+                Utility.addClass(link, 'link');
+                if (this.linkTarget) {
+                    link.setAttribute('target', this.linkTarget)
+                }
+            }
+
+            return link;
         }
 
         /**
@@ -174,6 +224,10 @@ module Natural.Gallery {
          */
         public bindClick() {
 
+            if (!this.gallery.options.lightbox) {
+                return
+            }
+
             let self = this;
 
             // Avoid multiple bindings
@@ -184,10 +238,18 @@ module Natural.Gallery {
             this.binded = true;
 
             let openPhotoSwipe = function(e) {
-              self.openPhotoSwipe.call(self, e, this);
+              self.openPhotoSwipe.call(self, e, self.element);
             };
 
-            this.element.addEventListener('click', openPhotoSwipe);
+            let clickEl = null;
+
+            if (this.link) {
+                clickEl = this.image;
+            } else {
+                clickEl = this.element;
+            }
+
+            clickEl.addEventListener('click', openPhotoSwipe);
         }
 
         public openPhotoSwipe(e, el) {
@@ -366,6 +428,21 @@ module Natural.Gallery {
             this._binded = value;
         }
 
+        get link(): string {
+            return this._link;
+        }
+
+        set link(value: string) {
+            this._link = value;
+        }
+
+        get linkTarget(): string {
+            return this._linkTarget;
+        }
+
+        set linkTarget(value: string) {
+            this._linkTarget = value;
+        }
 
     }
 }

@@ -35,6 +35,8 @@ module Natural.Gallery.Utility {
         if (nameIndex == -1) {
             element.className += ' ' + className;
         }
+
+        element.className = element.className.replace(/  +/g, ' ').trim();
     }
 
     export function removeDiacritics(str) {
