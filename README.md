@@ -1,6 +1,14 @@
 Natural Gallery
 ============================
 
+Demos 
+-----
+* Lightbox and no links : https://ecodev.ch/natural-gallery/demo
+* Lightbox and links : https://ecodev.ch/natural-gallery/demo/lightbox-and-link.html
+* No lightbox but links : https://ecodev.ch/natural-gallery/demo/nolightbox-and-link.html
+* No lightbox and no links : https://ecodev.ch/natural-gallery/demo/nolightbox-nolink.html
+* Lightbox and forged link (link as html in title property): https://ecodev.ch/natural-gallery/demo/lightbox-forgedlinks.html
+
 Use distribution on your project 
 -----
 
