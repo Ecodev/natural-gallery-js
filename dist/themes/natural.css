@@ -6,7 +6,7 @@
 .natural-gallery .natural-gallery-body figure.loading::before,
 .natural-gallery .bar::before,
 .natural-gallery .bar::after {
-    background-color: #0089e0 !important;
+    background-color: rgb(0, 137, 224) !important;
 }
 
 /* Inactive */
@@ -41,14 +41,20 @@
 .natural-gallery .natural-gallery-searchTerm:hover input,
 .natural-gallery .natural-gallery-searchTerm:hover .sectionName,
 .natural-gallery .natural-gallery-images:hover .sectionName {
-    color: #0089e0 !important;
+    color: rgb(0, 137, 224) !important;
     fill: currentColor !important;
 }
 
 .natural-gallery .natural-gallery-categories input[type=checkbox]:checked ~ .label svg {
-    fill: #0089e0 !important;
+    fill: rgb(0, 137, 224) !important;
 }
 
 .natural-gallery .natural-gallery-next:hover {
     background-color: #eeeeee !important;
+}
+
+.natural-gallery .button ,
+.natural-gallery a.figure[href] .title {
+    background: rgb(0, 137, 224) !important;
+    border-top: 1px solid #45a8e0;
 }
