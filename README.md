@@ -16,11 +16,13 @@ The bower install does not include sources and build process. To run the demo, l
 
 Install natural-gallery-js :
 
-```npm install natural-gallery-js --save```
+```sh
+npm install natural-gallery-js --save
+```
 
 Include photoswipe and natural gallery stylesheets + jquery script in your headers : 
 
-```
+```html
 <link rel="stylesheet" href="[...]/photoswipe/dist/default-skin/default-skin.css">
 <link rel="stylesheet" href="[...]/photoswipe/dist/photoswipe.css">
 <link rel="stylesheet" href="[...]/natural-gallery/dist/themes/natural.css">
@@ -30,7 +32,7 @@ Include photoswipe and natural gallery stylesheets + jquery script in your heade
 
 Includes natural gallery scripts in your footer (includes photoswipe JS): 
 
-```
+```html
 <script src="[...]/natural-gallery/dist/natural-gallery.min.js"></script>
 ```
 
@@ -39,14 +41,14 @@ Run and look at the demo for code implementation
 
 Clone project on your local disk :
 
-```
+```sh
 git clone git@github.com:Ecodev/natural-gallery.git 
 cd natural-gallery
 ```
 
 Install production and dev dependencies and run build :
 
-```
+```sh
 npm install && npm run prod
 ```
 
