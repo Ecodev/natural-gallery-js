@@ -54,6 +54,8 @@ module Natural.Gallery {
         private element: HTMLElement;
         private image: HTMLElement;
 
+        private _excluded: boolean = false;
+
         /**
          * @param fields
          * @param gallery
@@ -195,19 +197,20 @@ module Natural.Gallery {
                 element.appendChild(label);
             }
 
-            let img = document.createElement('img');
-            img.setAttribute('data-id', this.id + '');
-            img.setAttribute('src', this.thumbnail);
-
-            img.addEventListener('load', function() {
-                Utility.toggleClass(self.element, 'loading');
-                Utility.toggleClass(self.element, 'loaded');
-            });
-
-            // For further implementation. Hiding errored images involve recompute everything and restart gallery
-            // img.addEventListener('error', function() {});
+            // let img = document.createElement('img');
+            // img.setAttribute('data-id', this.id + '');
+            // img.setAttribute('src', this.thumbnail);
+            //
+            // img.addEventListener('load', function() {
+            //     Utility.toggleClass(self.element, 'loading');
+            //     Utility.toggleClass(self.element, 'loaded');
+            // });
+            //
+            // img.addEventListener('error', function() {
+            //     self.excluded = true;
+            //     self.gallery.refresh();
+            // });
         }
-
 
         private getLinkElement() {
             let link = null;
@@ -352,6 +355,33 @@ module Natural.Gallery {
             return this.element;
         }
 
+        /**
+         * This function prepare loaded/loading status and return root element.
+         * @returns {HTMLElement}
+         */
+        public loadElement(): HTMLElement {
+
+            let self = this;
+            let img = document.createElement('img');
+            img.setAttribute('data-id', this.id + '');
+            img.setAttribute('src', this.thumbnail);
+
+            img.addEventListener('load', function() {
+                Utility.removeClass(self.element, 'loading');
+                Utility.addClass(self.element, 'loaded');
+            });
+
+            // Detect erorred images and hide them smartly
+            // img.addEventListener('error', function() {
+            //     self.excluded = true;
+            //     self.gallery.refresh();
+            // });
+
+            return this.element;
+        }
+
+
+
         get id(): number {
             return this._id;
         }
@@ -486,6 +516,14 @@ module Natural.Gallery {
 
         set linkTarget(value: string) {
             this._linkTarget = value;
+        }
+
+        get excluded(): boolean {
+            return this._excluded;
+        }
+
+        set excluded(value: boolean) {
+            this._excluded = value;
         }
 
     }
