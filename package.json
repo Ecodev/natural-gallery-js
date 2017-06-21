@@ -80,7 +80,7 @@
     "run-sequence": "^1.1.4",
     "tiny-lr": "^0.2.1",
     "tslint": "^2.5.1",
-    "typescript": "^2.1.5",
+    "typescript": "^2.3.4",
     "uglifyify": "^3.0.1",
     "vinyl-source-stream": "^1.1.0"
   }
