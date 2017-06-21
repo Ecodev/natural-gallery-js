@@ -88,12 +88,6 @@ module Natural.Gallery {
         private _header: Header;
 
         /**
-         * Search and Categories filters
-         * @type {null}
-         */
-        //private filter: Filter = null;
-
-        /**
          * Initiate gallery
          * @param position
          * @param options
@@ -321,15 +315,14 @@ module Natural.Gallery {
         }
 
         /**
-         * Empty DOM container and Photoswipe container
-         * @param gallery
+         * Empty DOM container and PhotoSwipe container
          */
         public reset(): void {
             this.pswpContainer = [];
-            let figures = this.bodyElement.getElementsByTagName('figure');
-            for (let i = (figures.length - 1); i >= 0; i--) {
-                figures[i].parentNode.removeChild(figures[i]);
-            }
+
+            this._collection.forEach(function(item: Item) {
+                item.remove();
+            });
 
             let results = <HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-noresults')[0];
             if (results) {

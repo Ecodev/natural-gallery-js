@@ -157,19 +157,14 @@
             }
 
 			var xhr = new XMLHttpRequest();
-			xhr.open('GET', 'data.json');
-			xhr.send(null);
+            xhr.open('GET', 'data.json');
+            xhr.send(null);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     success(JSON.parse(xhr.responseText));
                 }
             };
 
-            // url: 'https://api.unsplash.com/photos',
-            // data: {
-            // 	 client_id: '04902b80294822aa86dbe5c57ee47e1c1f0e8a0f0f360979746970a1239001dd',
-            // 	 per_page: 30
-            // },
 
 		</script>
 
