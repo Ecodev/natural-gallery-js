@@ -53,7 +53,7 @@ module Natural.Gallery {
         /**
          * Images wrapper container
          */
-        private _bodyElement: Element;
+        private _bodyElement: HTMLElement;
 
         /**
          * Last saved wrapper width
@@ -192,7 +192,7 @@ module Natural.Gallery {
 
             // Complete collection
             items.forEach(function(item) {
-                this.collection.push(new Item(<IItemFields> item, this));
+                this._collection.push(new Item(<IItemFields> item, this));
             }, this);
 
             // Compute sizes
@@ -250,7 +250,7 @@ module Natural.Gallery {
                 let item = collection[i];
                 if (item.row < lastRow) {
                     this.pswpContainer.push(item.getPswpItem());
-                    this.bodyElement.appendChild(item.getElement());
+                    this.bodyElement.appendChild(item.loadElement());
                     item.bindClick();
                     item.flash();
                 }
@@ -337,6 +337,16 @@ module Natural.Gallery {
             }
         }
 
+        /**
+         * Return only non ignored elements
+         * @param collection
+         */
+        private cleanCollection(collection): Item[] {
+            return collection.filter(function(item: Item){
+                return !item.excluded;
+            });
+        }
+
         get pswpContainer(): any[] {
             return this._pswpContainer;
         }
@@ -346,11 +356,12 @@ module Natural.Gallery {
         }
 
         get collection(): Item[] {
-            return this.header && this.header.isFiltered() ? this.header.collection : this._collection;
+            let collection = this.header && this.header.isFiltered() ? this.header.collection : this._collection;
+            return this.cleanCollection(collection);
         }
 
         public getOriginalCollection(): Item[] {
-            return this._collection;
+            return this.cleanCollection(this._collection);
         }
 
         set collection(items: Item[]) {
@@ -366,11 +377,11 @@ module Natural.Gallery {
             this._bodyWidth = value;
         }
 
-        get bodyElement(): Element {
+        get bodyElement(): HTMLElement {
             return this._bodyElement;
         }
 
-        set bodyElement(value: Element) {
+        set bodyElement(value: HTMLElement) {
             this._bodyElement = value;
         }
 
