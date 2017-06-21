@@ -12,7 +12,6 @@ module Natural.Gallery.Organizer {
     export function organize(gallery: Gallery) {
 
         if (gallery.options.format == 'natural') {
-            console.warn('collection length', gallery.collection.length);
             this.organizeNatural(gallery.collection, gallery.bodyWidth, gallery.options.rowHeight, gallery.options.margin);
         } else if (gallery.options.format == 'square') {
             this.organizeSquare(gallery.collection, gallery.bodyWidth, gallery.options.imagesPerRow, gallery.options.margin);

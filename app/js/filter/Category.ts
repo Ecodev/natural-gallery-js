@@ -20,8 +20,6 @@ module Natural.Gallery {
             let self = this;
 
             this.element = document.createElement('label');
-            this.element.setAttribute('data-id', String(this.id));
-
             let input = document.createElement('input');
             input.setAttribute('type', 'checkbox');
             input.setAttribute('checked', 'checked');

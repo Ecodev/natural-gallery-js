@@ -133,7 +133,6 @@ module Natural.Gallery {
          */
         private createElement() {
 
-            let self = this;
             let options = this.gallery.options;
 
             let label = null;
@@ -141,7 +140,7 @@ module Natural.Gallery {
                 label = true;
             }
 
-            let element = document.createElement('figure');
+            let element = document.createElement('div');
             let image = document.createElement('div');
             let link = this.getLinkElement();
 
@@ -169,8 +168,6 @@ module Natural.Gallery {
                 element = link;
                 // Pointer cursor is shown, but additionnal effect could be even better.
 
-            } else if (!options.lightbox && !label && !link) {
-
             }
 
             Utility.addClass(image, 'image');
@@ -197,19 +194,6 @@ module Natural.Gallery {
                 element.appendChild(label);
             }
 
-            // let img = document.createElement('img');
-            // img.setAttribute('data-id', this.id + '');
-            // img.setAttribute('src', this.thumbnail);
-            //
-            // img.addEventListener('load', function() {
-            //     Utility.toggleClass(self.element, 'loading');
-            //     Utility.toggleClass(self.element, 'loaded');
-            // });
-            //
-            // img.addEventListener('error', function() {
-            //     self.excluded = true;
-            //     self.gallery.refresh();
-            // });
         }
 
         private getLinkElement() {
@@ -363,7 +347,6 @@ module Natural.Gallery {
 
             let self = this;
             let img = document.createElement('img');
-            img.setAttribute('data-id', this.id + '');
             img.setAttribute('src', this.thumbnail);
 
             img.addEventListener('load', function() {
@@ -371,16 +354,19 @@ module Natural.Gallery {
                 Utility.addClass(self.element, 'loaded');
             });
 
-            // Detect erorred images and hide them smartly
-            // img.addEventListener('error', function() {
-            //     self.excluded = true;
-            //     self.gallery.refresh();
-            // });
+            //Detect errored images and hide them smartly
+            img.addEventListener('error', function() {
+                Utility.addClass(self.element, 'errored');
+            });
 
             return this.element;
         }
 
-
+        public remove() {
+            if (this.getElement().parentNode) {
+                this.getElement().parentNode.removeChild(this.getElement());
+            }
+        }
 
         get id(): number {
             return this._id;
