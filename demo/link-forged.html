@@ -12,6 +12,8 @@
 		<link rel="stylesheet" href="../dist/natural-gallery.min.css">
 		<link rel="stylesheet" href="../dist/themes/natural.css">
 		<link rel="stylesheet" href="demo.css">
+		<script src="../dist/natural-gallery.js" defer></script>
+
 
 	</head>
 
@@ -66,28 +68,6 @@
 				</g>
 			</svg>
 
-			<script type="text/javascript">
-				window.naturalGalleries = window.naturalGalleries || [];
-
-				var naturalGallery = {};
-//				naturalGallery.categories = [
-//					{id:2, title:'My buildings'},
-//					{id:8, title:'My objects'},
-//					{id:-123, title:'is never used'}
-//				];
-                naturalGallery.options = {
-                    showCount: true,
-                    searchFilter: true,
-                    categoriesFilter: true,
-                    showNone: true,
-                    showOthers: true,
-                };
-
-				window.naturalGalleries.push(naturalGallery);
-			</script>
-
-			<div class="natural-gallery"></div>
-
 			<!-- Photoswipe template -->
 			<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 				<div class="pswp__bg"></div>
@@ -122,45 +102,38 @@
 					</div>
 				</div>
 			</div>
-		</div>
 
-		<script src="../dist/natural-gallery.js"></script>
+			<!-- Gallery Wrapper  -->
+			<div id="gallery"></div>
 
-		<script>
-			var images = [];
-			var thumbnailMaximumHeight = 300;
+		</div><!-- .container -->
 
-            function success(data) {
 
-                for (var i = 0; i < data.length; i++) {
-
-                    var image = data[i];
-                    var ratio = image.width / image.height;
-
-                    var formatedImage = {
-                        id: i,
-                        thumbnail: image.urls.small,
-                        enlarged: image.urls.regular,
-                        title: '<a href="https://www.google.ch/search?q=' + image.user.name + '" target="_blank">' + image.user.name + ' (1st link txt)</a>,  <a href="/ignored/link">2nd link to txt</a>',
-                        categories: image.categories,
-                        tWidth: thumbnailMaximumHeight * ratio,
-                        tHeight: thumbnailMaximumHeight,
-                        eWidth: image.width,
-                        eHeight: image.height
-                    };
-
-                    images.push(formatedImage);
+		<script type="text/javascript">
+            window.naturalGalleries = window.naturalGalleries || [];
+            var naturalGallery = {
+                id: 'gallery',
+                options : {
+                    showCount: true,
+                    searchFilter: true,
+                    categoriesFilter: true,
+                    showNone: true,
+                    showOthers: true
                 }
+            };
 
-                naturalGalleries[0].appendItems(images);
-            }
+            window.naturalGalleries.push(naturalGallery);
 
-			var xhr = new XMLHttpRequest();
-			xhr.open('GET', 'data.json');
-			xhr.send(null);
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'data.json');
+            xhr.send(null);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
-                    success(JSON.parse(xhr.responseText));
+                    var images = JSON.parse(xhr.responseText);
+                    images.map(function(image) {
+                        image.title = '<a href="https://www.google.ch/search?q=' + image.title + '" target="_blank">' + image.title + '</a>';
+                    });
+                    window.naturalGalleries[0].images = images;
                 }
             };
 
