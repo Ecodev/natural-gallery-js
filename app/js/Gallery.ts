@@ -369,7 +369,7 @@ import {Organizer} from './Organizer';
         }
 
         public getOriginalCollection(): Item[] {
-            return this.cleanCollection(this._collection);
+            return this._collection;
         }
 
         set collection(items: Item[]) {
