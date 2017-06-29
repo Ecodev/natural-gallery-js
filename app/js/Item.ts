@@ -1,4 +1,7 @@
-module Natural.Gallery {
+import {Gallery} from './Gallery';
+import {Utility} from './Utility';
+import * as PhotoSwipe from "photoswipe";
+import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 
     export interface IItemFields {
         id?: number;
@@ -233,14 +236,14 @@ module Natural.Gallery {
             this.image.style.width = String(this.width + 'px');
             this.image.style.height = String(this.height + 'px');
 
-            let self = this;
+            const self = this;
             window.setTimeout(function() {
                 Utility.addClass(self.element, 'visible');
             }, 0);
         }
 
         public flash() {
-            let self = this;
+            const self = this;
             Utility.removeClass(this.element, 'visible');
             window.setTimeout(function() {
                 Utility.addClass(self.element, 'visible');
@@ -513,4 +516,4 @@ module Natural.Gallery {
         }
 
     }
-}
+

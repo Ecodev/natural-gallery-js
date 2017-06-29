@@ -1,4 +1,7 @@
-module Natural.Gallery {
+import {Item} from '../Item';
+import {AbstractFilter} from './AbstractFilter';
+import {Gallery} from '../Gallery';
+import {Utility} from '../Utility';
 
     export class Header {
 
@@ -112,11 +115,11 @@ module Natural.Gallery {
             this._element = value;
         }
 
-        get gallery(): Natural.Gallery.Gallery {
+        get gallery(): Gallery {
             return this._gallery;
         }
 
-        set gallery(value: Natural.Gallery.Gallery) {
+        set gallery(value: Gallery) {
             this._gallery = value;
         }
 
@@ -128,4 +131,4 @@ module Natural.Gallery {
             this._filters = value;
         }
     }
-}
+

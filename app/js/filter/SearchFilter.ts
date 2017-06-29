@@ -1,4 +1,5 @@
-module Natural.Gallery {
+import {Utility} from '../Utility';
+import {AbstractFilter} from './AbstractFilter';
 
     export class SearchFilter extends AbstractFilter {
 
@@ -23,7 +24,7 @@ module Natural.Gallery {
 
         private getInput(): HTMLElement {
 
-            let self = this;
+            const self = this;
 
             let input = document.createElement('input');
             input.setAttribute('required', '');
@@ -64,4 +65,3 @@ module Natural.Gallery {
         }
 
     }
-}

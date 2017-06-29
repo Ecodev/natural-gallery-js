@@ -1,9 +1,18 @@
-///<reference path="../cache/references.ts"/>
+import {Controller} from "./js/Controller";
 
-declare var require: (moduleId: string) => any;
-declare var naturalGalleries: any[];
+import './styles/natural-gallery.scss';
+import './styles/themes/natural.css';
 
-let PhotoSwipe = require('photoswipe');
-let PhotoSwipeUI_Default = require('../node_modules/photoswipe/dist/photoswipe-ui-default');
+declare let naturalGalleries: any[];
 
-let naturalGalleryController = new Natural.Gallery.Controller();
+if (typeof naturalGalleries !== 'undefined' && naturalGalleries.constructor === Array) {
+    Controller.getInstance().addGalleries(naturalGalleries);
+}
+
+export function add(gallery) {
+    return Controller.getInstance().addGallery(gallery);
+}
+
+export function getById(id) {
+    Controller.getInstance().getById(id);
+}

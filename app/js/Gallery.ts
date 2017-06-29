@@ -1,4 +1,11 @@
-module Natural.Gallery {
+import {Item} from './Item';
+import {IItemFields} from './Item';
+import {Header} from './filter/Header';
+import {Category} from './filter/Category';
+import {SearchFilter} from './filter/SearchFilter';
+import {CategoryFilter} from './filter/CategoryFilter';
+import {Utility} from './Utility';
+import {Organizer} from './Organizer';
 
     export interface iGalleryOptions {
         rowHeight: number;
@@ -39,16 +46,12 @@ module Natural.Gallery {
             showOthers: false
         };
 
-        /**
-         * Nth gallery on document
-         * Used to select root element and then body element
-         */
-        private _position: number;
+        private _id: string;
 
         /**
          * Root div containing the gallery
          */
-        private _rootElement: Element;
+        private _rootElement: HTMLElement;
 
         /**
          * Images wrapper container
@@ -69,7 +72,7 @@ module Natural.Gallery {
         /**
          * Photoswipe dom element
          */
-        private _pswpElement: any;
+        private _pswpElement: HTMLElement;
 
         /**
          * Photoswipe javascript object
@@ -94,20 +97,24 @@ module Natural.Gallery {
          * @param categories
          * @param pswp
          */
-        public constructor(position, options, categories: Category[] = [], pswp: any) {
-
+        public constructor(gallery, pswp: HTMLElement) {
             this.pswpElement = pswp;
 
             for (var key in this.options) {
-                if (typeof options[key] === 'undefined') {
-                    options[key] = this.options[key];
+                if (typeof gallery.options[key] === 'undefined') {
+                    gallery.options[key] = this.options[key];
                 }
             }
 
-            this.options = options;
-            this.position = position;
-            this.categories = categories;
-            this.rootElement = document.getElementsByClassName('natural-gallery').item(this.position);
+            this.options = gallery.options;
+            this.categories = gallery.categories ? <Category[]> gallery.categories : [];
+            this.rootElement = <HTMLElement> document.getElementById(gallery.id);
+
+            Utility.addClass(this.rootElement, 'natural-gallery');
+
+            if (gallery.images) {
+                this.collection = gallery.images;
+            }
 
             // header
             if (this.options.searchFilter || this.options.categoriesFilter || this.options.showCount) {
@@ -130,7 +137,7 @@ module Natural.Gallery {
 
         public render() {
 
-            let self = this;
+            const self = this;
 
             let noResults = document.createElement('div');
             Utility.addClass(noResults, 'natural-gallery-noresults');
@@ -331,13 +338,22 @@ module Natural.Gallery {
         }
 
         /**
-         * Return only non ignored elements
-         * @param collection
+         * Pseudo attribute, works like a "post-add-images".
+         * If gallery config has .images attribute specified before gallery object creation, the constructor will deal with .images attribute to create the official collection
+         * If user specifies .images attribute after library load, this function will take care of it.
+         * For post load, user needs to keep reference to this object.
+         * @param images
          */
-        private cleanCollection(collection): Item[] {
-            return collection.filter(function(item: Item){
-                return !item.excluded;
-            });
+        set images(images) {
+            this.collection = images;
+        }
+
+        get id(): string {
+            return this._id;
+        }
+
+        set id(value: string) {
+            this._id = value;
         }
 
         get pswpContainer(): any[] {
@@ -378,11 +394,11 @@ module Natural.Gallery {
             this._bodyElement = value;
         }
 
-        get rootElement(): Element {
+        get rootElement(): HTMLElement {
             return this._rootElement;
         }
 
-        set rootElement(value: Element) {
+        set rootElement(value: HTMLElement) {
             this._rootElement = value;
         }
 
@@ -394,11 +410,11 @@ module Natural.Gallery {
             this._pswpApi = value;
         }
 
-        get pswpElement(): any {
+        get pswpElement(): HTMLElement {
             return this._pswpElement;
         }
 
-        set pswpElement(value: any) {
+        set pswpElement(value: HTMLElement) {
             this._pswpElement = value;
         }
 
@@ -408,14 +424,6 @@ module Natural.Gallery {
 
         set options(value: iGalleryOptions) {
             this._options = value;
-        }
-
-        get position(): number {
-            return this._position;
-        }
-
-        set position(value: number) {
-            this._position = value;
         }
 
         get header(): Header {
@@ -435,4 +443,3 @@ module Natural.Gallery {
         }
     }
 
-}

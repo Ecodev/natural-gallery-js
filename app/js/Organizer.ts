@@ -7,7 +7,9 @@
  * Uses json, never read the dom, except to determine the size of parent container.
  *
  */
-module Natural.Gallery.Organizer {
+import {Gallery} from './Gallery';
+
+export module Organizer {
 
     export function organize(gallery: Gallery) {
 
@@ -121,7 +123,7 @@ module Natural.Gallery.Organizer {
 
     export function getRatios(elements) {
 
-        let self = this;
+        const self = this;
         let totalWidth = 0;
 
         for (let i = 0; i < elements.length; i++) {

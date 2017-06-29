@@ -1,4 +1,5 @@
-module Natural.Gallery {
+import {Utility} from '../Utility';
+import {AbstractFilter} from './AbstractFilter';
 
     export class Category {
 
@@ -17,7 +18,7 @@ module Natural.Gallery {
 
         public render(): HTMLElement {
 
-            let self = this;
+            const self = this;
 
             this.element = document.createElement('label');
             let input = document.createElement('input');
@@ -80,4 +81,4 @@ module Natural.Gallery {
         }
     }
 
-}
+

@@ -1,4 +1,8 @@
-module Natural.Gallery {
+import {AbstractFilter} from './AbstractFilter';
+import {Category} from './Category';
+import {Header} from './Header';
+import {Utility} from '../Utility';
+import {Item} from '../Item';
 
     export class CategoryFilter extends AbstractFilter {
 
@@ -145,19 +149,19 @@ module Natural.Gallery {
             this._categories = value;
         }
 
-        get others(): Natural.Gallery.Category {
+        get others(): Category {
             return this._others;
         }
 
-        set others(value: Natural.Gallery.Category) {
+        set others(value: Category) {
             this._others = value;
         }
 
-        get none(): Natural.Gallery.Category {
+        get none(): Category {
             return this._none;
         }
 
-        set none(value: Natural.Gallery.Category) {
+        set none(value: Category) {
             this._none = value;
         }
 
@@ -166,4 +170,4 @@ module Natural.Gallery {
         }
 
     }
-}
+

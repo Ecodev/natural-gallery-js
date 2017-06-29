@@ -1,4 +1,5 @@
-module Natural.Gallery {
+import {Item} from '../Item';
+import {Header} from './Header';
 
     export abstract class AbstractFilter {
 
@@ -31,5 +32,3 @@ module Natural.Gallery {
         }
 
     }
-
-}

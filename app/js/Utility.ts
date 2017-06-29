@@ -1,7 +1,7 @@
-module Natural.Gallery.Utility {
+export module Utility {
 
     export function getIcon(name: string): SVGSVGElement {
-        let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('viewBox', '0 0 100 100');
         svg.innerHTML = '<use xlink:href="#' + name + '"></use>';
         return svg;
@@ -28,30 +28,28 @@ module Natural.Gallery.Utility {
             return;
         }
 
-        let classString = element.className;
-        let nameIndex = classString.indexOf(className);
-        if (nameIndex == -1) {
-            element.className += ' ' + className;
-        }
-        else {
+        if (!this.hasClass(element, className)) {
+            this.addClass(element, className);
+        } else {
             this.removeClass(element, className);
         }
     }
 
     export function removeClass(element: Element, className) {
-        let nameIndex = element.className.indexOf(className);
-        if (nameIndex > -1) {
-            element.className = element.className.substr(0, nameIndex) + element.className.substr(nameIndex + className.length);
-        }
+        const reg = new RegExp('(\\s|^)' + className + '(\\s|$)');
+        element.className = element.className.replace(reg, ' ').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
     }
 
     export function addClass(element: Element, className) {
-        let nameIndex = element.className.indexOf(className);
-        if (nameIndex == -1) {
-            element.className += ' ' + className;
+        if (!this.hasClass(className)) {
+            element.className += (element.className ? ' ' :  '') + className;
         }
 
         element.className = element.className.replace(/  +/g, ' ').trim();
+    }
+
+    export function hasClass(el, className) {
+        return el.className && new RegExp('(^|\\s)' + className + '(\\s|$)').test(el.className);
     }
 
     export function removeDiacritics(str) {
@@ -63,11 +61,10 @@ module Natural.Gallery.Utility {
 
     export function uniqBy(collection, attr: string) {
 
-        let newCollection = [];
+        const newCollection = [];
 
         collection.forEach(function(item) {
-
-            let found = newCollection.some(function(el) {
+            const found = newCollection.some(function(el) {
                 return item[attr] == el[attr];
             });
 
@@ -80,10 +77,10 @@ module Natural.Gallery.Utility {
     }
 
     export function differenceBy(col1: any[], col2: any[], attr: string) {
-        let collection = [];
+        const collection = [];
 
         col1.forEach(function(el1) {
-            let found = col2.some(function(el2) {
+            const found = col2.some(function(el2) {
                 return el1[attr] == el2[attr];
             });
             if (!found) {
@@ -95,10 +92,10 @@ module Natural.Gallery.Utility {
     }
 
     export function intersectionBy(col1: any[], col2: any[], attr: string) {
-        let collection = [];
+        const collection = [];
 
         col1.forEach(function(el1) {
-            let found = col2.some(function(el2) {
+            const found = col2.some(function(el2) {
                 return el1[attr] == el2[attr];
             });
             if (found) {
@@ -111,7 +108,7 @@ module Natural.Gallery.Utility {
 
     // @off
     // Source = http://web.archive.org/web/20120918093154/http://lehelk.com/2011/05/06/script-to-remove-diacritics/
-    let defaultDiacriticsRemovalMap = [
+    const defaultDiacriticsRemovalMap = [
         {'base':'A', 'letters':/[\u0041\u24B6\uFF21\u00C0\u00C1\u00C2\u1EA6\u1EA4\u1EAA\u1EA8\u00C3\u0100\u0102\u1EB0\u1EAE\u1EB4\u1EB2\u0226\u01E0\u00C4\u01DE\u1EA2\u00C5\u01FA\u01CD\u0200\u0202\u1EA0\u1EAC\u1EB6\u1E00\u0104\u023A\u2C6F]/g},
         {'base':'AA','letters':/[\uA732]/g},
         {'base':'AE','letters':/[\u00C6\u01FC\u01E2]/g},
