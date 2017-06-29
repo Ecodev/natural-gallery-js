@@ -23,20 +23,26 @@ Install natural-gallery-js :
 npm install natural-gallery-js --save
 ```
 
-Include photoswipe and natural gallery stylesheets + jquery script in your headers : 
+Include in <head> : 
 
 ```html
 <link rel="stylesheet" href="[...]/photoswipe/dist/default-skin/default-skin.css">
 <link rel="stylesheet" href="[...]/photoswipe/dist/photoswipe.css">
 <link rel="stylesheet" href="[...]/natural-gallery/dist/themes/natural.css">
 <link rel="stylesheet" href="[...]/natural-gallery/dist/natural-gallery.min.css">
-<script src="[...]/jquery/dist/jquery.js"></script>
+<script src="[...]/natural-gallery/dist/natural-gallery.js" defer></script>
 ```
 
-Includes natural gallery scripts in your footer (includes photoswipe JS): 
+If you already have photoswipe loaded on your website, you only need the light version of natural-gallery (see demo) : 
 
 ```html
-<script src="[...]/natural-gallery/dist/natural-gallery.min.js"></script>
+<link rel="stylesheet" href="[...]/photoswipe/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="[...]/photoswipe/dist/photoswipe.css">
+<link rel="stylesheet" href="[...]/natural-gallery/dist/themes/natural.css">
+<link rel="stylesheet" href="[...]/natural-gallery/dist/natural-gallery.min.css">
+<script src="[...]/photoswipe/dist/photoswipe.min.js" defer></script>
+<script src="[...]/photoswipe/dist/photoswipe-ui-default.min.js" defer></script>
+<script src="[...]/natural-gallery/dist/natural-gallery.light.js" defer></script>
 ```
 
 Run and look at the demo for code implementation
