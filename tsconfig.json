@@ -1,13 +1,10 @@
 {
     "compilerOptions": {
-        "module": "amd",
-        "target": "es5",
+        "target": "es2015",
+        "lib": ["es2016", "dom"],
         "noImplicitAny": false,
-        "sourceMap": false,
-        "outDir": "cache",
-        "outFile": "cache/build.js"
-    },
-    "files": [
-        "app/app.ts"
-    ]
+        "sourceMap": true,
+        "moduleResolution": "node",
+        "typeRoots": ["./node_modules/@types"]
+    }
 }
