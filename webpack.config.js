@@ -21,6 +21,24 @@ module.exports = function(env) {
         }
     }
 
+    let plugins = [
+        extractCSS,
+        extractSASS,
+        new OptimizeCssAssetsPlugin({
+            assetNameRegExp: /natural-gallery\.css$/g,
+            cssProcessor: require('cssnano'),
+            cssProcessorOptions: {
+                discardComments: {removeAll: true},
+                sourcemap: true
+            },
+            canPrint: true
+        })
+    ];
+    
+    if (prod) {
+        plugins.push(new BabiliPlugin());
+    }
+
     return {
         entry: ['./app/app.ts'],
         output: {
@@ -37,20 +55,7 @@ module.exports = function(env) {
             extensions: [".ts", ".js", ".json"],
         },
 
-        plugins: [
-            new BabiliPlugin(),
-            extractCSS,
-            extractSASS,
-            new OptimizeCssAssetsPlugin({
-                assetNameRegExp: /natural-gallery\.css$/g,
-                cssProcessor: require('cssnano'),
-                cssProcessorOptions: {
-                    discardComments: {removeAll: true},
-                    sourcemap: true
-                },
-                canPrint: true
-            })
-        ],
+        plugins: plugins,
 
         module: {
             rules: [
