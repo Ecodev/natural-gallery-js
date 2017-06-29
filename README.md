@@ -3,11 +3,14 @@ Natural Gallery
 
 Demos 
 -----
-* Lightbox and no links : https://ecodev.ch/natural-gallery/demo
-* Lightbox and links : https://ecodev.ch/natural-gallery/demo/lightbox-and-link.html
-* No lightbox but links : https://ecodev.ch/natural-gallery/demo/nolightbox-and-link.html
+* Default (lightbox + links + post-load javascript) : https://ecodev.ch/natural-gallery/demo
+* Pre-loaded javascript : https://ecodev.ch/natural-gallery/demo/preload.html
+* Photoswipe separated : https://ecodev.ch/natural-gallery/demo/light.html
+* Multiple galleries in same page : https://ecodev.ch/natural-gallery/demo/many.html
+* With links : https://ecodev.ch/natural-gallery/demo/link.html
+* Links as html in title property: https://ecodev.ch/natural-gallery/demo/link-forged.html
+* No lightbox but links : https://ecodev.ch/natural-gallery/demo/nolightbox-link.html
 * No lightbox and no links : https://ecodev.ch/natural-gallery/demo/nolightbox-nolink.html
-* Lightbox and forged link (link as html in title property): https://ecodev.ch/natural-gallery/demo/lightbox-forgedlinks.html
 
 Use distribution on your project 
 -----
