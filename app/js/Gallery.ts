@@ -193,6 +193,7 @@ import {Organizer} from './Organizer';
 
             // Complete collection
             items.forEach(function(item) {
+                item.id = this._collection.length;
                 this._collection.push(new Item(<IItemFields> item, this));
             }, this);
 
