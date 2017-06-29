@@ -16,7 +16,6 @@
 		<div class="container">
 
 			<h1>Natural gallery</h1>
-			<h2 class="text-center">lightbox, no link</h2>
 
 			<svg version="1.1" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 100 100"  xml:space="preserve" style="display:none;">
 
@@ -95,14 +94,15 @@
 			</div>
 
 			<!-- Gallery Wrapper  -->
-			<div id="gallery"></div>
+			<div id="gallery1"></div>
+			<div id="gallery2"></div>
 
 		</div><!-- .container -->
 
 		<script type="text/javascript">
             window.naturalGalleries = window.naturalGalleries || [];
-            var naturalGallery = {
-                id: 'gallery',
+            var naturalGallery1 = {
+                id: 'gallery1',
                 options : {
                     showCount: true,
                     searchFilter: true,
@@ -112,14 +112,27 @@
                 }
             };
 
-            window.naturalGalleries.push(naturalGallery);
+            var naturalGallery2 = {
+                id: 'gallery2',
+                options : {
+                    showCount: true,
+                    searchFilter: true,
+                    categoriesFilter: true,
+                    showNone: true,
+                    showOthers: true
+                }
+            };
+
+            window.naturalGalleries.push(naturalGallery1);
+            window.naturalGalleries.push(naturalGallery2);
 
 			var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'data.json');
-            xhr.send(null);
+			xhr.open('GET', 'data.json');
+			xhr.send(null);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     window.naturalGalleries[0].images = JSON.parse(xhr.responseText);
+                    window.naturalGalleries[1].images = JSON.parse(xhr.responseText);
                 }
             };
 
