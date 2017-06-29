@@ -365,8 +365,7 @@ import {Organizer} from './Organizer';
         }
 
         get collection(): Item[] {
-            let collection = this.header && this.header.isFiltered() ? this.header.collection : this._collection;
-            return this.cleanCollection(collection);
+            return this.header && this.header.isFiltered() ? this.header.collection : this._collection;
         }
 
         public getOriginalCollection(): Item[] {

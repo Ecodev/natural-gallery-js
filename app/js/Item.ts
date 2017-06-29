@@ -57,8 +57,6 @@ import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
         private element: HTMLElement;
         private image: HTMLElement;
 
-        private _excluded: boolean = false;
-
         /**
          * @param fields
          * @param gallery
@@ -505,14 +503,6 @@ import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 
         set linkTarget(value: string) {
             this._linkTarget = value;
-        }
-
-        get excluded(): boolean {
-            return this._excluded;
-        }
-
-        set excluded(value: boolean) {
-            this._excluded = value;
         }
 
     }
