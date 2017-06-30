@@ -13,7 +13,7 @@ import {AbstractFilter} from './AbstractFilter';
             let label = document.createElement('label');
             Utility.addClass(label, 'sectionName');
             label.textContent = 'Search';
-            element.appendChild(label);
+        element.appendChild(label);
 
             let bar = document.createElement('span');
             Utility.addClass(bar, 'bar');

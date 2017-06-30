@@ -29,8 +29,6 @@ export module Utility {
         if (!this.hasClass(className)) {
             element.className += (element.className ? ' ' :  '') + className;
         }
-
-        element.className = element.className.replace(/  +/g, ' ').trim();
     }
 
     export function hasClass(el, className) {
