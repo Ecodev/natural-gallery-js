@@ -14,10 +14,6 @@
     "dev": "webpack --progress --colors --watch",
     "prod": "NODE_ENV='production' webpack; NODE_ENV='production' webpack --env.nodependencies"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Ecodev/natural-gallery.git"
-  },
   "keywords": [
     "gallery",
     "image",
