@@ -13,7 +13,6 @@
     "interface-name": true,
     "jsdoc-format": true,
     "label-position": true,
-    "ter-line-length": [true, 140, 3, {"ignoreRegExpLiterals": true}],
     "member-access": true,
     "member-ordering": [true,
         "static-before-instance",
