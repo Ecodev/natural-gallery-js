@@ -109,12 +109,7 @@ export class Gallery {
         this.options = gallery.options;
         this.categories = gallery.categories ? <Category[]> gallery.categories : [];
         this.rootElement = <HTMLElement> document.getElementById(gallery.id);
-
         Utility.addClass(this.rootElement, 'natural-gallery');
-
-        if (gallery.images) {
-            this.collection = gallery.images;
-        }
 
         // header
         if (this.options.searchFilter || this.options.categoriesFilter || this.options.showCount) {
@@ -132,6 +127,10 @@ export class Gallery {
 
         this.render();
         this.bodyWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
+
+        if (gallery.images) {
+            this.collection = gallery.images;
+        }
 
     }
 
@@ -227,7 +226,9 @@ export class Gallery {
 
         // display because filters may add more images and we have to show it again
         let nextButton = <HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-next')[0];
-        nextButton.style.display = 'block';
+        if (nextButton) {
+            nextButton.style.display = 'block';
+        }
 
         if (this.pswpContainer.length === collection.length ) {
             nextButton.style.display = 'none';
