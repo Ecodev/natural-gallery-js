@@ -128,6 +128,7 @@ export class Gallery {
         this.render();
         this.bodyWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
 
+        
         if (gallery.images) {
             this.collection = gallery.images;
         }
