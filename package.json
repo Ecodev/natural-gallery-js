@@ -64,7 +64,7 @@
     "gulp-wrap": "^0.11.0",
     "isparta": "^3.5.1",
     "jasmine-core": "^2.3.4",
-    "jshint": "^2.8.0",
+    "jshint": "^2.9.5",
     "jshint-stylish": "^2.0.1",
     "karma": "^0.13.14",
     "karma-chrome-launcher": "^0.2.1",
