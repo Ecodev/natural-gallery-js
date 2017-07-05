@@ -4,7 +4,6 @@ const BabiliPlugin = require("babili-webpack-plugin"); // uglifier for typescrip
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
-
 module.exports = function(env) {
 
     const prod = process.env.NODE_ENV === 'production';
@@ -34,7 +33,7 @@ module.exports = function(env) {
             canPrint: true
         })
     ];
-    
+
     if (prod) {
         plugins.push(new BabiliPlugin());
     }
@@ -52,7 +51,7 @@ module.exports = function(env) {
         devtool: prod ? false : "source-map",
 
         resolve: {
-            extensions: [".ts", ".js", ".json"],
+            extensions: [".ts", ".tsx", ".js"],
         },
 
         plugins: plugins,
