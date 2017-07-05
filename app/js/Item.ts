@@ -1,6 +1,6 @@
 import {Gallery} from './Gallery';
 import {Utility} from './Utility';
-import * as PhotoSwipe from "photoswipe";
+import * as PhotoSwipe from 'photoswipe';
 import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 
 export interface IItemFields {
@@ -110,7 +110,7 @@ export class Item {
 
         let container = document.createElement('div');
         container.innerHTML = title;
-        let links = container.getElementsByTagName("a");
+        let links = container.getElementsByTagName('a');
 
         let details = {
             title: container.textContent,
@@ -190,7 +190,7 @@ export class Item {
         if (label) {
             label.textContent = this.title;
             Utility.addClass(label, 'title');
-            if (options.showLabels == 'hover') {
+            if (options.showLabels === 'hover') {
                 Utility.addClass(label, 'hover');
             }
             element.appendChild(label);
@@ -206,7 +206,7 @@ export class Item {
             link.setAttribute('href', this.link);
             Utility.addClass(link, 'link');
             if (this.linkTarget) {
-                link.setAttribute('target', this.linkTarget)
+                link.setAttribute('target', this.linkTarget);
             }
         }
 
@@ -236,17 +236,21 @@ export class Item {
         this.image.style.height = String(this.height + 'px');
 
         const self = this;
-        window.setTimeout(function() {
-            Utility.addClass(self.element, 'visible');
-        }, 0);
+        window.setTimeout(
+            function() {
+                Utility.addClass(self.element, 'visible');
+            },
+            0);
     }
 
     public flash() {
         const self = this;
         Utility.removeClass(this.element, 'visible');
-        window.setTimeout(function() {
-            Utility.addClass(self.element, 'visible');
-        }, 0);
+        window.setTimeout(
+            function() {
+                Utility.addClass(self.element, 'visible');
+            },
+            0);
     }
 
     /**
@@ -258,7 +262,7 @@ export class Item {
     public bindClick() {
 
         if (!this.gallery.options.lightbox) {
-            return
+            return;
         }
 
         const self = this;
@@ -310,8 +314,9 @@ export class Item {
 
         // Loading one more page when going to next image
         pswp.listen('beforeChange', function(delta) {
-            // Positive delta indicates "go to next" action, we don't load more objects on looping back the gallery (same logic when scrolling)
-            if (delta > 0 && pswp.getCurrentIndex() == pswp.items.length - 1) {
+
+            // Positive delta indicates 'go to next' action, we don't load more objects on looping back the gallery (same logic when scrolling)
+            if (delta > 0 && pswp.getCurrentIndex() === pswp.items.length - 1) {
                 this.gallery.addElements();
             } else if (delta === -1 * (pswp.items.length - 1)) {
                 overrideLoop = pswp.items.length;
@@ -334,7 +339,7 @@ export class Item {
             w: this._eWidth,
             h: this._eHeight,
             title: this._title
-        }
+        };
     }
 
     public getElement(): HTMLElement {
@@ -356,10 +361,12 @@ export class Item {
             Utility.addClass(self.element, 'loaded');
         });
 
-        //Detect errored images and hide them smartly
-        img.addEventListener('error', function() {
-            Utility.addClass(self.element, 'errored');
-        });
+        // Detect errored images and hide them smartly
+        img.addEventListener(
+            'error',
+            function() {
+                Utility.addClass(self.element, 'errored');
+            });
 
         return this.element;
     }

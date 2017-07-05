@@ -19,6 +19,10 @@ export class Controller {
     private galleries: Gallery[] = [];
     private pswp: HTMLElement;
 
+    public static getInstance() {
+        return Controller.instance ? Controller.instance : new Controller();
+    }
+
     public constructor() {
         this.bindEvents();
         this.pswp = <HTMLElement> document.getElementsByClassName('pswp')[0];
@@ -29,9 +33,11 @@ export class Controller {
      * For each gallery in the page, set a body container (dom element) and compute images sizes, then add elements to dom container
      */
     public addGalleries(galleries: any[] = null) {
-        galleries.forEach(function(gallery, i) {
-            galleries[i] = this.addGallery(gallery);
-        }, this);
+        galleries.forEach(
+            function(gallery, i) {
+                galleries[i] = this.addGallery(gallery);
+            },
+            this);
     }
 
     public addGallery(gallery: Gallery) {
@@ -45,14 +51,10 @@ export class Controller {
         return gallery;
     }
 
-    public static getInstance() {
-        return Controller.instance ? Controller.instance : new Controller();
-    }
-
     public getById(id) {
         let found = null;
         this.galleries.forEach(function(gallery) {
-            if (gallery.id == id) {
+            if (gallery.id === id) {
                 found = gallery;
             }
         });
@@ -84,7 +86,7 @@ export class Controller {
          */
         document.addEventListener('scroll', function() {
 
-            if (self.galleries.length == 1 && self.galleries[0].options.limit === 0) {
+            if (self.galleries.length === 1 && self.galleries[0].options.limit === 0) {
                 let gallery = self.galleries[0];
                 let endOfGalleryAt = gallery.rootElement.offsetTop + gallery.rootElement.offsetHeight + 60;
 
@@ -106,5 +108,3 @@ export class Controller {
 
     }
 }
-
-

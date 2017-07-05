@@ -80,5 +80,3 @@ export class Category {
         this._element = value;
     }
 }
-
-

@@ -40,9 +40,11 @@ export class CategoryFilter extends AbstractFilter {
             label.parentNode.removeChild(label);
         }
 
-        this.categories.forEach(function(cat: Category) {
-            this.element.appendChild(cat.render());
-        }, this);
+        this.categories.forEach(
+            function(cat: Category) {
+                this.element.appendChild(cat.render());
+            },
+            this);
 
         return this.element;
     }
@@ -50,9 +52,11 @@ export class CategoryFilter extends AbstractFilter {
     public prepare(): void {
 
         let galleryCategories = [];
-        this.header.gallery.categories.forEach(function(cat) {
-            galleryCategories.push(new Category(cat.id, cat.title, this));
-        }, this);
+        this.header.gallery.categories.forEach(
+            function(cat) {
+                galleryCategories.push(new Category(cat.id, cat.title, this));
+            },
+            this);
 
         this.none = new Category(-1, 'None', this);
         this.others = new Category(-2, 'Others', this);
@@ -68,24 +72,32 @@ export class CategoryFilter extends AbstractFilter {
         }
 
         let itemCategories = [];
-        this.header.gallery.getOriginalCollection().forEach(function(item: Item) {
+        this.header.gallery.getOriginalCollection().forEach(
+            function(item: Item) {
 
-            // Set category "none" if empty
-            if (!item.categories || item.categories && item.categories.length === 0 && this.header.gallery.options.showNone) {
-                item.categories = [this.none];
-            }
+                // Set category "none" if empty
+                if (!item.categories || item.categories && item.categories.length === 0 && this.header.gallery.options.showNone) {
+                    item.categories = [this.none];
+                }
 
-            // Set category "others" if none of categories are used in gallery categories
-            if (galleryCategories.length && Utility.differenceBy(item.categories, galleryCategories, 'id').length === item.categories.length && this.header.gallery.options.showOthers) {
-                item.categories = [this.others];
-            }
+                // Set category "others" if none of categories are used in gallery categories
+                if (galleryCategories.length
+                    && Utility.differenceBy(item.categories, galleryCategories, 'id').length
+                    === item.categories.length
+                    && this.header.gallery.options.showOthers
+                ) {
+                    item.categories = [this.others];
+                }
 
-            // Assign categories as object
-            item.categories.forEach(function(cat) {
-                itemCategories.push(new Category(cat.id, cat.title, this));
-            }, this);
+                // Assign categories as object
+                item.categories.forEach(
+                    function(cat) {
+                        itemCategories.push(new Category(cat.id, cat.title, this));
+                    },
+                    this);
 
-        }, this);
+            },
+            this);
 
         // Avoid duplicates
         galleryCategories = Utility.uniqBy(galleryCategories, 'id');
@@ -117,23 +129,25 @@ export class CategoryFilter extends AbstractFilter {
 
             let filteredItems = [];
 
-            this.header.gallery.getOriginalCollection().forEach(function(item) {
-                if (!item.categories || item.categories && item.categories.length === 0) {
-                    if (this.none) {
-                        filteredItems.push(item);
-                    }
-                } else {
-                    item.categories.some(function(cat1: Category) {
-                        let found = selectedCategories.some(function(cat2: Category) {
-                            return cat1.id === cat2.id;
-                        });
-                        if (found) {
+            this.header.gallery.getOriginalCollection().forEach(
+                function(item) {
+                    if (!item.categories || item.categories && item.categories.length === 0) {
+                        if (this.none) {
                             filteredItems.push(item);
-                            return true;
                         }
-                    });
-                }
-            }, this);
+                    } else {
+                        item.categories.some(function(cat1: Category) {
+                            let found = selectedCategories.some(function(cat2: Category) {
+                                return cat1.id === cat2.id;
+                            });
+                            if (found) {
+                                filteredItems.push(item);
+                                return true;
+                            }
+                        });
+                    }
+                },
+                this);
 
             this.collection = filteredItems;
         }
@@ -170,4 +184,3 @@ export class CategoryFilter extends AbstractFilter {
     }
 
 }
-

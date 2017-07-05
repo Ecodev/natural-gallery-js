@@ -13,9 +13,9 @@ export module Organizer {
 
     export function organize(gallery: Gallery) {
 
-        if (gallery.options.format == 'natural') {
+        if (gallery.options.format === 'natural') {
             this.organizeNatural(gallery.collection, gallery.bodyWidth, gallery.options.rowHeight, gallery.options.margin);
-        } else if (gallery.options.format == 'square') {
+        } else if (gallery.options.format === 'square') {
             this.organizeSquare(gallery.collection, gallery.bodyWidth, gallery.options.imagesPerRow, gallery.options.margin);
         }
 
@@ -36,7 +36,7 @@ export module Organizer {
         }
 
         if (!nbPictPerRow) {
-            nbPictPerRow = 4;// Should match the default value of imagesPerRow field from flexform
+            nbPictPerRow = 4; // Should match the default value of imagesPerRow field from flexform
         }
 
         let size = (containerWidth - (nbPictPerRow - 1) * margin) / nbPictPerRow;
@@ -79,7 +79,7 @@ export module Organizer {
                 this.computeSizes(chunk, containerWidth, margin, row);
                 this.organizeNatural(elements.slice(chunkSize), containerWidth, maxRowHeight, margin, row + 1);
                 break;
-            } else if (chunkSize == elements.length) { // if end of list
+            } else if (chunkSize === elements.length) { // if end of list
                 // the width is not fixed as we have not enough elements
                 // size of images are indexed on max row height.
                 this.computeSizes(chunk, null, margin, row, maxRowHeight);
@@ -109,7 +109,7 @@ export module Organizer {
             element.width = width;
             element.height = Math.floor(rowHeight);
             element.row = row;
-            element.last = i == chunk.length - 1;
+            element.last = i === chunk.length - 1;
         }
     }
 
@@ -140,7 +140,7 @@ export module Organizer {
     export function apportionExcess(elements, containerWidth, rowWidth) {
         let excess = rowWidth - containerWidth;
         let excessPerItem = excess / elements.length;
-        return excessPerItem
+        return excessPerItem;
     }
 
 }
