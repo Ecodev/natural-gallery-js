@@ -7,7 +7,7 @@ import {CategoryFilter} from './filter/CategoryFilter';
 import {Utility} from './Utility';
 import {Organizer} from './Organizer';
 
-export interface iGalleryOptions {
+export interface IGalleryOptions {
     rowHeight: number;
     format: string;
     round: number;
@@ -29,7 +29,7 @@ export class Gallery {
     /**
      * Default options
      */
-    private _options: iGalleryOptions = {
+    private _options: IGalleryOptions = {
         rowHeight: 350,
         format: 'natural',
         round: 3,
@@ -128,7 +128,6 @@ export class Gallery {
         this.render();
         this.bodyWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
 
-        
         if (gallery.images) {
             this.collection = gallery.images;
         }
@@ -158,9 +157,11 @@ export class Gallery {
 
             this.contentWindow.addEventListener('resize', function() {
                 clearTimeout(timer);
-                timer = setTimeout(function() {
-                    self.resize();
-                }, 100);
+                timer = setTimeout(
+                    function() {
+                        self.resize();
+                    },
+                    100);
             });
         });
 
@@ -192,10 +193,12 @@ export class Gallery {
         }
 
         // Complete collection
-        items.forEach(function(item) {
-            item.id = this._collection.length;
-            this._collection.push(new Item(<IItemFields> item, this));
-        }, this);
+        items.forEach(
+            function(item) {
+                item.id = this._collection.length;
+                this._collection.push(new Item(<IItemFields> item, this));
+            },
+            this);
 
         // Compute sizes
         Organizer.organize(this);
@@ -231,7 +234,7 @@ export class Gallery {
             nextButton.style.display = 'block';
         }
 
-        if (this.pswpContainer.length === collection.length ) {
+        if (this.pswpContainer.length === collection.length) {
             nextButton.style.display = 'none';
 
             if (collection.length === 0) {
@@ -266,16 +269,24 @@ export class Gallery {
         }
 
         let noResults = (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-noresults')[0]);
-        if (noResults) noResults.style.display = 'none';
+        if (noResults) {
+            noResults.style.display = 'none';
+        }
 
         let imageContainer = (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-images')[0]);
-        if (imageContainer) imageContainer.style.display = 'block';
+        if (imageContainer) {
+            imageContainer.style.display = 'block';
+        }
 
         let galleryVisible = this.rootElement.getElementsByClassName('natural-gallery-visible')[0];
-        if (galleryVisible) galleryVisible.textContent = String(this.pswpContainer.length);
+        if (galleryVisible) {
+            galleryVisible.textContent = String(this.pswpContainer.length);
+        }
 
         let galleryTotal = this.rootElement.getElementsByClassName('natural-gallery-total')[0];
-        if (galleryTotal) galleryTotal.textContent = String(collection.length);
+        if (galleryTotal) {
+            galleryTotal.textContent = String(collection.length);
+        }
     }
 
     /**
@@ -294,20 +305,22 @@ export class Gallery {
 
         let winHeight = window.outerHeight;
         let galleryVisibleHeight = winHeight - gallery.bodyElement.offsetTop;
-        let nbRows = Math.floor(galleryVisibleHeight / (this.options.rowHeight * 0.7 )); // ratio to be more close from reality average row height
+        // ratio to be more close from reality average row height
+        let nbRows = Math.floor(galleryVisibleHeight / (this.options.rowHeight * 0.7 ));
 
         return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
     }
 
     /**
      * Check whetever we need to resize a gallery (only if parent container width changes)
-     * The keep full rows, it recomputes sizes with new dimension, and reset everything, then add the same number of row. It results in not partial row.
+     * The keep full rows, it recomputes sizes with new dimension, and reset everything, then add the same number of row.
+     * It results in not partial row.
      */
     public resize() {
 
         let containerWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
 
-        if (containerWidth != this.bodyWidth) {
+        if (containerWidth !== this.bodyWidth) {
             this.bodyWidth = containerWidth;
 
             Organizer.organize(this);
@@ -342,7 +355,8 @@ export class Gallery {
 
     /**
      * Pseudo attribute, works like a "post-add-images".
-     * If gallery config has .images attribute specified before gallery object creation, the constructor will deal with .images attribute to create the official collection
+     * If gallery config has .images attribute specified before gallery object creation,
+     * the constructor will deal with .images attribute to create the official collection
      * If user specifies .images attribute after library load, this function will take care of it.
      * For post load, user needs to keep reference to this object.
      * @param images
@@ -420,11 +434,11 @@ export class Gallery {
         this._pswpElement = value;
     }
 
-    get options(): iGalleryOptions {
+    get options(): IGalleryOptions {
         return this._options;
     }
 
-    set options(value: iGalleryOptions) {
+    set options(value: IGalleryOptions) {
         this._options = value;
     }
 
