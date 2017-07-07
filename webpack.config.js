@@ -8,15 +8,16 @@ module.exports = function(env) {
 
     const prod = process.env.NODE_ENV === 'production';
     const dependencies = !(env && env.nodependencies === true);
+    const name = 'natural-gallery';
 
     const extractCSS = new ExtractTextPlugin("themes/natural.css");
-    const extractSASS = new ExtractTextPlugin("natural-gallery.css");
+    const extractSASS = new ExtractTextPlugin(name + ".[name].css");
 
     let externals = {};
     if (!dependencies) {
         externals = {
             'photoswipe': 'PhotoSwipe',
-            'photoswipe/dist/photoswipe-ui-default': 'PhotoSwipeUI_Default',
+            'photoswipe/dist/photoswipe-ui-default': 'PhotoSwipeUI_Default'
         }
     }
 
@@ -27,8 +28,8 @@ module.exports = function(env) {
             assetNameRegExp: /natural-gallery\.css$/g,
             cssProcessor: require('cssnano'),
             cssProcessorOptions: {
-                discardComments: {removeAll: true},
-                sourcemap: true
+                discardComments: {removeAll: prod},
+                sourceMap: !prod
             },
             canPrint: true
         })
@@ -38,11 +39,18 @@ module.exports = function(env) {
         plugins.push(new BabiliPlugin());
     }
 
+    const entry = {};
+    let entryName = 'light';
+    if (dependencies) {
+        entryName = 'full';
+    }
+    entry[entryName] = './app/app.' + entryName + '.ts';
+
     return {
-        entry: ['./app/app.ts'],
+        entry: entry,
         output: {
             path: __dirname + '/dist',
-            filename: dependencies ? "natural-gallery.js" : "natural-gallery.light.js",
+            filename: name + '.[name].js',
             library: "NaturalGallery",
             libraryTarget: 'umd',
             umdNamedDefine: true
@@ -51,7 +59,7 @@ module.exports = function(env) {
         devtool: prod ? false : "source-map",
 
         resolve: {
-            extensions: [".ts", ".tsx", ".js"],
+            extensions: [".ts", ".js"],
         },
 
         plugins: plugins,
@@ -75,23 +83,50 @@ module.exports = function(env) {
                         use: [
                             {
                                 loader: 'css-loader',
-                                options: {sourceMap: true}
-                            },
-                            {
+                                options: {
+                                    sourceMap: !prod,
+                                }
+                            }, {
                                 loader: 'postcss-loader',
                                 options: {sourceMap: 'inline'}
-                            },
-                            {
+                            }, {
                                 loader: 'sass-loader',
                                 options: {
-                                    sourceMap: true,
-                                    outputStyle: 'expanded',
-                                    sourceMapContents: true
+                                    sourceMap: !prod,
+                                    sourceMapContents: !prod,
+                                    outputStyle: prod ? 'compressed' : 'expanded'
                                 }
                             }
                         ]
                     })
-                },
+                }, {
+                    test: /\.(gif|png|jpe?g|svg)$/i,
+                    loaders: [
+                        {
+                            loader : 'file-loader',
+                            options: {
+                                name: 'images/[name].[ext]'
+                            }
+                        },
+                        {
+                            loader: 'image-webpack-loader',
+                            query: {
+                                progressive: true,
+                                pngquant: {
+                                    quality: '65-90',
+                                    speed: 4,
+                                    optimizationLevel: 7,
+                                    interlaced: false,
+
+                                },
+                                gifsicle: {
+                                    optimizationLevel: 7,
+                                    interlaced: false
+                                },
+                            }
+                        }
+                    ]
+                }
             ]
         },
 

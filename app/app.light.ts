@@ -1,7 +1,6 @@
-import {Controller} from "./js/Controller";
-
-import './styles/natural-gallery.scss';
 import './styles/themes/natural.css';
+import './styles/natural-gallery.light.scss';
+import {Controller} from './js/Controller';
 
 declare let naturalGalleries: any[];
 
