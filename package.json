@@ -1,6 +1,6 @@
 {
   "name": "natural-gallery-js",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "description": "A lazy load, infinite scroll and natural layout list gallery",
   "author": "Samuel Baptista <samuel.baptista@ecodev.ch>",
   "license": "MIT",
