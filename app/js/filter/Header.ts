@@ -47,7 +47,7 @@ export class Header {
 
         let sectionName = document.createElement('div');
         Utility.addClass(sectionName, 'sectionName');
-        sectionName.textContent = 'Images';
+        sectionName.textContent = this.gallery.options.labelImages;
         imagesLayout.appendChild(sectionName);
 
         let galleryVisible = document.createElement('span');

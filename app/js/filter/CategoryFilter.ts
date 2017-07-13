@@ -31,7 +31,7 @@ export class CategoryFilter extends AbstractFilter {
 
             let sectionName = document.createElement('div');
             Utility.addClass(sectionName, 'sectionName');
-            sectionName.textContent = 'Categories';
+            sectionName.textContent = this.header.gallery.options.labelCategories;
             this.element.appendChild(sectionName);
         }
 
@@ -58,8 +58,8 @@ export class CategoryFilter extends AbstractFilter {
             },
             this);
 
-        this.none = new Category(-1, 'None', this);
-        this.others = new Category(-2, 'Others', this);
+        this.none = new Category(-1, this.header.gallery.options.labelNone, this);
+        this.others = new Category(-2, this.header.gallery.options.labelOthers, this);
 
         // If show unclassified
         if (this.header.gallery.options.showNone && galleryCategories.length) {

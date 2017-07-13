@@ -22,6 +22,11 @@ export interface IGalleryOptions {
     categoriesFilter: boolean;
     showNone: boolean;
     showOthers: boolean;
+    labelCategories: string;
+    labelNone: string;
+    labelOthers: string;
+    labelSearch: string;
+    labelImages: string;
 }
 
 export class Gallery {
@@ -43,7 +48,12 @@ export class Gallery {
         searchFilter: false,
         categoriesFilter: false,
         showNone: false,
-        showOthers: false
+        showOthers: false,
+        labelCategories: 'Category',
+        labelNone: 'None',
+        labelOthers: 'Others',
+        labelSearch: 'Search',
+        labelImages: 'Images',
     };
 
     private _id: string;

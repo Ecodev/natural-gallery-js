@@ -12,7 +12,7 @@ export class SearchFilter extends AbstractFilter {
 
         let label = document.createElement('label');
         Utility.addClass(label, 'sectionName');
-        label.textContent = 'Search';
+        label.textContent = this.header.gallery.options.labelSearch;
         element.appendChild(label);
 
         let bar = document.createElement('span');

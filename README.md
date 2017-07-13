@@ -68,7 +68,12 @@ var gallery = {
         searchFilter: false,
         categoriesFilter: false,
         showNone: false,
-        showOthers: false
+        showOthers: false,
+        labelCategories: 'Category',
+        labelNone: 'None',
+        labelOthers: 'Others',
+        labelSearch: 'Search',
+        labelImages: 'Images',
     },
     images : [
         {
