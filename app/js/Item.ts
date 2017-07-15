@@ -292,6 +292,8 @@ export class Item {
     public openPhotoSwipe(e, el) {
         e.preventDefault();
 
+        let self = this;
+
         if (!this.gallery.options.lightbox) {
             return;
         }
@@ -317,10 +319,10 @@ export class Item {
 
             // Positive delta indicates 'go to next' action, we don't load more objects on looping back the gallery (same logic when scrolling)
             if (delta > 0 && pswp.getCurrentIndex() === pswp.items.length - 1) {
-                this.gallery.addElements();
+                self.gallery.addElements();
             } else if (delta === -1 * (pswp.items.length - 1)) {
                 overrideLoop = pswp.items.length;
-                this.gallery.addElements();
+                self.gallery.addElements();
             }
         });
 
