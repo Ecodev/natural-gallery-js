@@ -110,6 +110,7 @@ export class Gallery {
     public constructor(gallery, pswp: HTMLElement) {
         this.pswpElement = pswp;
 
+        // Complete options with default values
         for (var key in this.options) {
             if (typeof gallery.options[key] === 'undefined') {
                 gallery.options[key] = this.options[key];
@@ -118,7 +119,7 @@ export class Gallery {
 
         this.options = gallery.options;
         this.categories = gallery.categories ? <Category[]> gallery.categories : [];
-        this.rootElement = <HTMLElement> document.getElementById(gallery.id);
+        this.rootElement = gallery.element ? gallery.element : <HTMLElement> document.getElementById(gallery.id);
         Utility.addClass(this.rootElement, 'natural-gallery');
 
         // header

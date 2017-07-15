@@ -53,7 +53,8 @@ window.naturalGalleries = window.naturalGalleries || [];
 
 // Create your gallery parameters
 var gallery = {
-    id: 'gallery', // id assigned to your dom element
+    id: 'gallery', // sends id of dom element or
+    element: document.getElementById('gallery'), // sends dom element by reference
     options : { // Options
         rowHeight: 350,
         format: 'natural',
