@@ -85,6 +85,7 @@ module.exports = function(env) {
                                 loader: 'css-loader',
                                 options: {
                                     sourceMap: !prod,
+                                    minimize: prod
                                 }
                             }, {
                                 loader: 'postcss-loader',
@@ -94,7 +95,7 @@ module.exports = function(env) {
                                 options: {
                                     sourceMap: !prod,
                                     sourceMapContents: !prod,
-                                    outputStyle: prod ? 'compressed' : 'expanded'
+                                    outputStyle: 'expanded'
                                 }
                             }
                         ]
