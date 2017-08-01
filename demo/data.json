@@ -298,26 +298,6 @@
         "eHeight": 2830
     },
     {
-        "thumbnail": "https://images.unsplash.com/photo-1461419912973-9964f1f54b24?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=400&fit=max&s=f673ebf77b995891ab1255666749593a",
-        "enlarged": "https://images.unsplash.com/photo-1461419912973-9964f1f54b24?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=1080&fit=max&s=254adbc7487c938f15a20d75d96eca5f",
-        "title": "Sophia Baboolal ",
-        "categories": [
-            {
-                "id": 8,
-                "title": "Objects",
-                "photo_count": 10414,
-                "links": {
-                    "self": "https://api.unsplash.com/categories/8",
-                    "photos": "https://api.unsplash.com/categories/8/photos"
-                }
-            }
-        ],
-        "tWidth": 400,
-        "tHeight": 300,
-        "eWidth": 4000,
-        "eHeight": 3000
-    },
-    {
         "thumbnail": "https://images.unsplash.com/photo-1461418749540-8c49a1d7369e?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=400&fit=max&s=10de789455ceacb3a74534bc2587172a",
         "enlarged": "https://images.unsplash.com/photo-1461418749540-8c49a1d7369e?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=1080&fit=max&s=5b4cf7a16623992d115c06e281e9bbd1",
         "title": "Sophia Baboolal ",

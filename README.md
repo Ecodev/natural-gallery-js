@@ -11,6 +11,9 @@ Demos
 * Links as html in title property: https://ecodev.ch/natural-gallery/demo/link-forged.html
 * No lightbox but links : https://ecodev.ch/natural-gallery/demo/nolightbox-link.html
 * No lightbox and no links : https://ecodev.ch/natural-gallery/demo/nolightbox-nolink.html
+* Square responsive : https://ecodev.ch/natural-gallery/demo/square-responsive.html
+* Square items per line : https://ecodev.ch/natural-gallery/demo/square-fixed.html
+* Rounded : https://ecodev.ch/natural-gallery/demo/rounded.html
 
 Use distribution on your project 
 -----
@@ -57,9 +60,9 @@ var gallery = {
     element: document.getElementById('gallery'), // sends dom element by reference
     options : { // Options
         rowHeight: 350,
-        format: 'natural',
+        format: 'natural', // or square
         round: 3,
-        imagesPerRow: 4,
+        imagesPerRow: 4, // only for squared layout, is disables responsive
         margin: 3,
         limit: 0,
         showLabels: 'hover',
