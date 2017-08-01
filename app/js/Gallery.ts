@@ -11,7 +11,7 @@ export interface IGalleryOptions {
     rowHeight: number;
     format: string;
     round: number;
-    imagesPerRow: number;
+    imagesPerRow?: number;
     margin: number;
     limit: number;
     showLabels: string;
@@ -38,7 +38,6 @@ export class Gallery {
         rowHeight: 350,
         format: 'natural',
         round: 3,
-        imagesPerRow: 4,
         margin: 3,
         limit: 0,
         showLabels: 'hover',

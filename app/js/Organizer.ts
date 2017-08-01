@@ -7,7 +7,7 @@
  * Uses json, never read the dom, except to determine the size of parent container.
  *
  */
-import {Gallery} from './Gallery';
+import { Gallery } from './Gallery';
 
 export module Organizer {
 
@@ -15,28 +15,65 @@ export module Organizer {
 
         if (gallery.options.format === 'natural') {
             this.organizeNatural(gallery.collection, gallery.bodyWidth, gallery.options.rowHeight, gallery.options.margin);
-        } else if (gallery.options.format === 'square') {
-            this.organizeSquare(gallery.collection, gallery.bodyWidth, gallery.options.imagesPerRow, gallery.options.margin);
+        } else if (gallery.options.format === 'square' && gallery.options.imagesPerRow) {
+            this.organizeSquareByImagesPerRow(gallery.collection, gallery.bodyWidth, gallery.options.imagesPerRow, gallery.options.margin);
+        } else if (gallery.options.format === 'square' && gallery.options.rowHeight) {
+            this.organizeSquareByRowHeight(gallery.collection, gallery.bodyWidth, gallery.options.rowHeight, gallery.options.margin);
         }
 
         gallery.style();
     }
 
     /**
+     *
+     * @param elements
+     * @param containerWidth
+     * @param maxRowHeight
+     * @param margin
+     */
+    export function organizeSquareByRowHeight(elements, containerWidth, maxRowHeight, margin) {
+
+        if (!margin) {
+            margin = 0;
+        }
+
+        let nbPictPerRow = Math.ceil((containerWidth + margin) / (maxRowHeight + margin));
+
+        // Compute size of pictures
+        let size = Math.round((containerWidth + margin - nbPictPerRow * margin) / nbPictPerRow);
+
+        // Compute overflow of given images per row. This number affect the width of the last item of the row
+        let diff = containerWidth - nbPictPerRow * size - (nbPictPerRow - 1) * margin;
+
+        for (let i = 0; i < elements.length; i++) {
+            let element = elements[i];
+            element.last = i % nbPictPerRow === nbPictPerRow - 1;
+            element.row = Math.floor(i / nbPictPerRow);
+
+            element.width = Math.floor(size);
+            element.height = Math.floor(size);
+            if (element.last) {
+                element.width = Math.floor(size + diff);
+            }
+        }
+
+    }
+
+    /**
      * Compute sizes for images with 1:1 ratio
-     * @param elements«
+     * @param elements
      * @param containerWidth
      * @param nbPictPerRow
      * @param margin
      */
-    export function organizeSquare(elements, containerWidth, nbPictPerRow, margin) {
+    export function organizeSquareByImagesPerRow(elements, containerWidth, nbPictPerRow, margin) {
 
         if (!margin) {
             margin = 0;
         }
 
         if (!nbPictPerRow) {
-            nbPictPerRow = 4; // Should match the default value of imagesPerRow field from flexform
+            nbPictPerRow = 4;
         }
 
         let size = (containerWidth - (nbPictPerRow - 1) * margin) / nbPictPerRow;
