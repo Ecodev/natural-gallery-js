@@ -55,15 +55,15 @@ module.exports = function(env) {
             libraryTarget: 'umd',
             umdNamedDefine: true
         },
-
-        devtool: prod ? false : "source-map",
-
+        devServer: {
+            contentBase: './demo'
+        },
+        devtool: prod ? false : "source-map", // 'inline-source-map'
         resolve: {
             extensions: [".ts", ".js"],
         },
-
         plugins: plugins,
-
+        externals: externals,
         module: {
             rules: [
                 {
@@ -104,7 +104,7 @@ module.exports = function(env) {
                     test: /\.(gif|png|jpe?g|svg)$/i,
                     loaders: [
                         {
-                            loader : 'file-loader',
+                            loader: 'file-loader',
                             options: {
                                 name: 'images/[name].[ext]'
                             }
@@ -112,13 +112,14 @@ module.exports = function(env) {
                         {
                             loader: 'image-webpack-loader',
                             query: {
-                                progressive: true,
+                                mozjpeg: {
+                                    progressive: true,
+                                },
                                 pngquant: {
                                     quality: '65-90',
                                     speed: 4,
                                     optimizationLevel: 7,
                                     interlaced: false,
-
                                 },
                                 gifsicle: {
                                     optimizationLevel: 7,
@@ -130,12 +131,5 @@ module.exports = function(env) {
                 }
             ]
         },
-
-        // When importing a module whose path matches one of the following, just
-        // assume a corresponding global variable exists and use that instead.
-        // This is important because it allows us to avoid bundling all of our
-        // dependencies, which allows browsers to cache those libraries between builds.
-        externals: externals
-
     }
 };
