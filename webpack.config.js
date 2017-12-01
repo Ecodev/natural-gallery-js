@@ -4,22 +4,22 @@ const BabiliPlugin = require("babili-webpack-plugin"); // uglifier for typescrip
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
+const name = 'natural-gallery';
+
 module.exports = function(env) {
 
     const prod = process.env.NODE_ENV === 'production';
     const dependencies = !(env && env.nodependencies === true);
-    const name = 'natural-gallery';
+
+    let entry = {'app': './app/app.ts'};
+    let outName = name;
+    if (dependencies) {
+        entry = {'full': './app/full.ts'};
+        outName = name + '.full';
+    }
 
     const extractCSS = new ExtractTextPlugin("themes/natural.css");
-    const extractSASS = new ExtractTextPlugin(name + ".[name].css");
-
-    let externals = {};
-    if (!dependencies) {
-        externals = {
-            'photoswipe': 'PhotoSwipe',
-            'photoswipe/dist/photoswipe-ui-default': 'PhotoSwipeUI_Default'
-        }
-    }
+    const extractSASS = new ExtractTextPlugin(outName + ".css");
 
     let plugins = [
         extractCSS,
@@ -35,22 +35,24 @@ module.exports = function(env) {
         })
     ];
 
+    let externals = {};
+    if (!dependencies) {
+        plugins.push(new DtsBundlePlugin());
+        externals = {
+            'photoswipe': 'PhotoSwipe',
+            'photoswipe/dist/photoswipe-ui-default': 'PhotoSwipeUI_Default'
+        }
+    }
+
     if (prod) {
         plugins.push(new BabiliPlugin());
     }
-
-    const entry = {};
-    let entryName = 'light';
-    if (dependencies) {
-        entryName = 'full';
-    }
-    entry[entryName] = './app/app.' + entryName + '.ts';
 
     return {
         entry: entry,
         output: {
             path: __dirname + '/dist',
-            filename: name + '.[name].js',
+            filename: outName + '.js',
             library: "NaturalGallery",
             libraryTarget: 'umd',
             umdNamedDefine: true
@@ -132,4 +134,21 @@ module.exports = function(env) {
             ]
         },
     }
+};
+
+function DtsBundlePlugin(name, main) {
+}
+
+DtsBundlePlugin.prototype.apply = function(compiler) {
+    compiler.plugin('done', function() {
+        var dts = require('dts-bundle');
+
+        dts.bundle({
+            name: name,
+            main: 'app/app.d.ts',
+            out: '../dist/index.d.ts',
+            removeSource: true,
+            outputAsModuleFolder: true // to use npm in-package typings
+        });
+    });
 };

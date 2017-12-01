@@ -1,6 +1,7 @@
 import './styles/themes/natural.css';
 import './styles/natural-gallery.light.scss';
-import {Controller} from './js/Controller';
+import { Controller } from './js/Controller';
+import { Gallery } from './js/Gallery';
 
 declare let naturalGalleries: any[];
 
@@ -8,10 +9,10 @@ if (typeof naturalGalleries !== 'undefined' && naturalGalleries.constructor === 
     Controller.getInstance().addGalleries(naturalGalleries);
 }
 
-export function add(gallery) {
-    return Controller.getInstance().addGallery(gallery);
-}
+export class NaturalGallery {
 
-export function getById(id) {
-    Controller.getInstance().getById(id);
+    public addGallery(item): Gallery {
+        return Controller.getInstance().addGallery(item);
+    }
+
 }

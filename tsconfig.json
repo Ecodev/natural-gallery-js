@@ -1,7 +1,8 @@
 {
     "compilerOptions": {
-        "target": "es2015",
-        "lib": ["es2016", "dom"],
+        "declaration": true,
+        "target": "es5",
+        "lib": ["es2017", "dom"],
         "noImplicitAny": false,
         "sourceMap": true,
         "moduleResolution": "node",

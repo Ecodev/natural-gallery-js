@@ -2,7 +2,7 @@
 
 pass=true
 
-files=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.ts$')
+files=$(git diff --cached --name-only --diff-filter=ACMR | grep -E 'app\/.*\.ts$')
 if [ "$files" != "" ]; then
 
     # Run TSLint validation before commit

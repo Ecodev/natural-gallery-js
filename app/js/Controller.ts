@@ -1,4 +1,4 @@
-import {Gallery} from './Gallery';
+import { Gallery } from './Gallery';
 
 export class Controller {
 
@@ -91,8 +91,8 @@ export class Controller {
                 let endOfGalleryAt = gallery.rootElement.offsetTop + gallery.rootElement.offsetHeight + 60;
 
                 // Avoid to expand gallery if we are scrolling up
-                let current_scroll_top = (window.pageYOffset || document.documentElement.scrollTop)
-                    - (document.documentElement.clientTop || 0);
+                let current_scroll_top = (window.pageYOffset || document.documentElement.scrollTop) -
+                                         (document.documentElement.clientTop || 0);
                 let window_size = window.innerHeight;
 
                 let scroll_delta = current_scroll_top - self.old_scroll_top;
