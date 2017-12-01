@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta charset="UTF-8">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <meta charset="UTF-8" >
 
-		<!-- Natural Gallery assets -->
-		<link rel="stylesheet" href="/themes/natural.css">
-		<link rel="stylesheet" href="/natural-gallery.full.css">
-		<script src="/natural-gallery.full.js" defer></script>
+        <!-- Natural Gallery assets -->
+        <link rel="stylesheet" href="/themes/natural.css" >
+        <link rel="stylesheet" href="/natural-gallery.full.css" >
+        <script src="/natural-gallery.full.js"></script>
 
-		<!-- Demo assets -->
-		<link href='https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
-		<link rel="stylesheet" href="/bootstrap.min.css">
-		<link rel="stylesheet" href="demo.css">
+        <!-- Demo assets -->
+        <link href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700italic,700" rel="stylesheet" type="text/css" >
+        <link rel="stylesheet" href="/bootstrap.min.css" >
+        <link rel="stylesheet" href="demo.css" >
 
-	</head>
+    </head>
 
-	<body>
-		<div class="container">
+    <body>
+        <div class="container">
 
-			<h1>Natural gallery</h1>
-			<h2 class="text-center">Responsive, as for natural format : configure a max row height</h2>
+            <h1>Natural gallery</h1>
+            <h2 class="text-center">Responsive, as for natural format : configure a max row height</h2>
 
-			<svg version="1.1" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 100 100"  xml:space="preserve" style="display:none;">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 100 100"  xml:space="preserve" style="display:none;">
 
 			<g id="icon-search">
 				<path d="M67.647,61.054c1.74-1.741,3.046-3.706,3.916-5.896c0.87-2.19,1.305-4.422,1.305-6.696c0-2.274-0.435-4.52-1.305-6.738
@@ -63,54 +63,54 @@
 			</g>
 		</svg>
 
-			<!-- Photoswipe template -->
-			<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-				<div class="pswp__bg"></div>
-				<div class="pswp__scroll-wrap">
-					<div class="pswp__container">
-						<div class="pswp__item"></div>
-						<div class="pswp__item"></div>
-						<div class="pswp__item"></div>
-					</div>
-					<div class="pswp__ui pswp__ui--hidden">
-						<div class="pswp__top-bar">
-							<div class="pswp__counter"></div>
-							<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-							<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-							<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-							<div class="pswp__preloader">
-								<div class="pswp__preloader__icn">
-									<div class="pswp__preloader__cut">
-										<div class="pswp__preloader__donut"></div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-							<div class="pswp__share-tooltip"></div>
-						</div>
-						<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
-						<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
-						<div class="pswp__caption">
-							<div class="pswp__caption__center"></div>
-						</div>
-					</div>
-				</div>
-			</div>
+            <!-- Photoswipe template -->
+            <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="pswp__bg"></div>
+                <div class="pswp__scroll-wrap">
+                    <div class="pswp__container">
+                        <div class="pswp__item"></div>
+                        <div class="pswp__item"></div>
+                        <div class="pswp__item"></div>
+                    </div>
+                    <div class="pswp__ui pswp__ui--hidden">
+                        <div class="pswp__top-bar">
+                            <div class="pswp__counter"></div>
+                            <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                            <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                            <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                            <div class="pswp__preloader">
+                                <div class="pswp__preloader__icn">
+                                    <div class="pswp__preloader__cut">
+                                        <div class="pswp__preloader__donut"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                            <div class="pswp__share-tooltip"></div>
+                        </div>
+                        <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+                        <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+                        <div class="pswp__caption">
+                            <div class="pswp__caption__center"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-			<!-- Gallery Wrapper  -->
-			<div id="gallery"></div>
+            <!-- Gallery Wrapper  -->
+            <div id="gallery"></div>
 
-		</div><!-- .container -->
+        </div><!-- .container -->
 
-		<script type="text/javascript">
-            window.naturalGalleries = window.naturalGalleries || [];
-            var naturalGallery = {
-                id: 'gallery',
-                options : {
+        <script type="text/javascript">
+
+            var galleryData = {
+
+                options: {
                     format: 'square',
                     rowHeight: 400,
-					margin:4,
+                    margin: 4,
                     showCount: true,
                     searchFilter: true,
                     categoriesFilter: true,
@@ -119,18 +119,20 @@
                 }
             };
 
-            window.naturalGalleries.push(naturalGallery);
+            var galleryEl = document.getElementById('gallery');
+            var photoswipeEl = document.getElementsByClassName('pswp')[0];
+            var gallery = new NaturalGallery(galleryEl, photoswipeEl, galleryData);
 
-			var xhr = new XMLHttpRequest();
+            var xhr = new XMLHttpRequest();
             xhr.open('GET', 'data.json');
             xhr.send(null);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
-                    window.naturalGalleries[0].images = JSON.parse(xhr.responseText);
+                    gallery.images = JSON.parse(xhr.responseText);
                 }
             };
 
-		</script>
+        </script>
 
-	</body>
+    </body>
 </html>

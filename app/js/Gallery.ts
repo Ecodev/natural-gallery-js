@@ -1,11 +1,10 @@
-import {Item} from './Item';
-import {IItemFields} from './Item';
-import {Header} from './filter/Header';
-import {Category} from './filter/Category';
-import {SearchFilter} from './filter/SearchFilter';
-import {CategoryFilter} from './filter/CategoryFilter';
-import {Utility} from './Utility';
-import {Organizer} from './Organizer';
+import { IItemFields, Item } from './Item';
+import { Header } from './filter/Header';
+import { Category } from './filter/Category';
+import { SearchFilter } from './filter/SearchFilter';
+import { CategoryFilter } from './filter/CategoryFilter';
+import { Utility } from './Utility';
+import { Organizer } from './Organizer';
 
 export interface IGalleryOptions {
     rowHeight: number;
@@ -55,6 +54,13 @@ export class Gallery {
         labelImages: 'Images',
     };
 
+    /**
+     * Used to test the scroll direction
+     * Avoid to load more images when scrolling up in the detection zone
+     * @type {number}
+     */
+    private old_scroll_top = 0;
+
     private _id: string;
 
     /**
@@ -101,24 +107,23 @@ export class Gallery {
 
     /**
      * Initiate gallery
-     * @param position
-     * @param options
-     * @param categories
+     * @param element
      * @param pswp
+     * @param data
      */
-    public constructor(gallery, pswp: HTMLElement) {
+    public constructor(element: HTMLElement, pswp: HTMLElement, data) {
         this.pswpElement = pswp;
 
         // Complete options with default values
-        for (var key in this.options) {
-            if (typeof gallery.options[key] === 'undefined') {
-                gallery.options[key] = this.options[key];
+        for (const key in this.options) {
+            if (typeof data.options[key] === 'undefined') {
+                data.options[key] = this.options[key];
             }
         }
 
-        this.options = gallery.options;
-        this.categories = gallery.categories ? <Category[]> gallery.categories : [];
-        this.rootElement = gallery.element ? gallery.element : <HTMLElement> document.getElementById(gallery.id);
+        this.options = data.options;
+        this.categories = data.categories ? <Category[]> data.categories : [];
+        this.rootElement = element;
         Utility.addClass(this.rootElement, 'natural-gallery');
 
         // header
@@ -138,8 +143,12 @@ export class Gallery {
         this.render();
         this.bodyWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
 
-        if (gallery.images) {
-            this.collection = gallery.images;
+        if (data.images) {
+            this.collection = data.images;
+        }
+
+        if (this.options.limit === 0) {
+            this.bindScroll();
         }
 
     }
@@ -167,11 +176,9 @@ export class Gallery {
 
             this.contentWindow.addEventListener('resize', function() {
                 clearTimeout(timer);
-                timer = setTimeout(
-                    function() {
-                        self.resize();
-                    },
-                    100);
+                timer = setTimeout(function() {
+                    self.resize();
+                }, 100);
             });
         });
 
@@ -203,12 +210,10 @@ export class Gallery {
         }
 
         // Complete collection
-        items.forEach(
-            function(item) {
-                item.id = this._collection.length;
-                this._collection.push(new Item(<IItemFields> item, this));
-            },
-            this);
+        items.forEach(function(item) {
+            item.id = this._collection.length;
+            this._collection.push(new Item(<IItemFields> item, this));
+        }, this);
 
         // Compute sizes
         Organizer.organize(this);
@@ -316,7 +321,7 @@ export class Gallery {
         let winHeight = window.outerHeight;
         let galleryVisibleHeight = winHeight - gallery.bodyElement.offsetTop;
         // ratio to be more close from reality average row height
-        let nbRows = Math.floor(galleryVisibleHeight / (this.options.rowHeight * 0.7 ));
+        let nbRows = Math.floor(galleryVisibleHeight / (this.options.rowHeight * 0.7));
 
         return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
     }
@@ -361,6 +366,26 @@ export class Gallery {
         if (results) {
             results.style.display = 'none';
         }
+    }
+
+    private bindScroll() {
+
+        document.addEventListener('scroll', () => {
+            let endOfGalleryAt = this.rootElement.offsetTop + this.rootElement.offsetHeight + 60;
+
+            // Avoid to expand gallery if we are scrolling up
+            let current_scroll_top = (window.pageYOffset || document.documentElement.scrollTop) - (document.documentElement.clientTop || 0);
+            let window_size = window.innerHeight;
+
+            let scroll_delta = current_scroll_top - this.old_scroll_top;
+            this.old_scroll_top = current_scroll_top;
+
+            // "enableMoreLoading" is a setting coming from the BE bloking / enabling dynamic loading of thumbnail
+            if (scroll_delta > 0 && current_scroll_top + window_size > endOfGalleryAt) {
+                // When scrolling only add a row at once
+                this.addElements(1);
+            }
+        });
     }
 
     /**
@@ -468,4 +493,3 @@ export class Gallery {
         this._categories = value;
     }
 }
-

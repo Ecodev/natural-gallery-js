@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <meta charset="UTF-8" >
 
         <!-- Natural Gallery assets -->
-        <link rel="stylesheet" href="/themes/natural.css">
-        <link rel="stylesheet" href="/natural-gallery.full.css">
-        <script src="/natural-gallery.full.js" defer></script>
+        <link rel="stylesheet" href="/themes/natural.css" >
+        <link rel="stylesheet" href="/natural-gallery.full.css" >
+        <script src="/natural-gallery.full.js"></script>
 
         <!-- Demo assets -->
-        <link href='https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" href="/bootstrap.min.css">
-        <link rel="stylesheet" href="demo.css">
+        <link href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700italic,700" rel="stylesheet" type="text/css" >
+        <link rel="stylesheet" href="/bootstrap.min.css" >
+        <link rel="stylesheet" href="demo.css" >
 
     </head>
 
@@ -63,7 +63,6 @@
 				</g>
 			</svg>
 
-
             <!-- Photoswipe template -->
             <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
                 <div class="pswp__bg"></div>
@@ -105,10 +104,9 @@
         </div><!-- .container -->
 
         <script type="text/javascript">
-            window.naturalGalleries = window.naturalGalleries || [];
-            var naturalGallery = {
-                id: 'gallery',
-                options : {
+
+            var galleryData = {
+                options: {
                     showCount: true,
                     searchFilter: true,
                     categoriesFilter: true,
@@ -117,7 +115,9 @@
                 }
             };
 
-            window.naturalGalleries.push(naturalGallery);
+            var galleryEl = document.getElementById('gallery');
+            var photoswipeEl = document.getElementsByClassName('pswp')[0];
+            var gallery = new NaturalGallery(galleryEl, photoswipeEl, galleryData);
 
             var xhr = new XMLHttpRequest();
             xhr.open('GET', 'data.json');
@@ -129,7 +129,7 @@
                         img.link = 'https://www.google.ch/search?q=' + img.title;
                         img.linkTarget = '_blank';
                     });
-                    window.naturalGalleries[0].images = images;
+                    gallery.images = images;
                 }
             };
 
