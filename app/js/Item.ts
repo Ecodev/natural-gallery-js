@@ -1,7 +1,7 @@
 import { Gallery } from './Gallery';
 import { Utility } from './Utility';
 import * as PhotoSwipe from 'photoswipe';
-import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
+// import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 
 export interface IItemFields {
     id?: number;
@@ -306,7 +306,8 @@ export class Item {
             loop: false,
         };
 
-        let pswp = new PhotoSwipe(this.gallery.pswpElement, PhotoSwipeUI_Default, this.gallery.pswpContainer, options);
+        // PhotoSwipeUI_Default
+        let pswp = new PhotoSwipe(this.gallery.pswpElement, null, this.gallery.pswpContainer, options);
         this.gallery.pswpApi = pswp;
         pswp.init();
 
