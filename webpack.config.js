@@ -150,7 +150,7 @@ DtsBundlePlugin.prototype.apply = function(compiler) {
             name: name,
             main: 'app/app.d.ts',
             out: '../dist/index.d.ts',
-            removeSource: true,
+            removeSource: false,
             outputAsModuleFolder: true // to use npm in-package typings
         });
     });
