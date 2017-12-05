@@ -20,6 +20,8 @@
   "scripts": {
     "watch": "webpack --progress --colors --watch  --env.nodependencies",
     "dev": "webpack-dev-server --open",
+    "light": "NODE_ENV='production' webpack --env.nodependencies",
+    "full": "NODE_ENV='production' webpack",
     "build": "NODE_ENV='production' webpack; NODE_ENV='production' webpack --env.nodependencies"
   },
   "keywords": [

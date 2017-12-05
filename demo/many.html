@@ -132,8 +132,8 @@
             var galleryEl1 = document.getElementById('gallery1');
             var galleryEl2 = document.getElementById('gallery2');
             var photoswipeEl = document.getElementsByClassName('pswp')[0];
-            var gallery1 = new NaturalGallery(galleryEl1, photoswipeEl, galleryData1);
-            var gallery2 = new NaturalGallery(galleryEl2, photoswipeEl, galleryData2);
+            var gallery1 = new NaturalGallery.Gallery(galleryEl1, photoswipeEl, galleryData1);
+            var gallery2 = new NaturalGallery.Gallery(galleryEl2, photoswipeEl, galleryData2);
 
             var xhr = new XMLHttpRequest();
             xhr.open('GET', 'data.json');

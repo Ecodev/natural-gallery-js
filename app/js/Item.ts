@@ -1,5 +1,5 @@
-import {Gallery} from './Gallery';
-import {Utility} from './Utility';
+import { Gallery } from './Gallery';
+import { Utility } from './Utility';
 import * as PhotoSwipe from 'photoswipe';
 import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 
@@ -115,7 +115,7 @@ export class Item {
         let details = {
             title: container.textContent,
             link: null,
-            linkTarget: null
+            linkTarget: null,
         };
 
         if (links[0]) {
@@ -138,7 +138,10 @@ export class Item {
         let options = this.gallery.options;
 
         let label = null;
-        if (this.title && ['true', 'hover'].indexOf(options.showLabels) > -1) {
+        if (this.title && [
+                              'true',
+                              'hover',
+                          ].indexOf(options.showLabels) > -1) {
             label = true;
         }
 
@@ -169,7 +172,6 @@ export class Item {
         } else if (!options.lightbox && !label && link) {
             element = link;
             // Pointer cursor is shown, but additionnal effect could be even better.
-
         }
 
         Utility.addClass(image, 'image');
@@ -236,21 +238,17 @@ export class Item {
         this.image.style.height = String(this.height + 'px');
 
         const self = this;
-        window.setTimeout(
-            function() {
-                Utility.addClass(self.element, 'visible');
-            },
-            0);
+        window.setTimeout(function() {
+            Utility.addClass(self.element, 'visible');
+        }, 0);
     }
 
     public flash() {
         const self = this;
         Utility.removeClass(this.element, 'visible');
-        window.setTimeout(
-            function() {
-                Utility.addClass(self.element, 'visible');
-            },
-            0);
+        window.setTimeout(function() {
+            Utility.addClass(self.element, 'visible');
+        }, 0);
     }
 
     /**
@@ -305,7 +303,7 @@ export class Item {
             index: index,
             bgOpacity: 0.85,
             showHideOpacity: true,
-            loop: false
+            loop: false,
         };
 
         let pswp = new PhotoSwipe(this.gallery.pswpElement, PhotoSwipeUI_Default, this.gallery.pswpContainer, options);
@@ -317,7 +315,8 @@ export class Item {
         // Loading one more page when going to next image
         pswp.listen('beforeChange', function(delta) {
 
-            // Positive delta indicates 'go to next' action, we don't load more objects on looping back the gallery (same logic when scrolling)
+            // Positive delta indicates 'go to next' action, we don't load more objects on looping back the gallery (same logic when
+            // scrolling)
             if (delta > 0 && pswp.getCurrentIndex() === pswp.items.length - 1) {
                 self.gallery.addElements();
             } else if (delta === -1 * (pswp.items.length - 1)) {
@@ -340,7 +339,7 @@ export class Item {
             src: this._enlarged,
             w: this._eWidth,
             h: this._eHeight,
-            title: this._title
+            title: this._title,
         };
     }
 
@@ -364,11 +363,9 @@ export class Item {
         });
 
         // Detect errored images and hide them smartly
-        img.addEventListener(
-            'error',
-            function() {
-                Utility.addClass(self.element, 'errored');
-            });
+        img.addEventListener('error', function() {
+            Utility.addClass(self.element, 'errored');
+        });
 
         return this.element;
     }
@@ -516,4 +513,3 @@ export class Item {
     }
 
 }
-

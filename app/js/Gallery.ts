@@ -111,7 +111,7 @@ export class Gallery {
      * @param pswp
      * @param data
      */
-    public constructor(element: HTMLElement, pswp: HTMLElement, data) {
+    public constructor(rootElement: HTMLElement, pswp: HTMLElement, data) {
         this.pswpElement = pswp;
 
         // Complete options with default values
@@ -123,7 +123,7 @@ export class Gallery {
 
         this.options = data.options;
         this.categories = data.categories ? <Category[]> data.categories : [];
-        this.rootElement = element;
+        this.rootElement = rootElement;
         Utility.addClass(this.rootElement, 'natural-gallery');
 
         // header
