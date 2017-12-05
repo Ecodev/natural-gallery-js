@@ -38,6 +38,9 @@ module.exports = function(env) {
     let externals = {};
     if (!dependencies) {
         plugins.push(new DtsBundlePlugin());
+        plugins.push(new webpack.WatchIgnorePlugin([
+            /\.d\.ts$/
+        ]));
         externals = {
             'photoswipe': 'PhotoSwipe',
             'photoswipe/dist/photoswipe-ui-default': 'PhotoSwipeUI_Default'
