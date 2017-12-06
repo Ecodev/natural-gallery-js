@@ -266,8 +266,6 @@ export class Gallery {
             rows = this.getRowsPerPage(this);
         }
 
-        console.log('addElements, nb rows : ', rows);
-
         let nextImage = this.pswpContainer.length;
         let lastRow = this.pswpContainer.length ? collection[nextImage].row + rows : rows;
 
