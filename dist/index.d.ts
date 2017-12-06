@@ -27,11 +27,12 @@ export interface IGalleryOptions {
 export class Gallery {
         /**
             * Initiate gallery
-            * @param element
+            * @param rootElement
             * @param pswp
+            * @param scrollElement
             * @param data
             */
-        constructor(rootElement: HTMLElement, pswp: HTMLElement, data: any);
+        constructor(rootElement: HTMLElement, pswp: HTMLElement, data: any, scrollElement?: HTMLElement);
         render(): void;
         /**
             * Initialize items
@@ -47,7 +48,7 @@ export class Gallery {
             */
         addElements(rows?: number): void;
         /**
-            * Check whetever we need to resize a gallery (only if parent container width changes)
+            * Check if we need to resize a gallery (only if parent container width changes)
             * The keep full rows, it recomputes sizes with new dimension, and reset everything, then add the same number of row.
             * It results in not partial row.
             */

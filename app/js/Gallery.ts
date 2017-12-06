@@ -107,11 +107,13 @@ export class Gallery {
 
     /**
      * Initiate gallery
-     * @param element
+     * @param rootElement
      * @param pswp
+     * @param scrollElement
      * @param data
      */
-    public constructor(rootElement: HTMLElement, pswp: HTMLElement, data) {
+    public constructor(rootElement: HTMLElement, pswp: HTMLElement, data, scrollElement: HTMLElement = null) {
+
         this.pswpElement = pswp;
 
         // Complete options with default values
@@ -148,7 +150,7 @@ export class Gallery {
         }
 
         if (this.options.limit === 0) {
-            this.bindScroll();
+            this.bindScroll(scrollElement !== null ? scrollElement : document);
         }
 
     }
@@ -264,6 +266,8 @@ export class Gallery {
             rows = this.getRowsPerPage(this);
         }
 
+        console.log('addElements, nb rows : ', rows);
+
         let nextImage = this.pswpContainer.length;
         let lastRow = this.pswpContainer.length ? collection[nextImage].row + rows : rows;
 
@@ -318,7 +322,7 @@ export class Gallery {
             return this.options.limit;
         }
 
-        let winHeight = window.outerHeight;
+        let winHeight = window.innerHeight;
         let galleryVisibleHeight = winHeight - gallery.bodyElement.offsetTop;
         // ratio to be more close from reality average row height
         let nbRows = Math.floor(galleryVisibleHeight / (this.options.rowHeight * 0.7));
@@ -327,7 +331,7 @@ export class Gallery {
     }
 
     /**
-     * Check whetever we need to resize a gallery (only if parent container width changes)
+     * Check if we need to resize a gallery (only if parent container width changes)
      * The keep full rows, it recomputes sizes with new dimension, and reset everything, then add the same number of row.
      * It results in not partial row.
      */
@@ -368,20 +372,27 @@ export class Gallery {
         }
     }
 
-    private bindScroll() {
+    private bindScroll(element: HTMLElement | Document) {
 
-        document.addEventListener('scroll', () => {
-            let endOfGalleryAt = this.rootElement.offsetTop + this.rootElement.offsetHeight + 60;
+        const scrollable = element;
+        let wrapper = null;
+        if (element instanceof Document) {
+            wrapper = element.documentElement;
+        } else {
+            wrapper = element;
+        }
+
+        scrollable.addEventListener('scroll', () => {
+            let endOfGalleryAt = this.rootElement.offsetTop + this.rootElement.offsetHeight;
 
             // Avoid to expand gallery if we are scrolling up
-            let current_scroll_top = (window.pageYOffset || document.documentElement.scrollTop) - (document.documentElement.clientTop || 0);
-            let window_size = window.innerHeight;
-
+            let current_scroll_top = wrapper.scrollTop - (wrapper.clientTop || 0);
+            let wrapperHeight = wrapper.clientHeight;
             let scroll_delta = current_scroll_top - this.old_scroll_top;
             this.old_scroll_top = current_scroll_top;
 
             // "enableMoreLoading" is a setting coming from the BE bloking / enabling dynamic loading of thumbnail
-            if (scroll_delta > 0 && current_scroll_top + window_size > endOfGalleryAt) {
+            if (scroll_delta > 0 && current_scroll_top + wrapperHeight > endOfGalleryAt) {
                 // When scrolling only add a row at once
                 this.addElements(1);
             }
