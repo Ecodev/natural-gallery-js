@@ -54,6 +54,8 @@ export class Gallery {
         labelImages: 'Images',
     };
 
+    private _events: any = {};
+
     /**
      * Used to test the scroll direction
      * Avoid to load more images when scrolling up in the detection zone
@@ -124,6 +126,7 @@ export class Gallery {
         }
 
         this.options = data.options;
+        this._events = data.events;
         this.categories = data.categories ? <Category[]> data.categories : [];
         this.rootElement = rootElement;
         Utility.addClass(this.rootElement, 'natural-gallery');
@@ -407,6 +410,10 @@ export class Gallery {
      */
     set images(images) {
         this.collection = images;
+    }
+
+    get events(): any {
+        return this._events;
     }
 
     get id(): string {

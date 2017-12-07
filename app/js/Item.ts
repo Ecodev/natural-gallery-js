@@ -1,6 +1,7 @@
 import { Gallery } from './Gallery';
 import { Utility } from './Utility';
 import * as PhotoSwipe from 'photoswipe';
+
 // import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 
 export interface IItemFields {
@@ -56,6 +57,7 @@ export class Item {
      */
     private element: HTMLElement;
     private image: HTMLElement;
+    private _fields: IItemFields;
 
     /**
      * @param fields
@@ -63,6 +65,7 @@ export class Item {
      */
     public constructor(private fields: IItemFields, private gallery: Gallery) {
 
+        this._fields = fields;
         this.id = fields.id;
         this.thumbnail = fields.thumbnail;
         this.enlarged = fields.enlarged;
@@ -138,10 +141,11 @@ export class Item {
         let options = this.gallery.options;
 
         let label = null;
-        if (this.title && [
-                              'true',
-                              'hover',
-                          ].indexOf(options.showLabels) > -1) {
+        const showLabelValues = [
+            'true',
+            'hover',
+        ];
+        if (this.title && showLabelValues.indexOf(options.showLabels) > -1) {
             label = true;
         }
 
@@ -205,10 +209,21 @@ export class Item {
 
         if (this.link) {
             link = document.createElement('a');
-            link.setAttribute('href', this.link);
-            Utility.addClass(link, 'link');
-            if (this.linkTarget) {
-                link.setAttribute('target', this.linkTarget);
+            if (this.gallery.events.link) {
+
+                link.addEventListener('click', (ev) => {
+                    if (this.gallery.events.link.preventDefault) {
+                        ev.preventDefault();
+                    }
+                    this.gallery.events.link.callback(this._fields);
+
+                });
+            } else {
+                link.setAttribute('href', this.link);
+                Utility.addClass(link, 'link');
+                if (this.linkTarget) {
+                    link.setAttribute('target', this.linkTarget);
+                }
             }
         }
 
