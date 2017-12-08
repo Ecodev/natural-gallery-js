@@ -126,7 +126,7 @@ export class Gallery {
         }
 
         this.options = data.options;
-        this._events = data.events;
+        this._events = data.events ? data.events : {};
         this.categories = data.categories ? <Category[]> data.categories : [];
         this.rootElement = rootElement;
         Utility.addClass(this.rootElement, 'natural-gallery');
