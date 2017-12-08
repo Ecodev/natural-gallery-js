@@ -39,7 +39,9 @@
     "scroll",
     "infinite scroll"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "photoswipe": "^4.1.2"
+  },
   "devDependencies": {
     "autoprefixer": "^7.1.6",
     "awesome-typescript-loader": "^3.4.0",
@@ -103,7 +105,5 @@
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.4"
   },
-  "peerDependencies": {
-    "photoswipe": "^4.1.2"
-  }
+  "peerDependencies": {}
 }

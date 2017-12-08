@@ -67,6 +67,7 @@ export class Gallery {
             * @param images
             */
         images: any;
+        readonly events: any;
         id: string;
         pswpContainer: any[];
         collection: Item[];
