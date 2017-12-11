@@ -10,9 +10,8 @@
 }
 
 .natural-gallery .natural-gallery-body .figure.loading.errored::before {
-    background-color:rgb(255,0,0) !important;
+    background-color: rgb(255, 0, 0) !important;
 }
-
 
 /* Inactive */
 .natural-gallery .natural-gallery-searchTerm,
@@ -27,7 +26,7 @@
 .natural-gallery .natural-gallery-categories input[type=checkbox] ~ .label svg,
 .natural-gallery .natural-gallery-noresults svg {
     color: #999999 !important;
-    fill: #999999 !important;
+    fill: currentColor !important;
 }
 
 /* Normal */
@@ -58,8 +57,16 @@
     background-color: #eeeeee !important;
 }
 
-.natural-gallery .button ,
-.natural-gallery .figure[href] .title {
+.natural-gallery .figure.selected .selectBtn {
+    color: orange !important;
+}
+
+.natural-gallery .button {
     background: rgb(0, 137, 224) !important;
     border-top: 1px solid #45a8e0;
+}
+
+.natural-gallery .button:hover {
+    background: rgb(0, 103, 187) !important;
+
 }

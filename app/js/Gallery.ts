@@ -26,6 +26,7 @@ export interface IGalleryOptions {
     labelOthers: string;
     labelSearch: string;
     labelImages: string;
+    selectable: boolean;
 }
 
 export class Gallery {
@@ -52,6 +53,7 @@ export class Gallery {
         labelOthers: 'Others',
         labelSearch: 'Search',
         labelImages: 'Images',
+        selectable: false,
     };
 
     private _events: any = {};
@@ -107,6 +109,8 @@ export class Gallery {
 
     private _header: Header;
 
+    private _selected: Item[] = [];
+
     /**
      * Initiate gallery
      * @param rootElement
@@ -126,10 +130,15 @@ export class Gallery {
         }
 
         this.options = data.options;
-        this._events = data.events ? data.events : {};
         this.categories = data.categories ? <Category[]> data.categories : [];
         this.rootElement = rootElement;
         Utility.addClass(this.rootElement, 'natural-gallery');
+
+        // Events
+        this._events = data.events ? data.events : {};
+        if (this._events.select) {
+            this.options.selectable = true;
+        }
 
         // header
         if (this.options.searchFilter || this.options.categoriesFilter || this.options.showCount) {
@@ -398,6 +407,30 @@ export class Gallery {
                 this.addElements(1);
             }
         });
+    }
+
+    public select(item: Item) {
+        const index = this._selected.indexOf(item);
+        if (index === -1) {
+            this._selected.push(item);
+            this._events.select(this._selected.map(i => i.fields));
+        }
+    }
+
+    public unselect(item: Item) {
+        const index = this._selected.indexOf(item);
+        if (index > -1) {
+            this._selected.splice(index, 1);
+            this._events.select(this._selected.map(i => i.fields));
+        }
+    }
+
+    public unselectAll() {
+        for (let i = this._selected.length - 1; i >= 0; i--) {
+            this._selected[i].toggleSelect();
+        }
+
+        this._selected = [];
     }
 
     /**

@@ -52,18 +52,21 @@ export class Item {
     private _eWidth: number;
     private _eHeight: number;
 
+    private selected = false;
+
     /**
      * Dom elements
      */
     private element: HTMLElement;
     private image: HTMLElement;
+    private selectBtn: HTMLElement;
     private _fields: IItemFields;
 
     /**
      * @param fields
      * @param gallery
      */
-    public constructor(private fields: IItemFields, private gallery: Gallery) {
+    public constructor(fields: IItemFields, private gallery: Gallery) {
 
         this._fields = fields;
         this.id = fields.id;
@@ -169,6 +172,7 @@ export class Item {
         } else if (!options.lightbox && label && link) {
             element = link;
             label = document.createElement('div');
+            label.classList.add('button');
 
         } else if (!options.lightbox && label && !link) {
             label = document.createElement('div');
@@ -202,6 +206,28 @@ export class Item {
             element.appendChild(label);
         }
 
+        if (this.gallery.options.selectable) {
+            this.selectBtn = document.createElement('div');
+            this.selectBtn.appendChild(Utility.getIcon('icon-select'));
+            this.selectBtn.classList.add('selectBtn');
+            this.selectBtn.addEventListener('click', () => {
+                this.toggleSelect();
+            });
+            this.element.appendChild(this.selectBtn);
+        }
+
+    }
+
+    public toggleSelect() {
+        this.selected = !this.selected;
+        if (this.selected) {
+            this.element.classList.add('selected');
+            this.gallery.select(this);
+        } else {
+            this.element.classList.remove('selected');
+            this.gallery.unselect(this);
+
+        }
     }
 
     private getLinkElement() {
@@ -210,13 +236,11 @@ export class Item {
         if (this.link) {
             link = document.createElement('a');
             if (this.gallery.events.link) {
-
                 link.addEventListener('click', (ev) => {
                     if (this.gallery.events.link.preventDefault) {
                         ev.preventDefault();
                     }
                     this.gallery.events.link.callback(this._fields);
-
                 });
             } else {
                 link.setAttribute('href', this.link);
@@ -248,9 +272,6 @@ export class Item {
         if (this.last) {
             this.element.style.marginRight = '0';
         }
-
-        this.image.style.width = String(this.width + 'px');
-        this.image.style.height = String(this.height + 'px');
 
         const self = this;
         window.setTimeout(function() {
@@ -528,4 +549,7 @@ export class Item {
         this._linkTarget = value;
     }
 
+    get fields(): IItemFields {
+        return this._fields;
+    }
 }

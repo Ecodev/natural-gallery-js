@@ -23,6 +23,7 @@ export interface IGalleryOptions {
         labelOthers: string;
         labelSearch: string;
         labelImages: string;
+        selectable: boolean;
 }
 export class Gallery {
         /**
@@ -58,6 +59,9 @@ export class Gallery {
             * Empty DOM container and PhotoSwipe container
             */
         reset(): void;
+        select(item: Item): void;
+        unselect(item: Item): void;
+        unselectAll(): void;
         /**
             * Pseudo attribute, works like a "post-add-images".
             * If gallery config has .images attribute specified before gallery object creation,
@@ -103,6 +107,7 @@ export class Item {
             * @param gallery
             */
         constructor(fields: IItemFields, gallery: Gallery);
+        toggleSelect(): void;
         /**
             * Use computed (organized) data to apply style (size and margin) to elements on DOM
             * Does not apply border-radius because is used to restyle data on browser resize, and border-radius don't change.
@@ -149,6 +154,7 @@ export class Item {
         binded: boolean;
         link: string;
         linkTarget: string;
+        readonly fields: IItemFields;
 }
 
 export class Header {
