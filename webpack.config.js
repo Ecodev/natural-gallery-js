@@ -54,7 +54,7 @@ module.exports = function(env) {
     return {
         entry: entry,
         output: {
-            path: __dirname + '/dist',
+            path: path.join(__dirname,  'dist'),
             filename: outName + '.js',
             library: "NaturalGallery",
             libraryTarget: 'umd',
@@ -64,8 +64,16 @@ module.exports = function(env) {
             contentBase: './demo'
         },
         devtool: prod ? false : "source-map", // 'inline-source-map'
+        resolveLoader: {
+            modules: [
+                path.join(__dirname, 'node_modules')
+            ]
+        },
         resolve: {
             extensions: [".ts", ".js"],
+            modules: [
+                path.join(__dirname, 'node_modules')
+            ]
         },
         plugins: plugins,
         externals: externals,
