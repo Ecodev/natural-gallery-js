@@ -32,7 +32,7 @@ module.exports = function(env) {
                 sourceMap: !prod
             },
             canPrint: true
-        })
+        }),
     ];
 
     let externals = {};
@@ -42,7 +42,7 @@ module.exports = function(env) {
             /\.d\.ts$/
         ]));
         externals = {
-            'photoswipe': 'PhotoSwipe',
+            'photoswipe': 'photoswipe',
             'photoswipe/dist/photoswipe-ui-default': 'PhotoSwipeUI_Default'
         }
     }
@@ -54,7 +54,7 @@ module.exports = function(env) {
     return {
         entry: entry,
         output: {
-            path: path.join(__dirname,  'dist'),
+            path: path.join(__dirname, 'dist'),
             filename: outName + '.js',
             library: "NaturalGallery",
             libraryTarget: 'umd',
