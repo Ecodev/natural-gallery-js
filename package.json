@@ -1,6 +1,6 @@
 {
   "name": "natural-gallery-js",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "A lazy load, infinite scroll and natural layout list gallery",
   "author": "Samuel Baptista <samuel.baptista@ecodev.ch>",
   "license": "MIT",
@@ -12,11 +12,11 @@
     "url": "https://github.com/Ecodev/natural-gallery-js/issues"
   },
   "homepage": "https://github.com/Ecodev/natural-gallery-js#readme",
-  "main": "dist/natural-gallery.js",
-  "module": "dist/natural-gallery.js",
-  "jsnext:main": "dist/natural-gallery.js",
-  "types": "dist/index.d.ts",
-  "typings": "dist/index.d.ts",
+  "main": "./dist/natural-gallery.js",
+  "module": "./dist/natural-gallery.js",
+  "jsnext:main": "./dist/natural-gallery.js",
+  "types": "./dist/index.d.ts",
+  "typings": "./dist/index.d.ts",
   "scripts": {
     "watch": "webpack --progress --colors --watch  --env.nodependencies",
     "dev": "webpack-dev-server --open",
