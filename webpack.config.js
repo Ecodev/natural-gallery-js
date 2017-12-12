@@ -43,7 +43,7 @@ module.exports = function(env) {
         ]));
         externals = {
             'photoswipe': 'photoswipe',
-            'photoswipe/dist/photoswipe-ui-default': 'PhotoSwipeUI_Default'
+            'photoswipe/dist/photoswipe-ui-default': 'photoswipe/dist/photoswipe-ui-default'
         }
     }
 
