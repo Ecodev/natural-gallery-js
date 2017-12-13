@@ -185,15 +185,14 @@ export class Gallery {
 
         // Add iframe at root level that launches a resize when width change
         let iframe = document.createElement('iframe');
-        iframe.addEventListener('load', function() {
-            let timer = null;
+        this.rootElement.appendChild(iframe);
 
-            this.contentWindow.addEventListener('resize', function() {
-                clearTimeout(timer);
-                timer = setTimeout(function() {
-                    self.resize();
-                }, 100);
-            });
+        let timer = null;
+        iframe.contentWindow.addEventListener('resize', () => {
+            clearTimeout(timer);
+            timer = setTimeout(function() {
+                self.resize();
+            }, 100);
         });
 
         this.bodyElement = document.createElement('div');
@@ -206,7 +205,6 @@ export class Gallery {
 
         this.rootElement.appendChild(this.bodyElement);
         this.rootElement.appendChild(nextButton);
-        this.rootElement.appendChild(iframe);
 
     }
 
