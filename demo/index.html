@@ -118,15 +118,22 @@
             var galleryEl = document.getElementById('gallery');
             var photoswipeEl = document.getElementsByClassName('pswp')[0];
             var gallery = new NaturalGallery.Gallery(galleryEl, photoswipeEl, galleryData);
+            var images = null;
 
             var xhr = new XMLHttpRequest();
             xhr.open('GET', 'data.json');
             xhr.send(null);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
-                    gallery.images = JSON.parse(xhr.responseText);
+                    images = JSON.parse(xhr.responseText);
+                    gallery.collection = JSON.parse(xhr.responseText);
                 }
             };
+
+            // Change collection
+            // setTimeout(function() {
+            //     gallery.collection = images;
+            // }, 2000);
 
         </script>
 

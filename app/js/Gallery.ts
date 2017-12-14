@@ -223,7 +223,6 @@ export class Gallery {
 
         // Complete collection
         items.forEach(function(item) {
-            item.id = this._collection.length;
             this._collection.push(new Item(<IItemFields> item, this));
         }, this);
 
@@ -352,7 +351,8 @@ export class Gallery {
 
             Organizer.organize(this);
 
-            let nbRows = this.collection[this.pswpContainer.length - 1].row + 1;
+            const lastImage = this.collection[this.pswpContainer.length - 1];
+            let nbRows = lastImage ? lastImage.row + 1 : null;
             this.reset();
             this.addElements(nbRows);
         }
@@ -472,6 +472,7 @@ export class Gallery {
     }
 
     set collection(items: Item[]) {
+        this.reset();
         this._collection = [];
         this.appendItems(items);
     }

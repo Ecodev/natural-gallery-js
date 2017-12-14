@@ -1,8 +1,8 @@
-import {AbstractFilter} from './AbstractFilter';
-import {Category} from './Category';
-import {Header} from './Header';
-import {Utility} from '../Utility';
-import {Item} from '../Item';
+import { AbstractFilter } from './AbstractFilter';
+import { Category } from './Category';
+import { Header } from './Header';
+import { Utility } from '../Utility';
+import { Item } from '../Item';
 
 export class CategoryFilter extends AbstractFilter {
 
@@ -33,6 +33,12 @@ export class CategoryFilter extends AbstractFilter {
             Utility.addClass(sectionName, 'sectionName');
             sectionName.textContent = this.header.gallery.options.labelCategories;
             this.element.appendChild(sectionName);
+        } else {
+            const labels = this.element.getElementsByTagName('label');
+
+            for (let i = labels.length - 1; i > 0; i--) {
+                this.element.removeChild(labels.item(i));
+            }
         }
 
         let label = this.element.getElementsByTagName('label')[0];
@@ -40,11 +46,9 @@ export class CategoryFilter extends AbstractFilter {
             label.parentNode.removeChild(label);
         }
 
-        this.categories.forEach(
-            function(cat: Category) {
-                this.element.appendChild(cat.render());
-            },
-            this);
+        this.categories.forEach(function(cat: Category) {
+            this.element.appendChild(cat.render());
+        }, this);
 
         return this.element;
     }
@@ -52,11 +56,9 @@ export class CategoryFilter extends AbstractFilter {
     public prepare(): void {
 
         let galleryCategories = [];
-        this.header.gallery.categories.forEach(
-            function(cat) {
-                galleryCategories.push(new Category(cat.id, cat.title, this));
-            },
-            this);
+        this.header.gallery.categories.forEach(function(cat) {
+            galleryCategories.push(new Category(cat.id, cat.title, this));
+        }, this);
 
         this.none = new Category(-1, this.header.gallery.options.labelNone, this);
         this.others = new Category(-2, this.header.gallery.options.labelOthers, this);
@@ -72,32 +74,27 @@ export class CategoryFilter extends AbstractFilter {
         }
 
         let itemCategories = [];
-        this.header.gallery.getOriginalCollection().forEach(
-            function(item: Item) {
+        this.header.gallery.getOriginalCollection().forEach(function(item: Item) {
 
-                // Set category "none" if empty
-                if (!item.categories || item.categories && item.categories.length === 0 && this.header.gallery.options.showNone) {
-                    item.categories = [this.none];
-                }
+            // Set category "none" if empty
+            if (!item.categories || item.categories && item.categories.length === 0 && this.header.gallery.options.showNone) {
+                item.categories = [this.none];
+            }
 
-                // Set category "others" if none of categories are used in gallery categories
-                if (galleryCategories.length
-                    && Utility.differenceBy(item.categories, galleryCategories, 'id').length
-                    === item.categories.length
-                    && this.header.gallery.options.showOthers
-                ) {
-                    item.categories = [this.others];
-                }
+            // Set category "others" if none of categories are used in gallery categories
+            if (galleryCategories.length &&
+                Utility.differenceBy(item.categories, galleryCategories, 'id').length ===
+                item.categories.length &&
+                this.header.gallery.options.showOthers) {
+                item.categories = [this.others];
+            }
 
-                // Assign categories as object
-                item.categories.forEach(
-                    function(cat) {
-                        itemCategories.push(new Category(cat.id, cat.title, this));
-                    },
-                    this);
+            // Assign categories as object
+            item.categories.forEach(function(cat) {
+                itemCategories.push(new Category(cat.id, cat.title, this));
+            }, this);
 
-            },
-            this);
+        }, this);
 
         // Avoid duplicates
         galleryCategories = Utility.uniqBy(galleryCategories, 'id');
@@ -129,25 +126,23 @@ export class CategoryFilter extends AbstractFilter {
 
             let filteredItems = [];
 
-            this.header.gallery.getOriginalCollection().forEach(
-                function(item) {
-                    if (!item.categories || item.categories && item.categories.length === 0) {
-                        if (this.none) {
-                            filteredItems.push(item);
-                        }
-                    } else {
-                        item.categories.some(function(cat1: Category) {
-                            let found = selectedCategories.some(function(cat2: Category) {
-                                return cat1.id === cat2.id;
-                            });
-                            if (found) {
-                                filteredItems.push(item);
-                                return true;
-                            }
-                        });
+            this.header.gallery.getOriginalCollection().forEach(function(item) {
+                if (!item.categories || item.categories && item.categories.length === 0) {
+                    if (this.none) {
+                        filteredItems.push(item);
                     }
-                },
-                this);
+                } else {
+                    item.categories.some(function(cat1: Category) {
+                        let found = selectedCategories.some(function(cat2: Category) {
+                            return cat1.id === cat2.id;
+                        });
+                        if (found) {
+                            filteredItems.push(item);
+                            return true;
+                        }
+                    });
+                }
+            }, this);
 
             this.collection = filteredItems;
         }

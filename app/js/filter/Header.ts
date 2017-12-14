@@ -1,7 +1,7 @@
-import {Item} from '../Item';
-import {AbstractFilter} from './AbstractFilter';
-import {Gallery} from '../Gallery';
-import {Utility} from '../Utility';
+import { Item } from '../Item';
+import { AbstractFilter } from './AbstractFilter';
+import { Gallery } from '../Gallery';
+import { Utility } from '../Utility';
 
 export class Header {
 
@@ -26,7 +26,6 @@ export class Header {
      */
     public constructor(gallery: Gallery) {
         this.gallery = gallery;
-
     }
 
     public addFilter(filter: AbstractFilter): void {
@@ -64,11 +63,9 @@ export class Header {
 
         this.element = document.createElement('div');
 
-        this.filters.forEach(
-            function(filter) {
-                this.element.appendChild(filter.render());
-            },
-            this);
+        this.filters.forEach(function(filter) {
+            this.element.appendChild(filter.render());
+        }, this);
 
         Utility.addClass(this.element, 'natural-gallery-header');
         this.element.appendChild(imagesLayout);
@@ -134,4 +131,3 @@ export class Header {
         this._filters = value;
     }
 }
-
