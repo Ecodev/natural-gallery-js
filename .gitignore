@@ -5,7 +5,7 @@
 .DS_store
 node_modules
 cache/*
-dist/**/*.map
+dist/*
 app/**/*.js.map
 app/**/*.d.ts
 app/**/*.js
