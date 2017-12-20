@@ -24,6 +24,13 @@ export module Organizer {
         gallery.style();
     }
 
+    export function simulatePagination(gallery: Gallery) {
+        const margin = gallery.options.margin ? gallery.options.margin : 0;
+        const imageWidth = Math.ceil(gallery.options.rowHeight * gallery.defaultImageRatio + margin);
+        const nb = (gallery.bodyWidth + margin) / (imageWidth + margin);
+        return Math.ceil(nb);
+    }
+
     /**
      *
      * @param elements

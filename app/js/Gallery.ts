@@ -112,13 +112,19 @@ export class Gallery {
     private _selected: Item[] = [];
 
     /**
+     * This ratio is the supposed average ratio for the first pagination estimation
+     * When gallery is created without images, this ratio is used to estimate number of images per page
+     */
+    public defaultImageRatio = .7;
+
+    /**
      * Initiate gallery
      * @param rootElement
      * @param pswp
      * @param scrollElement
      * @param data
      */
-    public constructor(rootElement: HTMLElement, pswp: HTMLElement, data, scrollElement: HTMLElement = null) {
+    public constructor(rootElement: HTMLElement, pswp: HTMLElement, data, private scrollElement: HTMLElement = null) {
 
         this.pswpElement = pswp;
 
@@ -159,6 +165,8 @@ export class Gallery {
 
         if (data.images) {
             this.collection = data.images;
+        } else {
+            this.pagination();
         }
 
         if (this.options.limit === 0) {
@@ -180,7 +188,9 @@ export class Gallery {
         nextButton.appendChild(Utility.getIcon('icon-next'));
         nextButton.addEventListener('click', function(e) {
             e.preventDefault();
-            self.addElements();
+            const rows = self.getRowsPerPage();
+            self.addElements(rows);
+            self.pagination(rows);
         });
 
         // Add iframe at root level that launches a resize when width change
@@ -212,14 +222,10 @@ export class Gallery {
      * Initialize items
      * @param items
      */
-    public appendItems(items): void {
+    public addItems(items): void {
 
-        let display = false;
-
-        // if it's first addition of items, display them
-        if (this.collection.length === 0) {
-            display = true;
-        }
+        // Display newly added images if it's the first addition or if all images are already shown
+        let display = this.collection.length === 0 || this.collection.length === this.pswpContainer.length;
 
         // Complete collection
         items.forEach(function(item) {
@@ -234,7 +240,7 @@ export class Gallery {
         }
 
         if (display) {
-            this.addElements();
+            this.addElements(this.getRowsPerPage());
         }
     }
 
@@ -259,7 +265,6 @@ export class Gallery {
         if (nextButton) {
             nextButton.style.display = 'block';
         }
-
         if (this.pswpContainer.length === collection.length) {
             nextButton.style.display = 'none';
 
@@ -269,10 +274,6 @@ export class Gallery {
             }
 
             return;
-        }
-
-        if (!rows) {
-            rows = this.getRowsPerPage(this);
         }
 
         let nextImage = this.pswpContainer.length;
@@ -323,14 +324,15 @@ export class Gallery {
      * @param gallery
      * @returns {*}
      */
-    private getRowsPerPage(gallery) {
+    private getRowsPerPage() {
 
         if (this.options.limit) {
             return this.options.limit;
         }
 
-        let winHeight = window.innerHeight;
-        let galleryVisibleHeight = winHeight - gallery.bodyElement.offsetTop;
+        let winHeight = this.scrollElement ? this.scrollElement.clientHeight : document.documentElement.clientHeight;
+        let galleryVisibleHeight = winHeight - this.bodyElement.offsetTop;
+
         // ratio to be more close from reality average row height
         let nbRows = Math.floor(galleryVisibleHeight / (this.options.rowHeight * 0.7));
 
@@ -348,11 +350,9 @@ export class Gallery {
 
         if (containerWidth !== this.bodyWidth) {
             this.bodyWidth = containerWidth;
-
             Organizer.organize(this);
-
             const lastImage = this.collection[this.pswpContainer.length - 1];
-            let nbRows = lastImage ? lastImage.row + 1 : null;
+            let nbRows = lastImage ? lastImage.row + 1 : this.getRowsPerPage();
             this.reset();
             this.addElements(nbRows);
         }
@@ -361,7 +361,7 @@ export class Gallery {
     public refresh() {
         this.reset();
         Organizer.organize(this);
-        this.addElements();
+        this.addElements(this.getRowsPerPage());
     }
 
     /**
@@ -403,8 +403,34 @@ export class Gallery {
             if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
                 // When scrolling only add a row at once
                 this.addElements(1);
+                this.pagination(1);
             }
         });
+    }
+
+    private pagination(nbRows = 1) {
+        if (this.events.pagination) {
+            if (this.collection.length) {
+                const elementPerRow = this.getMaxImagesPerRow();
+                this._events.pagination(this.collection.length, elementPerRow * nbRows);
+            } else {
+                const estimation = Organizer.simulatePagination(this);
+                this._events.pagination(this.collection.length, estimation * this.getRowsPerPage() * 2);
+            }
+        }
+    }
+
+    /**
+     * Return the max number of images per row
+     * @returns {number}
+     */
+    private getMaxImagesPerRow() {
+        const nbPerRowFn = arr => arr.reduce((stack, e) => {
+            stack[e.row] = stack[e.row] > -1 ? stack[e.row] + 1 : 1;
+            return stack;
+        }, []);
+
+        return Math.max.apply(null, nbPerRowFn(this.collection));
     }
 
     public select(item: Item) {
@@ -474,7 +500,7 @@ export class Gallery {
     set collection(items: Item[]) {
         this.reset();
         this._collection = [];
-        this.appendItems(items);
+        this.addItems(items);
     }
 
     get bodyWidth(): number {
