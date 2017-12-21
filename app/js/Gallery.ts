@@ -111,6 +111,9 @@ export class Gallery {
 
     private _selected: Item[] = [];
 
+    private nextButton: HTMLElement;
+    private noResults: HTMLElement;
+
     /**
      * This ratio is the supposed average ratio for the first pagination estimation
      * When gallery is created without images, this ratio is used to estimate number of images per page
@@ -179,24 +182,27 @@ export class Gallery {
 
         const self = this;
 
-        let noResults = document.createElement('div');
-        Utility.addClass(noResults, 'natural-gallery-noresults');
-        noResults.appendChild(Utility.getIcon('icon-noresults'));
+        // Empty
+        this.noResults = document.createElement('div');
+        Utility.addClass(this.noResults, 'natural-gallery-noresults');
+        this.noResults.appendChild(Utility.getIcon('icon-noresults'));
+        this.noResults.style.display = 'block';
 
-        let nextButton = document.createElement('div');
-        Utility.addClass(nextButton, 'natural-gallery-next');
-        nextButton.appendChild(Utility.getIcon('icon-next'));
-        nextButton.addEventListener('click', function(e) {
+        // Next button
+        this.nextButton = document.createElement('div');
+        Utility.addClass(this.nextButton, 'natural-gallery-next');
+        this.nextButton.appendChild(Utility.getIcon('icon-next'));
+        this.nextButton.style.display = 'none';
+        this.nextButton.addEventListener('click', function(e) {
             e.preventDefault();
             const rows = self.getRowsPerPage();
             self.addElements(rows);
             self.pagination(rows);
         });
 
-        // Add iframe at root level that launches a resize when width change
-        let iframe = document.createElement('iframe');
+        // Iframe
+        const iframe = document.createElement('iframe');
         this.rootElement.appendChild(iframe);
-
         let timer = null;
         iframe.contentWindow.addEventListener('resize', () => {
             clearTimeout(timer);
@@ -207,15 +213,14 @@ export class Gallery {
 
         this.bodyElement = document.createElement('div');
         Utility.addClass(this.bodyElement, 'natural-gallery-body');
-        this.bodyElement.appendChild(noResults);
+        this.bodyElement.appendChild(this.noResults);
 
         if (this.header) {
             this.rootElement.appendChild(this.header.render());
         }
 
         this.rootElement.appendChild(this.bodyElement);
-        this.rootElement.appendChild(nextButton);
-
+        this.rootElement.appendChild(this.nextButton);
     }
 
     /**
@@ -223,6 +228,10 @@ export class Gallery {
      * @param items
      */
     public addItems(items): void {
+
+        if (!(items.constructor === Array && items.length)) {
+            return;
+        }
 
         // Display newly added images if it's the first addition or if all images are already shown
         let display = this.collection.length === 0 || this.collection.length === this.pswpContainer.length;
@@ -261,15 +270,13 @@ export class Gallery {
         let collection = this.collection;
 
         // display because filters may add more images and we have to show it again
-        let nextButton = <HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-next')[0];
-        if (nextButton) {
-            nextButton.style.display = 'block';
-        }
+        this.nextButton.style.display = 'block';
+
         if (this.pswpContainer.length === collection.length) {
-            nextButton.style.display = 'none';
+            this.nextButton.style.display = 'none';
 
             if (collection.length === 0) {
-                (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-noresults')[0]).style.display = 'block';
+                this.noResults.style.display = 'block';
                 (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-images')[0]).style.display = 'none';
             }
 
@@ -291,14 +298,11 @@ export class Gallery {
 
             // Show / Hide "more" button.
             if (this.pswpContainer.length === collection.length) {
-                nextButton.style.display = 'none';
+                this.nextButton.style.display = 'none';
             }
         }
 
-        let noResults = (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-noresults')[0]);
-        if (noResults) {
-            noResults.style.display = 'none';
-        }
+        this.noResults.style.display = 'none';
 
         let imageContainer = (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-images')[0]);
         if (imageContainer) {
@@ -374,10 +378,7 @@ export class Gallery {
             item.remove();
         });
 
-        let results = <HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-noresults')[0];
-        if (results) {
-            results.style.display = 'none';
-        }
+        this.noResults.style.display = 'block';
     }
 
     private bindScroll(element: HTMLElement | Document) {
@@ -455,18 +456,6 @@ export class Gallery {
         }
 
         this._selected = [];
-    }
-
-    /**
-     * Pseudo attribute, works like a "post-add-images".
-     * If gallery config has .images attribute specified before gallery object creation,
-     * the constructor will deal with .images attribute to create the official collection
-     * If user specifies .images attribute after library load, this function will take care of it.
-     * For post load, user needs to keep reference to this object.
-     * @param images
-     */
-    set images(images) {
-        this.collection = images;
     }
 
     get events(): any {
