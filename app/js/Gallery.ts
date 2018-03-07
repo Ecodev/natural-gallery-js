@@ -27,6 +27,8 @@ export interface IGalleryOptions {
     labelSearch: string;
     labelImages: string;
     selectable: boolean;
+    zoomRotation: boolean;
+
 }
 
 export class Gallery {
@@ -54,6 +56,7 @@ export class Gallery {
         labelSearch: 'Search',
         labelImages: 'Images',
         selectable: false,
+        zoomRotation: true,
     };
 
     private _events: any = {};

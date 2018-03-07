@@ -181,6 +181,10 @@ export class Item {
             // Pointer cursor is shown, but additionnal effect could be even better.
         }
 
+        if (options.zoomRotation) {
+            Utility.addClass(image, 'rotation');
+        }
+
         Utility.addClass(image, 'image');
         Utility.addClass(element, 'figure loading visible');
         image.style.backgroundImage = 'url(' + this.thumbnail + ')';

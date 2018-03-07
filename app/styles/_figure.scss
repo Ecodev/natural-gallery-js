@@ -24,8 +24,19 @@
     }
 
     .figure:not(.selected) {
-        .image.zoomable:hover,
-        .zoomable:hover .image {
+        .image.zoomable:not(.rotation):hover {
+            transform: scale(1.3);
+        }
+        .image.zoomable.rotation:hover {
+            transform: rotate(2deg) scale(1.3);
+        }
+        .image.zoomable:hover {
+            transform: scale(1.3);
+        }
+        .zoomable:not(.rotation):hover .image {
+            transform: scale(1.3);
+        }
+        .zoomable.rotation:hover .image {
             transform: rotate(2deg) scale(1.3);
         }
     }
