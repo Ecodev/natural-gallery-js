@@ -213,7 +213,8 @@ export class Item {
             this.selectBtn = document.createElement('div');
             this.selectBtn.appendChild(Utility.getIcon('icon-select'));
             this.selectBtn.classList.add('selectBtn');
-            this.selectBtn.addEventListener('click', () => {
+            this.selectBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 this.toggleSelect();
             });
             this.element.appendChild(this.selectBtn);
