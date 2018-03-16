@@ -211,9 +211,10 @@ export class Item {
 
         if (this.gallery.options.selectable) {
             this.selectBtn = document.createElement('div');
-            this.selectBtn.appendChild(Utility.getIcon('icon-select'));
+            const icon = Utility.getIcon('icon-select');
+            this.selectBtn.appendChild(icon);
             this.selectBtn.classList.add('selectBtn');
-            this.selectBtn.addEventListener('click', (e) => {
+            icon.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.toggleSelect();
             });
