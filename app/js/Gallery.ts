@@ -28,7 +28,7 @@ export interface IGalleryOptions {
     labelImages: string;
     selectable: boolean;
     zoomRotation: boolean;
-
+    infiniteScrollOffset: number;
 }
 
 export class Gallery {
@@ -57,14 +57,14 @@ export class Gallery {
         labelImages: 'Images',
         selectable: false,
         zoomRotation: true,
+        infiniteScrollOffset: 0,
     };
 
     private _events: any = {};
 
     /**
      * Used to test the scroll direction
-     * Avoid to load more images when scrolling up in the detection zone
-     * @type {number}
+     * Avoid to load more images when scrolling up in the detection zoneoffsetHeight
      */
     private old_scroll_top = 0;
 
@@ -395,7 +395,7 @@ export class Gallery {
         }
 
         scrollable.addEventListener('scroll', () => {
-            let endOfGalleryAt = this.rootElement.offsetTop + this.rootElement.offsetHeight;
+            let endOfGalleryAt = this.rootElement.offsetTop + this.rootElement.offsetHeight + this.options.infiniteScrollOffset;
 
             // Avoid to expand gallery if we are scrolling up
             let current_scroll_top = wrapper.scrollTop - (wrapper.clientTop || 0);
