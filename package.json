@@ -1,6 +1,6 @@
 {
   "name": "natural-gallery-js",
-  "version": "2.7.4",
+  "version": "2.7.5",
   "description": "A lazy load, infinite scroll and natural layout list gallery",
   "author": "Samuel Baptista <samuel.baptista@ecodev.ch>",
   "license": "MIT",
@@ -18,12 +18,11 @@
   "types": "./dist/index.d.ts",
   "typings": "./dist/index.d.ts",
   "scripts": {
-    "watch": "webpack --progress --colors --watch  --env.nodependencies",
     "dev": "webpack-dev-server --open",
     "light": "NODE_ENV='production' webpack --env.nodependencies",
     "light:watch": "NODE_ENV='production' webpack --env.nodependencies --watch",
-    "full": "NODE_ENV='production' webpack",
-    "build": "NODE_ENV='production' webpack; NODE_ENV='production' webpack --env.nodependencies"
+    "full": "NODE_ENV='production' webpack; NODE_ENV='production' webpack --env.nodependencies",
+    "full:watch": "NODE_ENV='production' webpack --watch; NODE_ENV='production' webpack --env.nodependencies --watch"
   },
   "keywords": [
     "gallery",

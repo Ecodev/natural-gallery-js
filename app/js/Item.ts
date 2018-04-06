@@ -154,19 +154,20 @@ export class Item {
         let element = document.createElement('div');
         let image = document.createElement('div');
         let link = this.getLinkElement();
+        let zoomable = null;
 
         if (options.lightbox && label && link) {
             label = link;
             Utility.addClass(label, 'button');
-            Utility.addClass(image, 'zoomable');
+            zoomable = image;
 
         } else if (options.lightbox && label && !link) {
             label = document.createElement('div');
-            Utility.addClass(element, 'zoomable');
+            zoomable = element;
 
         } else if (options.lightbox && !label) {
             // Actually, lightbox has priority on the link that is ignored...
-            Utility.addClass(element, 'zoomable');
+            zoomable = element;
 
         } else if (!options.lightbox && label && link) {
             element = link;
@@ -181,8 +182,11 @@ export class Item {
             // Pointer cursor is shown, but additionnal effect could be even better.
         }
 
-        if (options.zoomRotation) {
-            Utility.addClass(image, 'rotation');
+        if (zoomable) {
+            Utility.addClass(zoomable, 'zoomable');
+            if (options.zoomRotation) {
+                Utility.addClass(zoomable, 'rotation');
+            }
         }
 
         Utility.addClass(image, 'image');
