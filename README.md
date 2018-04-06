@@ -1,7 +1,7 @@
 Natural Gallery
 ============================
 
-Demos 
+Demos
 -----
 * Default (lightbox + links + post-load javascript) : https://ecodev.ch/natural-gallery/demo
 * Pre-loaded javascript : https://ecodev.ch/natural-gallery/demo/preload.html
@@ -15,10 +15,10 @@ Demos
 * Square items per line : https://ecodev.ch/natural-gallery/demo/square-fixed.html
 * Rounded : https://ecodev.ch/natural-gallery/demo/rounded.html
 
-Use distribution on your project 
+Use distribution on your project
 -----
 
-The bower install does not include sources and build process. To run the demo, look at the end of this readme. 
+The bower install does not include sources and build process. To run the demo, look at the end of this readme.
 
 Install natural-gallery-js :
 
@@ -26,7 +26,7 @@ Install natural-gallery-js :
 npm i natural-gallery-js
 ```
 
-Include in <head> : 
+Include in <head> :
 
 ```html
 <link rel="stylesheet" href="../dist/themes/natural.css">
@@ -34,7 +34,7 @@ Include in <head> :
 <script src="../dist/natural-gallery.full.js" defer></script>
 ```
 
-If you already have photoswipe loaded on your website, you only need the light version  : 
+If you already have photoswipe loaded on your website, you only need the light version  :
 
 ```html
 <link rel="stylesheet" href="../dist/themes/natural.css">
@@ -42,7 +42,7 @@ If you already have photoswipe loaded on your website, you only need the light v
 <script src="../dist/natural-gallery.light.js" defer></script>
 ```
 
-Recommended Usage (when library is post-loaded) 
+Recommended Usage (when library is post-loaded)
 -----
 
 ```html
@@ -59,15 +59,33 @@ var gallery = {
     id: 'gallery', // sends id of dom element or
     element: document.getElementById('gallery'), // sends dom element by reference
     options : { // Options
+
+        format: 'natural | square',
+
+        // Max row height. Works for both natural and square format. Prefer this option for a "responsive" approach
         rowHeight: 350,
-        format: 'natural', // or square
-        round: 3,
-        imagesPerRow: 4, // only for squared layout, is disables responsive
-        margin: 3,
-        limit: 0,
-        showLabels: 'hover',
-        lightbox: true,
-        minRowsAtStart: 2,
+
+        // Only for square format. Disables responsive
+        imagesPerRow: 4,
+
+        round: 3, // Rounded corner
+        margin: 3, // Gap between thumbnails
+        limit: 0, // Number of rows, activate pagination (disables infinite scroll)
+        minRowsAtStart: 2, // Initial number of rows. If null, gallery tries to define the number of required rows to fill the viewport.
+
+        showLabels: 'hover | always | never', // When to show the labels in thumbnails
+
+        lightbox: true, // Open a lightbox with a bigger image -> activate a zoom effect on hover on thumbnails
+        zoomRotation: true,
+
+        // Number of pixels to offset the infinite scroll autoload
+        // If negative, next rows will load before the bottom of gallery container is visible
+        // If 0 the next rows will load when the bottom of the gallery will be visible
+        // If positive, the next rows will load when the bottom of the gallery will be this amount above the end of the viewport.
+        // If positive be sure to always have this number of pixels as margin, padding or more content after the gallery.
+        infiniteScrollOffset: 0,
+
+        // Header / Search options.
         showCount: false,
         searchFilter: false,
         categoriesFilter: false,
