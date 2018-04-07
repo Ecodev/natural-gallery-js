@@ -61,7 +61,10 @@ module.exports = function(env) {
             umdNamedDefine: true
         },
         devServer: {
-            contentBase: './demo'
+            contentBase: ['sandbox', 'demo'],
+            watchContentBase: true,
+            port: 1235,
+            overlay: true,
         },
         devtool: prod ? false : "source-map", // 'inline-source-map'
         resolveLoader: {

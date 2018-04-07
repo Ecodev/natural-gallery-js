@@ -18,7 +18,7 @@
   "types": "./dist/index.d.ts",
   "typings": "./dist/index.d.ts",
   "scripts": {
-    "dev": "webpack-dev-server --open",
+    "dev": "webpack-dev-server --open --progress --colors",
     "light": "NODE_ENV='production' webpack --env.nodependencies",
     "light:watch": "NODE_ENV='production' webpack --env.nodependencies --watch",
     "full": "NODE_ENV='production' webpack; NODE_ENV='production' webpack --env.nodependencies",
