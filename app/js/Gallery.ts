@@ -341,7 +341,7 @@ export class Gallery {
         let galleryVisibleHeight = winHeight - this.bodyElement.offsetTop;
 
         // ratio to be more close from reality average row height
-        let nbRows = Math.floor(galleryVisibleHeight / (this.options.rowHeight * 0.7));
+        let nbRows = Math.floor(galleryVisibleHeight / (this.options.rowHeight * 0.55));
 
         return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
     }
