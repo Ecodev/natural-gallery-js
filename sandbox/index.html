@@ -102,6 +102,20 @@
 
             var galleryData = {
                 options: {},
+                events: {
+                    select: (items) => {
+                        console.log('selected', items);
+                    },
+                    link: {
+                        preventDefault: true,
+                        callback: (item) => {
+                            console.log('activate', item);
+                        }
+                    },
+                    pagination: (items, nbNeeded) => {
+                        console.log('pagination', items, nbNeeded);
+                    }
+                }
             };
 
             var galleryEl = document.getElementById('gallery');

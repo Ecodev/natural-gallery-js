@@ -3,14 +3,17 @@
  * -----------------------------------------
  */
 
-.natural-gallery .natural-gallery-body .figure.loading::before,
+.natural-gallery .natural-gallery-body .figure.loading {
+    background-color: rgba(0, 137, 224, 0.1);
+
+}
 .natural-gallery .bar::before,
 .natural-gallery .bar::after {
     background-color: rgb(0, 137, 224) !important;
 }
 
-.natural-gallery .natural-gallery-body .figure.loading.errored::before {
-    background-color: rgb(255, 0, 0) !important;
+.natural-gallery .natural-gallery-body .figure.errored {
+    background-color: rgba(255, 0, 0, 0.1);
 }
 
 /* Inactive */
