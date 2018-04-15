@@ -22,8 +22,14 @@ The bower install does not include sources and build process. To run the demo, l
 
 Install natural-gallery-js :
 
+With npm
 ```sh
 npm i natural-gallery-js
+```
+
+Or with yarn
+```sh
+yarn add natural-gallery-js
 ```
 
 Include in <head> :
@@ -42,123 +48,110 @@ If you already have photoswipe loaded on your website, you only need the light v
 <script src="../dist/natural-gallery.light.js" defer></script>
 ```
 
-Recommended Usage (when library is post-loaded)
+With typescript :
+
+```js
+import { Gallery } from 'natural-gallery-js';
+```
+
+Create a gallery
 -----
+
+Javascript / Typescript :
+```javascript
+
+var containerRef = document.getElementById('myGallery'); // uses HTMLElement reference as container
+var photoswipeRef = document.getElementById('myPhotoswipe'); // photoswipe template if required
+
+// Create your gallery options
+var options = {
+
+    format: 'natural | square',
+
+    // Max row height. Works for both natural and square format. Prefer this option for a "responsive" approach
+    rowHeight: 350,
+
+    // Only for square format. Disables responsive
+    imagesPerRow: 4,
+
+    round: 3, // Rounded corner
+    margin: 3, // Gap between thumbnails
+    limit: 0, // Number of rows, activate pagination (disables infinite scroll)
+    minRowsAtStart: 2, // Initial number of rows. If null, gallery tries to define the number of required rows to fill the viewport.
+
+    showLabels: 'hover | always | never', // When to show the labels in thumbnails
+
+    lightbox: true, // Open a lightbox with a bigger image -> activate a zoom effect on hover on thumbnails
+    zoomRotation: true,
+
+    // Number of pixels to offset the infinite scroll autoload
+    // If negative, next rows will load before the bottom of gallery container is visible
+    // If 0 the next rows will load when the bottom of the gallery will be visible
+    // If positive, the next rows will load when the bottom of the gallery will be this amount above the end of the viewport.
+    // If positive be sure to always have this number of pixels as margin, padding or more content after the gallery.
+    infiniteScrollOffset: 0,
+
+    // Header / Search options.
+    showCount: false,
+    searchFilter: false,
+    categoriesFilter: false,
+    showNone: false,
+    showOthers: false,
+    labelCategories: 'Category',
+    labelNone: 'None',
+    labelOthers: 'Others',
+    labelSearch: 'Search',
+    labelImages: 'Images',
+};
+
+var images  = [
+    {
+        "thumbnail": "https://images.unsplash.com/photo-1461529959205-ba7d61debd0b?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=400&fit=max&s=0653332e9c1498112a303c583c102f6a",
+        "enlarged": "https://images.unsplash.com/photo-1461529959205-ba7d61debd0b?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=1080&fit=max&s=a74e25633c9c659c0778b71ca9aa33a0",
+        "title": "Antonio Ron",
+        "categories": [
+            {
+                "id": 4,
+                "title": "Nature",
+                "photo_count": 41787,
+                "links": {
+                    "self": "https://api.unsplash.com/categories/4",
+                    "photos": "https://api.unsplash.com/categories/4/photos"
+                }
+            }
+        ],
+        "tWidth": 443.74009508716324,
+        "tHeight": 300,
+        "eWidth": 2800,
+        "eHeight": 1893
+    },
+    {...}
+];
+
+
+// Create a gallery
+var gallery = new Gallery(containerRef, photoswipeRef, options);
+```
+
+You can modify collection after gallery creation :
+
+```javascript
+gallery.collection = images; // set images as a new full collection
+gallery.appendItems([...]); // append new images the existing collection
+``````
+
+Add a gallery container to template
 
 ```html
-<div id="gallery"></div>
+<div id="myGallery"></div>
 ```
 
-```javascript
-
-// Prepare a global array with the list of your galleries
-window.naturalGalleries = window.naturalGalleries || [];
-
-// Create your gallery parameters
-var gallery = {
-    id: 'gallery', // sends id of dom element or
-    element: document.getElementById('gallery'), // sends dom element by reference
-    options : { // Options
-
-        format: 'natural | square',
-
-        // Max row height. Works for both natural and square format. Prefer this option for a "responsive" approach
-        rowHeight: 350,
-
-        // Only for square format. Disables responsive
-        imagesPerRow: 4,
-
-        round: 3, // Rounded corner
-        margin: 3, // Gap between thumbnails
-        limit: 0, // Number of rows, activate pagination (disables infinite scroll)
-        minRowsAtStart: 2, // Initial number of rows. If null, gallery tries to define the number of required rows to fill the viewport.
-
-        showLabels: 'hover | always | never', // When to show the labels in thumbnails
-
-        lightbox: true, // Open a lightbox with a bigger image -> activate a zoom effect on hover on thumbnails
-        zoomRotation: true,
-
-        // Number of pixels to offset the infinite scroll autoload
-        // If negative, next rows will load before the bottom of gallery container is visible
-        // If 0 the next rows will load when the bottom of the gallery will be visible
-        // If positive, the next rows will load when the bottom of the gallery will be this amount above the end of the viewport.
-        // If positive be sure to always have this number of pixels as margin, padding or more content after the gallery.
-        infiniteScrollOffset: 0,
-
-        // Header / Search options.
-        showCount: false,
-        searchFilter: false,
-        categoriesFilter: false,
-        showNone: false,
-        showOthers: false,
-        labelCategories: 'Category',
-        labelNone: 'None',
-        labelOthers: 'Others',
-        labelSearch: 'Search',
-        labelImages: 'Images',
-    },
-    images : [
-        {
-            "thumbnail": "https://images.unsplash.com/photo-1461529959205-ba7d61debd0b?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=400&fit=max&s=0653332e9c1498112a303c583c102f6a",
-            "enlarged": "https://images.unsplash.com/photo-1461529959205-ba7d61debd0b?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=1080&fit=max&s=a74e25633c9c659c0778b71ca9aa33a0",
-            "title": "Antonio Ron",
-            "categories": [
-                {
-                    "id": 4,
-                    "title": "Nature",
-                    "photo_count": 41787,
-                    "links": {
-                        "self": "https://api.unsplash.com/categories/4",
-                        "photos": "https://api.unsplash.com/categories/4/photos"
-                    }
-                }
-            ],
-            "tWidth": 443.74009508716324,
-            "tHeight": 300,
-            "eWidth": 2800,
-            "eHeight": 1893
-        },
-        {...}
-    ]
-};
-
-// Add your gallery to the global array. The NaturalGallery library will start when the script will be loaded.
-window.naturalGalleries.push(gallery);
-```
-
-You can then add new pictures when you want :
-
-```javascript
-naturalGalleries[0].appendItems([...]);
-```
-
-Usage when library is pre-loaded
------
-
-If you load the gallery script in header without defer attribute, you'll need to initiate your galleries manually.
-
-```javascript
-
-// Init gallery parameters
-var gallery = {
-    id: 'gallery',
-    options : {... },
-};
-
-// Call library and add your parameters (re-assign the returned gallery object if you plan to add images later)
-gallery = NaturalGallery.add(naturalGallery);
-
-// Init images after load
-gallery.images = [...]; // set images as the full collection
-gallery.appendItems([...]); // append new images the existing collection
-```
-
-Add to template
+Add PhotoSwipe layout to template
 -----
 
 Don't forget to add to template the PhotoSwipe layout and icons (if you need header)
 ```html
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="myPhotoswipe" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="pswp__bg"></div>
     <div class="pswp__scroll-wrap">
         <div class="pswp__container">
@@ -192,6 +185,11 @@ Don't forget to add to template the PhotoSwipe layout and icons (if you need hea
     </div>
 </div>
 ```
+
+Add icons to template
+-----
+
+Adding icons to template prevent additional queries, and above all : allows to style svg with CSS without hacks.
 
 ```html
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 100 100"  xml:space="preserve" style="display:none;">
