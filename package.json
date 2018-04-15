@@ -1,6 +1,5 @@
 {
     "name": "@ecodev/natural-gallery-js",
-    "version": "3.0.1",
     "description": "A lazy load, infinite scroll and natural layout list gallery",
     "author": "Samuel Baptista <samuel.baptista@ecodev.ch>",
     "license": "MIT",
@@ -21,7 +20,7 @@
         "sandbox": "webpack-dev-server --open --progress --colors --port 3454",
         "dev": "NODE_ENV='production' webpack --env.nodependencies --watch",
         "prod": "NODE_ENV='production' webpack; NODE_ENV='production' webpack --env.nodependencies",
-        "publish": "yarn publish --access public"
+        "release": "yarn prod; yarn publish --access public"
     },
     "keywords": [
         "gallery",
