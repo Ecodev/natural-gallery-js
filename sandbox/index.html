@@ -93,6 +93,11 @@
                 </div>
             </div>
 
+            <button id="selectVisible">Select visible</button>
+            <button id="unselectAll">Unselect all</button>
+
+            <br/>
+            <br/>
             <!-- Gallery Wrapper  -->
             <div id="gallery"></div>
 
@@ -132,6 +137,14 @@
                     gallery.collection = JSON.parse(xhr.responseText);
                 }
             };
+
+            document.getElementById('selectVisible').addEventListener('click', function() {
+               gallery.selectVisibleItems();
+            });
+
+            document.getElementById('unselectAll').addEventListener('click', function() {
+               gallery.unselectAll();
+            });
 
         </script>
 

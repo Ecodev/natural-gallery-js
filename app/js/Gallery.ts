@@ -437,28 +437,46 @@ export class Gallery {
         return Math.max.apply(null, nbPerRowFn(this.collection));
     }
 
-    public select(item: Item) {
+    public select(item: Item, notify: boolean = true) {
         const index = this._selected.indexOf(item);
         if (index === -1) {
             this._selected.push(item);
-            this._events.select(this._selected.map(i => i.fields));
+            if (notify) {
+                this._events.select(this._selected.map(i => i.fields));
+            }
         }
     }
 
-    public unselect(item: Item) {
+    public selectVisibleItems() {
+
+        const visible = this.pswpContainer.map((ignored, index) => {
+            const item = this.collection[index];
+            item.select(false);
+            return item;
+        });
+
+        this._selected = visible;
+        this._events.select(this._selected.map(i => i.fields));
+
+    }
+
+    public unselect(item: Item, notify: boolean = true) {
         const index = this._selected.indexOf(item);
         if (index > -1) {
             this._selected.splice(index, 1);
-            this._events.select(this._selected.map(i => i.fields));
+            if (notify) {
+                this._events.select(this._selected.map(i => i.fields));
+            }
         }
     }
 
     public unselectAll() {
         for (let i = this._selected.length - 1; i >= 0; i--) {
-            this._selected[i].toggleSelect();
+            this._selected[i].unselect(false);
         }
 
         this._selected = [];
+        this._events.select([]);
     }
 
     get events(): any {

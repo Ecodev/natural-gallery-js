@@ -228,15 +228,23 @@ export class Item {
     }
 
     public toggleSelect() {
-        this.selected = !this.selected;
         if (this.selected) {
-            this.element.classList.add('selected');
-            this.gallery.select(this);
+            this.unselect();
         } else {
-            this.element.classList.remove('selected');
-            this.gallery.unselect(this);
-
+            this.select();
         }
+    }
+
+    public select(notify: boolean = true) {
+        this.selected = true;
+        this.element.classList.add('selected');
+        this.gallery.select(this, notify);
+    }
+
+    public unselect(notify: boolean = true) {
+        this.selected = false;
+        this.element.classList.remove('selected');
+        this.gallery.unselect(this, notify);
     }
 
     private getLinkElement() {
