@@ -1,22 +1,22 @@
-import {Utility} from '../Utility';
-import {AbstractFilter} from './AbstractFilter';
+import { Utility } from '../Utility';
+import { AbstractFilter } from './AbstractFilter';
 
 export class SearchFilter extends AbstractFilter {
 
     public render(): HTMLElement {
 
         let element = document.createElement('div');
-        Utility.addClass(element, 'natural-gallery-searchTerm sectionContainer');
+        element.classList.add('natural-gallery-searchTerm', 'sectionContainer');
         element.appendChild(Utility.getIcon('icon-search'));
         element.appendChild(this.getInput());
 
         let label = document.createElement('label');
-        Utility.addClass(label, 'sectionName');
+        label.classList.add('sectionName');
         label.textContent = this.header.gallery.options.labelSearch;
         element.appendChild(label);
 
         let bar = document.createElement('span');
-        Utility.addClass(bar, 'bar');
+        bar.classList.add('bar');
         element.appendChild(bar);
 
         return element;

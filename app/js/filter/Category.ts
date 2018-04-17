@@ -1,5 +1,5 @@
-import {Utility} from '../Utility';
-import {AbstractFilter} from './AbstractFilter';
+import { Utility } from '../Utility';
+import { AbstractFilter } from './AbstractFilter';
 
 export class Category {
 
@@ -35,14 +35,14 @@ export class Category {
         title.textContent = this.title;
 
         let label = document.createElement('span');
-        Utility.addClass(label, 'label');
+        label.classList.add('label');
         label.appendChild(Utility.getIcon('icon-category'));
         label.appendChild(title);
 
         this.element.appendChild(label);
 
         let bar = document.createElement('span');
-        Utility.addClass(bar, 'bar');
+        bar.classList.add('bar');
         this.element.appendChild(bar);
 
         return this.element;

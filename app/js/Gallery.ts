@@ -144,7 +144,7 @@ export class Gallery {
         this.options = data.options;
         this.categories = data.categories ? <Category[]> data.categories : [];
         this.rootElement = rootElement;
-        Utility.addClass(this.rootElement, 'natural-gallery');
+        this.rootElement.classList.add('natural-gallery');
 
         // Events
         this._events = data.events ? data.events : {};
@@ -187,13 +187,13 @@ export class Gallery {
 
         // Empty
         this.noResults = document.createElement('div');
-        Utility.addClass(this.noResults, 'natural-gallery-noresults');
+        this.noResults.classList.add('natural-gallery-noresults');
         this.noResults.appendChild(Utility.getIcon('icon-noresults'));
         this.noResults.style.display = 'block';
 
         // Next button
         this.nextButton = document.createElement('div');
-        Utility.addClass(this.nextButton, 'natural-gallery-next');
+        this.nextButton.classList.add('natural-gallery-next');
         this.nextButton.appendChild(Utility.getIcon('icon-next'));
         this.nextButton.style.display = 'none';
         this.nextButton.addEventListener('click', function(e) {
@@ -215,7 +215,7 @@ export class Gallery {
         });
 
         this.bodyElement = document.createElement('div');
-        Utility.addClass(this.bodyElement, 'natural-gallery-body');
+        this.bodyElement.classList.add('natural-gallery-body');
         this.bodyElement.appendChild(this.noResults);
 
         if (this.header) {

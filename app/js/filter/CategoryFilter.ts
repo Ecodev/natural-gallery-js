@@ -27,10 +27,10 @@ export class CategoryFilter extends AbstractFilter {
 
         if (!this.element) {
             this.element = document.createElement('div');
-            Utility.addClass(this.element, 'natural-gallery-categories sectionContainer');
+            this.element.classList.add('natural-gallery-categories', 'sectionContainer');
 
             let sectionName = document.createElement('div');
-            Utility.addClass(sectionName, 'sectionName');
+            sectionName.classList.add('sectionName');
             sectionName.textContent = this.header.gallery.options.labelCategories;
             this.element.appendChild(sectionName);
         } else {

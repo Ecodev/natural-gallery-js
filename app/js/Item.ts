@@ -158,7 +158,7 @@ export class Item {
 
         if (options.lightbox && label && link) {
             label = link;
-            Utility.addClass(label, 'button');
+            label.classList.add('button');
             zoomable = image;
 
         } else if (options.lightbox && label && !link) {
@@ -183,14 +183,14 @@ export class Item {
         }
 
         if (zoomable) {
-            Utility.addClass(zoomable, 'zoomable');
+            zoomable.classList.add('zoomable');
             if (options.zoomRotation) {
-                Utility.addClass(zoomable, 'rotation');
+                zoomable.classList.add('rotation');
             }
         }
 
-        Utility.addClass(image, 'image');
-        Utility.addClass(element, 'figure loading visible');
+        image.classList.add('image');
+        element.classList.add('figure', 'loading', 'visible');
         image.style.backgroundImage = 'url(' + this.thumbnail + ')';
 
         element.appendChild(image);
@@ -206,9 +206,9 @@ export class Item {
 
         if (label) {
             label.textContent = this.title;
-            Utility.addClass(label, 'title');
+            label.classList.add('title');
             if (options.showLabels === 'hover') {
-                Utility.addClass(label, 'hover');
+                label.classList.add('hover');
             }
             element.appendChild(label);
         }
@@ -261,7 +261,7 @@ export class Item {
                 });
             } else {
                 link.setAttribute('href', this.link);
-                Utility.addClass(link, 'link');
+                link.classList.add('link');
                 if (this.linkTarget) {
                     link.setAttribute('target', this.linkTarget);
                 }
@@ -279,8 +279,7 @@ export class Item {
      */
     public style() {
 
-        Utility.removeClass(this.element, 'visible');
-
+        this.element.classList.remove('visible');
         this.element.style.width = String(this.width + 'px');
         this.element.style.height = String(this.height + 'px');
         this.element.style.marginRight = String(this.gallery.options.margin + 'px');
@@ -292,15 +291,15 @@ export class Item {
 
         const self = this;
         window.setTimeout(function() {
-            Utility.addClass(self.element, 'visible');
+            self.element.classList.add('visible');
         }, 0);
     }
 
     public flash() {
         const self = this;
-        Utility.removeClass(this.element, 'visible');
+        this.element.classList.remove('visible');
         window.setTimeout(function() {
-            Utility.addClass(self.element, 'visible');
+            self.element.classList.add('visible');
         }, 0);
     }
 
@@ -411,13 +410,13 @@ export class Item {
         img.setAttribute('src', this.thumbnail);
 
         img.addEventListener('load', function() {
-            Utility.removeClass(self.element, 'loading');
-            Utility.addClass(self.element, 'loaded');
+            self.element.classList.remove('loading');
+            self.element.classList.add('loaded');
         });
 
         // Detect errored images and hide them smartly
         img.addEventListener('error', function() {
-            Utility.addClass(self.element, 'errored');
+            self.element.classList.add('errored');
         });
 
         return this.element;

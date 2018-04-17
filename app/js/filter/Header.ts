@@ -41,24 +41,24 @@ export class Header {
     public render(): Element {
 
         let imagesLayout = document.createElement('div');
-        Utility.addClass(imagesLayout, 'natural-gallery-images sectionContainer');
+        imagesLayout.classList.add('natural-gallery-images', 'sectionContainer');
         imagesLayout.appendChild(Utility.getIcon('icon-pict'));
 
         let sectionName = document.createElement('div');
-        Utility.addClass(sectionName, 'sectionName');
+        sectionName.classList.add('sectionName');
         sectionName.textContent = this.gallery.options.labelImages;
         imagesLayout.appendChild(sectionName);
 
         let galleryVisible = document.createElement('span');
         imagesLayout.appendChild(galleryVisible);
 
-        Utility.addClass(galleryVisible, 'natural-gallery-visible');
+        galleryVisible.classList.add('natural-gallery-visible');
         let slash = document.createElement('span');
         slash.textContent = '/';
         imagesLayout.appendChild(slash);
 
         let total = document.createElement('span');
-        Utility.addClass(total, 'natural-gallery-total');
+        total.classList.add('natural-gallery-total');
         imagesLayout.appendChild(total);
 
         this.element = document.createElement('div');
@@ -67,7 +67,7 @@ export class Header {
             this.element.appendChild(filter.render());
         }, this);
 
-        Utility.addClass(this.element, 'natural-gallery-header');
+        this.element.classList.add('natural-gallery-header');
         this.element.appendChild(imagesLayout);
 
         return this.element;

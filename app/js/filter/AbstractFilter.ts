@@ -1,5 +1,5 @@
-import {Item} from '../Item';
-import {Header} from './Header';
+import { Item } from '../Item';
+import { Header } from './Header';
 
 export abstract class AbstractFilter {
 
