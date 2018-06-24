@@ -1,8 +1,5 @@
-import { IItemFields, Item } from './Item';
-import { Header } from './filter/Header';
-import { Category } from './filter/Category';
-import { SearchFilter } from './filter/SearchFilter';
-import { CategoryFilter } from './filter/CategoryFilter';
+import { IItemFields, IPhotoswipeItem, Item } from './Item';
+import { Header } from './Header';
 import { Utility } from './Utility';
 import { Organizer } from './Organizer';
 
@@ -89,7 +86,7 @@ export class Gallery {
      * Photoswipe images container
      * @type {Array}
      */
-    private _pswpContainer: any[] = [];
+    private _photoswipeCollection: IPhotoswipeItem[] = [];
 
     /**
      * Photoswipe dom element
@@ -108,12 +105,9 @@ export class Gallery {
      * @type {Array}
      */
     private _collection: Item[] = [];
-    private _categories: any[] = [];
-
+    private _visibleCollection: Item[] = [];
     private _header: Header;
-
     private _selected: Item[] = [];
-
     private nextButton: HTMLElement;
     private noResults: HTMLElement;
 
@@ -142,7 +136,6 @@ export class Gallery {
         }
 
         this.options = data.options;
-        this.categories = data.categories ? <Category[]> data.categories : [];
         this.rootElement = rootElement;
         this.rootElement.classList.add('natural-gallery');
 
@@ -153,17 +146,8 @@ export class Gallery {
         }
 
         // header
-        if (this.options.searchFilter || this.options.categoriesFilter || this.options.showCount) {
-
+        if (this.options.showCount) {
             this.header = new Header(this);
-
-            if (this.options.searchFilter) {
-                this.header.addFilter(new SearchFilter(this.header));
-            }
-
-            if (this.options.categoriesFilter) {
-                this.header.addFilter(new CategoryFilter(this.header));
-            }
         }
 
         this.render();
@@ -228,28 +212,26 @@ export class Gallery {
 
     /**
      * Initialize items
-     * @param items
+     * @param models
      */
-    public addItems(items): void {
+    public addItems(models: IItemFields[]): void {
 
-        if (!(items.constructor === Array && items.length)) {
+        if (!(models.constructor === Array && models.length)) {
             return;
         }
 
         // Display newly added images if it's the first addition or if all images are already shown
-        let display = this.collection.length === 0 || this.collection.length === this.pswpContainer.length;
+        let display = this.collection.length === 0 || this.collection.length === this.visibleCollection.length;
 
         // Complete collection
-        items.forEach(function(item) {
-            this._collection.push(new Item(<IItemFields> item, this));
-        }, this);
+        models.forEach((model: IItemFields) => {
+            const item = new Item(<IItemFields> model, this);
+            this._collection.push(item);
+            this._photoswipeCollection.push(item.getPhotoswipeItem());
+        });
 
         // Compute sizes
         Organizer.organize(this);
-
-        if (this.header) {
-            this.header.refresh();
-        }
 
         if (display) {
             this.addElements(this.getRowsPerPage());
@@ -270,15 +252,13 @@ export class Gallery {
      */
     public addElements(rows: number = null): void {
 
-        let collection = this.collection;
-
         // display because filters may add more images and we have to show it again
         this.nextButton.style.display = 'block';
 
-        if (this.pswpContainer.length === collection.length) {
+        if (this.visibleCollection.length === this.collection.length) {
             this.nextButton.style.display = 'none';
 
-            if (collection.length === 0) {
+            if (this.collection.length === 0) {
                 this.noResults.style.display = 'block';
                 (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-images')[0]).style.display = 'none';
             }
@@ -286,21 +266,21 @@ export class Gallery {
             return;
         }
 
-        let nextImage = this.pswpContainer.length;
-        let lastRow = this.pswpContainer.length ? collection[nextImage].row + rows : rows;
+        let nextImageIndex = this.visibleCollection.length;
+        let lastRow = this.visibleCollection.length ? this.visibleCollection[nextImageIndex - 1].row + 1 + rows : rows;
 
         // Select next elements, comparing their rows
-        for (let i = nextImage; i < collection.length; i++) {
-            let item = collection[i];
+        for (let i = nextImageIndex; i < this.collection.length; i++) {
+            let item = this.collection[i];
             if (item.row < lastRow) {
-                this.pswpContainer.push(item.getPswpItem());
+                this.visibleCollection.push(item);
                 this.bodyElement.appendChild(item.loadElement());
                 item.bindClick();
                 item.flash();
             }
 
             // Show / Hide "more" button.
-            if (this.pswpContainer.length === collection.length) {
+            if (this.visibleCollection.length === this.collection.length) {
                 this.nextButton.style.display = 'none';
             }
         }
@@ -314,12 +294,12 @@ export class Gallery {
 
         let galleryVisible = this.rootElement.getElementsByClassName('natural-gallery-visible')[0];
         if (galleryVisible) {
-            galleryVisible.textContent = String(this.pswpContainer.length);
+            galleryVisible.textContent = String(this.visibleCollection.length);
         }
 
         let galleryTotal = this.rootElement.getElementsByClassName('natural-gallery-total')[0];
         if (galleryTotal) {
-            galleryTotal.textContent = String(collection.length);
+            galleryTotal.textContent = String(this.collection.length);
         }
     }
 
@@ -358,29 +338,23 @@ export class Gallery {
         if (containerWidth !== this.bodyWidth) {
             this.bodyWidth = containerWidth;
             Organizer.organize(this);
-            const lastImage = this.collection[this.pswpContainer.length - 1];
+            const lastImage = this.collection[this.visibleCollection.length - 1];
             let nbRows = lastImage ? lastImage.row + 1 : this.getRowsPerPage();
             this.reset();
             this.addElements(nbRows);
         }
     }
 
-    public refresh() {
-        this.reset();
-        Organizer.organize(this);
-        this.addElements(this.getRowsPerPage());
-    }
-
     /**
      * Empty DOM container and PhotoSwipe container
      */
     public reset(): void {
-        this.pswpContainer = [];
 
-        this._collection.forEach(function(item: Item) {
+        this._visibleCollection.forEach(function(item: Item) {
             item.remove();
         });
 
+        this._visibleCollection = [];
         this.noResults.style.display = 'block';
     }
 
@@ -449,15 +423,12 @@ export class Gallery {
 
     public selectVisibleItems() {
 
-        const visible = this.pswpContainer.map((ignored, index) => {
-            const item = this.collection[index];
+        this.visibleCollection.forEach((item) => {
             item.select(false);
-            return item;
         });
 
-        this._selected = visible;
-        this._events.select(this._selected.map(i => i.fields));
-
+        this._selected = this.visibleCollection.slice(0); // clone
+        this._events.select(this.visibleCollection.map(i => i.fields));
     }
 
     public unselect(item: Item, notify: boolean = true) {
@@ -471,11 +442,10 @@ export class Gallery {
     }
 
     public unselectAll() {
-        for (let i = this._selected.length - 1; i >= 0; i--) {
-            this._selected[i].unselect(false);
+        for (let i = this.visibleCollection.length - 1; i >= 0; i--) {
+            this.visibleCollection[i].unselect(false);
         }
 
-        this._selected = [];
         this._events.select([]);
     }
 
@@ -491,26 +461,22 @@ export class Gallery {
         this._id = value;
     }
 
-    get pswpContainer(): any[] {
-        return this._pswpContainer;
-    }
-
-    set pswpContainer(value: any[]) {
-        this._pswpContainer = value;
-    }
-
     get collection(): Item[] {
-        return this.header && this.header.isFiltered() ? this.header.collection : this._collection;
-    }
-
-    public getOriginalCollection(): Item[] {
         return this._collection;
     }
 
     set collection(items: Item[]) {
         this.reset();
         this._collection = [];
-        this.addItems(items);
+        this.addItems(items); // completes this._collection correctly
+    }
+
+    get visibleCollection(): Item[] {
+        return this._visibleCollection;
+    }
+
+    get photoswipeCollection(): IPhotoswipeItem[] {
+        return this._photoswipeCollection;
     }
 
     get bodyWidth(): number {
@@ -567,13 +533,5 @@ export class Gallery {
 
     set header(value: Header) {
         this._header = value;
-    }
-
-    get categories(): any[] {
-        return this._categories;
-    }
-
-    set categories(value: any[]) {
-        this._categories = value;
     }
 }

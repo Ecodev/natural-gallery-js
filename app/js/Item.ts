@@ -19,6 +19,13 @@ export interface IItemFields {
     categories?: any[];
 }
 
+export interface IPhotoswipeItem {
+    src: string;
+    w: number;
+    h: number;
+    title: string;
+}
+
 export class Item {
 
     private _id: number;
@@ -358,35 +365,22 @@ export class Item {
             loop: false,
         };
 
-        let pswp = new PhotoSwipe(this.gallery.pswpElement, PhotoSwipeUI_Default, this.gallery.pswpContainer, options);
+        let pswp = new PhotoSwipe(this.gallery.pswpElement, PhotoSwipeUI_Default, this.gallery.photoswipeCollection, options);
         this.gallery.pswpApi = pswp;
         pswp.init();
 
-        let overrideLoop = null;
-
         // Loading one more page when going to next image
-        pswp.listen('beforeChange', function(delta) {
-
-            // Positive delta indicates 'go to next' action, we don't load more objects on looping back the gallery (same logic when
-            // scrolling)
-            if (delta > 0 && pswp.getCurrentIndex() === pswp.items.length - 1) {
-                self.gallery.addElements();
-            } else if (delta === -1 * (pswp.items.length - 1)) {
-                overrideLoop = pswp.items.length;
-                self.gallery.addElements();
+        pswp.listen('beforeChange', (delta) => {
+            // Positive delta means next slide.
+            // If we go next slide, and current index is out of visible collection bound, load more items
+            if (delta === 1 && pswp.getCurrentIndex() === this.gallery.visibleCollection.length) {
+                self.gallery.addElements(1);
             }
         });
 
-        // After change cannot detect if we are returning back from last to first
-        pswp.listen('afterChange', function() {
-            if (overrideLoop) {
-                pswp.goTo(overrideLoop);
-                overrideLoop = null;
-            }
-        });
     }
 
-    public getPswpItem() {
+    public getPhotoswipeItem(): IPhotoswipeItem {
         return {
             src: this._enlarged,
             w: this._eWidth,

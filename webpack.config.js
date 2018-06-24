@@ -63,7 +63,7 @@ module.exports = function(env) {
         devServer: {
             contentBase: ['sandbox', 'demo'],
             watchContentBase: true,
-            port: 1235,
+            port: 1405,
             overlay: true,
         },
         devtool: prod ? false : "source-map", // 'inline-source-map'
