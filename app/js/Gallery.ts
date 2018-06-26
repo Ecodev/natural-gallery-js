@@ -5,7 +5,7 @@ import { Organizer } from './Organizer';
 
 export interface IGalleryOptions {
     rowHeight: number;
-    format: string;
+    format: 'natural' | 'square';
     round: number;
     imagesPerRow?: number;
     margin: number;
@@ -180,10 +180,10 @@ export class Gallery {
         this.nextButton.classList.add('natural-gallery-next');
         this.nextButton.appendChild(Utility.getIcon('icon-next'));
         this.nextButton.style.display = 'none';
-        this.nextButton.addEventListener('click', function(e) {
+        this.nextButton.addEventListener('click', (e) => {
             e.preventDefault();
-            const rows = self.getRowsPerPage();
-            self.addElements(rows);
+            const rows = this.options.limit > 0 ? this.options.limit : self.getRowsPerPage();
+            self.addRows(rows);
             self.pagination(rows);
         });
 
@@ -221,7 +221,7 @@ export class Gallery {
         }
 
         // Display newly added images if it's the first addition or if all images are already shown
-        let display = this.collection.length === 0 || this.collection.length === this.visibleCollection.length;
+        let display = this.collection.length === 0; // || this.collection.length === this.visibleCollection.length;
 
         // Complete collection
         models.forEach((model: IItemFields) => {
@@ -230,11 +230,8 @@ export class Gallery {
             this._photoswipeCollection.push(item.getPhotoswipeItem());
         });
 
-        // Compute sizes
-        Organizer.organize(this);
-
         if (display) {
-            this.addElements(this.getRowsPerPage());
+            this.addRows(this.getRowsPerPage());
         }
     }
 
@@ -245,12 +242,12 @@ export class Gallery {
     }
 
     /**
-     * Add a number of rows to DOM container, and to Photoswipe gallery.
+     * Add a number of rows to DOM.
      * If rows are not given, is uses backoffice data or compute according to browser size
      * @param gallery target
      * @param rows
      */
-    public addElements(rows: number = null): void {
+    public addRows(rows: number = null): void {
 
         // display because filters may add more images and we have to show it again
         this.nextButton.style.display = 'block';
@@ -266,23 +263,26 @@ export class Gallery {
             return;
         }
 
-        let nextImageIndex = this.visibleCollection.length;
-        let lastRow = this.visibleCollection.length ? this.visibleCollection[nextImageIndex - 1].row + 1 + rows : rows;
+        let nbVisibleImages = this.visibleCollection.length;
+        const lastVisibleRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row : 0;
+        const lastWantedRow = lastVisibleRow + rows - 1;
 
-        // Select next elements, comparing their rows
-        for (let i = nextImageIndex; i < this.collection.length; i++) {
+        Organizer.organize(this.collection.slice(nbVisibleImages), this, lastVisibleRow, lastWantedRow);
+
+        for (const item of this.collection) {
+            item.style();
+        }
+
+        for (let i = nbVisibleImages; i < this.collection.length; i++) {
             let item = this.collection[i];
-            if (item.row < lastRow) {
-                this.visibleCollection.push(item);
-                this.bodyElement.appendChild(item.loadElement());
-                item.bindClick();
-                item.flash();
+            if (item.row <= lastWantedRow) {
+                this.addItem(item);
             }
+        }
 
-            // Show / Hide "more" button.
-            if (this.visibleCollection.length === this.collection.length) {
-                this.nextButton.style.display = 'none';
-            }
+        // Show / Hide "more" button.
+        if (this.visibleCollection.length === this.collection.length) {
+            this.nextButton.style.display = 'none';
         }
 
         this.noResults.style.display = 'none';
@@ -301,6 +301,11 @@ export class Gallery {
         if (galleryTotal) {
             galleryTotal.textContent = String(this.collection.length);
         }
+    }
+
+    private addItem(item: Item) {
+        this.visibleCollection.push(item);
+        this.bodyElement.appendChild(item.init());
     }
 
     /**
@@ -334,21 +339,45 @@ export class Gallery {
     public resize() {
 
         let containerWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
-
         if (containerWidth !== this.bodyWidth) {
             this.bodyWidth = containerWidth;
-            Organizer.organize(this);
-            const lastImage = this.collection[this.visibleCollection.length - 1];
-            let nbRows = lastImage ? lastImage.row + 1 : this.getRowsPerPage();
-            this.reset();
-            this.addElements(nbRows);
+
+            // Compute with new width. Rows indexes may have change
+            Organizer.organize(this.visibleCollection, this);
+
+            // Refresh dom element dimensions according to last organize().
+            for (const item of this.visibleCollection) {
+                item.style();
+            }
+
+            // Get new last row number
+            const lastVisibleRow = this.visibleCollection[this.visibleCollection.length - 1].row;
+
+            const visibleItemsInLastRow = this.visibleCollection.filter(i => i.row === lastVisibleRow).length;
+
+            const collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
+
+            Organizer.organize(collectionFromLastVisibleRow, this, lastVisibleRow, lastVisibleRow);
+
+            for (let i = this.visibleCollection.length; i < this.collection.length; i++) {
+                const testedItem = this.collection[i];
+
+                if (testedItem.row === lastVisibleRow) {
+
+                    this.addItem(testedItem);
+                } else {
+
+                    break;
+                }
+            }
+
         }
     }
 
     /**
      * Empty DOM container and PhotoSwipe container
      */
-    public reset(): void {
+    public clear(): void {
 
         this._visibleCollection.forEach(function(item: Item) {
             item.remove();
@@ -356,6 +385,16 @@ export class Gallery {
 
         this._visibleCollection = [];
         this.noResults.style.display = 'block';
+    }
+
+    /**
+     * todo : remove function
+     */
+    public redraw(): void {
+        Organizer.organize(this.collection, this);
+        for (const item of this.collection) {
+            item.style();
+        }
     }
 
     private bindScroll(element: HTMLElement | Document) {
@@ -380,7 +419,7 @@ export class Gallery {
             // "enableMoreLoading" is a setting coming from the BE bloking / enabling dynamic loading of thumbnail
             if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
                 // When scrolling only add a row at once
-                this.addElements(1);
+                this.addRows(1);
                 this.pagination(1);
             }
         });
@@ -466,7 +505,7 @@ export class Gallery {
     }
 
     set collection(items: Item[]) {
-        this.reset();
+        this.clear();
         this._collection = [];
         this.addItems(items); // completes this._collection correctly
     }

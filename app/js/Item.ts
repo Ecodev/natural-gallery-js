@@ -28,7 +28,6 @@ export interface IPhotoswipeItem {
 
 export class Item {
 
-    private _id: number;
     private _thumbnail: string;
     private _enlarged: string;
     private _title: string;
@@ -63,9 +62,9 @@ export class Item {
     /**
      * Dom elements
      */
-    private element: HTMLElement;
-    private image: HTMLElement;
-    private selectBtn: HTMLElement;
+    private _element: HTMLElement;
+    private _image: HTMLElement;
+    private _selectBtn: HTMLElement;
     private _fields: IItemFields;
 
     /**
@@ -73,9 +72,7 @@ export class Item {
      * @param gallery
      */
     public constructor(fields: IItemFields, private gallery: Gallery) {
-
         this._fields = fields;
-        this.id = fields.id;
         this.thumbnail = fields.thumbnail;
         this.enlarged = fields.enlarged;
         this.title = this.getTitle(fields);
@@ -87,8 +84,6 @@ export class Item {
         this.eHeight = fields.eHeight;
         this.categories = fields.categories;
         this.last = fields.last;
-
-        this.createElement();
     }
 
     private getTitle(fields): string {
@@ -141,11 +136,8 @@ export class Item {
     /**
      * Create DOM elements according to element raw data (thumbnail and enlarged urls)
      * Also apply border-radius at this level because it never changed threw time
-     * @param element
-     * @param gallery
-     * @returns {{figure: (*|HTMLElement), image: *}}
      */
-    private createElement() {
+    public init() {
 
         let options = this.gallery.options;
 
@@ -208,8 +200,8 @@ export class Item {
             image.style.borderRadius = radius;
         }
 
-        this.element = element;
-        this.image = image;
+        this._element = element;
+        this._image = image;
 
         if (label) {
             label.textContent = this.title;
@@ -221,17 +213,63 @@ export class Item {
         }
 
         if (this.gallery.options.selectable) {
-            this.selectBtn = document.createElement('div');
+            this._selectBtn = document.createElement('div');
             const icon = Utility.getIcon('icon-select');
-            this.selectBtn.appendChild(icon);
-            this.selectBtn.classList.add('selectBtn');
+            this._selectBtn.appendChild(icon);
+            this._selectBtn.classList.add('selectBtn');
             icon.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.toggleSelect();
             });
-            this.element.appendChild(this.selectBtn);
+            this._element.appendChild(this._selectBtn);
         }
 
+        this.style();
+        this.loadImage();
+        this.bindClick();
+
+        return element;
+    }
+
+    /**
+     * Use computed (organized) data to apply style (size and margin) to elements on DOM
+     * Does not apply border-radius because is used to restyle data on browser resize, and border-radius don't change.
+     */
+    public style() {
+
+        if (!this._element) {
+            return;
+        }
+
+        this._element.style.width = String(this.width + 'px');
+        this._element.style.height = String(this.height + 'px');
+        this._element.style.marginBottom = String(this.gallery.options.margin + 'px');
+
+        if (this.last) {
+            this._element.style.marginRight = '0';
+        } else {
+            this._element.style.marginRight = String(this.gallery.options.margin + 'px');
+        }
+    }
+
+    /**
+     * This function prepare loaded/loading status and return root element.
+     * @returns {HTMLElement}
+     */
+    public loadImage() {
+
+        let img = document.createElement('img');
+        img.setAttribute('src', this.thumbnail);
+
+        img.addEventListener('load', () => {
+            this._element.classList.remove('loading');
+            this._element.classList.add('loaded');
+        });
+
+        // Detect errored images and hide them smartly
+        img.addEventListener('error', () => {
+            this._element.classList.add('errored');
+        });
     }
 
     public toggleSelect() {
@@ -244,13 +282,13 @@ export class Item {
 
     public select(notify: boolean = true) {
         this.selected = true;
-        this.element.classList.add('selected');
+        this._element.classList.add('selected');
         this.gallery.select(this, notify);
     }
 
     public unselect(notify: boolean = true) {
         this.selected = false;
-        this.element.classList.remove('selected');
+        this._element.classList.remove('selected');
         this.gallery.unselect(this, notify);
     }
 
@@ -279,38 +317,6 @@ export class Item {
     }
 
     /**
-     * Use computed (organized) data to apply style (size and margin) to elements on DOM
-     * Does not apply border-radius because is used to restyle data on browser resize, and border-radius don't change.
-     * @param element
-     * @param gallery
-     */
-    public style() {
-
-        this.element.classList.remove('visible');
-        this.element.style.width = String(this.width + 'px');
-        this.element.style.height = String(this.height + 'px');
-        this.element.style.marginRight = String(this.gallery.options.margin + 'px');
-        this.element.style.marginBottom = String(this.gallery.options.margin + 'px');
-
-        if (this.last) {
-            this.element.style.marginRight = '0';
-        }
-
-        const self = this;
-        window.setTimeout(function() {
-            self.element.classList.add('visible');
-        }, 0);
-    }
-
-    public flash() {
-        const self = this;
-        this.element.classList.remove('visible');
-        window.setTimeout(function() {
-            self.element.classList.add('visible');
-        }, 0);
-    }
-
-    /**
      * Open photoswipe gallery on click
      * Add elements to gallery when navigating until last element
      * @param image
@@ -332,15 +338,15 @@ export class Item {
         this.binded = true;
 
         let openPhotoSwipe = function(e) {
-            self.openPhotoSwipe.call(self, e, self.element);
+            self.openPhotoSwipe.call(self, e, self._element);
         };
 
         let clickEl = null;
 
         if (this.link) {
-            clickEl = this.image;
+            clickEl = this._image;
         } else {
-            clickEl = this.element;
+            clickEl = this._element;
         }
 
         clickEl.addEventListener('click', openPhotoSwipe);
@@ -374,7 +380,7 @@ export class Item {
             // Positive delta means next slide.
             // If we go next slide, and current index is out of visible collection bound, load more items
             if (delta === 1 && pswp.getCurrentIndex() === this.gallery.visibleCollection.length) {
-                self.gallery.addElements(1);
+                self.gallery.addRows(1);
             }
         });
 
@@ -389,45 +395,10 @@ export class Item {
         };
     }
 
-    public getElement(): HTMLElement {
-        return this.element;
-    }
-
-    /**
-     * This function prepare loaded/loading status and return root element.
-     * @returns {HTMLElement}
-     */
-    public loadElement(): HTMLElement {
-
-        const self = this;
-        let img = document.createElement('img');
-        img.setAttribute('src', this.thumbnail);
-
-        img.addEventListener('load', function() {
-            self.element.classList.remove('loading');
-            self.element.classList.add('loaded');
-        });
-
-        // Detect errored images and hide them smartly
-        img.addEventListener('error', function() {
-            self.element.classList.add('errored');
-        });
-
-        return this.element;
-    }
-
     public remove() {
-        if (this.getElement().parentNode) {
-            this.getElement().parentNode.removeChild(this.getElement());
+        if (this._element.parentNode) {
+            this._element.parentNode.removeChild(this._element);
         }
-    }
-
-    get id(): number {
-        return this._id;
-    }
-
-    set id(value: number) {
-        this._id = value;
     }
 
     get thumbnail(): string {

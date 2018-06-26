@@ -8,20 +8,19 @@
  *
  */
 import { Gallery } from './Gallery';
+import { Item } from './Item';
 
 export module Organizer {
 
-    export function organize(gallery: Gallery) {
+    export function organize(collection: Item[], gallery: Gallery, fromRow: number = null, toRow: number = null) {
 
         if (gallery.options.format === 'natural') {
-            this.organizeNatural(gallery.collection, gallery.bodyWidth, gallery.options.rowHeight, gallery.options.margin);
+            this.organizeNatural(collection, gallery.bodyWidth, gallery.options.rowHeight, gallery.options.margin, fromRow, toRow);
         } else if (gallery.options.format === 'square' && gallery.options.imagesPerRow) {
-            this.organizeSquareByImagesPerRow(gallery.collection, gallery.bodyWidth, gallery.options.imagesPerRow, gallery.options.margin);
+            this.organizeSquareByImagesPerRow(collection, gallery.bodyWidth, gallery.options.imagesPerRow, gallery.options.margin);
         } else if (gallery.options.format === 'square' && gallery.options.rowHeight) {
-            this.organizeSquareByRowHeight(gallery.collection, gallery.bodyWidth, gallery.options.rowHeight, gallery.options.margin);
+            this.organizeSquareByRowHeight(collection, gallery.bodyWidth, gallery.options.rowHeight, gallery.options.margin);
         }
-
-        gallery.style();
     }
 
     export function simulatePagination(gallery: Gallery) {
@@ -100,12 +99,20 @@ export module Organizer {
      * @param containerWidth
      * @param maxRowHeight
      * @param margin
-     * @param row
+     * @param fromRow
+     * @param toRow
+     * @param currentRow
      */
-    export function organizeNatural(elements, containerWidth, maxRowHeight, margin, row = null) {
+    export function organizeNatural(elements,
+                                    containerWidth,
+                                    maxRowHeight,
+                                    margin,
+                                    fromRow: number = null,
+                                    toRow: number = null,
+                                    currentRow: number = null) {
 
-        if (!row) {
-            row = 0;
+        if (!currentRow) {
+            currentRow = fromRow ? fromRow : 0;
         }
 
         if (!margin) {
@@ -120,13 +127,18 @@ export module Organizer {
             let chunk = elements.slice(0, chunkSize);
             let rowWidth = this.getRowWidth(maxRowHeight, margin, chunk);
             if (rowWidth >= containerWidth) { // if end of row
-                this.computeSizes(chunk, containerWidth, margin, row);
-                this.organizeNatural(elements.slice(chunkSize), containerWidth, maxRowHeight, margin, row + 1);
+                this.computeSizes(chunk, containerWidth, margin, currentRow);
+
+                const nextRow = currentRow + 1;
+                if (toRow === null || nextRow <= toRow) {
+                    this.organizeNatural(elements.slice(chunkSize), containerWidth, maxRowHeight, margin, fromRow, toRow, nextRow);
+                }
+
                 break;
             } else if (chunkSize === elements.length) { // if end of list
                 // the width is not fixed as we have not enough elements
                 // size of images are indexed on max row height.
-                this.computeSizes(chunk, null, margin, row, maxRowHeight);
+                this.computeSizes(chunk, null, margin, currentRow, maxRowHeight);
                 break;
             }
         }
