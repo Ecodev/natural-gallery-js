@@ -16,7 +16,6 @@ export interface IItemFields {
     eWidth: number;
     eHeight: number;
     last: boolean;
-    categories?: any[];
 }
 
 export interface IPhotoswipeItem {
@@ -35,7 +34,6 @@ export class Item {
     private _link: string;
     private _linkTarget: string;
     private _last: boolean;
-    private _categories: any[];
     private _row: number;
     private _binded: boolean = false;
 
@@ -82,7 +80,6 @@ export class Item {
         this.tHeight = fields.tHeight;
         this.eWidth = fields.eWidth;
         this.eHeight = fields.eHeight;
-        this.categories = fields.categories;
         this.last = fields.last;
     }
 
@@ -463,14 +460,6 @@ export class Item {
 
     set last(value: boolean) {
         this._last = value;
-    }
-
-    get categories(): any[] {
-        return this._categories;
-    }
-
-    set categories(value: any[]) {
-        this._categories = value;
     }
 
     get row(): number {

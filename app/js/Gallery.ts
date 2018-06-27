@@ -14,11 +14,8 @@ export interface IGalleryOptions {
     lightbox: boolean;
     minRowsAtStart: number;
     showCount: boolean;
-    searchFilter: boolean;
-    categoriesFilter: boolean;
     showNone: boolean;
     showOthers: boolean;
-    labelCategories: string;
     labelNone: string;
     labelOthers: string;
     labelSearch: string;
@@ -43,11 +40,8 @@ export class Gallery {
         lightbox: true,
         minRowsAtStart: 2,
         showCount: false,
-        searchFilter: false,
-        categoriesFilter: false,
         showNone: false,
         showOthers: false,
-        labelCategories: 'Category',
         labelNone: 'None',
         labelOthers: 'Others',
         labelSearch: 'Search',
