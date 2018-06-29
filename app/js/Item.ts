@@ -1,41 +1,26 @@
-import { Gallery } from './Gallery';
 import { Utility } from './Utility';
-import * as PhotoSwipe from 'photoswipe';
-import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
+import { ItemOptions, ItemTitle, ModelAttributes, PhotoswipeItem } from './types';
 
-export interface IItemFields {
-    id?: number;
-    thumbnail: string;
-    enlarged: string;
-    title: string;
-    description: string;
-    link: string;
-    linkTarget: string;
-    tWidth: number;
-    tHeight: number;
-    eWidth: number;
-    eHeight: number;
-    last: boolean;
-}
+export class Item<Model extends ModelAttributes = any> {
 
-export interface IPhotoswipeItem {
-    src: string;
-    w: number;
-    h: number;
-    title: string;
-}
+    /**
+     * Cleaned title, used for label / button
+     */
+    private readonly title: string;
+    private readonly link: string;
+    private readonly linkTarget: string;
 
-export class Item {
+    private binded: boolean = false;
 
-    private _thumbnail: string;
-    private _enlarged: string;
-    private _title: string;
-    private _description: string;
-    private _link: string;
-    private _linkTarget: string;
-    private _last: boolean;
+    /**
+     * Actual row index in the list
+     */
     private _row: number;
-    private _binded: boolean = false;
+
+    /**
+     * If is actually the last element of a row
+     */
+    private _last: boolean;
 
     /**
      * Computed size (real used size)
@@ -43,74 +28,84 @@ export class Item {
     private _width: number;
     private _height: number;
 
-    /**
-     * Thumbnail size
-     */
-    private _tWidth: number;
-    private _tHeight: number;
-
-    /**
-     * Enlarged width
-     */
-    private _eWidth: number;
-    private _eHeight: number;
-
     private selected = false;
 
     /**
-     * Dom elements
+     * Item root element reference (figure)
      */
     private _element: HTMLElement;
-    private _image: HTMLElement;
-    private _selectBtn: HTMLElement;
-    private _fields: IItemFields;
 
     /**
-     * @param fields
-     * @param gallery
+     * Image container reference (child div, containing the image)
      */
-    public constructor(fields: IItemFields, private gallery: Gallery) {
-        this._fields = fields;
-        this.thumbnail = fields.thumbnail;
-        this.enlarged = fields.enlarged;
-        this.title = this.getTitle(fields);
-        this.link = this.getLink(fields);
-        this.linkTarget = this.getLinkTarget(fields);
-        this.tWidth = fields.tWidth;
-        this.tHeight = fields.tHeight;
-        this.eWidth = fields.eWidth;
-        this.eHeight = fields.eHeight;
-        this.last = fields.last;
+    private _image: HTMLElement;
+
+    /**
+     * Reference to the select button
+     */
+    private _selectBtn: HTMLElement;
+
+    /**
+     *
+     * @param {ItemOptions} options
+     * @param model Contains the source data given for an item (e.g object instance from database with id etc..)
+     */
+    public constructor(private readonly options: ItemOptions, public readonly model: Model) {
+        this.title = this.getTitle(model.title);
+        this.link = this.getLink(model);
+        this.linkTarget = this.getLinkTarget(model);
     }
 
-    private getTitle(fields): string {
+    /**
+     * Return cleaned title
+     * @returns {string}
+     * @param title
+     */
+    private getTitle(title: string): string {
 
-        if (!fields.title) {
+        if (!title) {
             return null;
         }
 
-        return this.getTitleDetails(fields.title).title;
+        return this.getTitleDetails(title).title;
     }
 
-    private getLink(fields): string {
+    /**
+     * Return link from given options
+     * If link is given, it's used. If not, it's extracted from title
+     * @returns {string}
+     * @param options
+     */
+    private getLink(options: Model): string {
 
-        if (fields.link) {
-            return fields.link;
+        if (options.link) {
+            return options.link;
         }
 
-        return this.getTitleDetails(fields.title).link;
+        return this.getTitleDetails(options.title).link;
     }
 
-    private getLinkTarget(fields): string {
+    /**
+     * Return link target attribute
+     * If provided in options, it's used, if not, it's extracted from title
+     * @param {ItemOptions} options
+     * @returns {string}
+     */
+    private getLinkTarget(options: Model): string {
 
-        if (fields.linkTarget) {
-            return fields.linkTarget;
+        if (options.linkTarget) {
+            return options.linkTarget;
         }
 
-        return this.getTitleDetails(fields.title).linkTarget;
+        return this.getTitleDetails(options.title).linkTarget;
     }
 
-    private getTitleDetails(title) {
+    /**
+     * Extract first link (and link target) from the given title string (if html) and clean title from html
+     * @param {string} title
+     * @returns {ItemTitle}
+     */
+    private getTitleDetails(title: string): ItemTitle {
 
         let container = document.createElement('div');
         container.innerHTML = title;
@@ -136,63 +131,61 @@ export class Item {
      */
     public init() {
 
-        let options = this.gallery.options;
-
         let label = null;
         const showLabelValues = [
             'true',
             'hover',
         ];
-        if (this.title && showLabelValues.indexOf(options.showLabels) > -1) {
+        if (this.title && showLabelValues.indexOf(this.options.showLabels) > -1) {
             label = true;
         }
 
-        let element = document.createElement('div');
-        let image = document.createElement('div');
+        let element = document.createElement('div') as HTMLElement;
+        let image = document.createElement('div') as HTMLElement;
         let link = this.getLinkElement();
         let zoomable = null;
 
-        if (options.lightbox && label && link) {
+        if (this.options.lightbox && label && link) {
             label = link;
             label.classList.add('button');
             zoomable = image;
 
-        } else if (options.lightbox && label && !link) {
+        } else if (this.options.lightbox && label && !link) {
             label = document.createElement('div');
             zoomable = element;
 
-        } else if (options.lightbox && !label) {
+        } else if (this.options.lightbox && !label) {
             // Actually, lightbox has priority on the link that is ignored...
             zoomable = element;
 
-        } else if (!options.lightbox && label && link) {
+        } else if (!this.options.lightbox && label && link) {
             element = link;
             label = document.createElement('div');
             label.classList.add('button');
 
-        } else if (!options.lightbox && label && !link) {
+        } else if (!this.options.lightbox && label && !link) {
             label = document.createElement('div');
 
-        } else if (!options.lightbox && !label && link) {
+        } else if (!this.options.lightbox && !label && link) {
             element = link;
             // Pointer cursor is shown, but additionnal effect could be even better.
         }
 
         if (zoomable) {
             zoomable.classList.add('zoomable');
-            if (options.zoomRotation) {
+            if (this.options.zoomRotation) {
                 zoomable.classList.add('rotation');
             }
         }
 
         image.classList.add('image');
         element.classList.add('figure', 'loading', 'visible');
-        image.style.backgroundImage = 'url(' + this.thumbnail + ')';
+        image.style.backgroundImage = 'url(' + this.model.thumbnailSrc + ')';
 
         element.appendChild(image);
 
-        if (options.round) {
-            let radius = String(options.round + 'px');
+        if (this.options.round) {
+            let radius = String(this.options.round + 'px');
             element.style.borderRadius = radius;
             image.style.borderRadius = radius;
         }
@@ -203,13 +196,13 @@ export class Item {
         if (label) {
             label.textContent = this.title;
             label.classList.add('title');
-            if (options.showLabels === 'hover') {
+            if (this.options.showLabels === 'hover') {
                 label.classList.add('hover');
             }
             element.appendChild(label);
         }
 
-        if (this.gallery.options.selectable) {
+        if (this.options.selectable) {
             this._selectBtn = document.createElement('div');
             const icon = Utility.getIcon('icon-select');
             this._selectBtn.appendChild(icon);
@@ -240,12 +233,12 @@ export class Item {
 
         this._element.style.width = String(this.width + 'px');
         this._element.style.height = String(this.height + 'px');
-        this._element.style.marginBottom = String(this.gallery.options.margin + 'px');
+        this._element.style.marginBottom = String(this.options.margin + 'px');
 
         if (this.last) {
             this._element.style.marginRight = '0';
         } else {
-            this._element.style.marginRight = String(this.gallery.options.margin + 'px');
+            this._element.style.marginRight = String(this.options.margin + 'px');
         }
     }
 
@@ -256,7 +249,7 @@ export class Item {
     public loadImage() {
 
         let img = document.createElement('img');
-        img.setAttribute('src', this.thumbnail);
+        img.setAttribute('src', this.model.thumbnailSrc);
 
         img.addEventListener('load', () => {
             this._element.classList.remove('loading');
@@ -280,34 +273,34 @@ export class Item {
     public select(notify: boolean = true) {
         this.selected = true;
         this._element.classList.add('selected');
-        this.gallery.select(this, notify);
+        // this.options.select(this, notify);
     }
 
     public unselect(notify: boolean = true) {
         this.selected = false;
         this._element.classList.remove('selected');
-        this.gallery.unselect(this, notify);
+        // this.options.unselect(this, notify);
     }
 
-    private getLinkElement() {
+    private getLinkElement(): HTMLElement {
         let link = null;
 
         if (this.link) {
             link = document.createElement('a');
-            if (this.gallery.events.link) {
-                link.addEventListener('click', (ev) => {
-                    if (this.gallery.events.link.preventDefault) {
-                        ev.preventDefault();
-                    }
-                    this.gallery.events.link.callback(this._fields);
-                });
-            } else {
-                link.setAttribute('href', this.link);
-                link.classList.add('link');
-                if (this.linkTarget) {
-                    link.setAttribute('target', this.linkTarget);
-                }
-            }
+            // if (this.options.events.link) {
+            //     link.addEventListener('click', (ev) => {
+            //         if (this.options.events.link.preventDefault) {
+            //             ev.preventDefault();
+            //         }
+            //         this.options.events.link.callback(this._model);
+            //     });
+            // } else {
+            //     link.setAttribute('href', this.link);
+            //     link.classList.add('link');
+            //     if (this.linkTarget) {
+            //         link.setAttribute('target', this.linkTarget);
+            //     }
+            // }
         }
 
         return link;
@@ -321,7 +314,7 @@ export class Item {
      */
     public bindClick() {
 
-        if (!this.gallery.options.lightbox) {
+        if (!this.options.lightbox) {
             return;
         }
 
@@ -352,9 +345,7 @@ export class Item {
     public openPhotoSwipe(e, el) {
         e.preventDefault();
 
-        let self = this;
-
-        if (!this.gallery.options.lightbox) {
+        if (!this.options.lightbox) {
             return;
         }
 
@@ -368,27 +359,28 @@ export class Item {
             loop: false,
         };
 
-        let pswp = new PhotoSwipe(this.gallery.pswpElement, PhotoSwipeUI_Default, this.gallery.photoswipeCollection, options);
-        this.gallery.pswpApi = pswp;
-        pswp.init();
+        // let pswp = new PhotoSwipe(this.options.pswpElement, PhotoSwipeUI_Default, this.options.photoswipeCollection, options);
+        // this.options.pswpApi = pswp;
+
+        // pswp.init();
 
         // Loading one more page when going to next image
-        pswp.listen('beforeChange', (delta) => {
-            // Positive delta means next slide.
-            // If we go next slide, and current index is out of visible collection bound, load more items
-            if (delta === 1 && pswp.getCurrentIndex() === this.gallery.visibleCollection.length) {
-                self.gallery.addRows(1);
-            }
-        });
+        // pswp.listen('beforeChange', (delta) => {
+        // Positive delta means next slide.
+        // If we go next slide, and current index is out of visible collection bound, load more items
+        // if (delta === 1 && pswp.getCurrentIndex() === this.options.visibleCollection.length) {
+        //     this.options.addRows(1);
+        // }
+        // });
 
     }
 
-    public getPhotoswipeItem(): IPhotoswipeItem {
+    public getPhotoswipeItem(): PhotoswipeItem {
         return {
-            src: this._enlarged,
-            w: this._eWidth,
-            h: this._eHeight,
-            title: this._title,
+            src: this.model.enlargedSrc,
+            w: this.model.enlargedWidth,
+            h: this.model.enlargedHeight,
+            title: this.title,
         };
     }
 
@@ -396,62 +388,6 @@ export class Item {
         if (this._element.parentNode) {
             this._element.parentNode.removeChild(this._element);
         }
-    }
-
-    get thumbnail(): string {
-        return this._thumbnail;
-    }
-
-    set thumbnail(value: string) {
-        this._thumbnail = value;
-    }
-
-    get enlarged(): string {
-        return this._enlarged;
-    }
-
-    set enlarged(value: string) {
-        this._enlarged = value;
-    }
-
-    get title(): string {
-        return this._title;
-    }
-
-    set title(value: string) {
-        this._title = value;
-    }
-
-    get tWidth(): number {
-        return this._tWidth;
-    }
-
-    set tWidth(value: number) {
-        this._tWidth = value;
-    }
-
-    get tHeight(): number {
-        return this._tHeight;
-    }
-
-    set tHeight(value: number) {
-        this._tHeight = value;
-    }
-
-    get eWidth(): number {
-        return this._eWidth;
-    }
-
-    set eWidth(value: number) {
-        this._eWidth = value;
-    }
-
-    get eHeight(): number {
-        return this._eHeight;
-    }
-
-    set eHeight(value: number) {
-        this._eHeight = value;
     }
 
     get last(): boolean {
@@ -486,39 +422,12 @@ export class Item {
         this._width = value;
     }
 
-    get description(): string {
-        return this._description;
+    get thumbnailWidth(): number {
+        return this.model.thumbnailWidth;
     }
 
-    set description(value: string) {
-        this._description = value;
+    get thumbnailHeight(): number {
+        return this.model.thumbnailHeight;
     }
 
-    get binded(): boolean {
-        return this._binded;
-    }
-
-    set binded(value: boolean) {
-        this._binded = value;
-    }
-
-    get link(): string {
-        return this._link;
-    }
-
-    set link(value: string) {
-        this._link = value;
-    }
-
-    get linkTarget(): string {
-        return this._linkTarget;
-    }
-
-    set linkTarget(value: string) {
-        this._linkTarget = value;
-    }
-
-    get fields(): IItemFields {
-        return this._fields;
-    }
 }

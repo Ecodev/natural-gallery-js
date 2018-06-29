@@ -12,7 +12,7 @@
             true,
             "spaces"
         ],
-        "interface-name": true,
+        "interface-name": false,
         "jsdoc-format": true,
         "label-position": true,
         "member-access": true,

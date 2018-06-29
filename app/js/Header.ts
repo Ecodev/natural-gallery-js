@@ -1,18 +1,10 @@
-import { Gallery } from './Gallery';
 import { Utility } from './Utility';
 
 export class Header {
 
-    private _element: Element;
+    private element: Element;
 
-    private _gallery: Gallery;
-
-    /**
-     * CONSTRUCTOR
-     * @param gallery
-     */
-    public constructor(gallery: Gallery) {
-        this.gallery = gallery;
+    public constructor(private labelImages: string) {
     }
 
     public render(): Element {
@@ -23,7 +15,7 @@ export class Header {
 
         let sectionName = document.createElement('div');
         sectionName.classList.add('sectionName');
-        sectionName.textContent = this.gallery.options.labelImages;
+        sectionName.textContent = this.labelImages;
         imagesLayout.appendChild(sectionName);
 
         let galleryVisible = document.createElement('span');
@@ -39,27 +31,10 @@ export class Header {
         imagesLayout.appendChild(total);
 
         this.element = document.createElement('div');
-
         this.element.classList.add('natural-gallery-header');
         this.element.appendChild(imagesLayout);
 
         return this.element;
-    }
-
-    get element(): Element {
-        return this._element;
-    }
-
-    set element(value: Element) {
-        this._element = value;
-    }
-
-    get gallery(): Gallery {
-        return this._gallery;
-    }
-
-    set gallery(value: Gallery) {
-        this._gallery = value;
     }
 
 }
