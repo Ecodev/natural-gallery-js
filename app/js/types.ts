@@ -31,9 +31,14 @@ export interface GalleryOptions extends ItemOptions {
     events: GalleryEvents;
 }
 
+export interface PaginationEvent {
+    offset: number;
+    limit: number;
+}
+
 export interface GalleryEvents {
     select: (models: ModelAttributes[]) => void;
-    pagination: (start: number, end: number) => void;
+    pagination: (event: PaginationEvent) => void;
     link: {
         preventDefault: boolean;
         callback: (models: ModelAttributes[]) => void;

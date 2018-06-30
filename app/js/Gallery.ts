@@ -269,8 +269,8 @@ export class Gallery<Model extends ModelAttributes = any> {
         }
 
         let nbVisibleImages = this.visibleCollection.length;
-        const lastVisibleRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row : 0;
-        const lastWantedRow = lastVisibleRow + rows - 1;
+        const lastVisibleRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row + 1 : 0;
+        const lastWantedRow = lastVisibleRow + rows;
 
         Organizer.organize(this.collection.slice(nbVisibleImages), this.width, this.options, lastVisibleRow, lastWantedRow);
 
@@ -420,15 +420,33 @@ export class Gallery<Model extends ModelAttributes = any> {
         });
     }
 
-    private pagination(nbRows = 1) {
+    /**
+     * Fire pagination event (if applicable)
+     * Information provided in the event allows to retrieve items from the server using given data :
+     * "offset" and "limit" that have the same semantic that respective attributes in mySQL.
+     *
+     * The gallery asks for items it needs, including some buffer items that are not displayed when given but are available to be added
+     * immediately to DOM when user scrolls.
+     *
+     * @param {number} nbRows
+     */
+    private pagination(nbRows: number = 1) {
         if (this.options.events && this.options.events.pagination) {
+            let event = null;
             if (this.collection.length) {
                 const elementPerRow = this.getMaxImagesPerRow();
-                this.options.events.pagination(this.collection.length, elementPerRow * nbRows);
+                event = {
+                    limit: elementPerRow * nbRows,
+                    offset: this.collection.length,
+                };
             } else {
                 const estimation = Organizer.simulatePagination(this.width, this.defaultImageRatio, this.options);
-                this.options.events.pagination(this.collection.length, estimation * this.getRowsPerPage() * 2);
+                event = {
+                    limit: estimation * this.getRowsPerPage() * 2,
+                    offset: 0,
+                };
             }
+            this.options.events.pagination(event);
         }
     }
 
@@ -442,7 +460,7 @@ export class Gallery<Model extends ModelAttributes = any> {
             return stack;
         }, []);
 
-        return Math.max.apply(null, nbPerRowFn(this.collection));
+        return Math.max.apply(null, nbPerRowFn(this.visibleCollection));
     }
 
     public selectItem(item: Item<Model>, notify: boolean = true) {

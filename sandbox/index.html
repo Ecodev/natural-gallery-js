@@ -105,6 +105,9 @@
 
         <script type="text/javascript">
 
+            var items = null;
+            var gallery = null;
+
             var options = {
                 infiniteScrollOffset: 100,
                 events: {
@@ -117,15 +120,18 @@
                             console.log('activate', models);
                         }
                     },
-                    pagination: (models, nbNeeded) => {
-                        console.log('pagination', models, nbNeeded);
+                    pagination: (event) => {
+                        console.log('pagination', event);
+                        // if (gallery) {
+                        //     gallery.addItems(items.slice(event.offset, event.offset + event.limit));
+                        // }
                     }
                 }
             };
 
             var galleryEl = document.getElementById('gallery');
             var photoswipeEl = document.getElementsByClassName('pswp')[0];
-            var gallery = new NaturalGallery.Gallery(galleryEl, photoswipeEl, options);
+            gallery = new NaturalGallery.Gallery(galleryEl, photoswipeEl, options);
 
             var xhr = new XMLHttpRequest();
             xhr.open('GET', '/data.json');
@@ -133,7 +139,7 @@
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
 
-                    let items = JSON.parse(xhr.responseText).map(i => {
+                    items = JSON.parse(xhr.responseText).map(i => {
                         return {
                             thumbnailSrc: i.thumbnail,
                             thumbnailWidth: i.tWidth,
