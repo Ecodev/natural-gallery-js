@@ -99,13 +99,14 @@
             <br />
             <br />
             <!-- Gallery Wrapper  -->
-            <div id="gallery"></div>
+            <div id="gallery" style="margin-bottom:100px;"></div>
 
         </div><!-- .container -->
 
         <script type="text/javascript">
 
             var options = {
+                infiniteScrollOffset: 100,
                 events: {
                     select: (models) => {
                         console.log('selected', models);

@@ -100,7 +100,7 @@ export class Gallery<Model extends ModelAttributes = any> {
     /**
      * Initiate gallery
      * @param rootElement
-     * @param pswp
+     * @param pswpElement
      * @param scrollElement
      * @param options
      */
@@ -141,12 +141,6 @@ export class Gallery<Model extends ModelAttributes = any> {
 
     public render() {
 
-        // Empty
-        this.noResults = document.createElement('div');
-        this.noResults.classList.add('natural-gallery-noresults');
-        this.noResults.appendChild(Utility.getIcon('icon-noresults'));
-        this.noResults.style.display = 'block';
-
         // Next button
         this.nextButton = document.createElement('div');
         this.nextButton.classList.add('natural-gallery-next');
@@ -178,8 +172,29 @@ export class Gallery<Model extends ModelAttributes = any> {
         }
 
         this.rootElement.appendChild(this.bodyElement);
-        this.rootElement.appendChild(this.noResults);
         this.rootElement.appendChild(this.nextButton);
+    }
+
+    /**
+     * We only show empty button after calling addItems or setItems and collection is empty
+     */
+    private renderNoResultsIndicator() {
+        if (!this.noResults) {
+            this.noResults = document.createElement('div');
+            this.noResults.classList.add('natural-gallery-noresults');
+            this.noResults.appendChild(Utility.getIcon('icon-noresults'));
+            this.rootElement.appendChild(this.noResults);
+        }
+    }
+
+    private updateNoResultsVisibility() {
+        this.renderNoResultsIndicator();
+
+        if (this.collection.length) {
+            this.noResults.style.display = 'none';
+        } else {
+            this.noResults.style.display = 'block';
+        }
     }
 
     /**
@@ -187,7 +202,7 @@ export class Gallery<Model extends ModelAttributes = any> {
      * @param {Item[]} items
      */
     public setItems(items: Model[]) {
-        this.clear();
+        this.clearVisibleItems();
         this._collection = [];
         this.addItems(items);
     }
@@ -213,8 +228,14 @@ export class Gallery<Model extends ModelAttributes = any> {
             this.photoswipeCollection.push(item.getPhotoswipeItem());
         });
 
+        this.updateNoResultsVisibility();
+
         if (display) {
             this.addRows(this.getRowsPerPage());
+        }
+
+        if (this.header) {
+            this.header.updateTotalImages(this.collection.length);
         }
     }
 
@@ -240,18 +261,11 @@ export class Gallery<Model extends ModelAttributes = any> {
      */
     public addRows(rows: number): void {
 
-        // display because filters may add more images and we have to show it again
-        this.nextButton.style.display = 'block';
-
+        // Show / Hide "more" button.
         if (this.visibleCollection.length === this.collection.length) {
             this.nextButton.style.display = 'none';
-
-            if (this.collection.length === 0) {
-                this.noResults.style.display = 'block';
-                (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-images')[0]).style.display = 'none';
-            }
-
-            return;
+        } else {
+            this.nextButton.style.display = 'block';
         }
 
         let nbVisibleImages = this.visibleCollection.length;
@@ -274,23 +288,12 @@ export class Gallery<Model extends ModelAttributes = any> {
         // Show / Hide "more" button.
         if (this.visibleCollection.length === this.collection.length) {
             this.nextButton.style.display = 'none';
+        } else {
+            this.nextButton.style.display = 'block';
         }
 
-        this.noResults.style.display = 'none';
-
-        let imageContainer = (<HTMLElement> this.rootElement.getElementsByClassName('natural-gallery-images')[0]);
-        if (imageContainer) {
-            imageContainer.style.display = 'block';
-        }
-
-        let galleryVisible = this.rootElement.getElementsByClassName('natural-gallery-visible')[0];
-        if (galleryVisible) {
-            galleryVisible.textContent = String(this.visibleCollection.length);
-        }
-
-        let galleryTotal = this.rootElement.getElementsByClassName('natural-gallery-total')[0];
-        if (galleryTotal) {
-            galleryTotal.textContent = String(this.collection.length);
+        if (this.header) {
+            this.header.updateVisibleImages(this.visibleCollection.length);
         }
     }
 
@@ -378,12 +381,11 @@ export class Gallery<Model extends ModelAttributes = any> {
     }
 
     /**
-     * Remove items from DOM
+     * Remove items from DOM, but preverves collection
      */
-    public clear(): void {
+    public clearVisibleItems(): void {
         this._visibleCollection.forEach((item) => item.remove());
         this._visibleCollection = [];
-        this.noResults.style.display = 'block';
     }
 
     /**
