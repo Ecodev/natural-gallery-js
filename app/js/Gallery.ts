@@ -122,7 +122,7 @@ export class Gallery<Model extends ModelAttributes = any> {
 
         this.render();
         this.bodyWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
-        this.pagination();
+        this.requestItems(1);
 
         if (!this.options.rowsPerPage) {
             this.bindScroll(scrollElement !== null ? scrollElement : document);
@@ -141,7 +141,7 @@ export class Gallery<Model extends ModelAttributes = any> {
             e.preventDefault();
             const rows = this.options.rowsPerPage > 0 ? this.options.rowsPerPage : this.getRowsPerPage();
             this.addRows(rows);
-            this.pagination(rows);
+            this.requestItems(rows);
         });
 
         // Iframe
@@ -422,7 +422,7 @@ export class Gallery<Model extends ModelAttributes = any> {
             if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
                 // When scrolling only add a row at once
                 this.addRows(1);
-                this.pagination(1);
+                this.requestItems(1);
             }
         });
     }
@@ -473,24 +473,22 @@ export class Gallery<Model extends ModelAttributes = any> {
      *
      * @param {number} nbRows
      */
-    private pagination(nbRows: number = 1) {
-        if (this.options.events && this.options.events.pagination) {
-            let event = null;
-            if (this.collection.length) {
-                const elementPerRow = this.getMaxImagesPerRow();
-                event = {
-                    limit: elementPerRow * nbRows,
-                    offset: this.collection.length,
-                };
-            } else {
-                const estimation = Organizer.simulatePagination(this.width, this.defaultImageRatio, this.options);
-                event = {
-                    limit: estimation * this.getRowsPerPage() * 2,
-                    offset: 0,
-                };
-            }
-            this.options.events.pagination(event);
+    private requestItems(nbRows: number) {
+
+        let offset = null;
+        let limit = null;
+
+        if (this.collection.length) {
+            const elementPerRow = this.getMaxImagesPerRow();
+            limit = elementPerRow * nbRows;
+            offset = this.collection.length;
+        } else {
+            const estimation = Organizer.simulatePagination(this.width, this.defaultImageRatio, this.options);
+            limit = estimation * this.getRowsPerPage() * 2;
+            offset = 0;
         }
+
+        this.notifyPagination(offset, limit);
     }
 
     /**
@@ -515,6 +513,12 @@ export class Gallery<Model extends ModelAttributes = any> {
     private notifyActivatedItem(item: Item, ev: CustomEvent) {
         if (this.options.events && this.options.events.activate) {
             this.options.events.activate(item.model, ev);
+        }
+    }
+
+    private notifyPagination(offset: number, limit: number) {
+        if (this.options.events && this.options.events.activate) {
+            this.options.events.pagination({offset: offset, limit: limit});
         }
     }
 
