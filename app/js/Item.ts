@@ -74,11 +74,8 @@ export class Item<Model extends ModelAttributes = any> {
 
         let label = null;
 
-        // todo : replace "true" by "always"
-        const showLabelValues = [
-            'true',
-            'hover',
-        ];
+        // Test if label should be added to dom
+        const showLabelValues = ['always', 'hover'];
         if (this.title && showLabelValues.indexOf(this.options.showLabels) > -1) {
             label = true;
         }
@@ -153,7 +150,7 @@ export class Item<Model extends ModelAttributes = any> {
             activable.addEventListener('click', (ev) => {
                 const data = {
                     item: this,
-                    clickEvent: ev
+                    clickEvent: ev,
                 };
                 const activableEvent = new CustomEvent('activate', {detail: data});
                 this._element.dispatchEvent(activableEvent);
