@@ -28,7 +28,12 @@ export class Item<Model extends ModelAttributes = any> {
     private _width: number;
     private _height: number;
 
-    private selected = false;
+    /**
+     * Wherever item is selected or not
+     * @type {boolean}
+     * @private
+     */
+    private _selected = false;
 
     /**
      * Item root element reference (figure)
@@ -207,9 +212,11 @@ export class Item<Model extends ModelAttributes = any> {
             const icon = Utility.getIcon('icon-select');
             this._selectBtn.appendChild(icon);
             this._selectBtn.classList.add('selectBtn');
-            icon.addEventListener('click', (e) => {
+            this._selectBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.toggleSelect();
+                const event = new CustomEvent('onselect', {detail: this});
+                this._element.dispatchEvent(event);
             });
             this._element.appendChild(this._selectBtn);
         }
@@ -263,23 +270,21 @@ export class Item<Model extends ModelAttributes = any> {
     }
 
     public toggleSelect() {
-        if (this.selected) {
+        if (this._selected) {
             this.unselect();
         } else {
             this.select();
         }
     }
 
-    public select(notify: boolean = true) {
-        this.selected = true;
+    public select() {
+        this._selected = true;
         this._element.classList.add('selected');
-        // this.options.select(this, notify);
     }
 
-    public unselect(notify: boolean = true) {
-        this.selected = false;
+    public unselect() {
+        this._selected = false;
         this._element.classList.remove('selected');
-        // this.options.unselect(this, notify);
     }
 
     private getLinkElement(): HTMLElement {
@@ -428,6 +433,13 @@ export class Item<Model extends ModelAttributes = any> {
 
     get thumbnailHeight(): number {
         return this.model.thumbnailHeight;
+    }
+
+    get selected(): boolean {
+        return this._selected;
+    }
+    get element(): HTMLElement {
+        return this._element;
     }
 
 }

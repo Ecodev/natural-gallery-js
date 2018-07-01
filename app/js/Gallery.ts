@@ -75,13 +75,6 @@ export class Gallery<Model extends ModelAttributes = any> {
     private readonly header: Header;
 
     /**
-     * List of selected items
-     * @type {Item[]}
-     * @private
-     */
-    private _selected: Item<Model>[] = [];
-
-    /**
      * Reference to next button element
      */
     private nextButton: HTMLElement;
@@ -281,7 +274,7 @@ export class Gallery<Model extends ModelAttributes = any> {
         for (let i = nbVisibleImages; i < this.collection.length; i++) {
             let item = this.collection[i];
             if (item.row <= lastWantedRow) {
-                this.addItem(item);
+                this.addItemToDOM(item);
             }
         }
 
@@ -301,19 +294,21 @@ export class Gallery<Model extends ModelAttributes = any> {
      * Add given item to DOM and to visibleCollection
      * @param {Item} item
      */
-    private addItem(item: Item<Model>) {
+    private addItemToDOM(item: Item<Model>) {
         this.visibleCollection.push(item);
         this.bodyElement.appendChild(item.init());
+        item.element.addEventListener('onselect', () => {
+            this.notifySelectedItems(this.visibleCollection.filter(i => i.selected).map(i => i.model));
+        });
     }
 
     /**
      * Return number of rows to show per page,
-     * If a number of rows are specified in the backoffice, this data is used.
-     * If not specified, uses the vertical available space to compute the number of rows to display.
-     * There is a letiable in the header of this file to specify the  minimum number of rows for the computation (minNumberOfRowsAtStart)
-     * @returns {*}
+     * If rowsPerPage is specified in the options, it's used.
+     * If not, it uses the vertical available space to compute the number of rows to display.
+     * @returns {number}
      */
-    private getRowsPerPage() {
+    private getRowsPerPage(): number {
 
         if (this.options.rowsPerPage) {
             return this.options.rowsPerPage;
@@ -371,7 +366,7 @@ export class Gallery<Model extends ModelAttributes = any> {
                 const testedItem = this.collection[i];
 
                 if (testedItem.row === lastVisibleRow) {
-                    this.addItem(testedItem);
+                    this.addItemToDOM(testedItem);
                 } else {
                     break;
                 }
@@ -463,61 +458,30 @@ export class Gallery<Model extends ModelAttributes = any> {
         return Math.max.apply(null, nbPerRowFn(this.visibleCollection));
     }
 
-    public selectItem(item: Item<Model>, notify: boolean = true) {
-        const index = this._selected.indexOf(item);
-        if (index === -1) {
-            this._selected.push(item);
-            if (notify && this.options.events && this.options.events.select) {
-                this.options.events.select(this._selected.map(i => i.model));
-            }
-        }
+    private itemSelectEventCallback(event) {
+        console.log('itemSelectEventCallback', this);
+        this.notifySelectedItems(event.detail.visibleCollection.filter(i => i.selected).map(i => i.model));
     }
 
-    public unselectItem(item: Item<Model>, notify: boolean = true) {
-        const index = this._selected.indexOf(item);
-        if (index > -1) {
-            this._selected.splice(index, 1);
-            if (notify && this.options.events && this.options.events.select) {
-                this.options.events.select(this._selected.map(i => i.model));
-            }
+    private notifySelectedItems(items) {
+        if (this.options.events && this.options.events.select) {
+            this.options.events.select(items);
         }
     }
 
     /**
-     * Select all items visible in the dom
+     * Select all items visible in the DOM
+     * Ignores buffered items
      */
     public selectVisibleItems() {
-        this.visibleCollection.forEach((item) => item.select(false));
-        this._selected = this.visibleCollection.slice(0); // shallow copy, preserve items relations
-        if (this.options.events && this.options.events.select) {
-            this.options.events.select(this.visibleCollection.map(i => i.model));
-        }
-    }
-
-    /**
-     * Select all items already given
-     * Care : they may be not displayed in the DOM
-     */
-    public selectAllItems() {
-        this.collection.forEach((item) => item.select(false));
-        this._selected = this.collection.slice(0); // shallow copy, preserve items relations
-        if (this.options.events && this.options.events.select) {
-            this.options.events.select(this.collection.map(i => i.model));
-        }
+        this.visibleCollection.forEach((item) => item.select());
     }
 
     /**
      * Unselect all selected elements
      */
-    public unselectAll() {
-
-        for (let i = this._selected.length - 1; i >= 0; i--) {
-            this._selected[i].unselect(false);
-        }
-
-        if (this.options.events && this.options.events.select) {
-            this.options.events.select([]);
-        }
+    public unselectAllItems() {
+        this.visibleCollection.forEach((item) => item.unselect());
     }
 
     /**
