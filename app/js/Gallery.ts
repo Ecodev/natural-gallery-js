@@ -253,13 +253,6 @@ export class Gallery<Model extends ModelAttributes = any> {
      */
     public addRows(rows: number): void {
 
-        // Show / Hide "more" button.
-        if (this.visibleCollection.length === this.collection.length) {
-            this.nextButton.style.display = 'none';
-        } else {
-            this.nextButton.style.display = 'block';
-        }
-
         let nbVisibleImages = this.visibleCollection.length;
         const lastVisibleRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row + 1 : 0;
         const lastWantedRow = lastVisibleRow + rows;
