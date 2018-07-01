@@ -95,12 +95,12 @@ export class Gallery<Model extends ModelAttributes = any> {
 
     /**
      * Initiate gallery
-     * @param rootElement
+     * @param element
      * @param pswpElement
      * @param scrollElement
      * @param options
      */
-    public constructor(private rootElement: HTMLElement,
+    public constructor(private element: HTMLElement,
                        private pswpElement: HTMLElement,
                        options: GalleryOptions,
                        private scrollElement: HTMLElement = null) {
@@ -113,7 +113,7 @@ export class Gallery<Model extends ModelAttributes = any> {
         }
 
         this.options = options;
-        this.rootElement.classList.add('natural-gallery');
+        this.element.classList.add('natural-gallery');
 
         // header
         if (this.options.showCount) {
@@ -146,7 +146,7 @@ export class Gallery<Model extends ModelAttributes = any> {
 
         // Iframe
         const iframe = document.createElement('iframe');
-        this.rootElement.appendChild(iframe);
+        this.element.appendChild(iframe);
         let timer = null;
         iframe.contentWindow.addEventListener('resize', () => {
             clearTimeout(timer);
@@ -159,11 +159,11 @@ export class Gallery<Model extends ModelAttributes = any> {
         this.bodyElement.classList.add('natural-gallery-body');
 
         if (this.header) {
-            this.rootElement.appendChild(this.header.render());
+            this.element.appendChild(this.header.render());
         }
 
-        this.rootElement.appendChild(this.bodyElement);
-        this.rootElement.appendChild(this.nextButton);
+        this.element.appendChild(this.bodyElement);
+        this.element.appendChild(this.nextButton);
     }
 
     /**
@@ -174,7 +174,7 @@ export class Gallery<Model extends ModelAttributes = any> {
             this.noResults = document.createElement('div');
             this.noResults.classList.add('natural-gallery-noresults');
             this.noResults.appendChild(Utility.getIcon('icon-noresults'));
-            this.rootElement.appendChild(this.noResults);
+            this.element.appendChild(this.noResults);
         }
     }
 
@@ -410,7 +410,7 @@ export class Gallery<Model extends ModelAttributes = any> {
         }
 
         scrollable.addEventListener('scroll', () => {
-            let endOfGalleryAt = this.rootElement.offsetTop + this.rootElement.offsetHeight + this.options.infiniteScrollOffset;
+            let endOfGalleryAt = this.element.offsetTop + this.element.offsetHeight + this.options.infiniteScrollOffset;
 
             // Avoid to expand gallery if we are scrolling up
             let current_scroll_top = wrapper.scrollTop - (wrapper.clientTop || 0);
