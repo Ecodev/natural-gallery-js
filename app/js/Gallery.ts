@@ -3,6 +3,8 @@ import { Header } from './Header';
 import { Utility } from './Utility';
 import { Organizer } from './Organizer';
 import { GalleryOptions, ItemOptions, ModelAttributes, PhotoswipeItem } from './types';
+import * as PhotoSwipe from 'photoswipe';
+import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 
 export class Gallery<Model extends ModelAttributes = any> {
 
@@ -49,7 +51,7 @@ export class Gallery<Model extends ModelAttributes = any> {
      * Contains api to interact with library
      * @type PhotoSwipe
      */
-    private _pswpApi: any;
+    private _photoswipe: any;
 
     /**
      * Complete collection of images
@@ -214,7 +216,7 @@ export class Gallery<Model extends ModelAttributes = any> {
         models.forEach((model: Model) => {
             const item = new Item<Model>(this.getItemOptions(model), model);
             this._collection.push(item);
-            this.photoswipeCollection.push(item.getPhotoswipeItem());
+            this.photoswipeCollection.push(this.getPhotoswipeItem(item));
         });
 
         this.updateNoResultsVisibility();
@@ -296,14 +298,20 @@ export class Gallery<Model extends ModelAttributes = any> {
         this.bodyElement.appendChild(item.init());
 
         // When selected / unselected
-        item.element.addEventListener('onselect', () => {
+        item.element.addEventListener('select', () => {
             this.notifySelectedItems(this.visibleCollection.filter(i => i.selected));
         });
 
         // When activate (if activate event is given in options)
-        item.element.addEventListener('onactivate', (ev: CustomEvent) => {
+        item.element.addEventListener('activate', (ev: CustomEvent) => {
             this.notifyActivatedItem(ev.detail.item, ev.detail.clickEvent);
         });
+
+        // When open zoom (photoswipe)
+        item.element.addEventListener('zoom', (ev: CustomEvent) => {
+            this.openPhotoSwipe(ev.detail);
+        });
+
     }
 
     /**
@@ -419,6 +427,42 @@ export class Gallery<Model extends ModelAttributes = any> {
         });
     }
 
+    private openPhotoSwipe(item: Item) {
+
+        let pswpOptions = {
+            index: this.collection.findIndex(i => i === item),
+            bgOpacity: 0.85,
+            showHideOpacity: true,
+            loop: false,
+        };
+
+        this._photoswipe = new PhotoSwipe(this.pswpElement, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
+        this._photoswipe.init();
+
+        // Loading one more page when going to next image
+        this._photoswipe.listen('beforeChange', (delta) => {
+            // Positive delta means next slide.
+            // If we go next slide, and current index is out of visible collection bound, load more items
+            if (delta === 1 && this._photoswipe.getCurrentIndex() === this.visibleCollection.length) {
+                this.addRows(1);
+            }
+        });
+    }
+
+    /**
+     * Format an Item into a PhotoswipeItem that has different attributes
+     * @param item
+     * @returns {PhotoswipeItem}
+     */
+    public getPhotoswipeItem(item): PhotoswipeItem {
+        return {
+            src: item.model.enlargedSrc,
+            w: item.model.enlargedWidth,
+            h: item.model.enlargedHeight,
+            title: item.title,
+        };
+    }
+
     /**
      * Fire pagination event (if applicable)
      * Information provided in the event allows to retrieve items from the server using given data :
@@ -513,8 +557,8 @@ export class Gallery<Model extends ModelAttributes = any> {
         return this.bodyWidth;
     }
 
-    get pswpApi(): any {
-        return this._pswpApi;
+    get photoswipe(): any {
+        return this._photoswipe;
     }
 
 }

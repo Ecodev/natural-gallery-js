@@ -1,5 +1,5 @@
 import { Utility } from './Utility';
-import { ItemOptions, ItemTitle, ModelAttributes, PhotoswipeItem } from './types';
+import { ItemOptions, ItemTitle, ModelAttributes } from './types';
 
 export class Item<Model extends ModelAttributes = any> {
 
@@ -7,8 +7,6 @@ export class Item<Model extends ModelAttributes = any> {
      * Cleaned title, used for label / button
      */
     private readonly title: string;
-
-    private binded: boolean = false;
 
     /**
      * Actual row index in the list
@@ -102,10 +100,13 @@ export class Item<Model extends ModelAttributes = any> {
 
         } else if (this.options.lightbox && label && !link) {
             label = document.createElement('div');
-            zoomable = element;
+
             if (this.options.activable) {
                 activable = label;
                 label.classList.add('button');
+                zoomable = image;
+            } else {
+                zoomable = element;
             }
 
         } else if (this.options.lightbox && !label) {
@@ -140,6 +141,11 @@ export class Item<Model extends ModelAttributes = any> {
             if (this.options.zoomRotation) {
                 zoomable.classList.add('rotation');
             }
+
+            zoomable.addEventListener('click', () => {
+                const event = new CustomEvent('zoom', {detail: this});
+                this._element.dispatchEvent(event);
+            });
         }
 
         if (activable && this.options.activable) {
@@ -149,7 +155,7 @@ export class Item<Model extends ModelAttributes = any> {
                     item: this,
                     clickEvent: ev
                 };
-                const activableEvent = new CustomEvent('onactivate', {detail: data});
+                const activableEvent = new CustomEvent('activate', {detail: data});
                 this._element.dispatchEvent(activableEvent);
             });
         }
@@ -186,7 +192,7 @@ export class Item<Model extends ModelAttributes = any> {
             this._selectBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.toggleSelect();
-                const event = new CustomEvent('onselect', {detail: this});
+                const event = new CustomEvent('select', {detail: this});
                 this._element.dispatchEvent(event);
             });
             this._element.appendChild(this._selectBtn);
@@ -194,7 +200,6 @@ export class Item<Model extends ModelAttributes = any> {
 
         this.style();
         this.loadImage();
-        this.bindClick();
 
         return element;
     }
@@ -272,84 +277,6 @@ export class Item<Model extends ModelAttributes = any> {
         }
 
         return null;
-    }
-
-    /**
-     * Open photoswipe gallery on click
-     * Add elements to gallery when navigating until last element
-     * @param image
-     * @param gallery
-     */
-    public bindClick() {
-
-        if (!this.options.lightbox) {
-            return;
-        }
-
-        const self = this;
-
-        // Avoid multiple bindings
-        if (this.binded) {
-            return;
-        }
-
-        this.binded = true;
-
-        let openPhotoSwipe = function(e) {
-            self.openPhotoSwipe.call(self, e, self._element);
-        };
-
-        let clickEl = null;
-
-        if (this.model.link) {
-            clickEl = this._image;
-        } else {
-            clickEl = this._element;
-        }
-
-        clickEl.addEventListener('click', openPhotoSwipe);
-    }
-
-    public openPhotoSwipe(e, el) {
-        e.preventDefault();
-
-        if (!this.options.lightbox) {
-            return;
-        }
-
-        let nodeList = Array.prototype.slice.call((<HTMLElement> el.parentNode).children);
-        let index = nodeList.indexOf(el) - 1;
-
-        let options = {
-            index: index,
-            bgOpacity: 0.85,
-            showHideOpacity: true,
-            loop: false,
-        };
-
-        // let pswp = new PhotoSwipe(this.options.pswpElement, PhotoSwipeUI_Default, this.options.photoswipeCollection, options);
-        // this.options.pswpApi = pswp;
-
-        // pswp.init();
-
-        // Loading one more page when going to next image
-        // pswp.listen('beforeChange', (delta) => {
-        // Positive delta means next slide.
-        // If we go next slide, and current index is out of visible collection bound, load more items
-        // if (delta === 1 && pswp.getCurrentIndex() === this.options.visibleCollection.length) {
-        //     this.options.addRows(1);
-        // }
-        // });
-
-    }
-
-    public getPhotoswipeItem(): PhotoswipeItem {
-        return {
-            src: this.model.enlargedSrc,
-            w: this.model.enlargedWidth,
-            h: this.model.enlargedHeight,
-            title: this.title,
-        };
     }
 
     public remove() {
