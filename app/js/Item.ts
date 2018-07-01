@@ -56,53 +56,10 @@ export class Item<Model extends ModelAttributes = any> {
      * @param model Contains the source data given for an item (e.g object instance from database with id etc..)
      */
     public constructor(private readonly options: ItemOptions, public readonly model: Model) {
-        this.title = this.getTitle(model.title);
-        this.link = this.getLink(model);
-        this.linkTarget = this.getLinkTarget(model);
-    }
-
-    /**
-     * Return cleaned title
-     * @returns {string}
-     * @param title
-     */
-    private getTitle(title: string): string {
-
-        if (!title) {
-            return null;
-        }
-
-        return this.getTitleDetails(title).title;
-    }
-
-    /**
-     * Return link from given options
-     * If link is given, it's used. If not, it's extracted from title
-     * @returns {string}
-     * @param options
-     */
-    private getLink(options: Model): string {
-
-        if (options.link) {
-            return options.link;
-        }
-
-        return this.getTitleDetails(options.title).link;
-    }
-
-    /**
-     * Return link target attribute
-     * If provided in options, it's used, if not, it's extracted from title
-     * @param {ItemOptions} options
-     * @returns {string}
-     */
-    private getLinkTarget(options: Model): string {
-
-        if (options.linkTarget) {
-            return options.linkTarget;
-        }
-
-        return this.getTitleDetails(options.title).linkTarget;
+        const titleDetails = this.getTitleDetails(model.title);
+        this.title = titleDetails.title;
+        this.link = model.link ? model.link : titleDetails.link;
+        this.linkTarget = model.linkTarget ? model.linkTarget : titleDetails.linkTarget;
     }
 
     /**
@@ -438,6 +395,7 @@ export class Item<Model extends ModelAttributes = any> {
     get selected(): boolean {
         return this._selected;
     }
+
     get element(): HTMLElement {
         return this._element;
     }
