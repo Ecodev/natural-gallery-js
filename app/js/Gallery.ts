@@ -22,6 +22,7 @@ export class Gallery<Model extends ModelAttributes = any> {
         showCount: false,
         labelImages: 'Images',
         selectable: false,
+        activable: false,
         zoomRotation: true,
         infiniteScrollOffset: 0,
         events: null,
@@ -111,11 +112,6 @@ export class Gallery<Model extends ModelAttributes = any> {
 
         this.options = options;
         this.rootElement.classList.add('natural-gallery');
-
-        // Events
-        if (this.options.events && this.options.events.select) {
-            this.options.selectable = true;
-        }
 
         // header
         if (this.options.showCount) {
@@ -241,6 +237,7 @@ export class Gallery<Model extends ModelAttributes = any> {
         return {
             lightbox: this.options.lightbox,
             selectable: this.options.selectable,
+            activable: this.options.activable,
             margin: this.options.margin,
             round: this.options.round,
             showLabels: this.options.showLabels,
@@ -297,8 +294,15 @@ export class Gallery<Model extends ModelAttributes = any> {
     private addItemToDOM(item: Item<Model>) {
         this.visibleCollection.push(item);
         this.bodyElement.appendChild(item.init());
+
+        // When selected / unselected
         item.element.addEventListener('onselect', () => {
-            this.notifySelectedItems(this.visibleCollection.filter(i => i.selected).map(i => i.model));
+            this.notifySelectedItems(this.visibleCollection.filter(i => i.selected));
+        });
+
+        // When activate (if activate event is given in options)
+        item.element.addEventListener('onactivate', (ev: CustomEvent) => {
+            this.notifyActivatedItem(ev.detail.item, ev.detail.clickEvent);
         });
     }
 
@@ -458,14 +462,15 @@ export class Gallery<Model extends ModelAttributes = any> {
         return Math.max.apply(null, nbPerRowFn(this.visibleCollection));
     }
 
-    private itemSelectEventCallback(event) {
-        console.log('itemSelectEventCallback', this);
-        this.notifySelectedItems(event.detail.visibleCollection.filter(i => i.selected).map(i => i.model));
+    private notifySelectedItems(items: Item[]) {
+        if (this.options.events && this.options.events.select) {
+            this.options.events.select(items.map(i => i.model));
+        }
     }
 
-    private notifySelectedItems(items) {
-        if (this.options.events && this.options.events.select) {
-            this.options.events.select(items);
+    private notifyActivatedItem(item: Item, ev: CustomEvent) {
+        if (this.options.events && this.options.events.activate) {
+            this.options.events.activate(item.model, ev);
         }
     }
 

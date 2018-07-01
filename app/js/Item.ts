@@ -75,6 +75,8 @@ export class Item<Model extends ModelAttributes = any> {
     public init() {
 
         let label = null;
+
+        // todo : replace "true" by "always"
         const showLabelValues = [
             'true',
             'hover',
@@ -86,32 +88,51 @@ export class Item<Model extends ModelAttributes = any> {
         let element = document.createElement('div') as HTMLElement;
         let image = document.createElement('div') as HTMLElement;
         let link = this.getLinkElement();
-        let zoomable = null;
+        let zoomable: HTMLElement = null;
+
+        // Activation is listened on label/button or on whole image if lightbox is off.
+        // If label is not a button, it becomes a button
+        let activable: HTMLElement = null;
 
         if (this.options.lightbox && label && link) {
             label = link;
             label.classList.add('button');
             zoomable = image;
+            activable = link;
 
         } else if (this.options.lightbox && label && !link) {
             label = document.createElement('div');
             zoomable = element;
+            if (this.options.activable) {
+                activable = label;
+                label.classList.add('button');
+            }
 
         } else if (this.options.lightbox && !label) {
             // Actually, lightbox has priority on the link that is ignored...
             zoomable = element;
 
+            // May be dangerous to consider image as activation, because opening the lightbox is already an action and we could have two...
+            // It's ok if activate event is used for tracking, but not if it's used to do an action.
+            // In the doubt, for now it's not allowed
+            // activable = element;
+
         } else if (!this.options.lightbox && label && link) {
             element = link;
             label = document.createElement('div');
             label.classList.add('button');
+            activable = link;
 
         } else if (!this.options.lightbox && label && !link) {
             label = document.createElement('div');
+            if (this.options.activable) {
+                activable = element;
+                label.classList.add('button');
+            }
 
         } else if (!this.options.lightbox && !label && link) {
             element = link;
-            // Pointer cursor is shown, but additionnal effect could be even better.
+            activable = link;
         }
 
         if (zoomable) {
@@ -119,6 +140,18 @@ export class Item<Model extends ModelAttributes = any> {
             if (this.options.zoomRotation) {
                 zoomable.classList.add('rotation');
             }
+        }
+
+        if (activable && this.options.activable) {
+            activable.classList.add('activable');
+            activable.addEventListener('click', (ev) => {
+                const data = {
+                    item: this,
+                    clickEvent: ev
+                };
+                const activableEvent = new CustomEvent('onactivate', {detail: data});
+                this._element.dispatchEvent(activableEvent);
+            });
         }
 
         image.classList.add('image');
@@ -226,27 +259,19 @@ export class Item<Model extends ModelAttributes = any> {
     }
 
     private getLinkElement(): HTMLElement {
-        let link = null;
 
-        // if (this.link) {
-        //     link = document.createElement('a');
-        //     if (this.options.events.link) {
-        //         link.addEventListener('click', (ev) => {
-        //             if (this.options.events.link.preventDefault) {
-        //                 ev.preventDefault();
-        //             }
-        //             this.options.events.link.callback(this._model);
-        //         });
-        //     } else {
-        //         link.setAttribute('href', this.link);
-        //         link.classList.add('link');
-        //         if (this.linkTarget) {
-        //             link.setAttribute('target', this.linkTarget);
-        //         }
-        //     }
-        // }
+        if (this.model.link) {
+            let link = document.createElement('a');
+            link.setAttribute('href', this.model.link);
+            link.classList.add('link');
+            if (this.model.linkTarget) {
+                link.setAttribute('target', this.model.linkTarget);
+            }
 
-        return link;
+            return link;
+        }
+
+        return null;
     }
 
     /**
@@ -276,7 +301,7 @@ export class Item<Model extends ModelAttributes = any> {
 
         let clickEl = null;
 
-        if (this.link) {
+        if (this.model.link) {
             clickEl = this._image;
         } else {
             clickEl = this._element;

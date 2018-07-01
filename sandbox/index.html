@@ -108,17 +108,19 @@
             var items = null;
             var gallery = null;
 
+            // Gallery options
             var options = {
+                selectable : true,
+                activable : true,
                 infiniteScrollOffset: 100,
                 events: {
                     select: (models) => {
                         console.log('selected', models);
                     },
-                    link: {
-                        preventDefault: true,
-                        callback: (models) => {
-                            console.log('activate', models);
-                        }
+                    activate: (models, event) => {
+                        // Prevent the link to redirect to url (only if clicked element is a <a href>
+                        event.preventDefault();
+                        console.log('activate', models);
                     },
                     pagination: (event) => {
                         console.log('pagination', event);

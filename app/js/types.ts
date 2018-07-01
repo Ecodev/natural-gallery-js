@@ -1,6 +1,7 @@
 export interface ItemOptions {
     lightbox: boolean;
     selectable: boolean;
+    activable: boolean;
     margin: number;
     round: number;
     showLabels: 'hover' | 'never' | 'always';
@@ -39,10 +40,7 @@ export interface PaginationEvent {
 export interface GalleryEvents {
     select: (models: ModelAttributes[]) => void;
     pagination: (event: PaginationEvent) => void;
-    link: {
-        preventDefault: boolean;
-        callback: (models: ModelAttributes[]) => void;
-    };
+    activate: (model: ModelAttributes, event: Event) => void;
 }
 
 export interface PhotoswipeItem {
