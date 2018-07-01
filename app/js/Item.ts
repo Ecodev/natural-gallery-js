@@ -7,8 +7,6 @@ export class Item<Model extends ModelAttributes = any> {
      * Cleaned title, used for label / button
      */
     private readonly title: string;
-    private readonly link: string;
-    private readonly linkTarget: string;
 
     private binded: boolean = false;
 
@@ -56,35 +54,18 @@ export class Item<Model extends ModelAttributes = any> {
      * @param model Contains the source data given for an item (e.g object instance from database with id etc..)
      */
     public constructor(private readonly options: ItemOptions, public readonly model: Model) {
-        const titleDetails = this.getTitleDetails(model.title);
-        this.title = titleDetails.title;
-        this.link = model.link ? model.link : titleDetails.link;
-        this.linkTarget = model.linkTarget ? model.linkTarget : titleDetails.linkTarget;
+        this.title = this.getTitleDetails(model.title);
     }
 
     /**
-     * Extract first link (and link target) from the given title string (if html) and clean title from html
-     * @param {string} title
+     * Cleans html, and returns only the texte from all eventual tags
+     * @param {string} term
      * @returns {ItemTitle}
      */
-    private getTitleDetails(title: string): ItemTitle {
-
+    private getTitleDetails(term: string): string {
         let container = document.createElement('div');
-        container.innerHTML = title;
-        let links = container.getElementsByTagName('a');
-
-        let details = {
-            title: container.textContent,
-            link: null,
-            linkTarget: null,
-        };
-
-        if (links[0]) {
-            details.link = links[0].getAttribute('href');
-            details.linkTarget = links[0].getAttribute('target');
-        }
-
-        return details;
+        container.innerHTML = term;
+        return container.textContent;
     }
 
     /**
@@ -247,23 +228,23 @@ export class Item<Model extends ModelAttributes = any> {
     private getLinkElement(): HTMLElement {
         let link = null;
 
-        if (this.link) {
-            link = document.createElement('a');
-            // if (this.options.events.link) {
-            //     link.addEventListener('click', (ev) => {
-            //         if (this.options.events.link.preventDefault) {
-            //             ev.preventDefault();
-            //         }
-            //         this.options.events.link.callback(this._model);
-            //     });
-            // } else {
-            //     link.setAttribute('href', this.link);
-            //     link.classList.add('link');
-            //     if (this.linkTarget) {
-            //         link.setAttribute('target', this.linkTarget);
-            //     }
-            // }
-        }
+        // if (this.link) {
+        //     link = document.createElement('a');
+        //     if (this.options.events.link) {
+        //         link.addEventListener('click', (ev) => {
+        //             if (this.options.events.link.preventDefault) {
+        //                 ev.preventDefault();
+        //             }
+        //             this.options.events.link.callback(this._model);
+        //         });
+        //     } else {
+        //         link.setAttribute('href', this.link);
+        //         link.classList.add('link');
+        //         if (this.linkTarget) {
+        //             link.setAttribute('target', this.linkTarget);
+        //         }
+        //     }
+        // }
 
         return link;
     }
