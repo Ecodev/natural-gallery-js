@@ -105,35 +105,61 @@
 
         <script type="text/javascript">
 
-            var items = null;
-            var gallery = null;
-
             // Gallery options
             var options = {
                 selectable: true,
                 activable: true,
-                infiniteScrollOffset: 100,
-                events: {
-                    select: (models) => {
-                        console.log('selected', models);
-                    },
-                    activate: (models, event) => {
-                        // Prevent the link to redirect to url (only if clicked element is a <a href>
-                        event.preventDefault();
-                        console.log('activate', models);
-                    },
-                    pagination: (event) => {
-                        console.log('pagination', event);
-                        // if (gallery) {
-                        //     gallery.addItems(items.slice(event.offset, event.offset + event.limit));
-                        // }
-                    }
-                }
+                infiniteScrollOffset: 100
             };
 
-            var galleryEl = document.getElementById('gallery');
-            var photoswipeEl = document.getElementsByClassName('pswp')[0];
-            gallery = new NaturalGallery.Gallery(galleryEl, photoswipeEl, options);
+            // Get reference of objects
+            var galleryElement = document.getElementById('gallery');
+            var photoswipeElement = document.getElementsByClassName('pswp')[0];
+
+            // Listen custom events on DOM element
+            galleryElement.addEventListener('activate', function(event) {
+                console.log('activate (listen dom)', event.detail);
+            });
+
+            // When items are checked
+            galleryElement.addEventListener('select', function(event) {
+                console.log('select (listen dom)', event.detail);
+            });
+
+            // Watch pagination event on gallery DOM element should be done before gallery instantiation
+            // If done after, the first notification will be missed.
+            galleryElement.addEventListener('pagination', function(event) {
+                console.log('pagination (listen dom)', event.detail)
+            });
+
+
+            // Create gallery
+            var gallery = new NaturalGallery.Gallery(galleryElement, photoswipeElement, options);
+
+            // Listen to javascript gallery object
+            gallery.addEventListener('activate', function(event) {
+                console.log('activate (listen gallery)', event.detail);
+            });
+
+            gallery.addEventListener('select', function(event) {
+                console.log('select (listen gallery)', event.detail);
+            });
+
+            gallery.addEventListener('pagination', function(event) {
+                console.log('pagination (listen gallery)', event.detail);
+            });
+
+
+            // Select all visible images
+            document.getElementById('selectVisible').addEventListener('click', function() {
+                gallery.selectVisibleItems();
+            });
+
+            // Unselect all visible images
+            document.getElementById('unselectAll').addEventListener('click', function() {
+                gallery.unselectAllItems();
+            });
+
 
             var xhr = new XMLHttpRequest();
             xhr.open('GET', '/data.json');
@@ -141,7 +167,7 @@
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
 
-                    items = JSON.parse(xhr.responseText).map(i => {
+                    var items = JSON.parse(xhr.responseText).map(function(i) {
                         return {
                             thumbnailSrc: i.thumbnail,
                             thumbnailWidth: i.tWidth,
@@ -158,14 +184,6 @@
                     gallery.setItems(items);
                 }
             };
-
-            document.getElementById('selectVisible').addEventListener('click', function() {
-                gallery.selectVisibleItems();
-            });
-
-            document.getElementById('unselectAll').addEventListener('click', function() {
-                gallery.unselectAllItems();
-            });
 
         </script>
 

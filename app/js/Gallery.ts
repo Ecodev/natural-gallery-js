@@ -96,12 +96,12 @@ export class Gallery<Model extends ModelAttributes = any> {
     /**
      * Initiate gallery
      * @param element
-     * @param pswpElement
+     * @param photoswipeElement
      * @param scrollElement
      * @param options
      */
     public constructor(private element: HTMLElement,
-                       private pswpElement: HTMLElement,
+                       private photoswipeElement: HTMLElement,
                        options: GalleryOptions,
                        private scrollElement: HTMLElement = null) {
 
@@ -122,7 +122,7 @@ export class Gallery<Model extends ModelAttributes = any> {
 
         this.render();
         this.bodyWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
-        this.requestItems(1);
+        this.requestItems();
 
         if (!this.options.rowsPerPage) {
             this.bindScroll(scrollElement !== null ? scrollElement : document);
@@ -299,12 +299,12 @@ export class Gallery<Model extends ModelAttributes = any> {
 
         // When selected / unselected
         item.element.addEventListener('select', () => {
-            this.notifySelectedItems(this.visibleCollection.filter(i => i.selected));
+            this.dispatchEvent('select', this.visibleCollection.filter(i => i.selected).map(i => i.model));
         });
 
         // When activate (if activate event is given in options)
         item.element.addEventListener('activate', (ev: CustomEvent) => {
-            this.notifyActivatedItem(ev.detail.item, ev.detail.clickEvent);
+            this.dispatchEvent('activate', {model: ev.detail.item.model, clickEvent: ev.detail.clickEvent});
         });
 
         // When open zoom (photoswipe)
@@ -436,7 +436,7 @@ export class Gallery<Model extends ModelAttributes = any> {
             loop: false,
         };
 
-        this._photoswipe = new PhotoSwipe(this.pswpElement, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
+        this._photoswipe = new PhotoSwipe(this.photoswipeElement, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
         this._photoswipe.init();
 
         // Loading one more page when going to next image
@@ -473,7 +473,7 @@ export class Gallery<Model extends ModelAttributes = any> {
      *
      * @param {number} nbRows
      */
-    private requestItems(nbRows: number) {
+    private requestItems(nbRows?: number) {
 
         let offset = null;
         let limit = null;
@@ -488,7 +488,7 @@ export class Gallery<Model extends ModelAttributes = any> {
             offset = 0;
         }
 
-        this.notifyPagination(offset, limit);
+        this.dispatchEvent('pagination', {offset: offset, limit: limit});
     }
 
     /**
@@ -504,22 +504,9 @@ export class Gallery<Model extends ModelAttributes = any> {
         return Math.max.apply(null, nbPerRowFn(this.visibleCollection));
     }
 
-    private notifySelectedItems(items: Item[]) {
-        if (this.options.events && this.options.events.select) {
-            this.options.events.select(items.map(i => i.model));
-        }
-    }
-
-    private notifyActivatedItem(item: Item, ev: CustomEvent) {
-        if (this.options.events && this.options.events.activate) {
-            this.options.events.activate(item.model, ev);
-        }
-    }
-
-    private notifyPagination(offset: number, limit: number) {
-        if (this.options.events && this.options.events.activate) {
-            this.options.events.pagination({offset: offset, limit: limit});
-        }
+    private dispatchEvent(name: string, data: any) {
+        const event = new CustomEvent(name, {detail: data});
+        this.element.dispatchEvent(event);
     }
 
     /**
@@ -535,6 +522,23 @@ export class Gallery<Model extends ModelAttributes = any> {
      */
     public unselectAllItems() {
         this.visibleCollection.forEach((item) => item.unselect());
+    }
+
+    /**
+     * Allows to use the same approach and method name to listen as gallery events on DOM or on javascript gallery object
+     *
+     * Gallery requests items when it's instantiated. But user may subscribe after creation, so we need to request again if
+     * user subscribes by this function.
+     *
+     * @param name
+     * @param callback
+     */
+    public addEventListener(name: string, callback: (ev) => void) {
+        this.element.addEventListener(name, callback);
+
+        if (name === 'pagination') {
+            this.requestItems();
+        }
     }
 
     /**
