@@ -5,6 +5,7 @@ import { Organizer } from './Organizer';
 import { GalleryOptions, ItemOptions, ModelAttributes, PhotoswipeItem } from './types';
 import * as PhotoSwipe from 'photoswipe';
 import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
+import * as _ from './lodash/debounce.js';
 
 export class Gallery<Model extends ModelAttributes = any> {
 
@@ -147,16 +148,23 @@ export class Gallery<Model extends ModelAttributes = any> {
         // Iframe
         const iframe = document.createElement('iframe');
         this.element.appendChild(iframe);
-        let timer = null;
-        iframe.contentWindow.addEventListener('resize', () => {
-            clearTimeout(timer);
-            timer = setTimeout(() => {
-                this.resize();
-            }, 100);
-        });
 
         this.bodyElement = document.createElement('div');
         this.bodyElement.classList.add('natural-gallery-body');
+        this.getRowsPerPage();
+
+        let resizeRunning;
+        iframe.contentWindow.addEventListener('resize', _.debounce(() => {
+            if (resizeRunning === false) {
+                this.startResize();
+                resizeRunning = true;
+            } else if (resizeRunning === true) {
+                this.endResize();
+                resizeRunning = false;
+            } else {
+                resizeRunning = false;
+            }
+        }, 500, {trailing: true, leading: true}));
 
         if (this.header) {
             this.element.appendChild(this.header.render());
@@ -263,10 +271,12 @@ export class Gallery<Model extends ModelAttributes = any> {
             item.style();
         }
 
+        const lastAddedItems = [];
         for (let i = nbVisibleImages; i < this.collection.length; i++) {
             let item = this.collection[i];
             if (item.row <= lastWantedRow) {
                 this.addItemToDOM(item);
+                lastAddedItems.push(item);
             }
         }
 
@@ -287,6 +297,7 @@ export class Gallery<Model extends ModelAttributes = any> {
      * @param {Item} item
      */
     private addItemToDOM(item: Item<Model>) {
+
         this.visibleCollection.push(item);
         this.bodyElement.appendChild(item.init());
 
@@ -320,7 +331,9 @@ export class Gallery<Model extends ModelAttributes = any> {
         }
 
         let winHeight = this.scrollElement ? this.scrollElement.clientHeight : document.documentElement.clientHeight;
-        let galleryVisibleHeight = winHeight - this.bodyElement.offsetTop;
+        let galleryVisibleHeight = winHeight - this.element.offsetTop;
+
+        this.element.style.minHeight = galleryVisibleHeight + 'px';
 
         // ratio to be more close from reality average row height
         let nbRows = Math.floor(galleryVisibleHeight / (this.options.rowHeight * 0.55));
@@ -328,56 +341,43 @@ export class Gallery<Model extends ModelAttributes = any> {
         return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
     }
 
-    /**
-     * Check if we need to resize a gallery (only if parent container width changes)
-     * The keep full rows, it recomputes sizes with new dimension, and reset everything, then add the same number of row.
-     * It results in not partial row.
-     */
-    public resize() {
+    public startResize() {
+        this.bodyElement.classList.add('resizing');
+    }
 
-        // todo : hide images during resize
-        // 1) On resize start fix gallery container size
-        // 2) Hide items
-        // 3) Show resizing icon
-        // 4) Debounce resize end
-        // 5) On resize ends, reorganize item sizes, and update dom elements
-        // 6) Show items, and hide resizing icon
+    public endResize() {
 
-        let containerWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
-        if (containerWidth !== this.bodyWidth) {
-            this.bodyWidth = containerWidth;
+        this.bodyElement.classList.remove('resizing');
+        this.bodyWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
 
-            // Compute with new width. Rows indexes may have change
-            Organizer.organize(this.visibleCollection, this.width, this.options);
+        // Compute with new width. Rows indexes may have change
+        Organizer.organize(this.visibleCollection, this.width, this.options);
 
-            // Refresh dom element dimensions according to last organize().
-            for (const item of this.visibleCollection) {
-                item.style();
+        // Get new last row number
+        const lastVisibleRow = this.visibleCollection[this.visibleCollection.length - 1].row;
+
+        // Get number of items in that last row
+        const visibleItemsInLastRow = this.visibleCollection.filter(i => i.row === lastVisibleRow).length;
+
+        // Get a list from first item of last row until end of collection
+        const collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
+
+        // Organize entire last row + number of specified additional rows
+        Organizer.organize(collectionFromLastVisibleRow, this.width, this.options, lastVisibleRow, lastVisibleRow);
+
+        for (let i = this.visibleCollection.length; i < this.collection.length; i++) {
+            const testedItem = this.collection[i];
+            if (testedItem.row === lastVisibleRow) {
+                this.addItemToDOM(testedItem);
+            } else {
+                break;
             }
-
-            // Get new last row number
-            const lastVisibleRow = this.visibleCollection[this.visibleCollection.length - 1].row;
-
-            // Get number of items in that last row
-            const visibleItemsInLastRow = this.visibleCollection.filter(i => i.row === lastVisibleRow).length;
-
-            // Get a list from first item of last row until end of collection
-            const collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
-
-            // Organize entire last row + number of specified additional rows
-            Organizer.organize(collectionFromLastVisibleRow, this.width, this.options, lastVisibleRow, lastVisibleRow);
-
-            for (let i = this.visibleCollection.length; i < this.collection.length; i++) {
-                const testedItem = this.collection[i];
-
-                if (testedItem.row === lastVisibleRow) {
-                    this.addItemToDOM(testedItem);
-                } else {
-                    break;
-                }
-            }
-
         }
+
+        for (const item of this.visibleCollection) {
+            item.style();
+        }
+
     }
 
     /**

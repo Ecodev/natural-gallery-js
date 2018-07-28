@@ -39,9 +39,7 @@
         float: left;
         overflow: hidden;
         margin: 0;
-        box-shadow: 0 0 8px rgba(0, 0, 0, 0) inset;
-        transition: .2s box-shadow, 1s background-color;
-        transition-delay: 1s; // prevent box-shadow
+        transition: 1s background-color;
 
         &:hover {
             .title.hover, .title.hover, .selectBtn {
@@ -109,7 +107,7 @@
             &.hover {
                 padding: 10px;
                 // + the margin of &[href]
-                transform: translateY(calc(100% + 10px));
+                transform: translateY(calc(100% + 12px));
             }
         }
     }

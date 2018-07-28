@@ -136,20 +136,6 @@
             // Create gallery
             var gallery = new NaturalGallery.Gallery(galleryElement, photoswipeElement, options);
 
-            // Listen to javascript gallery object
-            gallery.addEventListener('activate', function(event) {
-                console.log('activate (listen gallery)', event.detail);
-            });
-
-            gallery.addEventListener('select', function(event) {
-                console.log('select (listen gallery)', event.detail);
-            });
-
-            gallery.addEventListener('pagination', function(event) {
-                console.log('pagination (listen gallery)', event.detail);
-            });
-
-
             // Select all visible images
             document.getElementById('selectVisible').addEventListener('click', function() {
                 gallery.selectVisibleItems();

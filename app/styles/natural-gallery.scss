@@ -1,7 +1,6 @@
 @import 'header';
 @import 'figure';
 
-
 .pswp {
     z-index: 9999999;
     .pswp__caption__center {
@@ -37,6 +36,13 @@
     .natural-gallery-body {
         padding: 0;
         margin: 0;
+
+        &.resizing {
+            .figure > .image {
+                transition: none;
+                opacity: 0;
+            }
+        }
 
         &::after {
             content: '';
