@@ -262,10 +262,12 @@ export class Gallery<Model extends ModelAttributes = any> {
     public addRows(rows: number): void {
 
         let nbVisibleImages = this.visibleCollection.length;
-        const lastVisibleRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row + 1 : 0;
-        const lastWantedRow = lastVisibleRow + rows;
 
-        Organizer.organize(this.collection.slice(nbVisibleImages), this.width, this.options, lastVisibleRow, lastWantedRow);
+        // next row to add
+        const firstInvisibleRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row + 1 : 0;
+        const lastWantedRow = firstInvisibleRow + rows - 1;
+
+        Organizer.organize(this.collection.slice(nbVisibleImages), this.width, this.options, firstInvisibleRow, lastWantedRow);
 
         for (const item of this.collection) {
             item.style();
