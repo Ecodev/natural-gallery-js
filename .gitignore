@@ -8,4 +8,4 @@ cache/*
 dist/*
 app/**/*.js.map
 app/**/*.d.ts
-app/**/*.js
+app/*.js
