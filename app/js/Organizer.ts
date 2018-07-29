@@ -17,9 +17,9 @@ export module Organizer {
         if (options.format === 'natural') {
             this.organizeNatural(collection, width, options.rowHeight, options.margin, fromRow, toRow);
         } else if (options.format === 'square' && options.imagesPerRow) {
-            this.organizeSquareByImagesPerRow(collection, width, options.imagesPerRow, options.margin);
+            this.organizeSquareByImagesPerRow(collection, width, options.imagesPerRow, options.margin, fromRow, toRow);
         } else if (options.format === 'square' && options.rowHeight) {
-            this.organizeSquareByRowHeight(collection, width, options.rowHeight, options.margin);
+            this.organizeSquareByRowHeight(collection, width, options.rowHeight, options.margin, fromRow, toRow);
         }
     }
 
@@ -36,8 +36,15 @@ export module Organizer {
      * @param containerWidth
      * @param maxRowHeight
      * @param margin
+     * @param firstRowIndex
+     * @param toRow
      */
-    export function organizeSquareByRowHeight(items: Item[], containerWidth: number, maxRowHeight: number, margin: number) {
+    export function organizeSquareByRowHeight(items: Item[],
+                                              containerWidth: number,
+                                              maxRowHeight: number,
+                                              margin: number,
+                                              firstRowIndex: number = 0,
+                                              toRow: number = null) {
 
         if (!margin) {
             margin = 0;
@@ -51,10 +58,15 @@ export module Organizer {
         // Compute overflow of given images per row. This number affect the width of the last item of the row
         let diff = containerWidth - nbPictPerRow * size - (nbPictPerRow - 1) * margin;
 
-        for (let i = 0; i < items.length; i++) {
-            let item = items[i];
+        // const start = 0;
+        // const end = items.length;
+        let lastIndex = toRow ? nbPictPerRow * (toRow - firstRowIndex + 1) : items.length;
+        lastIndex = lastIndex > items.length ? items.length : lastIndex;
+
+        for (let i = 0; i < lastIndex; i++) {
+            const item = items[i];
             item.last = i % nbPictPerRow === nbPictPerRow - 1;
-            item.row = Math.floor(i / nbPictPerRow);
+            item.row = Math.floor(i / nbPictPerRow) + firstRowIndex;
             item.width = Math.floor(size);
             item.height = Math.floor(size);
             if (item.last) {
@@ -70,8 +82,15 @@ export module Organizer {
      * @param containerWidth
      * @param nbPictPerRow
      * @param margin
+     * @param firstRowIndex
+     * @param toRow
      */
-    export function organizeSquareByImagesPerRow(items: Item[], containerWidth: number, nbPictPerRow: number, margin: number) {
+    export function organizeSquareByImagesPerRow(items: Item[],
+                                                 containerWidth: number,
+                                                 nbPictPerRow: number,
+                                                 margin: number,
+                                                 firstRowIndex: number = 0,
+                                                 toRow: number = null) {
 
         if (!margin) {
             margin = 0;
@@ -83,12 +102,15 @@ export module Organizer {
 
         let size = (containerWidth - (nbPictPerRow - 1) * margin) / nbPictPerRow;
 
-        for (let i = 0; i < items.length; i++) {
+        let lastIndex = toRow ? nbPictPerRow * (toRow - firstRowIndex + 1) : items.length;
+        lastIndex = lastIndex > items.length ? items.length : lastIndex;
+
+        for (let i = 0; i < lastIndex; i++) {
             let item = items[i];
             item.width = Math.floor(size);
             item.height = Math.floor(size);
             item.last = i % nbPictPerRow === nbPictPerRow - 1;
-            item.row = Math.floor(i / nbPictPerRow);
+            item.row = Math.floor(i / nbPictPerRow) + firstRowIndex;
         }
     }
 
