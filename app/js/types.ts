@@ -2,7 +2,7 @@ export interface ItemOptions {
     lightbox: boolean;
     selectable: boolean;
     activable: boolean;
-    margin: number;
+    gap: number;
     round: number;
     showLabels: 'hover' | 'never' | 'always';
     zoomRotation: boolean;

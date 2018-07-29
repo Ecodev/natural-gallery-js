@@ -15,16 +15,16 @@ export module Organizer {
     export function organize(collection: Item[], width: number, options: GalleryOptions, fromRow: number = null, toRow: number = null) {
 
         if (options.format === 'natural') {
-            this.organizeNatural(collection, width, options.rowHeight, options.margin, fromRow, toRow);
+            this.organizeNatural(collection, width, options.rowHeight, options.gap, fromRow, toRow);
         } else if (options.format === 'square' && options.imagesPerRow) {
-            this.organizeSquareByImagesPerRow(collection, width, options.imagesPerRow, options.margin, fromRow, toRow);
+            this.organizeSquareByImagesPerRow(collection, width, options.imagesPerRow, options.gap, fromRow, toRow);
         } else if (options.format === 'square' && options.rowHeight) {
-            this.organizeSquareByRowHeight(collection, width, options.rowHeight, options.margin, fromRow, toRow);
+            this.organizeSquareByRowHeight(collection, width, options.rowHeight, options.gap, fromRow, toRow);
         }
     }
 
     export function simulatePagination(width: number, defaultImageRatio: number, options: GalleryOptions) {
-        const margin = options.margin ? options.margin : 0;
+        const margin = options.gap ? options.gap : 0;
         const imageWidth = Math.ceil(options.rowHeight * defaultImageRatio + margin);
         const nb = (width + margin) / (imageWidth + margin);
         return Math.ceil(nb);

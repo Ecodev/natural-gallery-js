@@ -213,12 +213,12 @@ export class Item<Model extends ModelAttributes = any> {
 
         this._element.style.width = String(this.width + 'px');
         this._element.style.height = String(this.height + 'px');
-        this._element.style.marginBottom = String(this.options.margin + 'px');
+        this._element.style.marginBottom = String(this.options.gap + 'px');
 
         if (this.last) {
             this._element.style.marginRight = '0';
         } else {
-            this._element.style.marginRight = String(this.options.margin + 'px');
+            this._element.style.marginRight = String(this.options.gap + 'px');
         }
     }
 
