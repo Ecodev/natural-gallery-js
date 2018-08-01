@@ -153,18 +153,14 @@ export class Gallery<Model extends ModelAttributes = any> {
         this.bodyElement.classList.add('natural-gallery-body');
         this.getRowsPerPage();
 
-        let resizeRunning;
-        iframe.contentWindow.addEventListener('resize', _.debounce(() => {
-            if (resizeRunning === false) {
-                this.startResize();
-                resizeRunning = true;
-            } else if (resizeRunning === true) {
-                this.endResize();
-                resizeRunning = false;
-            } else {
-                resizeRunning = false;
-            }
-        }, 500, {trailing: true, leading: true}));
+        // Resize debounce
+        const resizeDebounceDuration = 500;
+        const startResize = _.debounce(() => this.startResize(), resizeDebounceDuration, {leading: true, trailing: false});
+        const endResize = _.debounce(() => this.endResize(), resizeDebounceDuration, {leading: false, trailing: true});
+        iframe.contentWindow.addEventListener('resize', () => {
+            endResize();
+            startResize();
+        });
 
         if (this.header) {
             this.element.appendChild(this.header.render());
@@ -332,10 +328,11 @@ export class Gallery<Model extends ModelAttributes = any> {
             return this.options.rowsPerPage;
         }
 
+        // When gallery adds images to dom, a scroll can appear. This change the width causing a glitch in layout or infinite resize loop
+        // This force the gallery to add a scroll before adding images by occupying all the rest of the view port with a computed min-height
         let winHeight = this.scrollElement ? this.scrollElement.clientHeight : document.documentElement.clientHeight;
         let galleryVisibleHeight = winHeight - this.element.offsetTop;
-
-        this.element.style.minHeight = galleryVisibleHeight + 'px';
+        this.element.style.minHeight = (galleryVisibleHeight + 10) + 'px';
 
         // ratio to be more close from reality average row height
         let nbRows = Math.floor(galleryVisibleHeight / (this.options.rowHeight * 0.55));
