@@ -9,3 +9,9 @@ dist/*
 app/**/*.js.map
 app/**/*.d.ts
 app/*.js
+
+# Jekyll
+
+_site
+.sass-cache
+.jekyll-metadata

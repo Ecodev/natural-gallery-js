@@ -1,0 +1,33 @@
+.row {
+
+    .container {
+
+        margin: auto;
+
+        &-1000px {
+            max-width: 1000px;
+            margin: auto;
+
+        }
+
+        &-1600px {
+            max-width: 1600px;
+            margin: auto;
+
+        }
+
+        &-90perc {
+            max-width: 90%;
+            margin: auto;
+
+        }
+
+        &-80perc {
+
+            margin: auto;
+            max-width: 80%;
+        }
+
+    }
+
+}

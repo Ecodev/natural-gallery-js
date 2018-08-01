@@ -108,28 +108,39 @@
 
         <script type="text/javascript">
 
-            var galleryData = {
-                options: {
-                    showCount: true,
-                    searchFilter: true,
-                    categoriesFilter: true,
-                    showNone: true,
-                    showOthers: true
-                },
+            var options = {
+                showCount: true,
+                searchFilter: true,
+                categoriesFilter: true,
+                showNone: true,
+                showOthers: true
             };
 
             var galleryEl = document.getElementById('gallery');
             var photoswipeEl = document.getElementsByClassName('pswp')[0];
-            var gallery = new NaturalGallery.Gallery(galleryEl, photoswipeEl, galleryData);
-            var images = null;
+            var gallery = new NaturalGallery.Gallery(galleryEl, photoswipeEl, options);
 
             var xhr = new XMLHttpRequest();
             xhr.open('GET', 'data.json');
             xhr.send(null);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
-                    images = JSON.parse(xhr.responseText);
-                    gallery.collection = JSON.parse(xhr.responseText);
+
+                    var items = JSON.parse(xhr.responseText).map(function(i) {
+                        return {
+                            thumbnailSrc: i.thumbnail,
+                            thumbnailWidth: i.tWidth,
+                            thumbnailHeight: i.tHeight,
+                            enlargedSrc: i.enlarged,
+                            enlargedWidth: i.eWidth,
+                            enlargedHeight: i.eHeight,
+                            title: i.title,
+                            link: null,
+                            linkTarget: null,
+                        }
+                    });
+
+                    gallery.setItems(items);
                 }
             };
 

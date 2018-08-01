@@ -18,9 +18,9 @@
     "types": "./dist/index.d.ts",
     "typings": "./dist/index.d.ts",
     "scripts": {
-        "dev": "webpack-dev-server --open --progress --colors",
-        "prod": "NODE_ENV='production' webpack; NODE_ENV='production' webpack --env.nodependencies",
-        "prod:watch": "NODE_ENV='production' webpack --env.nodependencies --watch",
+        "dev": "webpack-dev-server --open --progress --colors --port 1405",
+        "build": "NODE_ENV='production' webpack; NODE_ENV='production' webpack --env.nodependencies",
+        "build:watch": "webpack --watch --env.demo",
         "release": "yarn prod; yarn publish --access public"
     },
     "keywords": [

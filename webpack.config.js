@@ -10,6 +10,7 @@ module.exports = function(env) {
 
     const prod = process.env.NODE_ENV === 'production';
     const dependencies = !(env && env.nodependencies === true);
+    const demo = env && env.demo === true;
 
     let entry = {'app': './app/app.ts'};
     let outName = name;
@@ -54,7 +55,7 @@ module.exports = function(env) {
     return {
         entry: entry,
         output: {
-            path: path.join(__dirname, 'dist'),
+            path: path.join(__dirname, demo ? 'docs/assets/natural-gallery-js' : 'dist'),
             filename: outName + '.js',
             library: "NaturalGallery",
             libraryTarget: 'umd',

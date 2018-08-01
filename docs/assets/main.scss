@@ -1,0 +1,39 @@
+---
+---
+
+@import 'theme';
+
+* {
+    font-family: 'Raleway', sans-serif;
+}
+
+body {
+    background: #222;
+}
+
+#header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: white;
+    margin-bottom: 20px;
+    background: #1A5D82;
+    padding: 20px;
+
+
+    h1 {
+        margin: 0 20px 0 0;
+    }
+
+    #search {
+        display:none;
+        flex: 1;
+        font-size: 18px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.8);
+        border: none;
+        outline: none;
+        box-sizing: border-box;
+        border-radius:4px;
+    }
+}

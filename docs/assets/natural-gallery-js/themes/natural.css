@@ -1,0 +1,43 @@
+/*
+ * Colors
+ * -----------------------------------------
+ */
+
+.natural-gallery .natural-gallery-body .figure.loading {
+    background-color: rgba(0, 137, 224, 0.1);
+}
+
+.natural-gallery .natural-gallery-body .figure.errored {
+    background-color: rgba(255, 0, 0, 0.1);
+}
+
+/* Disabled */
+.natural-gallery .natural-gallery-noresults svg {
+    color: #999999 !important;
+    fill: currentColor !important;
+}
+
+/* Highlighted */
+.natural-gallery .natural-gallery-next svg {
+    color: rgb(0, 137, 224) !important;
+    fill: currentColor !important;
+}
+
+.natural-gallery .natural-gallery-next:hover {
+    background-color: #eeeeee !important;
+}
+
+.natural-gallery .figure.selected .selectBtn {
+    color: orange !important;
+}
+
+.natural-gallery .button {
+    background: rgb(0, 137, 224) !important;
+    border-top: 1px solid #45a8e0;
+}
+
+.natural-gallery .button:hover {
+    background: rgb(0, 103, 187) !important;
+}
+
+/*# sourceMappingURL=natural.css.map*/
