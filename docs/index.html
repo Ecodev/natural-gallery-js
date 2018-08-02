@@ -2,9 +2,21 @@
 layout: home
 ---
 
-{% include menu.html %}
-{% include photoswipe.html %}
-{% include icons.html %}
+{% include photoswipe.html %}{% include icons.html %}
+
+<div class="row margin-v">
+    <div class="container-1000px gap layout-column">
+        <h1>Natural-gallery</h1>
+        <input type="text" id="search" placeholder="Search for what you like...">
+        <div>
+            Maybe
+            <a class="suggestion" value="cats">🐱 cats</a>
+            ... or
+            <a class="suggestion" value="bunny">🐰 bunnies</a>
+            ...
+        </div>
+    </div>
+</div>
 
 <div class="row">
     <div class="container-90perc">

@@ -77,15 +77,6 @@ a {
 
     &:hover {
         color: $text-color;
-        text-decoration: underline;
-    }
-
-    .social-media-list &:hover {
-        text-decoration: none;
-
-        .username {
-            text-decoration: underline;
-        }
     }
 }
 
@@ -110,7 +101,7 @@ blockquote {
  */
 pre, code {
     @include relative-font-size(0.9375);
-    line-height:2em;
+    line-height: 2em;
 }
 
 code {
@@ -128,7 +119,6 @@ pre {
     }
 }
 
-
 /**
  * Icons
  */
@@ -140,7 +130,6 @@ pre {
     padding-right: 5px;
     vertical-align: text-top;
 }
-
 
 /**
  * Tables

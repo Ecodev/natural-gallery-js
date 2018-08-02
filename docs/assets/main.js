@@ -1,40 +1,69 @@
 var gallery;
 var rowHeight = 400;
-
-window.addEventListener('load', function() {
-    gallery = getGallery('gallery');
-    search();
-
-    document.getElementById('search').addEventListener('change', function(e) {
-        search(e)
-    });
-
-});
+var lastSearch;
 
 // Gallery options
 var options = {
-    rowHeight: rowHeight,
+    rowHeight: rowHeight
 };
 
-function getGallery(id) {
-    var galleryElement = document.getElementById(id);
+window.addEventListener('load', function() {
+    var galleryElement = document.getElementById('gallery');
     var photoswipeElement = document.getElementsByClassName('pswp')[0];
-    return new NaturalGallery.Gallery(galleryElement, photoswipeElement, options);
-}
+    var searchElement = document.getElementById('search');
+    var suggestions = document.getElementsByClassName('suggestion');
 
-function search(event = {target: {value: 'milky way'}}) {
-    const searched = encodeURIComponent(event.target.value);
-    // getImages('https://api.unsplash.com/search/photos?client_id=04902b80294822aa86dbe5c57ee47e1c1f0e8a0f0f360979746970a1239001dd&per_page=30&query=' + searched);
-    getImages();
+    gallery = new NaturalGallery.Gallery(galleryElement, photoswipeElement, options);
+
+    gallery.addEventListener('pagination', function(ev) {
+        var currentPagination = ev.detail;
+        var page = Math.ceil(currentPagination.offset / currentPagination.limit) + 1;
+        search(lastSearch, page, currentPagination.limit);
+    });
+
+    searchElement.addEventListener('keydown', function(e) {
+        if (e.keyCode === 27) {
+            searchElement.value = '';
+        }
+    });
+
+    searchElement.addEventListener('change', function(e) {
+        lastSearch = e.target.value;
+        gallery.clear();
+    });
+
+    for (var i = 0; i < suggestions.length; i++) {
+        suggestions[i].addEventListener('click', function(e) {
+            lastSearch = e.target.getAttribute('value');
+            searchElement.value = e.target.getAttribute('value');
+            gallery.clear();
+        });
+    }
+
+});
+
+function search(term, page, perPage) {
+
+    if (!term) {
+        getImages();
+        return;
+    }
+
+    var url = 'https://api.unsplash.com/search/photos?client_id=04902b80294822aa86dbe5c57ee47e1c1f0e8a0f0f360979746970a1239001dd';
+
+    term = encodeURIComponent(term);
+    url += '&query=' + term;
+    url += '&per_page=' + perPage;
+    url += '&page=' + page;
+
+    getImages(url);
 }
 
 function getImages(url) {
 
     if (!url) {
-        // url = '/assets/images.json';
-        url = defaultImagesUrl;
+        url = 'assets/images.json';
     }
-    console.log('url', url)
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url);
@@ -54,7 +83,7 @@ function getImages(url) {
                 };
             });
 
-            gallery.setItems(items);
+            gallery.addItems(items);
         }
     };
 }

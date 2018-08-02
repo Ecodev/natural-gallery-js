@@ -263,6 +263,11 @@ var Gallery = /** @class */ (function () {
             this.noResults.style.display = 'block';
         }
     };
+    Gallery.prototype.clear = function () {
+        this.clearVisibleItems();
+        this._collection = [];
+        this.requestItems();
+    };
     /**
      * Override current collection
      * @param {Item[]} items
@@ -392,6 +397,9 @@ var Gallery = /** @class */ (function () {
     };
     Gallery.prototype.endResize = function () {
         this.bodyElement.classList.remove('resizing');
+        if (!this.visibleCollection.length) {
+            return;
+        }
         this.bodyWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
         // Compute with new width. Rows indexes may have change
         Organizer_1.Organizer.organize(this.visibleCollection, this.width, this.options);
@@ -498,28 +506,16 @@ var Gallery = /** @class */ (function () {
     Gallery.prototype.requestItems = function (nbRows) {
         var offset = null;
         var limit = null;
+        var estimatedPerRow = Organizer_1.Organizer.simulatePagination(this.width, this.defaultImageRatio, this.options);
         if (this.collection.length) {
-            var elementPerRow = this.getMaxImagesPerRow();
-            limit = elementPerRow * nbRows;
+            limit = estimatedPerRow * nbRows;
             offset = this.collection.length;
         }
         else {
-            var estimation = Organizer_1.Organizer.simulatePagination(this.width, this.defaultImageRatio, this.options);
-            limit = estimation * this.getRowsPerPage() * 2;
+            limit = estimatedPerRow * this.getRowsPerPage() * 2;
             offset = 0;
         }
         this.dispatchEvent('pagination', { offset: offset, limit: limit });
-    };
-    /**
-     * Return the max number of images per row
-     * @returns {number}
-     */
-    Gallery.prototype.getMaxImagesPerRow = function () {
-        var nbPerRowFn = function (arr) { return arr.reduce(function (stack, e) {
-            stack[e.row] = stack[e.row] > -1 ? stack[e.row] + 1 : 1;
-            return stack;
-        }, []); };
-        return Math.max.apply(null, nbPerRowFn(this.visibleCollection));
     };
     Gallery.prototype.dispatchEvent = function (name, data) {
         var event = new CustomEvent(name, { detail: data });
