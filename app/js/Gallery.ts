@@ -192,6 +192,12 @@ export class Gallery<Model extends ModelAttributes = any> {
         }
     }
 
+    public clear() {
+        this.clearVisibleItems();
+        this._collection = [];
+        this.requestItems();
+    }
+
     /**
      * Override current collection
      * @param {Item[]} items
@@ -347,6 +353,11 @@ export class Gallery<Model extends ModelAttributes = any> {
     public endResize() {
 
         this.bodyElement.classList.remove('resizing');
+
+        if (!this.visibleCollection.length) {
+            return;
+        }
+
         this.bodyWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
 
         // Compute with new width. Rows indexes may have change
@@ -470,30 +481,17 @@ export class Gallery<Model extends ModelAttributes = any> {
         let offset = null;
         let limit = null;
 
+        const estimatedPerRow = Organizer.simulatePagination(this.width, this.defaultImageRatio, this.options);
+
         if (this.collection.length) {
-            const elementPerRow = this.getMaxImagesPerRow();
-            limit = elementPerRow * nbRows;
+            limit = estimatedPerRow * nbRows;
             offset = this.collection.length;
         } else {
-            const estimation = Organizer.simulatePagination(this.width, this.defaultImageRatio, this.options);
-            limit = estimation * this.getRowsPerPage() * 2;
+            limit = estimatedPerRow * this.getRowsPerPage() * 2;
             offset = 0;
         }
 
         this.dispatchEvent('pagination', {offset: offset, limit: limit});
-    }
-
-    /**
-     * Return the max number of images per row
-     * @returns {number}
-     */
-    private getMaxImagesPerRow() {
-        const nbPerRowFn = arr => arr.reduce((stack, e) => {
-            stack[e.row] = stack[e.row] > -1 ? stack[e.row] + 1 : 1;
-            return stack;
-        }, []);
-
-        return Math.max.apply(null, nbPerRowFn(this.visibleCollection));
     }
 
     private dispatchEvent(name: string, data: any) {
