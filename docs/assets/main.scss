@@ -30,26 +30,6 @@ h1 {
     border-radius: 4px;
 }
 
-.layout-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    &.gap > *:not(:last-child) {
-        margin-right: 20px;
-    }
-
-}
-
-.layout-column {
-    display: flex;
-    flex-direction: column;
-
-    &.gap > *:not(:last-child) {
-        margin-bottom: 20px;
-    }
-}
-
 .suggestion {
     cursor: pointer;
     padding: 3px 10px;
@@ -63,20 +43,23 @@ h1 {
     }
 }
 
-.margin {
-    margin: 40px;
+#loadingBar {
+    height: 5px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right:0;
+    transition: opacity 2s;
+    opacity: 0;
+
+    background: $brand-color;
+    background: -moz-linear-gradient(left, $brand-color 0%, $brand-color2 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, $brand-color 0%,$brand-color2 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, $brand-color 0%, $brand-color2 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+
+    &.loading {
+        opacity: 1;
+        transition: opacity .3s;
+    }
 }
 
-.margin-v {
-    margin-top: 40px;
-    margin-bottom: 40px;
-}
-
-.padding {
-    padding: 40px;
-}
-
-.padding-v {
-    padding-top: 40px;
-    padding-bottom: 40px;
-}

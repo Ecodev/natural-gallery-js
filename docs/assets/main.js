@@ -1,6 +1,7 @@
 var gallery;
 var rowHeight = 400;
 var lastSearch;
+var loadingBar;
 
 // Gallery options
 var options = {
@@ -12,40 +13,45 @@ window.addEventListener('load', function() {
     var photoswipeElement = document.getElementsByClassName('pswp')[0];
     var searchElement = document.getElementById('search');
     var suggestions = document.getElementsByClassName('suggestion');
+    loadingBar = document.getElementById('loadingBar');
 
     gallery = new NaturalGallery.Gallery(galleryElement, photoswipeElement, options);
 
     gallery.addEventListener('pagination', function(ev) {
         var currentPagination = ev.detail;
         var page = Math.ceil(currentPagination.offset / currentPagination.limit) + 1;
-        search(lastSearch, page, currentPagination.limit);
+        search(lastSearch, page, currentPagination);
+    });
+
+    searchElement.addEventListener('change', function(e) {
+        newSearch(e.target.value);
     });
 
     searchElement.addEventListener('keydown', function(e) {
         if (e.keyCode === 27) {
             searchElement.value = '';
+            newSearch();
         }
-    });
-
-    searchElement.addEventListener('change', function(e) {
-        lastSearch = e.target.value;
-        gallery.clear();
     });
 
     for (var i = 0; i < suggestions.length; i++) {
         suggestions[i].addEventListener('click', function(e) {
-            lastSearch = e.target.getAttribute('value');
             searchElement.value = e.target.getAttribute('value');
-            gallery.clear();
+            newSearch(e.target.getAttribute('value'));
         });
     }
 
 });
 
-function search(term, page, perPage) {
+function newSearch(term) {
+    lastSearch = term;
+    gallery.clear();
+}
+
+function search(term, page, currentPagination) {
 
     if (!term) {
-        getImages();
+        getImages(null, currentPagination);
         return;
     }
 
@@ -53,13 +59,13 @@ function search(term, page, perPage) {
 
     term = encodeURIComponent(term);
     url += '&query=' + term;
-    url += '&per_page=' + perPage;
+    url += '&per_page=' + currentPagination.limit;
     url += '&page=' + page;
 
     getImages(url);
 }
 
-function getImages(url) {
+function getImages(url, paginationEvent) {
 
     if (!url) {
         url = 'assets/images.json';
@@ -67,24 +73,43 @@ function getImages(url) {
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url);
-    xhr.send(null);
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
 
-            var items = JSON.parse(xhr.responseText).results.map(function(i) {
+    loadingBar.classList.add('loading');
+    xhr.addEventListener('readystatechange', function() {
+
+        var limit = xhr.getResponseHeader('x-ratelimit-remaining');
+        if (xhr.readyState === 4) {
+            loadingBar.classList.remove('loading');
+        }
+
+        if (xhr.readyState === 4 && (xhr.status !== 200 || limit != null && limit <= 0)) {
+            newSearch();
+            document.getElementById('searchZone').style.display = 'none';
+            document.getElementById('rateExpired').style.display = 'block';
+
+        } else if (xhr.readyState === 4 && xhr.status === 200) {
+
+            var results = JSON.parse(xhr.responseText).results;
+            if (paginationEvent) {
+                results = results.slice(paginationEvent.offset, paginationEvent.offset + paginationEvent.limit);
+            }
+
+            var items = results.map(function(i) {
                 return {
                     thumbnailSrc: i.urls.small,
                     thumbnailWidth: rowHeight * i.width / i.height,
                     thumbnailHeight: rowHeight,
-                    enlargedSrc: i.urls.full,
+                    enlargedSrc: i.urls.regular,
                     enlargedWidth: i.width,
                     enlargedHeight: i.height,
-                    title: i.description ? i.description : i.user.name,
+                    title: i.description ? i.description : i.user.name
                 };
             });
 
             gallery.addItems(items);
         }
-    };
-}
+    });
 
+    xhr.send(null);
+
+}

@@ -43,6 +43,10 @@ main {
     display: block; /* Default value of `display` of `main` element is 'inline' in IE 11. */
 }
 
+.hide {
+    display: none;
+}
+
 /**
  * Lists
  */

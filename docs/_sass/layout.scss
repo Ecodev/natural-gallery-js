@@ -1,33 +1,92 @@
+$small-gap: 20px;
+$gap: 2 * $small-gap;
+$big-gap: 2 * $gap;
+
 .row {
-
     .container {
-
         margin: auto;
 
         &-1000px {
             max-width: 1000px;
             margin: auto;
-
         }
 
         &-1600px {
             max-width: 1600px;
             margin: auto;
-
         }
 
         &-90perc {
             max-width: 90%;
             margin: auto;
-
         }
 
         &-80perc {
-
             margin: auto;
             max-width: 80%;
         }
+    }
+}
 
+.layout-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    &.small-gap > *:not(:last-child) {
+        margin-right: $small-gap;
+    }
+
+    &.gap > *:not(:last-child) {
+        margin-right: $gap;
+    }
+
+    &.big-gap > *:not(:last-child) {
+        margin-right: $big-gap;
     }
 
 }
+
+.layout-column {
+    display: flex;
+    flex-direction: column;
+
+    &.small-gap > *:not(:last-child) {
+        margin-bottom: $small-gap;
+    }
+
+    &.gap > *:not(:last-child) {
+        margin-bottom: $gap;
+    }
+
+    &.big-gap > *:not(:last-child) {
+        margin-bottom: $big-gap;
+    }
+}
+
+.no-margin {
+    margin: 0 !important;
+}
+
+.margin {
+    margin: $gap !important;
+}
+
+.margin-v {
+    margin-top: $gap !important;
+    margin-bottom: $gap !important;
+}
+
+.no-padding {
+    padding: 0 !important;
+}
+
+.padding {
+    padding: $gap !important;
+}
+
+.padding-v {
+    padding-top: $gap !important;
+    padding-bottom: $gap !important;
+}
+

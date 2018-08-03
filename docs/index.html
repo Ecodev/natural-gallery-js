@@ -2,18 +2,30 @@
 layout: home
 ---
 
+<div id="loadingBar"></div>
+
 {% include photoswipe.html %}{% include icons.html %}
 
-<div class="row margin-v">
-    <div class="container-1000px gap layout-column">
-        <h1>Natural-gallery</h1>
-        <input type="text" id="search" placeholder="Search for what you like...">
-        <div>
-            Maybe
-            <a class="suggestion" value="cats">🐱 cats</a>
-            ... or
-            <a class="suggestion" value="bunny">🐰 bunnies</a>
-            ...
+<div class="row margin-v" id="header">
+    <div class="container-1000px small-gap layout-column">
+        <div class="small-gap layout-column">
+            <h1 class="no-margin">{{ site.title }}</h1>
+            <p>An infinite scroll, multi format, responsive, lazy load, touch and zoomable gallery</p>
+        </div>
+        <div id="searchZone" class="small-gap layout-column">
+            <input type="text" id="search" placeholder="Search for what you like...">
+            <div>
+                Maybe
+                <a class="suggestion" value="cats">🐱 cats</a>
+                ,
+                <a class="suggestion" value="bunny">🐰 bunnies</a>
+                or
+                <a class="suggestion" value="baby animal">baby animals</a>
+                ...
+            </div>
+        </div>
+        <div id="rateExpired" class="hide">
+            <h4>Oooops, seems the query rate has expire... you can still admire those awesome milky way collection</h4>
         </div>
     </div>
 </div>

@@ -5,18 +5,14 @@
 
     {%- seo -%}
 
-    <script>
-        const defaultImagesUrl = "assets/images.json";
-    </script>
-
     <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
 
     <link rel="stylesheet" href="assets/natural-gallery-js/natural-gallery.full.css">
     <link rel="stylesheet" href="assets/natural-gallery-js/themes/natural.css">
-    <script src="assets/natural-gallery-js/natural-gallery.full.js"></script>
+    <script src="assets/natural-gallery-js/natural-gallery.full.js" defer></script>
 
     <link rel="stylesheet" href="assets/main.css">
-    <script src="assets/main.js"></script>
+    <script src="assets/main.js" defer></script>
 
     {%- feed_meta -%}
     {%- if jekyll.environment == 'production' and site.google_analytics -%}

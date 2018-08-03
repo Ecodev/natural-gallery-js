@@ -19,6 +19,7 @@
     "typings": "./dist/index.d.ts",
     "scripts": {
         "dev": "webpack-dev-server --open --progress --colors --port 1405",
+        "dev:demo": "cd docs; jekyll serve --livereload && yarn build:watch",
         "build": "NODE_ENV='production' webpack; NODE_ENV='production' webpack --env.nodependencies",
         "build:watch": "webpack --watch --env.demo",
         "release": "yarn prod; yarn publish --access public"
