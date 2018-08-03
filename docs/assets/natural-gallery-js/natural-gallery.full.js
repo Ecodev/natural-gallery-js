@@ -141,6 +141,7 @@ var Gallery = /** @class */ (function () {
      */
     function Gallery(element, photoswipeElement, options, scrollElement) {
         if (scrollElement === void 0) { scrollElement = null; }
+        var _this = this;
         this.element = element;
         this.photoswipeElement = photoswipeElement;
         this.scrollElement = scrollElement;
@@ -191,6 +192,13 @@ var Gallery = /** @class */ (function () {
          * When gallery is created without images, this ratio is used to estimate number of images per page
          */
         this.defaultImageRatio = .7;
+        this.scrollBufferItems = [];
+        this.showScrollBufferItems = _.debounce(function () {
+            _this.scrollBufferItems.forEach(function (i) {
+                i.loadImage();
+            });
+            _this.scrollBufferItems = [];
+        }, 200, { leading: false, trailing: true });
         // Default options
         for (var key in this.options) {
             if (typeof options[key] === 'undefined') {
@@ -221,6 +229,7 @@ var Gallery = /** @class */ (function () {
             e.preventDefault();
             var rows = _this.options.rowsPerPage > 0 ? _this.options.rowsPerPage : _this.getRowsPerPage();
             _this.addRows(rows);
+            _this.showScrollBufferItems();
             _this.requestItems(rows);
         });
         // Iframe
@@ -265,6 +274,7 @@ var Gallery = /** @class */ (function () {
     };
     Gallery.prototype.clear = function () {
         this.clearVisibleItems();
+        this.photoswipeCollection = [];
         this._collection = [];
         this.requestItems();
     };
@@ -274,6 +284,7 @@ var Gallery = /** @class */ (function () {
      */
     Gallery.prototype.setItems = function (items) {
         this.clearVisibleItems();
+        this.photoswipeCollection = [];
         this._collection = [];
         this.addItems(items);
     };
@@ -298,6 +309,7 @@ var Gallery = /** @class */ (function () {
         this.updateNoResultsVisibility();
         if (display) {
             this.addRows(this.getRowsPerPage());
+            this.showScrollBufferItems();
         }
         if (this.header) {
             this.header.updateTotalImages(this.collection.length);
@@ -333,12 +345,11 @@ var Gallery = /** @class */ (function () {
             var item = _a[_i];
             item.style();
         }
-        var lastAddedItems = [];
         for (var i = nbVisibleImages; i < this.collection.length; i++) {
             var item = this.collection[i];
             if (item.row <= lastWantedRow) {
                 this.addItemToDOM(item);
-                lastAddedItems.push(item);
+                this.scrollBufferItems.push(item);
             }
         }
         // Show / Hide "more" button.
@@ -457,6 +468,7 @@ var Gallery = /** @class */ (function () {
             if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
                 // When scrolling only add a row at once
                 _this.addRows(1);
+                _this.showScrollBufferItems();
                 _this.requestItems(1);
             }
         });
@@ -477,6 +489,7 @@ var Gallery = /** @class */ (function () {
             // If we go next slide, and current index is out of visible collection bound, load more items
             if (delta === 1 && _this._photoswipe.getCurrentIndex() === _this.visibleCollection.length) {
                 _this.addRows(1);
+                _this.showScrollBufferItems();
             }
         });
     };
@@ -710,8 +723,7 @@ var Item = /** @class */ (function () {
             });
         }
         image.classList.add('image');
-        element.classList.add('figure', 'loading', 'visible');
-        image.style.backgroundImage = 'url(' + this.model.thumbnailSrc + ')';
+        element.classList.add('figure');
         element.appendChild(image);
         if (this.options.round) {
             var radius = String(this.options.round + 'px');
@@ -742,7 +754,7 @@ var Item = /** @class */ (function () {
             this._element.appendChild(this._selectBtn);
         }
         this.style();
-        this.loadImage();
+        // this.loadImage();
         return element;
     };
     /**
@@ -771,8 +783,8 @@ var Item = /** @class */ (function () {
         var _this = this;
         var img = document.createElement('img');
         img.setAttribute('src', this.model.thumbnailSrc);
+        this._image.style.backgroundImage = 'url(' + this.model.thumbnailSrc + ')';
         img.addEventListener('load', function () {
-            _this._element.classList.remove('loading');
             _this._element.classList.add('loaded');
         });
         // Detect errored images and hide them smartly
