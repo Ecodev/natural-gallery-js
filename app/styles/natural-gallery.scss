@@ -38,7 +38,7 @@
         margin: 0;
 
         &.resizing {
-            .figure > .image {
+            .figure {
                 transition: none;
                 opacity: 0;
             }

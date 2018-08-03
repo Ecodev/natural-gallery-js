@@ -47,7 +47,7 @@
             }
         }
 
-        &.loaded.visible > .image {
+        &.loaded > .image {
             opacity: 1;
             transition: 1s ease-out opacity, 1s ease-out transform, .2s ease-out margin;
         }

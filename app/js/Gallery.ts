@@ -94,6 +94,9 @@ export class Gallery<Model extends ModelAttributes = any> {
      */
     public defaultImageRatio = .7;
 
+    private scrollBufferItems = [];
+    private showScrollBufferItems;
+
     /**
      * Initiate gallery
      * @param element
@@ -105,6 +108,14 @@ export class Gallery<Model extends ModelAttributes = any> {
                        private photoswipeElement: HTMLElement,
                        options: GalleryOptions,
                        private scrollElement: HTMLElement = null) {
+
+        this.showScrollBufferItems = _.debounce(() => {
+            this.scrollBufferItems.forEach(i => {
+                i.loadImage();
+            });
+
+            this.scrollBufferItems = [];
+        }, 200, {leading: false, trailing: true});
 
         // Default options
         for (const key in this.options) {
@@ -142,6 +153,7 @@ export class Gallery<Model extends ModelAttributes = any> {
             e.preventDefault();
             const rows = this.options.rowsPerPage > 0 ? this.options.rowsPerPage : this.getRowsPerPage();
             this.addRows(rows);
+            this.showScrollBufferItems();
             this.requestItems(rows);
         });
 
@@ -233,6 +245,7 @@ export class Gallery<Model extends ModelAttributes = any> {
 
         if (display) {
             this.addRows(this.getRowsPerPage());
+            this.showScrollBufferItems();
         }
 
         if (this.header) {
@@ -275,12 +288,11 @@ export class Gallery<Model extends ModelAttributes = any> {
             item.style();
         }
 
-        const lastAddedItems = [];
         for (let i = nbVisibleImages; i < this.collection.length; i++) {
             let item = this.collection[i];
             if (item.row <= lastWantedRow) {
                 this.addItemToDOM(item);
-                lastAddedItems.push(item);
+                this.scrollBufferItems.push(item);
             }
         }
 
@@ -425,6 +437,7 @@ export class Gallery<Model extends ModelAttributes = any> {
             if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
                 // When scrolling only add a row at once
                 this.addRows(1);
+                this.showScrollBufferItems();
                 this.requestItems(1);
             }
         });
@@ -448,6 +461,7 @@ export class Gallery<Model extends ModelAttributes = any> {
             // If we go next slide, and current index is out of visible collection bound, load more items
             if (delta === 1 && this._photoswipe.getCurrentIndex() === this.visibleCollection.length) {
                 this.addRows(1);
+                this.showScrollBufferItems();
             }
         });
     }

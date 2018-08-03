@@ -158,8 +158,7 @@ export class Item<Model extends ModelAttributes = any> {
         }
 
         image.classList.add('image');
-        element.classList.add('figure', 'loading', 'visible');
-        image.style.backgroundImage = 'url(' + this.model.thumbnailSrc + ')';
+        element.classList.add('figure');
 
         element.appendChild(image);
 
@@ -196,7 +195,7 @@ export class Item<Model extends ModelAttributes = any> {
         }
 
         this.style();
-        this.loadImage();
+        // this.loadImage();
 
         return element;
     }
@@ -231,8 +230,9 @@ export class Item<Model extends ModelAttributes = any> {
         let img = document.createElement('img');
         img.setAttribute('src', this.model.thumbnailSrc);
 
+        this._image.style.backgroundImage = 'url(' + this.model.thumbnailSrc + ')';
+
         img.addEventListener('load', () => {
-            this._element.classList.remove('loading');
             this._element.classList.add('loaded');
         });
 
