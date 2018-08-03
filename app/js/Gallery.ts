@@ -206,6 +206,7 @@ export class Gallery<Model extends ModelAttributes = any> {
 
     public clear() {
         this.clearVisibleItems();
+        this.photoswipeCollection = [];
         this._collection = [];
         this.requestItems();
     }
@@ -216,6 +217,7 @@ export class Gallery<Model extends ModelAttributes = any> {
      */
     public setItems(items: Model[]) {
         this.clearVisibleItems();
+        this.photoswipeCollection = [];
         this._collection = [];
         this.addItems(items);
     }
