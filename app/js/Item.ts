@@ -135,9 +135,6 @@ export class Item<Model extends ModelAttributes = any> {
 
         if (zoomable) {
             zoomable.classList.add('zoomable');
-            if (this.options.zoomRotation) {
-                zoomable.classList.add('rotation');
-            }
 
             zoomable.addEventListener('click', () => {
                 const event = new CustomEvent('zoom', {detail: this});
@@ -161,12 +158,6 @@ export class Item<Model extends ModelAttributes = any> {
         element.classList.add('figure');
 
         element.appendChild(image);
-
-        if (this.options.round) {
-            let radius = String(this.options.round + 'px');
-            element.style.borderRadius = radius;
-            image.style.borderRadius = radius;
-        }
 
         this._element = element;
         this._image = image;
@@ -195,7 +186,6 @@ export class Item<Model extends ModelAttributes = any> {
         }
 
         this.style();
-        // this.loadImage();
 
         return element;
     }

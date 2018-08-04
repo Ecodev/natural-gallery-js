@@ -1,11 +1,5 @@
 
-.natural-gallery {
-
-    .natural-gallery-thumbnail img {
-        box-shadow: 3px 3px 5px #999999;
-        text-align: center;
-        will-change: opacity;
-    }
+.natural-gallery-js {
 
     .link {
         cursor: pointer;
@@ -22,15 +16,6 @@
     .zoomable {
         cursor: zoom-in;
     }
-
-    .figure.selected {
-        .selectBtn {
-            transform: translateY(0%);
-            top: 0;
-            left: 0;
-        }
-    }
-
     .figure {
         left: 0;
         position: relative;
@@ -50,6 +35,19 @@
         &.loaded > .image {
             opacity: 1;
             transition: 1s ease-out opacity, 1s ease-out transform, .2s ease-out margin;
+        }
+
+        &.selected {
+            .selectBtn {
+                transform: translateY(0%);
+                top: 0;
+                left: 0;
+            }
+        }
+
+        &.zoomable:hover .image,
+        .image.zoomable:hover {
+            transform: rotate(2deg) scale(1.3);
         }
 
         .image {

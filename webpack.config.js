@@ -62,7 +62,7 @@ module.exports = function(env) {
             umdNamedDefine: true
         },
         devServer: {
-            contentBase: ['sandbox', 'demo'],
+            contentBase: ['sandbox', 'demo', 'docs/assets'],
             watchContentBase: true,
             port: 1405,
             overlay: true,

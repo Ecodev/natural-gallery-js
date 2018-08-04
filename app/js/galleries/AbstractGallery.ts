@@ -1,35 +1,30 @@
-import { Item } from './Item';
-import { Header } from './Header';
-import { Utility } from './Utility';
-import { Organizer } from './Organizer';
-import { GalleryOptions, ItemOptions, ModelAttributes, PhotoswipeItem } from './types';
+import { Item } from '../Item';
+import { Utility } from '../Utility';
+import { GalleryOptions, ItemOptions, ModelAttributes, PhotoswipeItem } from '../types';
 import * as PhotoSwipe from 'photoswipe';
 import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
-import * as _ from './lodash/debounce.js';
+import * as _ from '../lodash/debounce.js';
 
-export class Gallery<Model extends ModelAttributes = any> {
+export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
     /**
      * Default options
      * @private
      */
-    private options: GalleryOptions = {
-        rowHeight: 350,
-        format: 'natural',
-        round: 3,
+    protected defaultOptions: GalleryOptions = {
         gap: 3,
         rowsPerPage: 0,
         showLabels: 'hover',
         lightbox: true,
         minRowsAtStart: 2,
         showCount: false,
-        labelImages: 'Images',
         selectable: false,
         activable: false,
-        zoomRotation: true,
-        infiniteScrollOffset: 0,
+        infiniteScrollOffset: -50,
         events: null,
     };
+
+    protected options: GalleryOptions;
 
     /**
      * Used to test the scroll direction
@@ -40,7 +35,7 @@ export class Gallery<Model extends ModelAttributes = any> {
     /**
      * Images wrapper container
      */
-    private bodyElement: HTMLElement;
+    protected bodyElementRef: HTMLElement;
 
     /**
      * Last saved wrapper width
@@ -58,14 +53,14 @@ export class Gallery<Model extends ModelAttributes = any> {
      * Complete collection of images
      * @type {Array}
      */
-    private _collection: Item<Model>[] = [];
+    protected _collection: Item<Model>[] = [];
 
     /**
      * Partial set of items that represent the visible items
      * @type {Item[]}
      * @private
      */
-    private _visibleCollection: Item<Model>[] = [];
+    protected _visibleCollection: Item<Model>[] = [];
 
     /**
      * Photoswipe images container
@@ -74,40 +69,36 @@ export class Gallery<Model extends ModelAttributes = any> {
     private photoswipeCollection: PhotoswipeItem[] = [];
 
     /**
-     * Stores object header, that contains display for image count
-     */
-    private readonly header: Header;
-
-    /**
      * Reference to next button element
      */
     private nextButton: HTMLElement;
 
     /**
-     * Reference to no results icon
-     */
-    private noResults: HTMLElement;
-
-    /**
      * This ratio is the supposed average ratio for the first pagination estimation
      * When gallery is created without images, this ratio is used to estimate number of images per page
      */
-    public defaultImageRatio = .7;
+    protected defaultImageRatio = .7;
 
     private scrollBufferItems = [];
     private showScrollBufferItems;
 
     /**
-     * Initiate gallery
-     * @param element
-     * @param photoswipeElement
-     * @param scrollElement
+     *
+     * @param elementRef
+     * @param photoswipeElementRef
      * @param options
+     * @param scrollElementRef
      */
-    public constructor(private element: HTMLElement,
-                       private photoswipeElement: HTMLElement,
-                       options: GalleryOptions,
-                       private scrollElement: HTMLElement = null) {
+    protected constructor(protected elementRef: HTMLElement,
+                          protected photoswipeElementRef: HTMLElement,
+                          protected userOptions: GalleryOptions,
+                          protected scrollElementRef: HTMLElement = null) {
+
+        this.init();
+    }
+
+    protected init(): void {
+        this.elementRef.classList.add('natural-gallery-js');
 
         this.showScrollBufferItems = _.debounce(() => {
             this.scrollBufferItems.forEach(i => {
@@ -117,28 +108,145 @@ export class Gallery<Model extends ModelAttributes = any> {
             this.scrollBufferItems = [];
         }, 200, {leading: false, trailing: true});
 
-        // Default options
-        for (const key in this.options) {
-            if (typeof options[key] === 'undefined') {
-                options[key] = this.options[key];
-            }
-        }
-
-        this.options = options;
-        this.element.classList.add('natural-gallery');
-
-        // header
-        if (this.options.showCount) {
-            this.header = new Header(this.options.labelImages);
-        }
+        this.defaultsOptions();
 
         this.render();
-        this.bodyWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
+        this.bodyWidth = Math.floor(this.bodyElementRef.getBoundingClientRect().width);
         this.requestItems();
 
         if (!this.options.rowsPerPage) {
-            this.bindScroll(scrollElement !== null ? scrollElement : document);
+            this.bindScroll(this.scrollElementRef !== null ? this.scrollElementRef : document);
         }
+    }
+
+    /**
+     * @param width
+     * @param defaultImageRatio
+     * @param options
+     */
+    protected abstract getEstimatedItemsPerRow(width: number, defaultImageRatio: number, options: GalleryOptions): number;
+
+    /**
+     *
+     * @param items
+     * @param fromRow
+     * @param toRow
+     */
+    protected abstract organize(items: Item[], fromRow?: number, toRow?: number): void;
+
+    /**
+     * Add given number of rows to DOM
+     * @param rows
+     */
+    protected addRows(rows: number): void {
+
+        let nbVisibleImages = this.visibleCollection.length;
+
+        // Next row to add (first invisible row)
+        const nextRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row + 1 : 0;
+        const lastWantedRow = nextRow + rows - 1;
+
+        // Compute size only for elements we're going to add
+        this.organize(this.collection.slice(nbVisibleImages), nextRow, lastWantedRow);
+
+        for (let i = nbVisibleImages; i < this.collection.length; i++) {
+            let item = this.collection[i];
+            item.style();
+            if (item.row <= lastWantedRow) {
+                this.addItemToDOM(item);
+            }
+        }
+
+        this.updateNextButtonVisibility();
+    }
+
+    /**
+     * Return number of rows to show per page to fill the empty space until the bottom of the screen
+     * Should grant all the space is used or more, but not less.
+     * @returns {number}
+     */
+    protected abstract getEstimatedRowsPerPage(): number;
+
+    /**
+     * @param options
+     */
+    protected defaultsOptions(): void {
+
+        this.options = this.userOptions;
+        for (const key in this.defaultOptions) {
+            if (typeof this.options[key] === 'undefined') {
+                this.options[key] = this.defaultOptions[key];
+            }
+        }
+    }
+
+    /**
+     * Fire pagination event
+     * Information provided in the event allows to retrieve items from the server using given data :
+     * "offset" and "limit" that have the same semantic that respective attributes in mySQL.
+     *
+     * The gallery asks for items it needs, including some buffer items that are not displayed when given but are available to be added
+     * immediately to DOM when user scrolls.
+     *
+     * @param {number} nbRows
+     */
+    protected requestItems(nbRows?: number) {
+
+        let limit = null;
+
+        /**
+         * Todo : do not call this method each time...
+         */
+        const estimatedPerRow = this.getEstimatedItemsPerRow(this.width, this.defaultImageRatio, this.options);
+        const offset = this.collection.length;
+
+        if (this.collection.length) {
+            limit = estimatedPerRow * nbRows;
+        } else {
+            limit = estimatedPerRow * this.getRowsPerPage() * 2;
+
+        }
+
+        this.dispatchEvent('pagination', {offset: offset, limit: limit});
+    }
+
+    /**
+     * Returns option.rowsPerPage is specified.
+     * If not returns the estimated number of rows to fill the rest of the vertical space in the screen
+     * @returns {number}
+     */
+    protected getRowsPerPage() {
+        if (this.options.rowsPerPage) {
+            return this.options.rowsPerPage;
+        }
+
+        return this.getEstimatedRowsPerPage();
+    }
+
+    /**
+     * Add given item to DOM and to visibleCollection
+     * @param {Item} item
+     */
+    protected addItemToDOM(item: Item<Model>): void {
+
+        this.visibleCollection.push(item);
+        this.bodyElementRef.appendChild(item.init());
+        this.scrollBufferItems.push(item);
+
+        // When selected / unselected
+        item.element.addEventListener('select', () => {
+            this.dispatchEvent('select', this.visibleCollection.filter(i => i.selected).map(i => i.model));
+        });
+
+        // When activate (if activate event is given in options)
+        item.element.addEventListener('activate', (ev: CustomEvent) => {
+            this.dispatchEvent('activate', {model: ev.detail.item.model, clickEvent: ev.detail.clickEvent});
+        });
+
+        // When open zoom (photoswipe)
+        item.element.addEventListener('zoom', (ev: CustomEvent) => {
+            this.openPhotoSwipe(ev.detail);
+        });
 
     }
 
@@ -159,11 +267,11 @@ export class Gallery<Model extends ModelAttributes = any> {
 
         // Iframe
         const iframe = document.createElement('iframe');
-        this.element.appendChild(iframe);
+        this.elementRef.appendChild(iframe);
 
-        this.bodyElement = document.createElement('div');
-        this.bodyElement.classList.add('natural-gallery-body');
-        this.getRowsPerPage();
+        this.bodyElementRef = document.createElement('div');
+        this.bodyElementRef.classList.add('natural-gallery-body');
+        this.extendToFreeViewport();
 
         // Resize debounce
         const resizeDebounceDuration = 500;
@@ -174,33 +282,15 @@ export class Gallery<Model extends ModelAttributes = any> {
             startResize();
         });
 
-        if (this.header) {
-            this.element.appendChild(this.header.render());
-        }
-
-        this.element.appendChild(this.bodyElement);
-        this.element.appendChild(this.nextButton);
+        this.elementRef.appendChild(this.bodyElementRef);
+        this.elementRef.appendChild(this.nextButton);
     }
 
-    /**
-     * We only show empty button after calling addItems or setItems and collection is empty
-     */
-    private renderNoResultsIndicator() {
-        if (!this.noResults) {
-            this.noResults = document.createElement('div');
-            this.noResults.classList.add('natural-gallery-noresults');
-            this.noResults.appendChild(Utility.getIcon('icon-noresults'));
-            this.element.appendChild(this.noResults);
-        }
-    }
-
-    private updateNoResultsVisibility() {
-        this.renderNoResultsIndicator();
-
-        if (this.collection.length) {
-            this.noResults.style.display = 'none';
+    protected updateNextButtonVisibility() {
+        if (this.visibleCollection.length === this.collection.length) {
+            this.nextButton.style.display = 'none';
         } else {
-            this.noResults.style.display = 'block';
+            this.nextButton.style.display = 'block';
         }
     }
 
@@ -238,21 +328,16 @@ export class Gallery<Model extends ModelAttributes = any> {
 
         // Complete collection
         models.forEach((model: Model) => {
-            const item = new Item<Model>(this.getItemOptions(model), model);
+            const item = new Item<Model>(this.getItemOptions(), model);
             this._collection.push(item);
             this.photoswipeCollection.push(this.getPhotoswipeItem(item));
         });
-
-        this.updateNoResultsVisibility();
 
         if (display) {
             this.addRows(this.getRowsPerPage());
             this.showScrollBufferItems();
         }
 
-        if (this.header) {
-            this.header.updateTotalImages(this.collection.length);
-        }
     }
 
     /**
@@ -260,122 +345,46 @@ export class Gallery<Model extends ModelAttributes = any> {
      * @param {Model} model
      * @returns {ItemOptions}
      */
-    private getItemOptions(model: Model): ItemOptions {
+    private getItemOptions(): ItemOptions {
         return {
             lightbox: this.options.lightbox,
             selectable: this.options.selectable,
             activable: this.options.activable,
             gap: this.options.gap,
-            round: this.options.round,
             showLabels: this.options.showLabels,
-            zoomRotation: this.options.zoomRotation,
         };
     }
 
-    /**
-     * Add given number of rows to DOM
-     * @param rows
-     */
-    public addRows(rows: number): void {
-
-        let nbVisibleImages = this.visibleCollection.length;
-
-        // next row to add
-        const firstInvisibleRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row + 1 : 0;
-        const lastWantedRow = firstInvisibleRow + rows - 1;
-
-        Organizer.organize(this.collection.slice(nbVisibleImages), this.width, this.options, firstInvisibleRow, lastWantedRow);
-
-        for (const item of this.collection) {
-            item.style();
-        }
-
-        for (let i = nbVisibleImages; i < this.collection.length; i++) {
-            let item = this.collection[i];
-            if (item.row <= lastWantedRow) {
-                this.addItemToDOM(item);
-                this.scrollBufferItems.push(item);
-            }
-        }
-
-        // Show / Hide "more" button.
-        if (this.visibleCollection.length === this.collection.length) {
-            this.nextButton.style.display = 'none';
-        } else {
-            this.nextButton.style.display = 'block';
-        }
-
-        if (this.header) {
-            this.header.updateVisibleImages(this.visibleCollection.length);
-        }
-    }
-
-    /**
-     * Add given item to DOM and to visibleCollection
-     * @param {Item} item
-     */
-    private addItemToDOM(item: Item<Model>) {
-
-        this.visibleCollection.push(item);
-        this.bodyElement.appendChild(item.init());
-
-        // When selected / unselected
-        item.element.addEventListener('select', () => {
-            this.dispatchEvent('select', this.visibleCollection.filter(i => i.selected).map(i => i.model));
-        });
-
-        // When activate (if activate event is given in options)
-        item.element.addEventListener('activate', (ev: CustomEvent) => {
-            this.dispatchEvent('activate', {model: ev.detail.item.model, clickEvent: ev.detail.clickEvent});
-        });
-
-        // When open zoom (photoswipe)
-        item.element.addEventListener('zoom', (ev: CustomEvent) => {
-            this.openPhotoSwipe(ev.detail);
-        });
-
-    }
-
-    /**
-     * Return number of rows to show per page,
-     * If rowsPerPage is specified in the options, it's used.
-     * If not, it uses the vertical available space to compute the number of rows to display.
-     * @returns {number}
-     */
-    private getRowsPerPage(): number {
+    protected extendToFreeViewport() {
 
         if (this.options.rowsPerPage) {
             return this.options.rowsPerPage;
         }
 
-        // When gallery adds images to dom, a scroll can appear. This change the width causing a glitch in layout or infinite resize loop
-        // This force the gallery to add a scroll before adding images by occupying all the rest of the view port with a computed min-height
-        let winHeight = this.scrollElement ? this.scrollElement.clientHeight : document.documentElement.clientHeight;
-        let galleryVisibleHeight = winHeight - this.element.offsetTop;
-        this.element.style.minHeight = (galleryVisibleHeight + 10) + 'px';
+        this.elementRef.style.minHeight = (this.getFreeViewportSpace() + 10) + 'px';
+    }
 
-        // ratio to be more close from reality average row height
-        let nbRows = Math.floor(galleryVisibleHeight / (this.options.rowHeight * 0.55));
-
-        return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
+    protected getFreeViewportSpace() {
+        let winHeight = this.scrollElementRef ? this.scrollElementRef.clientHeight : document.documentElement.clientHeight;
+        return winHeight - this.elementRef.offsetTop;
     }
 
     public startResize() {
-        this.bodyElement.classList.add('resizing');
+        this.bodyElementRef.classList.add('resizing');
     }
 
     public endResize() {
 
-        this.bodyElement.classList.remove('resizing');
+        this.bodyElementRef.classList.remove('resizing');
 
         if (!this.visibleCollection.length) {
             return;
         }
 
-        this.bodyWidth = Math.floor(this.bodyElement.getBoundingClientRect().width);
+        this.bodyWidth = Math.floor(this.bodyElementRef.getBoundingClientRect().width);
 
         // Compute with new width. Rows indexes may have change
-        Organizer.organize(this.visibleCollection, this.width, this.options);
+        this.organize(this.visibleCollection);
 
         // Get new last row number
         const lastVisibleRow = this.visibleCollection[this.visibleCollection.length - 1].row;
@@ -387,7 +396,7 @@ export class Gallery<Model extends ModelAttributes = any> {
         const collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
 
         // Organize entire last row + number of specified additional rows
-        Organizer.organize(collectionFromLastVisibleRow, this.width, this.options, lastVisibleRow, lastVisibleRow);
+        this.organize(collectionFromLastVisibleRow, lastVisibleRow, lastVisibleRow);
 
         for (let i = this.visibleCollection.length; i < this.collection.length; i++) {
             const testedItem = this.collection[i];
@@ -397,6 +406,8 @@ export class Gallery<Model extends ModelAttributes = any> {
                 break;
             }
         }
+
+        this.showScrollBufferItems();
 
         for (const item of this.visibleCollection) {
             item.style();
@@ -427,7 +438,7 @@ export class Gallery<Model extends ModelAttributes = any> {
         }
 
         scrollable.addEventListener('scroll', () => {
-            let endOfGalleryAt = this.element.offsetTop + this.element.offsetHeight + this.options.infiniteScrollOffset;
+            let endOfGalleryAt = this.elementRef.offsetTop + this.elementRef.offsetHeight + this.options.infiniteScrollOffset;
 
             // Avoid to expand gallery if we are scrolling up
             let current_scroll_top = wrapper.scrollTop - (wrapper.clientTop || 0);
@@ -445,7 +456,7 @@ export class Gallery<Model extends ModelAttributes = any> {
         });
     }
 
-    private openPhotoSwipe(item: Item) {
+    protected openPhotoSwipe(item: Item) {
 
         let pswpOptions = {
             index: this.collection.findIndex(i => i === item),
@@ -454,7 +465,7 @@ export class Gallery<Model extends ModelAttributes = any> {
             loop: false,
         };
 
-        this._photoswipe = new PhotoSwipe(this.photoswipeElement, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
+        this._photoswipe = new PhotoSwipe(this.photoswipeElementRef, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
         this._photoswipe.init();
 
         // Loading one more page when going to next image
@@ -473,7 +484,7 @@ export class Gallery<Model extends ModelAttributes = any> {
      * @param item
      * @returns {PhotoswipeItem}
      */
-    public getPhotoswipeItem(item): PhotoswipeItem {
+    protected getPhotoswipeItem(item): PhotoswipeItem {
         return {
             src: item.model.enlargedSrc,
             w: item.model.enlargedWidth,
@@ -482,37 +493,9 @@ export class Gallery<Model extends ModelAttributes = any> {
         };
     }
 
-    /**
-     * Fire pagination event (if applicable)
-     * Information provided in the event allows to retrieve items from the server using given data :
-     * "offset" and "limit" that have the same semantic that respective attributes in mySQL.
-     *
-     * The gallery asks for items it needs, including some buffer items that are not displayed when given but are available to be added
-     * immediately to DOM when user scrolls.
-     *
-     * @param {number} nbRows
-     */
-    private requestItems(nbRows?: number) {
-
-        let offset = null;
-        let limit = null;
-
-        const estimatedPerRow = Organizer.simulatePagination(this.width, this.defaultImageRatio, this.options);
-
-        if (this.collection.length) {
-            limit = estimatedPerRow * nbRows;
-            offset = this.collection.length;
-        } else {
-            limit = estimatedPerRow * this.getRowsPerPage() * 2;
-            offset = 0;
-        }
-
-        this.dispatchEvent('pagination', {offset: offset, limit: limit});
-    }
-
-    private dispatchEvent(name: string, data: any) {
+    protected dispatchEvent(name: string, data: any) {
         const event = new CustomEvent(name, {detail: data});
-        this.element.dispatchEvent(event);
+        this.elementRef.dispatchEvent(event);
     }
 
     /**
@@ -540,24 +523,12 @@ export class Gallery<Model extends ModelAttributes = any> {
      * @param callback
      */
     public addEventListener(name: string, callback: (ev) => void) {
-        this.element.addEventListener(name, callback);
+        this.elementRef.addEventListener(name, callback);
 
         if (name === 'pagination') {
             this.requestItems();
         }
     }
-
-    /**
-     * todo : implement
-     */
-    // public enableSelectionMode() {
-    // }
-
-    /**
-     * todo : implement
-     */
-    // public disableSelectionMode() {
-    // }
 
     get collection(): Item<Model>[] {
         return this._collection;

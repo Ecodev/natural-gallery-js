@@ -3,9 +3,7 @@ export interface ItemOptions {
     selectable: boolean;
     activable: boolean;
     gap: number;
-    round: number;
     showLabels: 'hover' | 'never' | 'always';
-    zoomRotation: boolean;
 }
 
 export interface ModelAttributes {
@@ -21,15 +19,28 @@ export interface ModelAttributes {
 }
 
 export interface GalleryOptions extends ItemOptions {
-    format: 'natural' | 'square';
-    rowHeight: number;
-    imagesPerRow?: number;
     rowsPerPage: number;
     minRowsAtStart: number;
     showCount: boolean;
-    labelImages: string;
-    infiniteScrollOffset: number;
     events: GalleryEvents;
+    infiniteScrollOffset: number;
+}
+
+export interface ResponsiveGalleryOptions extends GalleryOptions {
+    rowHeight: number;
+}
+
+export interface NaturalGalleryOptions extends ResponsiveGalleryOptions {
+}
+
+export interface ResponsiveSquareGalleryOptions extends ResponsiveGalleryOptions {
+}
+
+export interface SquareGalleryOptions extends GalleryOptions {
+    itemsPerRow: number;
+}
+
+export interface MasonryGalleryOptions extends GalleryOptions {
 }
 
 export interface PaginationEvent {

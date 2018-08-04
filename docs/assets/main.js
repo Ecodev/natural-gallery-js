@@ -15,7 +15,7 @@ window.addEventListener('load', function() {
     var suggestions = document.getElementsByClassName('suggestion');
     loadingBar = document.getElementById('loadingBar');
 
-    gallery = new NaturalGallery.Gallery(galleryElement, photoswipeElement, options);
+    gallery = new NaturalGallery.NaturalGallery(galleryElement, photoswipeElement, options);
 
     gallery.addEventListener('pagination', function(ev) {
         var currentPagination = ev.detail;
