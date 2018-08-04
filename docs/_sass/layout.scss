@@ -2,6 +2,28 @@ $small-gap: 20px;
 $gap: 2 * $small-gap;
 $big-gap: 2 * $gap;
 
+
+
+[debug] {
+    border: 2px solid red;
+}
+
+[debug][children] {
+    & > * {
+        border: 2px solid orange;
+    }
+}
+
+[debug][children][grandchildren] {
+    & > * > * {
+        border: 2px solid green;
+    }
+}
+
+.flex {
+    flex: 1 1 auto;
+}
+
 .row {
     .container {
         margin: auto;
@@ -43,6 +65,14 @@ $big-gap: 2 * $gap;
     flex-direction: row;
     align-items: center;
 
+    * {
+        min-height: 0;
+    }
+
+    &.stretch {
+        align-items: stretch;
+    }
+
     &.small-gap > *:not(:last-child) {
         margin-right: $small-gap;
     }
@@ -60,6 +90,10 @@ $big-gap: 2 * $gap;
 .layout-column {
     display: flex;
     flex-direction: column;
+
+    &.stretch {
+        align-items: stretch;
+    }
 
     &.small-gap > *:not(:last-child) {
         margin-bottom: $small-gap;

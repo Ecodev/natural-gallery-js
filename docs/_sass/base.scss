@@ -8,6 +8,11 @@ dl, dd, ol, ul, figure {
     padding: 0;
 }
 
+html, body {
+    min-height: 100%;
+    height: 100%;
+}
+
 /**
  * Basic styling
  */
@@ -33,7 +38,7 @@ h1, h2, h3, h4, h5, h6,
 p, blockquote, pre,
 ul, ol, dl,
 %vertical-rhythm {
-    margin-bottom: $spacing-unit / 2;
+    //margin-bottom: $spacing-unit / 2;
 }
 
 /**
@@ -51,7 +56,7 @@ main {
  * Lists
  */
 ul, ol {
-    margin-left: $spacing-unit;
+    //margin-left: $spacing-unit;
 }
 
 li {
@@ -68,16 +73,17 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: $base-font-weight;
 }
 
-/**
- * Links
- */
 a {
-    color: $brand-color;
     text-decoration: none;
-
-    &:visited {
-        color: darken($brand-color, 15%);
+    &:hover {
+        background: rgba(255, 255, 255, 0.2);
     }
+
+}
+
+a.primary {
+    color: $primary;
+    text-decoration: none;
 
     &:hover {
         color: $text-color;
@@ -85,26 +91,10 @@ a {
 }
 
 /**
- * Blockquotes
- */
-blockquote {
-    color: $grey-color;
-    border-left: 4px solid $grey-color-light;
-    padding-left: $spacing-unit / 2;
-    @include relative-font-size(1.125);
-    letter-spacing: -1px;
-    font-style: italic;
-
-    > :last-child {
-        margin-bottom: 0;
-    }
-}
-
-/**
  * Code formatting
  */
 pre, code {
-    @include relative-font-size(0.9375);
+    font-size: 16px;
     line-height: 2em;
 }
 
@@ -126,22 +116,19 @@ pre {
 /**
  * Icons
  */
-.svg-icon {
-    width: 16px;
-    height: 16px;
+svg {
     display: inline-block;
-    fill: #{$grey-color};
-    padding-right: 5px;
-    vertical-align: text-top;
+    fill: currentColor;
+    //vertical-align: text-top;
 }
 
 /**
  * Tables
  */
 table {
-    margin-bottom: $spacing-unit;
+    //margin-bottom: $spacing-unit;
     width: 100%;
-    text-align: $table-text-align;
+    text-align: left;
     color: lighten($text-color, 18%);
     border-collapse: collapse;
     border: 1px solid $grey-color-light;
@@ -151,7 +138,7 @@ table {
         }
     }
     th, td {
-        padding: ($spacing-unit / 3) ($spacing-unit / 2);
+        //padding: ($spacing-unit / 3) ($spacing-unit / 2);
     }
     th {
         background-color: lighten($grey-color-light, 3%);
@@ -161,4 +148,8 @@ table {
     td {
         border: 1px solid $grey-color-light;
     }
+}
+
+#body {
+    overflow: auto;
 }

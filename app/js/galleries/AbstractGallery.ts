@@ -20,7 +20,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         showCount: false,
         selectable: false,
         activable: false,
-        infiniteScrollOffset: -50,
+        infiniteScrollOffset: 0,
         events: null,
     };
 
@@ -106,7 +106,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             });
 
             this.scrollBufferItems = [];
-        }, 200, {leading: false, trailing: true});
+        }, 300, {leading: false, trailing: true});
 
         this.defaultsOptions();
 
@@ -157,6 +157,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             }
         }
 
+        this.showScrollBufferItems();
         this.updateNextButtonVisibility();
     }
 
@@ -261,7 +262,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             e.preventDefault();
             const rows = this.options.rowsPerPage > 0 ? this.options.rowsPerPage : this.getRowsPerPage();
             this.addRows(rows);
-            this.showScrollBufferItems();
             this.requestItems(rows);
         });
 
@@ -335,7 +335,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
         if (display) {
             this.addRows(this.getRowsPerPage());
-            this.showScrollBufferItems();
         }
 
     }
@@ -450,7 +449,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
                 // When scrolling only add a row at once
                 this.addRows(1);
-                this.showScrollBufferItems();
                 this.requestItems(1);
             }
         });
@@ -474,7 +472,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             // If we go next slide, and current index is out of visible collection bound, load more items
             if (delta === 1 && this._photoswipe.getCurrentIndex() === this.visibleCollection.length) {
                 this.addRows(1);
-                this.showScrollBufferItems();
             }
         });
     }

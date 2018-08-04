@@ -14,7 +14,7 @@ export class NaturalGallery<Model extends ModelAttributes = any> extends Abstrac
         showCount: false,
         selectable: false,
         activable: false,
-        infiniteScrollOffset: -50,
+        infiniteScrollOffset: 0,
         events: null,
     };
 

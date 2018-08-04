@@ -14,7 +14,7 @@ export class SquareGallery<Model extends ModelAttributes = any> extends Abstract
         showCount: false,
         selectable: false,
         activable: false,
-        infiniteScrollOffset: -50,
+        infiniteScrollOffset: 0,
         events: null,
     };
 

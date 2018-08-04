@@ -1,0 +1,38 @@
+#menu {
+    flex: none;
+    background: $primary;
+    background: $primary;
+    background: -moz-linear-gradient(bottom, $primary 50%, $accent 150%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(bottom, $primary 50%, $accent 150%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, $primary 50%, $accent 150%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+
+    a {
+        display: block;
+        width: 36px;
+        height: 36px;
+        padding: 10px;
+        color: white;
+        position: relative;
+
+        .label {
+            display: none;
+            position: absolute;
+            left: 50px;
+            top: 15px;
+            width: auto;
+            font-size: 16px;
+            padding: 1px 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 999px;
+            box-shadow: 0 2px rgba(0, 0, 0, 0.3);
+            color: #333333;
+            white-space: nowrap;
+        }
+
+        &:hover .label {
+            display: block
+        }
+
+    }
+
+}

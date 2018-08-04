@@ -6,11 +6,11 @@ layout: default
     var rowHeight = 400;
 
     var options = {
-        rowHeight: rowHeight
+        itemsPerRow: 4,
     };
 
     function getGallery(galleryElement, photoswipeElement, scrollableElement) {
-        return new NaturalGallery.NaturalGallery(galleryElement, photoswipeElement, options, scrollableElement)
+        return new NaturalGallery.SquareGallery(galleryElement, photoswipeElement, options, scrollableElement)
     }
 
 </script>

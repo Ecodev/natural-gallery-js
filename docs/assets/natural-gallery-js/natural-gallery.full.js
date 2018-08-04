@@ -5217,7 +5217,7 @@ var NaturalGallery = /** @class */ (function (_super) {
             showCount: false,
             selectable: false,
             activable: false,
-            infiniteScrollOffset: -50,
+            infiniteScrollOffset: 0,
             events: null,
         };
         return _this;
@@ -5353,7 +5353,7 @@ var AbstractGallery = /** @class */ (function () {
             showCount: false,
             selectable: false,
             activable: false,
-            infiniteScrollOffset: -50,
+            infiniteScrollOffset: 0,
             events: null,
         };
         /**
@@ -5393,7 +5393,7 @@ var AbstractGallery = /** @class */ (function () {
                 i.loadImage();
             });
             _this.scrollBufferItems = [];
-        }, 200, { leading: false, trailing: true });
+        }, 300, { leading: false, trailing: true });
         this.defaultsOptions();
         this.render();
         this.bodyWidth = Math.floor(this.bodyElementRef.getBoundingClientRect().width);
@@ -5420,6 +5420,7 @@ var AbstractGallery = /** @class */ (function () {
                 this.addItemToDOM(item);
             }
         }
+        this.showScrollBufferItems();
         this.updateNextButtonVisibility();
     };
     /**
@@ -5502,7 +5503,6 @@ var AbstractGallery = /** @class */ (function () {
             e.preventDefault();
             var rows = _this.options.rowsPerPage > 0 ? _this.options.rowsPerPage : _this.getRowsPerPage();
             _this.addRows(rows);
-            _this.showScrollBufferItems();
             _this.requestItems(rows);
         });
         // Iframe
@@ -5566,7 +5566,6 @@ var AbstractGallery = /** @class */ (function () {
         });
         if (display) {
             this.addRows(this.getRowsPerPage());
-            this.showScrollBufferItems();
         }
     };
     /**
@@ -5659,7 +5658,6 @@ var AbstractGallery = /** @class */ (function () {
             if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
                 // When scrolling only add a row at once
                 _this.addRows(1);
-                _this.showScrollBufferItems();
                 _this.requestItems(1);
             }
         });
@@ -5680,7 +5678,6 @@ var AbstractGallery = /** @class */ (function () {
             // If we go next slide, and current index is out of visible collection bound, load more items
             if (delta === 1 && _this._photoswipe.getCurrentIndex() === _this.visibleCollection.length) {
                 _this.addRows(1);
-                _this.showScrollBufferItems();
             }
         });
     };
@@ -5794,7 +5791,7 @@ var SquareGallery = /** @class */ (function (_super) {
             showCount: false,
             selectable: false,
             activable: false,
-            infiniteScrollOffset: -50,
+            infiniteScrollOffset: 0,
             events: null,
         };
         return _this;
@@ -5874,7 +5871,7 @@ var ResponsiveSquareGallery = /** @class */ (function (_super) {
             showCount: false,
             selectable: false,
             activable: false,
-            infiniteScrollOffset: -50,
+            infiniteScrollOffset: 0,
             events: null,
         };
         return _this;

@@ -14,7 +14,7 @@ export class ResponsiveSquareGallery<Model extends ModelAttributes = any> extend
         showCount: false,
         selectable: false,
         activable: false,
-        infiniteScrollOffset: -50,
+        infiniteScrollOffset: 0,
         events: null,
     };
 

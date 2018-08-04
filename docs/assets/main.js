@@ -1,21 +1,16 @@
 var gallery;
-var rowHeight = 400;
 var lastSearch;
 var loadingBar;
-
-// Gallery options
-var options = {
-    rowHeight: rowHeight
-};
 
 window.addEventListener('load', function() {
     var galleryElement = document.getElementById('gallery');
     var photoswipeElement = document.getElementsByClassName('pswp')[0];
+    var scrollableElement = document.getElementById('body');
     var searchElement = document.getElementById('search');
     var suggestions = document.getElementsByClassName('suggestion');
     loadingBar = document.getElementById('loadingBar');
 
-    gallery = new NaturalGallery.NaturalGallery(galleryElement, photoswipeElement, options);
+    gallery = getGallery(galleryElement, photoswipeElement, scrollableElement);
 
     gallery.addEventListener('pagination', function(ev) {
         var currentPagination = ev.detail;

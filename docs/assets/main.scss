@@ -1,16 +1,13 @@
 ---
 ---
 
-@import 'theme';
-
-* {
-    font-family: 'Raleway', sans-serif;
-}
+@import 'theme', 'base', 'layout', 'monokai', 'menu';
 
 body {
-    background: #222222;
-    color: white;
-    font-size: 20px;
+    font-family: $base-font-family;
+    background: $background-color;
+    color: $text-color;
+    font-size: $base-font-size;
 }
 
 h1 {
@@ -44,22 +41,37 @@ h1 {
 }
 
 #loadingBar {
-    height: 5px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right:0;
-    transition: opacity 2s;
-    opacity: 0;
+    position: relative;
+    flex: none;
+    height: 6px;
+    background: darken($accent, 20%);
 
-    background: $brand-color;
-    background: -moz-linear-gradient(left, $brand-color 0%, $brand-color2 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(left, $brand-color 0%,$brand-color2 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to right, $brand-color 0%, $brand-color2 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    &::after {
+        display: block;
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0;
+        transition: opacity 1s ease-in;
+        background: $primary;
+        background: -moz-linear-gradient(left, $primary 50%, $accent 150%); /* FF3.6-15 */
+        background: -webkit-linear-gradient(left, $primary 50%, $accent 150%); /* Chrome10-25,Safari5.1-6 */
+        background: linear-gradient(to right, $primary 50%, $accent 150%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    }
 
-    &.loading {
+    &.loading::after {
         opacity: 1;
-        transition: opacity .3s;
+        transition: none;
     }
 }
 
+.natural-gallery-js {
+    margin-bottom: $gap;
+    .figure {
+        border-radius: 10px;
+    }
+
+}
