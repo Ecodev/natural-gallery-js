@@ -74,8 +74,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      */
     protected defaultImageRatio = .7;
 
-    protected scrollBufferItems = [];
-    protected showScrollBufferItems;
+    protected scrollBufferedItems = [];
+    protected flushBufferedItems;
+
+    protected requiredItems = 0;
 
     /**
      *
@@ -95,13 +97,21 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     protected init(): void {
         this.elementRef.classList.add('natural-gallery-js');
 
-        this.showScrollBufferItems = _.debounce(() => {
-            this.scrollBufferItems.forEach(i => {
+        /**
+         * After having finished to add figures to dom, show images inside containers and emit updated pagination
+         */
+        this.flushBufferedItems = _.debounce(() => {
+            this.scrollBufferedItems.forEach(i => {
                 i.loadImage();
             });
+            this.scrollBufferedItems = [];
 
-            this.scrollBufferItems = [];
-        }, 300, {leading: false, trailing: true});
+            if (this.requiredItems) {
+                this.dispatchEvent('pagination', {offset: this.collection.length, limit: this.requiredItems});
+                this.requiredItems = 0;
+            }
+
+        }, 400, {leading: false, trailing: true});
 
         this.defaultsOptions();
 
@@ -153,7 +163,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             }
         }
 
-        this.showScrollBufferItems();
+        this.flushBufferedItems();
         this.updateNextButtonVisibility();
     }
 
@@ -185,26 +195,12 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * The gallery asks for items it needs, including some buffer items that are not displayed when given but are available to be added
      * immediately to DOM when user scrolls.
      *
-     * @param {number} nbRows
+     * @param {number} nbItems
      */
-    protected requestItems(nbRows?: number) {
-
-        let limit = null;
-
-        /**
-         * Todo : do not call this method each time...
-         */
+    protected requestItems(nbItems?: number) {
         const estimatedPerRow = this.getEstimatedItemsPerRow(this.width, this.defaultImageRatio, this.options);
-        const offset = this.collection.length;
-
-        if (this.collection.length) {
-            limit = estimatedPerRow * nbRows;
-        } else {
-            limit = estimatedPerRow * this.getRowsPerPage() * 2;
-
-        }
-
-        this.dispatchEvent('pagination', {offset: offset, limit: limit});
+        const limit = estimatedPerRow * this.getRowsPerPage();
+        this.dispatchEvent('pagination', {offset: this.collection.length, limit: limit});
     }
 
     /**
@@ -217,7 +213,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             return this.options.rowsPerPage;
         }
 
-        return this.getEstimatedRowsPerPage();
+        const estimation = this.getEstimatedRowsPerPage();
+        return estimation < this.options.minRowsAtStart ? this.options.minRowsAtStart : estimation;
     }
 
     /**
@@ -229,7 +226,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
         this.visibleCollection.push(item);
         destination.appendChild(item.init());
-        this.scrollBufferItems.push(item);
+        this.scrollBufferedItems.push(item);
+        this.requiredItems++;
 
         // When selected / unselected
         item.element.addEventListener('select', () => {
@@ -259,7 +257,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             e.preventDefault();
             const rows = this.options.rowsPerPage > 0 ? this.options.rowsPerPage : this.getRowsPerPage();
             this.addRows(rows);
-            this.requestItems(rows);
         });
 
         this.bodyElementRef = document.createElement('div');
@@ -303,7 +300,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         }
 
         // Display newly added images if it's the first addition or if all images are already shown
-        let display = this.collection.length === 0 || this.collection.length === this.visibleCollection.length;
+        let display = this.collection.length === this.visibleCollection.length;
 
         // Complete collection
         models.forEach((model: Model) => {
@@ -342,6 +339,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         this.elementRef.style.minHeight = (this.getFreeViewportSpace() + 10) + 'px';
     }
 
+    /**
+     * Space between the top of the gallery wrapper (parent of gallery root elementRef) and the bottom of the window
+     */
     protected getFreeViewportSpace() {
         let winHeight = this.scrollElementRef ? this.scrollElementRef.clientHeight : document.documentElement.clientHeight;
         return winHeight - this.elementRef.offsetTop;
@@ -383,7 +383,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             }
         }
 
-        this.showScrollBufferItems();
+        this.flushBufferedItems();
 
         for (const item of this.visibleCollection) {
             item.style();
@@ -418,7 +418,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
                 // When scrolling only add a row at once
                 this.addRows(1);
-                this.requestItems(1);
             }
         });
     }

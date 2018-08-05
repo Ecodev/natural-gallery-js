@@ -5,7 +5,7 @@ export class Column {
 
     private collection: Item[] = [];
 
-    private _elementRef;
+    private _elementRef: HTMLElement;
 
     public constructor(private options: ColumnOptions) {
     }

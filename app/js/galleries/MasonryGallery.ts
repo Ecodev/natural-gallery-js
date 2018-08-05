@@ -21,7 +21,7 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
 
     protected options: MasonryGalleryOptions;
 
-    protected columnsRef: Column[];
+    protected columns: Column[];
 
     protected init(): void {
         super.init();
@@ -29,17 +29,31 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
         this.addColumns();
     }
 
+    /**
+     * Returns here the number of columns
+     */
     protected getEstimatedItemsPerRow(): number {
         return Math.ceil((this.width - this.options.gap) / (this.options.columnWidth + this.options.gap));
     }
 
     protected getEstimatedRowsPerPage(): number {
-        let nbRows = Math.floor(this.getFreeViewportSpace() / this.getColumnWidth() * 2);
-        return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
+        const ratio = 2.2; // landscape format to estimate the maximum number of rows
+        const columnWidth = this.getColumnWidth();
+        const estimatedImageHeight = columnWidth / ratio;
+        return Math.ceil(this.getFreeViewportSpace() / estimatedImageHeight);
     }
 
+    /**
+     * Use current gallery height as reference. To fill free space it add images until the gallery height changes, then are one more row
+     * @param rows
+     */
     protected addRows(rows: number): void {
-        this.addImages(rows * this.getEstimatedRowsPerPage()); // here rows are in fact a number of items
+        const currentContainerHeight = this.elementRef.clientHeight;
+        do {
+            this.addImages(1);
+        } while (this.elementRef.clientHeight === currentContainerHeight && this.visibleCollection.length < this.collection.length);
+
+        this.addImages(this.getEstimatedRowsPerPage());
     }
 
     private addImages(nbItems) {
@@ -48,22 +62,22 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
 
         // Next row to add (first invisible row)
         const firstIndex = this.visibleCollection.length ? nbVisibleImages : 0;
-        const lastIndex = firstIndex + nbItems - 1;
+        const lastWantedIndex = firstIndex + nbItems - 1;
 
         // Compute size only for elements we're going to add
-        this.organizeItems(this.collection.slice(nbVisibleImages), firstIndex, lastIndex);
+        this.organizeItems(this.collection.slice(nbVisibleImages), firstIndex, lastWantedIndex);
 
         for (let i = nbVisibleImages; i < this.collection.length; i++) {
             let item = this.collection[i];
             item.style();
-            if (i <= lastIndex) {
+            if (i <= lastWantedIndex) {
                 this.addItemToDOM(item);
             } else {
                 break;
             }
         }
 
-        this.showScrollBufferItems();
+        this.flushBufferedItems();
         this.updateNextButtonVisibility();
     }
 
@@ -92,11 +106,11 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
 
     protected addColumns() {
         this.bodyElementRef.innerHTML = '';
-        this.columnsRef = [];
+        this.columns = [];
         const columnWidth = this.getColumnWidth();
         for (let i = 0; i < this.getEstimatedItemsPerRow(); i++) {
             const columnRef = new Column({width: columnWidth, gap: this.options.gap});
-            this.columnsRef.push(columnRef);
+            this.columns.push(columnRef);
             this.bodyElementRef.appendChild(columnRef.init());
         }
     }
@@ -122,7 +136,6 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
             item.last = true;
             item.width = Math.floor(columnWidth);
             item.height = item.width * item.model.enlargedWidth / item.model.enlargedHeight;
-
         }
     }
 
@@ -135,7 +148,7 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
     }
 
     private getShortestColumn() {
-        return this.columnsRef.reduce((shortestColumn, column) => {
+        return this.columns.reduce((shortestColumn, column) => {
             if (!shortestColumn) {
                 return column;
             }
@@ -145,7 +158,7 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
     }
 
     private getMaximumItemsPerColumn() {
-        return Math.max(...this.columnsRef.map(column => column.length));
+        return Math.max(...this.columns.map(column => column.length));
     }
 
     protected empty() {

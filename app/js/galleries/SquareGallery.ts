@@ -30,8 +30,7 @@ export class SquareGallery<Model extends ModelAttributes = any> extends Abstract
     }
 
     protected getEstimatedRowsPerPage(): number {
-        let nbRows = Math.ceil(this.getFreeViewportSpace() / this.getItemSideSize());
-        return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
+        return Math.ceil(this.getFreeViewportSpace() / this.getItemSideSize());
     }
 
     /**

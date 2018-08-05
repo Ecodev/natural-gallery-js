@@ -30,8 +30,7 @@ export class NaturalGallery<Model extends ModelAttributes = any> extends Abstrac
     }
 
     protected getEstimatedRowsPerPage(): number {
-        let nbRows = Math.floor(this.getFreeViewportSpace() / (this.options.rowHeight * 0.5));
-        return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
+        return Math.ceil(this.getFreeViewportSpace() / (this.options.rowHeight + this.options.gap)) + 1;
     }
 
     /**
