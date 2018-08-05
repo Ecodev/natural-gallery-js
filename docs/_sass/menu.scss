@@ -8,19 +8,20 @@
 
     a {
         display: block;
-        width: 36px;
-        height: 36px;
+        width: 48px;
+        height: 48px;
         padding: 10px;
         color: white;
         position: relative;
+        z-index:999;
 
         .label {
             display: none;
             position: absolute;
-            left: 50px;
-            top: 15px;
+            left: 60px;
+            top: 17px;
             width: auto;
-            font-size: 16px;
+            font-size: 20px;
             padding: 1px 10px;
             background: rgba(255, 255, 255, 0.7);
             border-radius: 999px;

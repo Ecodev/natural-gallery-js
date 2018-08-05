@@ -37,17 +37,9 @@ abstract class AbstractResponsiveGallery<Model extends ModelAttributes = any> ex
         this.elementRef.classList.add('natural-gallery');
     }
 
-    protected getEstimatedItemsPerRow(width: number, defaultImageRatio: number, options: ResponsiveGalleryOptions): number {
-        const margin = options.gap ? options.gap : 0;
-        const imageWidth = Math.ceil(options.rowHeight * defaultImageRatio + margin);
-        const nb = (width + margin) / (imageWidth + margin);
-        return Math.ceil(nb);
-    }
+    protected abstract getEstimatedItemsPerRow(width: number, defaultImageRatio: number, options: ResponsiveGalleryOptions): number;
 
-    protected getEstimatedRowsPerPage(): number {
-        let nbRows = Math.floor(this.getFreeViewportSpace() / (this.options.rowHeight * 0.55));
-        return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
-    }
+    protected abstract getEstimatedRowsPerPage(): number;
 
     /**
      * Select all items visible in the DOM

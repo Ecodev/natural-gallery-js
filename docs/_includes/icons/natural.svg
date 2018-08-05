@@ -1,8 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 22.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Calque_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 24 24" style="enable-background:new 0 0 24 24;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:none;}
-</style>
-<path class="st0" d="M0,0h24v24H0V0z"/>
-<path d="M13,21v-8H3v8H13z M21,21v-8h-6v8H21z M21,11V3H11v8H21z M3,11h6V3H3V11z"/>
+<path d="M15,21v-8H3v8H15z M21,21v-8h-4v8H21z M21,11V3H9v8H21z M3,11h4V3H3V11z"/>
 </svg>

@@ -107,6 +107,8 @@ var ResponsiveSquareGallery_1 = __webpack_require__(23);
 exports.ResponsiveSquareGallery = ResponsiveSquareGallery_1.ResponsiveSquareGallery;
 var NaturalGallery_1 = __webpack_require__(20);
 exports.NaturalGallery = NaturalGallery_1.NaturalGallery;
+var MasonryGallery_1 = __webpack_require__(24);
+exports.MasonryGallery = MasonryGallery_1.MasonryGallery;
 
 
 /***/ }),
@@ -5230,7 +5232,7 @@ var NaturalGallery = /** @class */ (function (_super) {
         return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
     };
     NaturalGallery.prototype.getEstimatedRowsPerPage = function () {
-        var nbRows = Math.floor(this.getFreeViewportSpace() / (this.options.rowHeight * 0.55));
+        var nbRows = Math.floor(this.getFreeViewportSpace() / (this.options.rowHeight * 0.5));
         return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
     };
     /**
@@ -5240,7 +5242,7 @@ var NaturalGallery = /** @class */ (function (_super) {
      * @param toRow
      * @param currentRow
      */
-    NaturalGallery.prototype.organize = function (items, fromRow, toRow, currentRow) {
+    NaturalGallery.prototype.organizeItems = function (items, fromRow, toRow, currentRow) {
         if (fromRow === void 0) { fromRow = 0; }
         if (toRow === void 0) { toRow = null; }
         if (currentRow === void 0) { currentRow = null; }
@@ -5254,7 +5256,7 @@ var NaturalGallery = /** @class */ (function (_super) {
                 this.computeSizes(chunk, this.width, this.options.gap, currentRow);
                 var nextRow = currentRow + 1;
                 if (toRow === null || nextRow <= toRow) {
-                    this.organize(items.slice(chunkSize), fromRow, toRow, nextRow);
+                    this.organizeItems(items.slice(chunkSize), fromRow, toRow, nextRow);
                 }
                 break;
             }
@@ -5331,7 +5333,7 @@ var AbstractGallery = /** @class */ (function () {
      *
      * @param elementRef
      * @param photoswipeElementRef
-     * @param options
+     * @param userOptions
      * @param scrollElementRef
      */
     function AbstractGallery(elementRef, photoswipeElementRef, userOptions, scrollElementRef) {
@@ -5396,7 +5398,6 @@ var AbstractGallery = /** @class */ (function () {
         }, 300, { leading: false, trailing: true });
         this.defaultsOptions();
         this.render();
-        this.bodyWidth = Math.floor(this.bodyElementRef.getBoundingClientRect().width);
         this.requestItems();
         if (!this.options.rowsPerPage) {
             this.bindScroll(this.scrollElementRef !== null ? this.scrollElementRef : document);
@@ -5412,12 +5413,15 @@ var AbstractGallery = /** @class */ (function () {
         var nextRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row + 1 : 0;
         var lastWantedRow = nextRow + rows - 1;
         // Compute size only for elements we're going to add
-        this.organize(this.collection.slice(nbVisibleImages), nextRow, lastWantedRow);
+        this.organizeItems(this.collection.slice(nbVisibleImages), nextRow, lastWantedRow);
         for (var i = nbVisibleImages; i < this.collection.length; i++) {
             var item = this.collection[i];
             item.style();
             if (item.row <= lastWantedRow) {
                 this.addItemToDOM(item);
+            }
+            else {
+                break;
             }
         }
         this.showScrollBufferItems();
@@ -5473,11 +5477,13 @@ var AbstractGallery = /** @class */ (function () {
     /**
      * Add given item to DOM and to visibleCollection
      * @param {Item} item
+     * @param destination
      */
-    AbstractGallery.prototype.addItemToDOM = function (item) {
+    AbstractGallery.prototype.addItemToDOM = function (item, destination) {
         var _this = this;
+        if (destination === void 0) { destination = this.bodyElementRef; }
         this.visibleCollection.push(item);
-        this.bodyElementRef.appendChild(item.init());
+        destination.appendChild(item.init());
         this.scrollBufferItems.push(item);
         // When selected / unselected
         item.element.addEventListener('select', function () {
@@ -5505,12 +5511,12 @@ var AbstractGallery = /** @class */ (function () {
             _this.addRows(rows);
             _this.requestItems(rows);
         });
-        // Iframe
-        var iframe = document.createElement('iframe');
-        this.elementRef.appendChild(iframe);
         this.bodyElementRef = document.createElement('div');
         this.bodyElementRef.classList.add('natural-gallery-body');
         this.extendToFreeViewport();
+        // Iframe
+        var iframe = document.createElement('iframe');
+        this.elementRef.appendChild(iframe);
         // Resize debounce
         var resizeDebounceDuration = 500;
         var startResize = _.debounce(function () { return _this.startResize(); }, resizeDebounceDuration, { leading: true, trailing: false });
@@ -5600,17 +5606,16 @@ var AbstractGallery = /** @class */ (function () {
         if (!this.visibleCollection.length) {
             return;
         }
-        this.bodyWidth = Math.floor(this.bodyElementRef.getBoundingClientRect().width);
         // Compute with new width. Rows indexes may have change
-        this.organize(this.visibleCollection);
+        this.organizeItems(this.visibleCollection);
         // Get new last row number
         var lastVisibleRow = this.visibleCollection[this.visibleCollection.length - 1].row;
         // Get number of items in that last row
         var visibleItemsInLastRow = this.visibleCollection.filter(function (i) { return i.row === lastVisibleRow; }).length;
         // Get a list from first item of last row until end of collection
         var collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
-        // Organize entire last row + number of specified additional rows
-        this.organize(collectionFromLastVisibleRow, lastVisibleRow, lastVisibleRow);
+        // organizeItems entire last row + number of specified additional rows
+        this.organizeItems(collectionFromLastVisibleRow, lastVisibleRow, lastVisibleRow);
         for (var i = this.visibleCollection.length; i < this.collection.length; i++) {
             var testedItem = this.collection[i];
             if (testedItem.row === lastVisibleRow) {
@@ -5742,7 +5747,7 @@ var AbstractGallery = /** @class */ (function () {
     });
     Object.defineProperty(AbstractGallery.prototype, "width", {
         get: function () {
-            return this.bodyWidth;
+            return Math.floor(this.bodyElementRef.getBoundingClientRect().width);
         },
         enumerable: true,
         configurable: true
@@ -5804,7 +5809,7 @@ var SquareGallery = /** @class */ (function (_super) {
         return this.options.itemsPerRow;
     };
     SquareGallery.prototype.getEstimatedRowsPerPage = function () {
-        var nbRows = Math.floor(this.getFreeViewportSpace() / this.getItemSideSize());
+        var nbRows = Math.ceil(this.getFreeViewportSpace() / this.getItemSideSize());
         return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
     };
     /**
@@ -5813,7 +5818,7 @@ var SquareGallery = /** @class */ (function (_super) {
      * @param firstRowIndex
      * @param toRow
      */
-    SquareGallery.prototype.organize = function (items, firstRowIndex, toRow) {
+    SquareGallery.prototype.organizeItems = function (items, firstRowIndex, toRow) {
         if (firstRowIndex === void 0) { firstRowIndex = 0; }
         if (toRow === void 0) { toRow = null; }
         var sideSize = this.getItemSideSize();
@@ -5884,7 +5889,7 @@ var ResponsiveSquareGallery = /** @class */ (function (_super) {
         return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
     };
     ResponsiveSquareGallery.prototype.getEstimatedRowsPerPage = function () {
-        var nbRows = Math.floor(this.getFreeViewportSpace() / this.getItemSideSize());
+        var nbRows = Math.ceil(this.getFreeViewportSpace() / this.getItemSideSize());
         return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
     };
     /**
@@ -5893,7 +5898,7 @@ var ResponsiveSquareGallery = /** @class */ (function (_super) {
      * @param firstRowIndex
      * @param toRow
      */
-    ResponsiveSquareGallery.prototype.organize = function (items, firstRowIndex, toRow) {
+    ResponsiveSquareGallery.prototype.organizeItems = function (items, firstRowIndex, toRow) {
         if (firstRowIndex === void 0) { firstRowIndex = 0; }
         if (toRow === void 0) { toRow = null; }
         var itemsPerRow = this.getEstimatedItemsPerRow();
@@ -5924,6 +5929,199 @@ var ResponsiveSquareGallery = /** @class */ (function (_super) {
     return ResponsiveSquareGallery;
 }(AbstractGallery_1.AbstractGallery));
 exports.ResponsiveSquareGallery = ResponsiveSquareGallery;
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var AbstractGallery_1 = __webpack_require__(21);
+var Column_1 = __webpack_require__(25);
+var MasonryGallery = /** @class */ (function (_super) {
+    __extends(MasonryGallery, _super);
+    function MasonryGallery() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.defaultOptions = {
+            columnWidth: 300,
+            gap: 3,
+            rowsPerPage: 0,
+            showLabels: 'hover',
+            lightbox: true,
+            minRowsAtStart: 2,
+            showCount: false,
+            selectable: false,
+            activable: false,
+            infiniteScrollOffset: 0,
+            events: null,
+        };
+        return _this;
+    }
+    MasonryGallery.prototype.init = function () {
+        _super.prototype.init.call(this);
+        this.elementRef.classList.add('masonry-gallery');
+        this.addColumns();
+    };
+    MasonryGallery.prototype.getEstimatedItemsPerRow = function () {
+        return Math.ceil((this.width - this.options.gap) / (this.options.columnWidth + this.options.gap));
+    };
+    MasonryGallery.prototype.getEstimatedRowsPerPage = function () {
+        var nbRows = Math.floor(this.getFreeViewportSpace() / this.getColumnWidth() * 2);
+        return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
+    };
+    MasonryGallery.prototype.addRows = function (rows) {
+        this.addImages(rows * this.getEstimatedRowsPerPage()); // here rows are in fact a number of items
+    };
+    MasonryGallery.prototype.addImages = function (nbItems) {
+        var nbVisibleImages = this.visibleCollection.length;
+        // Next row to add (first invisible row)
+        var firstIndex = this.visibleCollection.length ? nbVisibleImages : 0;
+        var lastIndex = firstIndex + nbItems - 1;
+        // Compute size only for elements we're going to add
+        this.organizeItems(this.collection.slice(nbVisibleImages), firstIndex, lastIndex);
+        for (var i = nbVisibleImages; i < this.collection.length; i++) {
+            var item = this.collection[i];
+            item.style();
+            if (i <= lastIndex) {
+                this.addItemToDOM(item);
+            }
+            else {
+                break;
+            }
+        }
+        this.showScrollBufferItems();
+        this.updateNextButtonVisibility();
+    };
+    MasonryGallery.prototype.addItemToDOM = function (item, destination) {
+        if (destination === void 0) { destination = null; }
+        var shortestColumn = this.getShortestColumn();
+        shortestColumn.addItem(item);
+        _super.prototype.addItemToDOM.call(this, item, shortestColumn.elementRef);
+    };
+    MasonryGallery.prototype.endResize = function () {
+        this.bodyElementRef.classList.remove('resizing');
+        if (!this.visibleCollection.length) {
+            return;
+        }
+        // Compute with new width. Rows indexes may have change
+        this.organizeItems(this.visibleCollection);
+        var rowsToAdd = this.getMaximumItemsPerColumn();
+        this.visibleCollection.length = 0;
+        this.addColumns();
+        this.addRows(rowsToAdd);
+    };
+    MasonryGallery.prototype.addColumns = function () {
+        this.bodyElementRef.innerHTML = '';
+        this.columnsRef = [];
+        var columnWidth = this.getColumnWidth();
+        for (var i = 0; i < this.getEstimatedItemsPerRow(); i++) {
+            var columnRef = new Column_1.Column({ width: columnWidth, gap: this.options.gap });
+            this.columnsRef.push(columnRef);
+            this.bodyElementRef.appendChild(columnRef.init());
+        }
+    };
+    /**
+     * Compute sides with 1:1 ratio
+     * @param items
+     * @param fromIndex
+     * @param toIndex
+     */
+    MasonryGallery.prototype.organizeItems = function (items, fromIndex, toIndex) {
+        if (fromIndex === void 0) { fromIndex = 0; }
+        if (toIndex === void 0) { toIndex = null; }
+        var itemsPerRow = this.getEstimatedItemsPerRow();
+        // Compute columnWidth of pictures
+        var columnWidth = this.getColumnWidth();
+        var lastIndex = toIndex ? itemsPerRow * (toIndex - fromIndex + 1) : items.length;
+        lastIndex = lastIndex > items.length ? items.length : lastIndex;
+        for (var i = 0; i < lastIndex; i++) {
+            var item = items[i];
+            item.last = true;
+            item.width = Math.floor(columnWidth);
+            item.height = item.width * item.model.enlargedWidth / item.model.enlargedHeight;
+        }
+    };
+    /**
+     * Return square side size
+     */
+    MasonryGallery.prototype.getColumnWidth = function () {
+        var itemsPerRow = this.getEstimatedItemsPerRow();
+        return Math.floor((this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow);
+    };
+    MasonryGallery.prototype.getShortestColumn = function () {
+        return this.columnsRef.reduce(function (shortestColumn, column) {
+            if (!shortestColumn) {
+                return column;
+            }
+            return column.height < shortestColumn.height ? column : shortestColumn;
+        });
+    };
+    MasonryGallery.prototype.getMaximumItemsPerColumn = function () {
+        return Math.max.apply(Math, this.columnsRef.map(function (column) { return column.length; }));
+    };
+    return MasonryGallery;
+}(AbstractGallery_1.AbstractGallery));
+exports.MasonryGallery = MasonryGallery;
+
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Column = /** @class */ (function () {
+    function Column(options) {
+        this.options = options;
+        this.collection = [];
+    }
+    Column.prototype.init = function () {
+        this._elementRef = document.createElement('div');
+        this._elementRef.classList.add('column');
+        this._elementRef.style.marginRight = this.options.gap + 'px';
+        this._elementRef.style.width = this.options.width + 'px';
+        return this._elementRef;
+    };
+    Column.prototype.addItem = function (item) {
+        this.collection.push(item);
+    };
+    Object.defineProperty(Column.prototype, "height", {
+        get: function () {
+            return this._elementRef.offsetHeight;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Column.prototype, "length", {
+        get: function () {
+            return this.collection.length;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Column.prototype, "elementRef", {
+        get: function () {
+            return this._elementRef;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return Column;
+}());
+exports.Column = Column;
 
 
 /***/ })

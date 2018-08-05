@@ -4,3 +4,4 @@ import './styles/natural-gallery.full.scss';
 export { SquareGallery } from './js/galleries/SquareGallery';
 export { ResponsiveSquareGallery } from './js/galleries/ResponsiveSquareGallery';
 export { NaturalGallery } from './js/galleries/NaturalGallery';
+export { MasonryGallery } from './js/galleries/MasonryGallery';

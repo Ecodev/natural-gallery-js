@@ -30,7 +30,7 @@ export class NaturalGallery<Model extends ModelAttributes = any> extends Abstrac
     }
 
     protected getEstimatedRowsPerPage(): number {
-        let nbRows = Math.floor(this.getFreeViewportSpace() / (this.options.rowHeight * 0.55));
+        let nbRows = Math.floor(this.getFreeViewportSpace() / (this.options.rowHeight * 0.5));
         return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
     }
 
@@ -41,7 +41,7 @@ export class NaturalGallery<Model extends ModelAttributes = any> extends Abstrac
      * @param toRow
      * @param currentRow
      */
-    protected organize(items: Item[], fromRow: number = 0, toRow: number = null, currentRow: number = null): void {
+    protected organizeItems(items: Item[], fromRow: number = 0, toRow: number = null, currentRow: number = null): void {
 
         if (!currentRow) {
             currentRow = fromRow ? fromRow : 0;
@@ -55,7 +55,7 @@ export class NaturalGallery<Model extends ModelAttributes = any> extends Abstrac
 
                 const nextRow = currentRow + 1;
                 if (toRow === null || nextRow <= toRow) {
-                    this.organize(items.slice(chunkSize), fromRow, toRow, nextRow);
+                    this.organizeItems(items.slice(chunkSize), fromRow, toRow, nextRow);
                 }
 
                 break;

@@ -29,6 +29,19 @@
     }
 
     /**
+    * Columns
+    * ===================================================
+    */
+
+    .column {
+        float: left;
+
+        &:last-child {
+            margin-right: 0 !important
+        }
+    }
+
+    /**
     * Pictures
     * ===================================================
     */
@@ -37,7 +50,7 @@
         margin: 0;
 
         &.resizing {
-            .figure {
+            .figure, .column {
                 transition: none;
                 opacity: 0;
             }

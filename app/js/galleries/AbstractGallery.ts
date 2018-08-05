@@ -38,11 +38,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     protected bodyElementRef: HTMLElement;
 
     /**
-     * Last saved wrapper width
-     */
-    private bodyWidth: number;
-
-    /**
      * Photoswipe javascript object
      * Contains api to interact with library
      * @type PhotoSwipe
@@ -79,14 +74,14 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      */
     protected defaultImageRatio = .7;
 
-    private scrollBufferItems = [];
-    private showScrollBufferItems;
+    protected scrollBufferItems = [];
+    protected showScrollBufferItems;
 
     /**
      *
      * @param elementRef
      * @param photoswipeElementRef
-     * @param options
+     * @param userOptions
      * @param scrollElementRef
      */
     protected constructor(protected elementRef: HTMLElement,
@@ -111,7 +106,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         this.defaultsOptions();
 
         this.render();
-        this.bodyWidth = Math.floor(this.bodyElementRef.getBoundingClientRect().width);
         this.requestItems();
 
         if (!this.options.rowsPerPage) {
@@ -132,7 +126,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * @param fromRow
      * @param toRow
      */
-    protected abstract organize(items: Item[], fromRow?: number, toRow?: number): void;
+    protected abstract organizeItems(items: Item[], fromRow?: number, toRow?: number): void;
 
     /**
      * Add given number of rows to DOM
@@ -147,13 +141,15 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         const lastWantedRow = nextRow + rows - 1;
 
         // Compute size only for elements we're going to add
-        this.organize(this.collection.slice(nbVisibleImages), nextRow, lastWantedRow);
+        this.organizeItems(this.collection.slice(nbVisibleImages), nextRow, lastWantedRow);
 
         for (let i = nbVisibleImages; i < this.collection.length; i++) {
             let item = this.collection[i];
             item.style();
             if (item.row <= lastWantedRow) {
                 this.addItemToDOM(item);
+            } else {
+                break;
             }
         }
 
@@ -227,11 +223,12 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     /**
      * Add given item to DOM and to visibleCollection
      * @param {Item} item
+     * @param destination
      */
-    protected addItemToDOM(item: Item<Model>): void {
+    protected addItemToDOM(item: Item<Model>, destination: HTMLElement = this.bodyElementRef): void {
 
         this.visibleCollection.push(item);
-        this.bodyElementRef.appendChild(item.init());
+        destination.appendChild(item.init());
         this.scrollBufferItems.push(item);
 
         // When selected / unselected
@@ -251,7 +248,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
     }
 
-    public render() {
+    protected render() {
 
         // Next button
         this.nextButton = document.createElement('div');
@@ -265,13 +262,13 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             this.requestItems(rows);
         });
 
-        // Iframe
-        const iframe = document.createElement('iframe');
-        this.elementRef.appendChild(iframe);
-
         this.bodyElementRef = document.createElement('div');
         this.bodyElementRef.classList.add('natural-gallery-body');
         this.extendToFreeViewport();
+
+        // Iframe
+        const iframe = document.createElement('iframe');
+        this.elementRef.appendChild(iframe);
 
         // Resize debounce
         const resizeDebounceDuration = 500;
@@ -380,10 +377,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             return;
         }
 
-        this.bodyWidth = Math.floor(this.bodyElementRef.getBoundingClientRect().width);
-
         // Compute with new width. Rows indexes may have change
-        this.organize(this.visibleCollection);
+        this.organizeItems(this.visibleCollection);
 
         // Get new last row number
         const lastVisibleRow = this.visibleCollection[this.visibleCollection.length - 1].row;
@@ -394,8 +389,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         // Get a list from first item of last row until end of collection
         const collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
 
-        // Organize entire last row + number of specified additional rows
-        this.organize(collectionFromLastVisibleRow, lastVisibleRow, lastVisibleRow);
+        // organizeItems entire last row + number of specified additional rows
+        this.organizeItems(collectionFromLastVisibleRow, lastVisibleRow, lastVisibleRow);
 
         for (let i = this.visibleCollection.length; i < this.collection.length; i++) {
             const testedItem = this.collection[i];
@@ -536,7 +531,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     }
 
     get width(): number {
-        return this.bodyWidth;
+        return Math.floor(this.bodyElementRef.getBoundingClientRect().width);
     }
 
     get photoswipe(): any {

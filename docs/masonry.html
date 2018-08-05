@@ -2,4 +2,20 @@
 layout: default
 ---
 
+<script>
+    var rowHeight = 400;
+
+    var options = {
+        columnWidth: 300,
+        gap: 5
+    };
+
+    function getGallery(galleryElement, photoswipeElement, scrollableElement) {
+        return new NaturalGallery.MasonryGallery(galleryElement, photoswipeElement, options, scrollableElement)
+    }
+
+</script>
+
+<script src="assets/main.js" defer></script>
+
 {%- include gallery.html -%}

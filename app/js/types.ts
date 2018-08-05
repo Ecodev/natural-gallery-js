@@ -41,6 +41,12 @@ export interface SquareGalleryOptions extends GalleryOptions {
 }
 
 export interface MasonryGalleryOptions extends GalleryOptions {
+    columnWidth: number;
+}
+
+export interface ColumnOptions {
+    width: number;
+    gap: number;
 }
 
 export interface PaginationEvent {

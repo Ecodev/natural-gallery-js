@@ -17,7 +17,7 @@ title: Natural Gallery JS
 email: sam.baptista@ecodev.ch
 description: >- # this means to ignore newlines until "baseurl:"
   An infinite scroll, multi format, responsive, lazy load, touch and zoomable gallery
-baseurl: "/natural-gallery-js" # the subpath of your site, e.g. /blog
+baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://ecodev.github.io/natural-gallery-js" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  sambaptista
 

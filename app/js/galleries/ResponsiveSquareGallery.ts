@@ -30,7 +30,7 @@ export class ResponsiveSquareGallery<Model extends ModelAttributes = any> extend
     }
 
     protected getEstimatedRowsPerPage(): number {
-        let nbRows = Math.floor(this.getFreeViewportSpace() / this.getItemSideSize());
+        let nbRows = Math.ceil(this.getFreeViewportSpace() / this.getItemSideSize());
         return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
     }
 
@@ -40,7 +40,7 @@ export class ResponsiveSquareGallery<Model extends ModelAttributes = any> extend
      * @param firstRowIndex
      * @param toRow
      */
-    protected organize(items: Item[], firstRowIndex: number = 0, toRow: number = null): void {
+    protected organizeItems(items: Item[], firstRowIndex: number = 0, toRow: number = null): void {
 
         let itemsPerRow = this.getEstimatedItemsPerRow();
 
