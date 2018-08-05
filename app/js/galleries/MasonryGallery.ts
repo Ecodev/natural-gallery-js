@@ -148,4 +148,9 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
         return Math.max(...this.columnsRef.map(column => column.length));
     }
 
+    protected empty() {
+        super.empty();
+        this.addColumns();
+    }
+
 }

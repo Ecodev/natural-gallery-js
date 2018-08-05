@@ -291,24 +291,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         }
     }
 
-    public clear() {
-        this.clearVisibleItems();
-        this.photoswipeCollection = [];
-        this._collection = [];
-        this.requestItems();
-    }
-
-    /**
-     * Override current collection
-     * @param {Item[]} items
-     */
-    public setItems(items: Model[]) {
-        this.clearVisibleItems();
-        this.photoswipeCollection = [];
-        this._collection = [];
-        this.addItems(items);
-    }
-
     /**
      * Add items to collection
      * Transform given list of models into inner Items
@@ -407,14 +389,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             item.style();
         }
 
-    }
-
-    /**
-     * Remove items from DOM, but preverves collection
-     */
-    public clearVisibleItems(): void {
-        this._visibleCollection.forEach((item) => item.remove());
-        this._visibleCollection = [];
     }
 
     /**
@@ -520,6 +494,34 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         if (name === 'pagination') {
             this.requestItems();
         }
+    }
+
+    /**
+     * Effectively empty gallery, and should prepare container to receive new items
+     */
+    protected empty() {
+        this.bodyElementRef.innerHTML = '';
+        this._visibleCollection = [];
+        this.photoswipeCollection = [];
+        this._collection = [];
+    }
+
+    /**
+     * Public api for empty function
+     * Emits a pagination event
+     */
+    public clear() {
+        this.empty();
+        this.requestItems();
+    }
+
+    /**
+     * Override current collection
+     * @param {Item[]} items
+     */
+    public setItems(items: Model[]) {
+        this.empty();
+        this.addItems(items);
     }
 
     get collection(): Item<Model>[] {

@@ -70,11 +70,461 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Item_1 = __webpack_require__(6);
+var Utility_1 = __webpack_require__(1);
+var PhotoSwipe = __webpack_require__(7);
+var PhotoSwipeUI_Default = __webpack_require__(8);
+var _ = __webpack_require__(9);
+var AbstractGallery = /** @class */ (function () {
+    /**
+     *
+     * @param elementRef
+     * @param photoswipeElementRef
+     * @param userOptions
+     * @param scrollElementRef
+     */
+    function AbstractGallery(elementRef, photoswipeElementRef, userOptions, scrollElementRef) {
+        if (scrollElementRef === void 0) { scrollElementRef = null; }
+        this.elementRef = elementRef;
+        this.photoswipeElementRef = photoswipeElementRef;
+        this.userOptions = userOptions;
+        this.scrollElementRef = scrollElementRef;
+        /**
+         * Default options
+         * @private
+         */
+        this.defaultOptions = {
+            gap: 3,
+            rowsPerPage: 0,
+            showLabels: 'hover',
+            lightbox: true,
+            minRowsAtStart: 2,
+            showCount: false,
+            selectable: false,
+            activable: false,
+            infiniteScrollOffset: 0,
+            events: null,
+        };
+        /**
+         * Used to test the scroll direction
+         * Avoid to load more images when scrolling up
+         */
+        this.old_scroll_top = 0;
+        /**
+         * Complete collection of images
+         * @type {Array}
+         */
+        this._collection = [];
+        /**
+         * Partial set of items that represent the visible items
+         * @type {Item[]}
+         * @private
+         */
+        this._visibleCollection = [];
+        /**
+         * Photoswipe images container
+         * @type {Array}
+         */
+        this.photoswipeCollection = [];
+        /**
+         * This ratio is the supposed average ratio for the first pagination estimation
+         * When gallery is created without images, this ratio is used to estimate number of images per page
+         */
+        this.defaultImageRatio = .7;
+        this.scrollBufferItems = [];
+        this.init();
+    }
+    AbstractGallery.prototype.init = function () {
+        var _this = this;
+        this.elementRef.classList.add('natural-gallery-js');
+        this.showScrollBufferItems = _.debounce(function () {
+            _this.scrollBufferItems.forEach(function (i) {
+                i.loadImage();
+            });
+            _this.scrollBufferItems = [];
+        }, 300, { leading: false, trailing: true });
+        this.defaultsOptions();
+        this.render();
+        this.requestItems();
+        if (!this.options.rowsPerPage) {
+            this.bindScroll(this.scrollElementRef !== null ? this.scrollElementRef : document);
+        }
+    };
+    /**
+     * Add given number of rows to DOM
+     * @param rows
+     */
+    AbstractGallery.prototype.addRows = function (rows) {
+        var nbVisibleImages = this.visibleCollection.length;
+        // Next row to add (first invisible row)
+        var nextRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row + 1 : 0;
+        var lastWantedRow = nextRow + rows - 1;
+        // Compute size only for elements we're going to add
+        this.organizeItems(this.collection.slice(nbVisibleImages), nextRow, lastWantedRow);
+        for (var i = nbVisibleImages; i < this.collection.length; i++) {
+            var item = this.collection[i];
+            item.style();
+            if (item.row <= lastWantedRow) {
+                this.addItemToDOM(item);
+            }
+            else {
+                break;
+            }
+        }
+        this.showScrollBufferItems();
+        this.updateNextButtonVisibility();
+    };
+    /**
+     * @param options
+     */
+    AbstractGallery.prototype.defaultsOptions = function () {
+        this.options = this.userOptions;
+        for (var key in this.defaultOptions) {
+            if (typeof this.options[key] === 'undefined') {
+                this.options[key] = this.defaultOptions[key];
+            }
+        }
+    };
+    /**
+     * Fire pagination event
+     * Information provided in the event allows to retrieve items from the server using given data :
+     * "offset" and "limit" that have the same semantic that respective attributes in mySQL.
+     *
+     * The gallery asks for items it needs, including some buffer items that are not displayed when given but are available to be added
+     * immediately to DOM when user scrolls.
+     *
+     * @param {number} nbRows
+     */
+    AbstractGallery.prototype.requestItems = function (nbRows) {
+        var limit = null;
+        /**
+         * Todo : do not call this method each time...
+         */
+        var estimatedPerRow = this.getEstimatedItemsPerRow(this.width, this.defaultImageRatio, this.options);
+        var offset = this.collection.length;
+        if (this.collection.length) {
+            limit = estimatedPerRow * nbRows;
+        }
+        else {
+            limit = estimatedPerRow * this.getRowsPerPage() * 2;
+        }
+        this.dispatchEvent('pagination', { offset: offset, limit: limit });
+    };
+    /**
+     * Returns option.rowsPerPage is specified.
+     * If not returns the estimated number of rows to fill the rest of the vertical space in the screen
+     * @returns {number}
+     */
+    AbstractGallery.prototype.getRowsPerPage = function () {
+        if (this.options.rowsPerPage) {
+            return this.options.rowsPerPage;
+        }
+        return this.getEstimatedRowsPerPage();
+    };
+    /**
+     * Add given item to DOM and to visibleCollection
+     * @param {Item} item
+     * @param destination
+     */
+    AbstractGallery.prototype.addItemToDOM = function (item, destination) {
+        var _this = this;
+        if (destination === void 0) { destination = this.bodyElementRef; }
+        this.visibleCollection.push(item);
+        destination.appendChild(item.init());
+        this.scrollBufferItems.push(item);
+        // When selected / unselected
+        item.element.addEventListener('select', function () {
+            _this.dispatchEvent('select', _this.visibleCollection.filter(function (i) { return i.selected; }).map(function (i) { return i.model; }));
+        });
+        // When activate (if activate event is given in options)
+        item.element.addEventListener('activate', function (ev) {
+            _this.dispatchEvent('activate', { model: ev.detail.item.model, clickEvent: ev.detail.clickEvent });
+        });
+        // When open zoom (photoswipe)
+        item.element.addEventListener('zoom', function (ev) {
+            _this.openPhotoSwipe(ev.detail);
+        });
+    };
+    AbstractGallery.prototype.render = function () {
+        var _this = this;
+        // Next button
+        this.nextButton = document.createElement('div');
+        this.nextButton.classList.add('natural-gallery-next');
+        this.nextButton.appendChild(Utility_1.Utility.getIcon('icon-next'));
+        this.nextButton.style.display = 'none';
+        this.nextButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            var rows = _this.options.rowsPerPage > 0 ? _this.options.rowsPerPage : _this.getRowsPerPage();
+            _this.addRows(rows);
+            _this.requestItems(rows);
+        });
+        this.bodyElementRef = document.createElement('div');
+        this.bodyElementRef.classList.add('natural-gallery-body');
+        this.extendToFreeViewport();
+        // Iframe
+        var iframe = document.createElement('iframe');
+        this.elementRef.appendChild(iframe);
+        // Resize debounce
+        var resizeDebounceDuration = 500;
+        var startResize = _.debounce(function () { return _this.startResize(); }, resizeDebounceDuration, { leading: true, trailing: false });
+        var endResize = _.debounce(function () { return _this.endResize(); }, resizeDebounceDuration, { leading: false, trailing: true });
+        iframe.contentWindow.addEventListener('resize', function () {
+            endResize();
+            startResize();
+        });
+        this.elementRef.appendChild(this.bodyElementRef);
+        this.elementRef.appendChild(this.nextButton);
+    };
+    AbstractGallery.prototype.updateNextButtonVisibility = function () {
+        if (this.visibleCollection.length === this.collection.length) {
+            this.nextButton.style.display = 'none';
+        }
+        else {
+            this.nextButton.style.display = 'block';
+        }
+    };
+    /**
+     * Add items to collection
+     * Transform given list of models into inner Items
+     * @param models
+     */
+    AbstractGallery.prototype.addItems = function (models) {
+        var _this = this;
+        if (!(models.constructor === Array && models.length)) {
+            return;
+        }
+        // Display newly added images if it's the first addition or if all images are already shown
+        var display = this.collection.length === 0 || this.collection.length === this.visibleCollection.length;
+        // Complete collection
+        models.forEach(function (model) {
+            var item = new Item_1.Item(_this.getItemOptions(), model);
+            _this._collection.push(item);
+            _this.photoswipeCollection.push(_this.getPhotoswipeItem(item));
+        });
+        if (display) {
+            this.addRows(this.getRowsPerPage());
+        }
+    };
+    /**
+     * Combine options from gallery with attributes required to generate a figure
+     * @param {Model} model
+     * @returns {ItemOptions}
+     */
+    AbstractGallery.prototype.getItemOptions = function () {
+        return {
+            lightbox: this.options.lightbox,
+            selectable: this.options.selectable,
+            activable: this.options.activable,
+            gap: this.options.gap,
+            showLabels: this.options.showLabels,
+        };
+    };
+    AbstractGallery.prototype.extendToFreeViewport = function () {
+        if (this.options.rowsPerPage) {
+            return this.options.rowsPerPage;
+        }
+        this.elementRef.style.minHeight = (this.getFreeViewportSpace() + 10) + 'px';
+    };
+    AbstractGallery.prototype.getFreeViewportSpace = function () {
+        var winHeight = this.scrollElementRef ? this.scrollElementRef.clientHeight : document.documentElement.clientHeight;
+        return winHeight - this.elementRef.offsetTop;
+    };
+    AbstractGallery.prototype.startResize = function () {
+        this.bodyElementRef.classList.add('resizing');
+    };
+    AbstractGallery.prototype.endResize = function () {
+        this.bodyElementRef.classList.remove('resizing');
+        if (!this.visibleCollection.length) {
+            return;
+        }
+        // Compute with new width. Rows indexes may have change
+        this.organizeItems(this.visibleCollection);
+        // Get new last row number
+        var lastVisibleRow = this.visibleCollection[this.visibleCollection.length - 1].row;
+        // Get number of items in that last row
+        var visibleItemsInLastRow = this.visibleCollection.filter(function (i) { return i.row === lastVisibleRow; }).length;
+        // Get a list from first item of last row until end of collection
+        var collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
+        // organizeItems entire last row + number of specified additional rows
+        this.organizeItems(collectionFromLastVisibleRow, lastVisibleRow, lastVisibleRow);
+        for (var i = this.visibleCollection.length; i < this.collection.length; i++) {
+            var testedItem = this.collection[i];
+            if (testedItem.row === lastVisibleRow) {
+                this.addItemToDOM(testedItem);
+            }
+            else {
+                break;
+            }
+        }
+        this.showScrollBufferItems();
+        for (var _i = 0, _a = this.visibleCollection; _i < _a.length; _i++) {
+            var item = _a[_i];
+            item.style();
+        }
+    };
+    /**
+     * Listen to scroll event and manages rows additions for lazy load
+     * @param {HTMLElement | Document} element
+     */
+    AbstractGallery.prototype.bindScroll = function (element) {
+        var _this = this;
+        var scrollable = element;
+        var wrapper = null;
+        if (element instanceof Document) {
+            wrapper = element.documentElement;
+        }
+        else {
+            wrapper = element;
+        }
+        scrollable.addEventListener('scroll', function () {
+            var endOfGalleryAt = _this.elementRef.offsetTop + _this.elementRef.offsetHeight + _this.options.infiniteScrollOffset;
+            // Avoid to expand gallery if we are scrolling up
+            var current_scroll_top = wrapper.scrollTop - (wrapper.clientTop || 0);
+            var wrapperHeight = wrapper.clientHeight;
+            var scroll_delta = current_scroll_top - _this.old_scroll_top;
+            _this.old_scroll_top = current_scroll_top;
+            // "enableMoreLoading" is a setting coming from the BE bloking / enabling dynamic loading of thumbnail
+            if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
+                // When scrolling only add a row at once
+                _this.addRows(1);
+                _this.requestItems(1);
+            }
+        });
+    };
+    AbstractGallery.prototype.openPhotoSwipe = function (item) {
+        var _this = this;
+        var pswpOptions = {
+            index: this.collection.findIndex(function (i) { return i === item; }),
+            bgOpacity: 0.85,
+            showHideOpacity: true,
+            loop: false,
+        };
+        this._photoswipe = new PhotoSwipe(this.photoswipeElementRef, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
+        this._photoswipe.init();
+        // Loading one more page when going to next image
+        this._photoswipe.listen('beforeChange', function (delta) {
+            // Positive delta means next slide.
+            // If we go next slide, and current index is out of visible collection bound, load more items
+            if (delta === 1 && _this._photoswipe.getCurrentIndex() === _this.visibleCollection.length) {
+                _this.addRows(1);
+            }
+        });
+    };
+    /**
+     * Format an Item into a PhotoswipeItem that has different attributes
+     * @param item
+     * @returns {PhotoswipeItem}
+     */
+    AbstractGallery.prototype.getPhotoswipeItem = function (item) {
+        return {
+            src: item.model.enlargedSrc,
+            w: item.model.enlargedWidth,
+            h: item.model.enlargedHeight,
+            title: item.title,
+        };
+    };
+    AbstractGallery.prototype.dispatchEvent = function (name, data) {
+        var event = new CustomEvent(name, { detail: data });
+        this.elementRef.dispatchEvent(event);
+    };
+    /**
+     * Select all items visible in the DOM
+     * Ignores buffered items
+     */
+    AbstractGallery.prototype.selectVisibleItems = function () {
+        this.visibleCollection.forEach(function (item) { return item.select(); });
+    };
+    /**
+     * Unselect all selected elements
+     */
+    AbstractGallery.prototype.unselectAllItems = function () {
+        this.visibleCollection.forEach(function (item) { return item.unselect(); });
+    };
+    /**
+     * Allows to use the same approach and method name to listen as gallery events on DOM or on javascript gallery object
+     *
+     * Gallery requests items when it's instantiated. But user may subscribe after creation, so we need to request again if
+     * user subscribes by this function.
+     *
+     * @param name
+     * @param callback
+     */
+    AbstractGallery.prototype.addEventListener = function (name, callback) {
+        this.elementRef.addEventListener(name, callback);
+        if (name === 'pagination') {
+            this.requestItems();
+        }
+    };
+    /**
+     * Effectively empty gallery, and should prepare container to receive new items
+     */
+    AbstractGallery.prototype.empty = function () {
+        this.bodyElementRef.innerHTML = '';
+        this._visibleCollection = [];
+        this.photoswipeCollection = [];
+        this._collection = [];
+    };
+    /**
+     * Public api for empty function
+     * Emits a pagination event
+     */
+    AbstractGallery.prototype.clear = function () {
+        this.empty();
+        this.requestItems();
+    };
+    /**
+     * Override current collection
+     * @param {Item[]} items
+     */
+    AbstractGallery.prototype.setItems = function (items) {
+        this.empty();
+        this.addItems(items);
+    };
+    Object.defineProperty(AbstractGallery.prototype, "collection", {
+        get: function () {
+            return this._collection;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AbstractGallery.prototype, "visibleCollection", {
+        get: function () {
+            return this._visibleCollection;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AbstractGallery.prototype, "width", {
+        get: function () {
+            return Math.floor(this.bodyElementRef.getBoundingClientRect().width);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AbstractGallery.prototype, "photoswipe", {
+        get: function () {
+            return this._photoswipe;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return AbstractGallery;
+}());
+exports.AbstractGallery = AbstractGallery;
+
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -93,29 +543,23 @@ var Utility;
 
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-__webpack_require__(2);
 __webpack_require__(3);
-var SquareGallery_1 = __webpack_require__(22);
+__webpack_require__(4);
+var SquareGallery_1 = __webpack_require__(5);
 exports.SquareGallery = SquareGallery_1.SquareGallery;
-var ResponsiveSquareGallery_1 = __webpack_require__(23);
+var ResponsiveSquareGallery_1 = __webpack_require__(10);
 exports.ResponsiveSquareGallery = ResponsiveSquareGallery_1.ResponsiveSquareGallery;
-var NaturalGallery_1 = __webpack_require__(20);
+var NaturalGallery_1 = __webpack_require__(11);
 exports.NaturalGallery = NaturalGallery_1.NaturalGallery;
-var MasonryGallery_1 = __webpack_require__(24);
+var MasonryGallery_1 = __webpack_require__(12);
 exports.MasonryGallery = MasonryGallery_1.MasonryGallery;
 
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
 
 /***/ }),
 /* 3 */
@@ -124,14 +568,99 @@ exports.MasonryGallery = MasonryGallery_1.MasonryGallery;
 // removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 4 */,
+/* 4 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Utility_1 = __webpack_require__(0);
+var AbstractGallery_1 = __webpack_require__(0);
+var SquareGallery = /** @class */ (function (_super) {
+    __extends(SquareGallery, _super);
+    function SquareGallery() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.defaultOptions = {
+            itemsPerRow: 4,
+            gap: 3,
+            rowsPerPage: 0,
+            showLabels: 'hover',
+            lightbox: true,
+            minRowsAtStart: 2,
+            showCount: false,
+            selectable: false,
+            activable: false,
+            infiniteScrollOffset: 0,
+            events: null,
+        };
+        return _this;
+    }
+    SquareGallery.prototype.init = function () {
+        _super.prototype.init.call(this);
+        this.elementRef.classList.add('square-gallery');
+    };
+    SquareGallery.prototype.getEstimatedItemsPerRow = function () {
+        return this.options.itemsPerRow;
+    };
+    SquareGallery.prototype.getEstimatedRowsPerPage = function () {
+        var nbRows = Math.ceil(this.getFreeViewportSpace() / this.getItemSideSize());
+        return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
+    };
+    /**
+     * Compute sides with 1:1 ratio
+     * @param items
+     * @param firstRowIndex
+     * @param toRow
+     */
+    SquareGallery.prototype.organizeItems = function (items, firstRowIndex, toRow) {
+        if (firstRowIndex === void 0) { firstRowIndex = 0; }
+        if (toRow === void 0) { toRow = null; }
+        var sideSize = this.getItemSideSize();
+        var lastIndex = toRow ? this.options.itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
+        lastIndex = lastIndex > items.length ? items.length : lastIndex;
+        for (var i = 0; i < lastIndex; i++) {
+            var item = items[i];
+            item.width = Math.floor(sideSize);
+            item.height = Math.floor(sideSize);
+            item.last = i % this.options.itemsPerRow === this.options.itemsPerRow - 1;
+            item.row = Math.floor(i / this.options.itemsPerRow) + firstRowIndex;
+        }
+    };
+    /**
+     * Return square side size
+     */
+    SquareGallery.prototype.getItemSideSize = function () {
+        var itemsPerRow = this.getEstimatedItemsPerRow();
+        return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
+    };
+    return SquareGallery;
+}(AbstractGallery_1.AbstractGallery));
+exports.SquareGallery = SquareGallery;
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Utility_1 = __webpack_require__(1);
 var Item = /** @class */ (function () {
     /**
      *
@@ -409,9 +938,7 @@ exports.Item = Item;
 
 
 /***/ }),
-/* 6 */,
-/* 7 */,
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! PhotoSwipe - v4.1.2 - 2017-04-05
@@ -4154,7 +4681,7 @@ _registerModule('History', {
 });
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! PhotoSwipe Default UI - 4.1.2 - 2017-04-05
@@ -5025,7 +5552,7 @@ return PhotoSwipeUI_Default;
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5179,16 +5706,7 @@ function debounce(func, wait, options) {
 
 
 /***/ }),
-/* 11 */,
-/* 12 */,
-/* 13 */,
-/* 14 */,
-/* 15 */,
-/* 16 */,
-/* 17 */,
-/* 18 */,
-/* 19 */,
-/* 20 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5204,7 +5722,94 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractGallery_1 = __webpack_require__(21);
+var AbstractGallery_1 = __webpack_require__(0);
+var ResponsiveSquareGallery = /** @class */ (function (_super) {
+    __extends(ResponsiveSquareGallery, _super);
+    function ResponsiveSquareGallery() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.defaultOptions = {
+            rowHeight: 400,
+            gap: 3,
+            rowsPerPage: 0,
+            showLabels: 'hover',
+            lightbox: true,
+            minRowsAtStart: 2,
+            showCount: false,
+            selectable: false,
+            activable: false,
+            infiniteScrollOffset: 0,
+            events: null,
+        };
+        return _this;
+    }
+    ResponsiveSquareGallery.prototype.init = function () {
+        _super.prototype.init.call(this);
+        this.elementRef.classList.add('responsive-square-gallery');
+    };
+    ResponsiveSquareGallery.prototype.getEstimatedItemsPerRow = function () {
+        return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
+    };
+    ResponsiveSquareGallery.prototype.getEstimatedRowsPerPage = function () {
+        var nbRows = Math.ceil(this.getFreeViewportSpace() / this.getItemSideSize());
+        return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
+    };
+    /**
+     * Compute sides with 1:1 ratio
+     * @param items
+     * @param firstRowIndex
+     * @param toRow
+     */
+    ResponsiveSquareGallery.prototype.organizeItems = function (items, firstRowIndex, toRow) {
+        if (firstRowIndex === void 0) { firstRowIndex = 0; }
+        if (toRow === void 0) { toRow = null; }
+        var itemsPerRow = this.getEstimatedItemsPerRow();
+        // Compute sideSize of pictures
+        var sideSize = this.getItemSideSize();
+        // Compute overflow of given images per row. This number affect the width of the last item of the row
+        var diff = this.width - itemsPerRow * sideSize - (itemsPerRow - 1) * this.options.gap;
+        var lastIndex = toRow ? itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
+        lastIndex = lastIndex > items.length ? items.length : lastIndex;
+        for (var i = 0; i < lastIndex; i++) {
+            var item = items[i];
+            item.last = i % itemsPerRow === itemsPerRow - 1;
+            item.row = Math.floor(i / itemsPerRow) + firstRowIndex;
+            item.width = Math.floor(sideSize);
+            item.height = Math.floor(sideSize);
+            if (item.last) {
+                item.width = Math.floor(sideSize + diff);
+            }
+        }
+    };
+    /**
+     * Return square side size
+     */
+    ResponsiveSquareGallery.prototype.getItemSideSize = function () {
+        var itemsPerRow = this.getEstimatedItemsPerRow();
+        return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
+    };
+    return ResponsiveSquareGallery;
+}(AbstractGallery_1.AbstractGallery));
+exports.ResponsiveSquareGallery = ResponsiveSquareGallery;
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var AbstractGallery_1 = __webpack_require__(0);
 var NaturalGallery = /** @class */ (function (_super) {
     __extends(NaturalGallery, _super);
     function NaturalGallery() {
@@ -5317,455 +5922,7 @@ exports.NaturalGallery = NaturalGallery;
 
 
 /***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Item_1 = __webpack_require__(5);
-var Utility_1 = __webpack_require__(0);
-var PhotoSwipe = __webpack_require__(8);
-var PhotoSwipeUI_Default = __webpack_require__(9);
-var _ = __webpack_require__(10);
-var AbstractGallery = /** @class */ (function () {
-    /**
-     *
-     * @param elementRef
-     * @param photoswipeElementRef
-     * @param userOptions
-     * @param scrollElementRef
-     */
-    function AbstractGallery(elementRef, photoswipeElementRef, userOptions, scrollElementRef) {
-        if (scrollElementRef === void 0) { scrollElementRef = null; }
-        this.elementRef = elementRef;
-        this.photoswipeElementRef = photoswipeElementRef;
-        this.userOptions = userOptions;
-        this.scrollElementRef = scrollElementRef;
-        /**
-         * Default options
-         * @private
-         */
-        this.defaultOptions = {
-            gap: 3,
-            rowsPerPage: 0,
-            showLabels: 'hover',
-            lightbox: true,
-            minRowsAtStart: 2,
-            showCount: false,
-            selectable: false,
-            activable: false,
-            infiniteScrollOffset: 0,
-            events: null,
-        };
-        /**
-         * Used to test the scroll direction
-         * Avoid to load more images when scrolling up
-         */
-        this.old_scroll_top = 0;
-        /**
-         * Complete collection of images
-         * @type {Array}
-         */
-        this._collection = [];
-        /**
-         * Partial set of items that represent the visible items
-         * @type {Item[]}
-         * @private
-         */
-        this._visibleCollection = [];
-        /**
-         * Photoswipe images container
-         * @type {Array}
-         */
-        this.photoswipeCollection = [];
-        /**
-         * This ratio is the supposed average ratio for the first pagination estimation
-         * When gallery is created without images, this ratio is used to estimate number of images per page
-         */
-        this.defaultImageRatio = .7;
-        this.scrollBufferItems = [];
-        this.init();
-    }
-    AbstractGallery.prototype.init = function () {
-        var _this = this;
-        this.elementRef.classList.add('natural-gallery-js');
-        this.showScrollBufferItems = _.debounce(function () {
-            _this.scrollBufferItems.forEach(function (i) {
-                i.loadImage();
-            });
-            _this.scrollBufferItems = [];
-        }, 300, { leading: false, trailing: true });
-        this.defaultsOptions();
-        this.render();
-        this.requestItems();
-        if (!this.options.rowsPerPage) {
-            this.bindScroll(this.scrollElementRef !== null ? this.scrollElementRef : document);
-        }
-    };
-    /**
-     * Add given number of rows to DOM
-     * @param rows
-     */
-    AbstractGallery.prototype.addRows = function (rows) {
-        var nbVisibleImages = this.visibleCollection.length;
-        // Next row to add (first invisible row)
-        var nextRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row + 1 : 0;
-        var lastWantedRow = nextRow + rows - 1;
-        // Compute size only for elements we're going to add
-        this.organizeItems(this.collection.slice(nbVisibleImages), nextRow, lastWantedRow);
-        for (var i = nbVisibleImages; i < this.collection.length; i++) {
-            var item = this.collection[i];
-            item.style();
-            if (item.row <= lastWantedRow) {
-                this.addItemToDOM(item);
-            }
-            else {
-                break;
-            }
-        }
-        this.showScrollBufferItems();
-        this.updateNextButtonVisibility();
-    };
-    /**
-     * @param options
-     */
-    AbstractGallery.prototype.defaultsOptions = function () {
-        this.options = this.userOptions;
-        for (var key in this.defaultOptions) {
-            if (typeof this.options[key] === 'undefined') {
-                this.options[key] = this.defaultOptions[key];
-            }
-        }
-    };
-    /**
-     * Fire pagination event
-     * Information provided in the event allows to retrieve items from the server using given data :
-     * "offset" and "limit" that have the same semantic that respective attributes in mySQL.
-     *
-     * The gallery asks for items it needs, including some buffer items that are not displayed when given but are available to be added
-     * immediately to DOM when user scrolls.
-     *
-     * @param {number} nbRows
-     */
-    AbstractGallery.prototype.requestItems = function (nbRows) {
-        var limit = null;
-        /**
-         * Todo : do not call this method each time...
-         */
-        var estimatedPerRow = this.getEstimatedItemsPerRow(this.width, this.defaultImageRatio, this.options);
-        var offset = this.collection.length;
-        if (this.collection.length) {
-            limit = estimatedPerRow * nbRows;
-        }
-        else {
-            limit = estimatedPerRow * this.getRowsPerPage() * 2;
-        }
-        this.dispatchEvent('pagination', { offset: offset, limit: limit });
-    };
-    /**
-     * Returns option.rowsPerPage is specified.
-     * If not returns the estimated number of rows to fill the rest of the vertical space in the screen
-     * @returns {number}
-     */
-    AbstractGallery.prototype.getRowsPerPage = function () {
-        if (this.options.rowsPerPage) {
-            return this.options.rowsPerPage;
-        }
-        return this.getEstimatedRowsPerPage();
-    };
-    /**
-     * Add given item to DOM and to visibleCollection
-     * @param {Item} item
-     * @param destination
-     */
-    AbstractGallery.prototype.addItemToDOM = function (item, destination) {
-        var _this = this;
-        if (destination === void 0) { destination = this.bodyElementRef; }
-        this.visibleCollection.push(item);
-        destination.appendChild(item.init());
-        this.scrollBufferItems.push(item);
-        // When selected / unselected
-        item.element.addEventListener('select', function () {
-            _this.dispatchEvent('select', _this.visibleCollection.filter(function (i) { return i.selected; }).map(function (i) { return i.model; }));
-        });
-        // When activate (if activate event is given in options)
-        item.element.addEventListener('activate', function (ev) {
-            _this.dispatchEvent('activate', { model: ev.detail.item.model, clickEvent: ev.detail.clickEvent });
-        });
-        // When open zoom (photoswipe)
-        item.element.addEventListener('zoom', function (ev) {
-            _this.openPhotoSwipe(ev.detail);
-        });
-    };
-    AbstractGallery.prototype.render = function () {
-        var _this = this;
-        // Next button
-        this.nextButton = document.createElement('div');
-        this.nextButton.classList.add('natural-gallery-next');
-        this.nextButton.appendChild(Utility_1.Utility.getIcon('icon-next'));
-        this.nextButton.style.display = 'none';
-        this.nextButton.addEventListener('click', function (e) {
-            e.preventDefault();
-            var rows = _this.options.rowsPerPage > 0 ? _this.options.rowsPerPage : _this.getRowsPerPage();
-            _this.addRows(rows);
-            _this.requestItems(rows);
-        });
-        this.bodyElementRef = document.createElement('div');
-        this.bodyElementRef.classList.add('natural-gallery-body');
-        this.extendToFreeViewport();
-        // Iframe
-        var iframe = document.createElement('iframe');
-        this.elementRef.appendChild(iframe);
-        // Resize debounce
-        var resizeDebounceDuration = 500;
-        var startResize = _.debounce(function () { return _this.startResize(); }, resizeDebounceDuration, { leading: true, trailing: false });
-        var endResize = _.debounce(function () { return _this.endResize(); }, resizeDebounceDuration, { leading: false, trailing: true });
-        iframe.contentWindow.addEventListener('resize', function () {
-            endResize();
-            startResize();
-        });
-        this.elementRef.appendChild(this.bodyElementRef);
-        this.elementRef.appendChild(this.nextButton);
-    };
-    AbstractGallery.prototype.updateNextButtonVisibility = function () {
-        if (this.visibleCollection.length === this.collection.length) {
-            this.nextButton.style.display = 'none';
-        }
-        else {
-            this.nextButton.style.display = 'block';
-        }
-    };
-    AbstractGallery.prototype.clear = function () {
-        this.clearVisibleItems();
-        this.photoswipeCollection = [];
-        this._collection = [];
-        this.requestItems();
-    };
-    /**
-     * Override current collection
-     * @param {Item[]} items
-     */
-    AbstractGallery.prototype.setItems = function (items) {
-        this.clearVisibleItems();
-        this.photoswipeCollection = [];
-        this._collection = [];
-        this.addItems(items);
-    };
-    /**
-     * Add items to collection
-     * Transform given list of models into inner Items
-     * @param models
-     */
-    AbstractGallery.prototype.addItems = function (models) {
-        var _this = this;
-        if (!(models.constructor === Array && models.length)) {
-            return;
-        }
-        // Display newly added images if it's the first addition or if all images are already shown
-        var display = this.collection.length === 0 || this.collection.length === this.visibleCollection.length;
-        // Complete collection
-        models.forEach(function (model) {
-            var item = new Item_1.Item(_this.getItemOptions(), model);
-            _this._collection.push(item);
-            _this.photoswipeCollection.push(_this.getPhotoswipeItem(item));
-        });
-        if (display) {
-            this.addRows(this.getRowsPerPage());
-        }
-    };
-    /**
-     * Combine options from gallery with attributes required to generate a figure
-     * @param {Model} model
-     * @returns {ItemOptions}
-     */
-    AbstractGallery.prototype.getItemOptions = function () {
-        return {
-            lightbox: this.options.lightbox,
-            selectable: this.options.selectable,
-            activable: this.options.activable,
-            gap: this.options.gap,
-            showLabels: this.options.showLabels,
-        };
-    };
-    AbstractGallery.prototype.extendToFreeViewport = function () {
-        if (this.options.rowsPerPage) {
-            return this.options.rowsPerPage;
-        }
-        this.elementRef.style.minHeight = (this.getFreeViewportSpace() + 10) + 'px';
-    };
-    AbstractGallery.prototype.getFreeViewportSpace = function () {
-        var winHeight = this.scrollElementRef ? this.scrollElementRef.clientHeight : document.documentElement.clientHeight;
-        return winHeight - this.elementRef.offsetTop;
-    };
-    AbstractGallery.prototype.startResize = function () {
-        this.bodyElementRef.classList.add('resizing');
-    };
-    AbstractGallery.prototype.endResize = function () {
-        this.bodyElementRef.classList.remove('resizing');
-        if (!this.visibleCollection.length) {
-            return;
-        }
-        // Compute with new width. Rows indexes may have change
-        this.organizeItems(this.visibleCollection);
-        // Get new last row number
-        var lastVisibleRow = this.visibleCollection[this.visibleCollection.length - 1].row;
-        // Get number of items in that last row
-        var visibleItemsInLastRow = this.visibleCollection.filter(function (i) { return i.row === lastVisibleRow; }).length;
-        // Get a list from first item of last row until end of collection
-        var collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
-        // organizeItems entire last row + number of specified additional rows
-        this.organizeItems(collectionFromLastVisibleRow, lastVisibleRow, lastVisibleRow);
-        for (var i = this.visibleCollection.length; i < this.collection.length; i++) {
-            var testedItem = this.collection[i];
-            if (testedItem.row === lastVisibleRow) {
-                this.addItemToDOM(testedItem);
-            }
-            else {
-                break;
-            }
-        }
-        this.showScrollBufferItems();
-        for (var _i = 0, _a = this.visibleCollection; _i < _a.length; _i++) {
-            var item = _a[_i];
-            item.style();
-        }
-    };
-    /**
-     * Remove items from DOM, but preverves collection
-     */
-    AbstractGallery.prototype.clearVisibleItems = function () {
-        this._visibleCollection.forEach(function (item) { return item.remove(); });
-        this._visibleCollection = [];
-    };
-    /**
-     * Listen to scroll event and manages rows additions for lazy load
-     * @param {HTMLElement | Document} element
-     */
-    AbstractGallery.prototype.bindScroll = function (element) {
-        var _this = this;
-        var scrollable = element;
-        var wrapper = null;
-        if (element instanceof Document) {
-            wrapper = element.documentElement;
-        }
-        else {
-            wrapper = element;
-        }
-        scrollable.addEventListener('scroll', function () {
-            var endOfGalleryAt = _this.elementRef.offsetTop + _this.elementRef.offsetHeight + _this.options.infiniteScrollOffset;
-            // Avoid to expand gallery if we are scrolling up
-            var current_scroll_top = wrapper.scrollTop - (wrapper.clientTop || 0);
-            var wrapperHeight = wrapper.clientHeight;
-            var scroll_delta = current_scroll_top - _this.old_scroll_top;
-            _this.old_scroll_top = current_scroll_top;
-            // "enableMoreLoading" is a setting coming from the BE bloking / enabling dynamic loading of thumbnail
-            if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
-                // When scrolling only add a row at once
-                _this.addRows(1);
-                _this.requestItems(1);
-            }
-        });
-    };
-    AbstractGallery.prototype.openPhotoSwipe = function (item) {
-        var _this = this;
-        var pswpOptions = {
-            index: this.collection.findIndex(function (i) { return i === item; }),
-            bgOpacity: 0.85,
-            showHideOpacity: true,
-            loop: false,
-        };
-        this._photoswipe = new PhotoSwipe(this.photoswipeElementRef, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
-        this._photoswipe.init();
-        // Loading one more page when going to next image
-        this._photoswipe.listen('beforeChange', function (delta) {
-            // Positive delta means next slide.
-            // If we go next slide, and current index is out of visible collection bound, load more items
-            if (delta === 1 && _this._photoswipe.getCurrentIndex() === _this.visibleCollection.length) {
-                _this.addRows(1);
-            }
-        });
-    };
-    /**
-     * Format an Item into a PhotoswipeItem that has different attributes
-     * @param item
-     * @returns {PhotoswipeItem}
-     */
-    AbstractGallery.prototype.getPhotoswipeItem = function (item) {
-        return {
-            src: item.model.enlargedSrc,
-            w: item.model.enlargedWidth,
-            h: item.model.enlargedHeight,
-            title: item.title,
-        };
-    };
-    AbstractGallery.prototype.dispatchEvent = function (name, data) {
-        var event = new CustomEvent(name, { detail: data });
-        this.elementRef.dispatchEvent(event);
-    };
-    /**
-     * Select all items visible in the DOM
-     * Ignores buffered items
-     */
-    AbstractGallery.prototype.selectVisibleItems = function () {
-        this.visibleCollection.forEach(function (item) { return item.select(); });
-    };
-    /**
-     * Unselect all selected elements
-     */
-    AbstractGallery.prototype.unselectAllItems = function () {
-        this.visibleCollection.forEach(function (item) { return item.unselect(); });
-    };
-    /**
-     * Allows to use the same approach and method name to listen as gallery events on DOM or on javascript gallery object
-     *
-     * Gallery requests items when it's instantiated. But user may subscribe after creation, so we need to request again if
-     * user subscribes by this function.
-     *
-     * @param name
-     * @param callback
-     */
-    AbstractGallery.prototype.addEventListener = function (name, callback) {
-        this.elementRef.addEventListener(name, callback);
-        if (name === 'pagination') {
-            this.requestItems();
-        }
-    };
-    Object.defineProperty(AbstractGallery.prototype, "collection", {
-        get: function () {
-            return this._collection;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(AbstractGallery.prototype, "visibleCollection", {
-        get: function () {
-            return this._visibleCollection;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(AbstractGallery.prototype, "width", {
-        get: function () {
-            return Math.floor(this.bodyElementRef.getBoundingClientRect().width);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(AbstractGallery.prototype, "photoswipe", {
-        get: function () {
-            return this._photoswipe;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return AbstractGallery;
-}());
-exports.AbstractGallery = AbstractGallery;
-
-
-/***/ }),
-/* 22 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5781,175 +5938,8 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractGallery_1 = __webpack_require__(21);
-var SquareGallery = /** @class */ (function (_super) {
-    __extends(SquareGallery, _super);
-    function SquareGallery() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.defaultOptions = {
-            itemsPerRow: 4,
-            gap: 3,
-            rowsPerPage: 0,
-            showLabels: 'hover',
-            lightbox: true,
-            minRowsAtStart: 2,
-            showCount: false,
-            selectable: false,
-            activable: false,
-            infiniteScrollOffset: 0,
-            events: null,
-        };
-        return _this;
-    }
-    SquareGallery.prototype.init = function () {
-        _super.prototype.init.call(this);
-        this.elementRef.classList.add('square-gallery');
-    };
-    SquareGallery.prototype.getEstimatedItemsPerRow = function () {
-        return this.options.itemsPerRow;
-    };
-    SquareGallery.prototype.getEstimatedRowsPerPage = function () {
-        var nbRows = Math.ceil(this.getFreeViewportSpace() / this.getItemSideSize());
-        return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
-    };
-    /**
-     * Compute sides with 1:1 ratio
-     * @param items
-     * @param firstRowIndex
-     * @param toRow
-     */
-    SquareGallery.prototype.organizeItems = function (items, firstRowIndex, toRow) {
-        if (firstRowIndex === void 0) { firstRowIndex = 0; }
-        if (toRow === void 0) { toRow = null; }
-        var sideSize = this.getItemSideSize();
-        var lastIndex = toRow ? this.options.itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
-        lastIndex = lastIndex > items.length ? items.length : lastIndex;
-        for (var i = 0; i < lastIndex; i++) {
-            var item = items[i];
-            item.width = Math.floor(sideSize);
-            item.height = Math.floor(sideSize);
-            item.last = i % this.options.itemsPerRow === this.options.itemsPerRow - 1;
-            item.row = Math.floor(i / this.options.itemsPerRow) + firstRowIndex;
-        }
-    };
-    /**
-     * Return square side size
-     */
-    SquareGallery.prototype.getItemSideSize = function () {
-        var itemsPerRow = this.getEstimatedItemsPerRow();
-        return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
-    };
-    return SquareGallery;
-}(AbstractGallery_1.AbstractGallery));
-exports.SquareGallery = SquareGallery;
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractGallery_1 = __webpack_require__(21);
-var ResponsiveSquareGallery = /** @class */ (function (_super) {
-    __extends(ResponsiveSquareGallery, _super);
-    function ResponsiveSquareGallery() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.defaultOptions = {
-            rowHeight: 400,
-            gap: 3,
-            rowsPerPage: 0,
-            showLabels: 'hover',
-            lightbox: true,
-            minRowsAtStart: 2,
-            showCount: false,
-            selectable: false,
-            activable: false,
-            infiniteScrollOffset: 0,
-            events: null,
-        };
-        return _this;
-    }
-    ResponsiveSquareGallery.prototype.init = function () {
-        _super.prototype.init.call(this);
-        this.elementRef.classList.add('responsive-square-gallery');
-    };
-    ResponsiveSquareGallery.prototype.getEstimatedItemsPerRow = function () {
-        return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
-    };
-    ResponsiveSquareGallery.prototype.getEstimatedRowsPerPage = function () {
-        var nbRows = Math.ceil(this.getFreeViewportSpace() / this.getItemSideSize());
-        return nbRows < this.options.minRowsAtStart ? this.options.minRowsAtStart : nbRows;
-    };
-    /**
-     * Compute sides with 1:1 ratio
-     * @param items
-     * @param firstRowIndex
-     * @param toRow
-     */
-    ResponsiveSquareGallery.prototype.organizeItems = function (items, firstRowIndex, toRow) {
-        if (firstRowIndex === void 0) { firstRowIndex = 0; }
-        if (toRow === void 0) { toRow = null; }
-        var itemsPerRow = this.getEstimatedItemsPerRow();
-        // Compute sideSize of pictures
-        var sideSize = this.getItemSideSize();
-        // Compute overflow of given images per row. This number affect the width of the last item of the row
-        var diff = this.width - itemsPerRow * sideSize - (itemsPerRow - 1) * this.options.gap;
-        var lastIndex = toRow ? itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
-        lastIndex = lastIndex > items.length ? items.length : lastIndex;
-        for (var i = 0; i < lastIndex; i++) {
-            var item = items[i];
-            item.last = i % itemsPerRow === itemsPerRow - 1;
-            item.row = Math.floor(i / itemsPerRow) + firstRowIndex;
-            item.width = Math.floor(sideSize);
-            item.height = Math.floor(sideSize);
-            if (item.last) {
-                item.width = Math.floor(sideSize + diff);
-            }
-        }
-    };
-    /**
-     * Return square side size
-     */
-    ResponsiveSquareGallery.prototype.getItemSideSize = function () {
-        var itemsPerRow = this.getEstimatedItemsPerRow();
-        return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
-    };
-    return ResponsiveSquareGallery;
-}(AbstractGallery_1.AbstractGallery));
-exports.ResponsiveSquareGallery = ResponsiveSquareGallery;
-
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractGallery_1 = __webpack_require__(21);
-var Column_1 = __webpack_require__(25);
+var AbstractGallery_1 = __webpack_require__(0);
+var Column_1 = __webpack_require__(13);
 var MasonryGallery = /** @class */ (function (_super) {
     __extends(MasonryGallery, _super);
     function MasonryGallery() {
@@ -6071,13 +6061,17 @@ var MasonryGallery = /** @class */ (function (_super) {
     MasonryGallery.prototype.getMaximumItemsPerColumn = function () {
         return Math.max.apply(Math, this.columnsRef.map(function (column) { return column.length; }));
     };
+    MasonryGallery.prototype.empty = function () {
+        _super.prototype.empty.call(this);
+        this.addColumns();
+    };
     return MasonryGallery;
 }(AbstractGallery_1.AbstractGallery));
 exports.MasonryGallery = MasonryGallery;
 
 
 /***/ }),
-/* 25 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
