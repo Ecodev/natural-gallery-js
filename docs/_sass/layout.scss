@@ -65,7 +65,7 @@ $big-gap: 2 * $gap;
     flex-direction: row;
     align-items: center;
 
-    * {
+    & > * {
         min-height: 0;
     }
 
@@ -90,6 +90,10 @@ $big-gap: 2 * $gap;
 .layout-column {
     display: flex;
     flex-direction: column;
+
+    & > * {
+        min-height: 0;
+    }
 
     &.stretch {
         align-items: stretch;
