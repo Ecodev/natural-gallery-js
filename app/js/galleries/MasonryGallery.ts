@@ -29,6 +29,21 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
         this.addColumns();
     }
 
+    protected onScroll(): void {
+        this.addUntilFill();
+    }
+
+    protected onPageAdd(): void {
+        const itemsAdded = this.addUntilFill();
+        const nbColumns = this.getEstimatedItemsPerRow();
+        const itemsPerPage = this.getEstimatedRowsPerPage() * nbColumns;
+        const missingItems = itemsPerPage - itemsAdded;
+
+        if (missingItems > 0) {
+            this.addItemsToDom(missingItems);
+        }
+    }
+
     /**
      * Returns here the number of columns
      */
@@ -37,26 +52,30 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
     }
 
     protected getEstimatedRowsPerPage(): number {
-        const ratio = 2.2; // landscape format to estimate the maximum number of rows
+        const ratio = 1.75; // landscape format to estimate the maximum number of rows
         const columnWidth = this.getColumnWidth();
         const estimatedImageHeight = columnWidth / ratio;
-        return Math.ceil(this.getFreeViewportSpace() / estimatedImageHeight);
+        return Math.ceil(this.getGalleryVisibleHeight() / estimatedImageHeight);
     }
 
     /**
      * Use current gallery height as reference. To fill free space it add images until the gallery height changes, then are one more row
-     * @param rows
      */
-    protected addRows(rows: number): void {
+    protected addUntilFill(): number {
         const currentContainerHeight = this.elementRef.clientHeight;
+        let counter = 0;
+
         do {
-            this.addImages(1);
+            counter++;
+            this.addItemsToDom(1);
         } while (this.elementRef.clientHeight === currentContainerHeight && this.visibleCollection.length < this.collection.length);
 
-        this.addImages(this.getEstimatedRowsPerPage());
+        const rowsPerPage = this.getEstimatedRowsPerPage();
+        this.addItemsToDom(rowsPerPage);
+        return counter + rowsPerPage;
     }
 
-    private addImages(nbItems) {
+    private addItemsToDom(nbItems) {
 
         let nbVisibleImages = this.visibleCollection.length;
 
@@ -69,7 +88,6 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
 
         for (let i = nbVisibleImages; i < this.collection.length; i++) {
             let item = this.collection[i];
-            item.style();
             if (i <= lastWantedIndex) {
                 this.addItemToDOM(item);
             } else {
@@ -87,21 +105,18 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
         super.addItemToDOM(item, shortestColumn.elementRef);
     }
 
-    public endResize() {
+    protected endResize() {
 
-        this.bodyElementRef.classList.remove('resizing');
+        super.endResize();
 
         if (!this.visibleCollection.length) {
             return;
         }
 
         // Compute with new width. Rows indexes may have change
-        this.organizeItems(this.visibleCollection);
-        const rowsToAdd = this.getMaximumItemsPerColumn();
         this.visibleCollection.length = 0;
         this.addColumns();
-        this.addRows(rowsToAdd);
-
+        this.addUntilFill();
     }
 
     protected addColumns() {
@@ -136,6 +151,7 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
             item.last = true;
             item.width = Math.floor(columnWidth);
             item.height = item.width * item.model.enlargedWidth / item.model.enlargedHeight;
+            item.style();
         }
     }
 
@@ -155,10 +171,6 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
 
             return column.height < shortestColumn.height ? column : shortestColumn;
         });
-    }
-
-    private getMaximumItemsPerColumn() {
-        return Math.max(...this.columns.map(column => column.length));
     }
 
     protected empty() {

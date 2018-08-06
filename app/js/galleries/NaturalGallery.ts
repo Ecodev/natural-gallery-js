@@ -1,8 +1,8 @@
-import { AbstractGallery } from './AbstractGallery';
 import { ModelAttributes, NaturalGalleryOptions } from '../types';
 import { Item } from '../Item';
+import { AbstractResponsiveRowGallery } from './AbstractResponsiveRowGallery';
 
-export class NaturalGallery<Model extends ModelAttributes = any> extends AbstractGallery {
+export class NaturalGallery<Model extends ModelAttributes = any> extends AbstractResponsiveRowGallery {
 
     protected defaultOptions: NaturalGalleryOptions = {
         rowHeight: 400,
@@ -30,7 +30,7 @@ export class NaturalGallery<Model extends ModelAttributes = any> extends Abstrac
     }
 
     protected getEstimatedRowsPerPage(): number {
-        return Math.ceil(this.getFreeViewportSpace() / (this.options.rowHeight + this.options.gap)) + 1;
+        return Math.ceil(this.getGalleryVisibleHeight() / (this.options.rowHeight + this.options.gap)) + 1;
     }
 
     /**
@@ -90,6 +90,7 @@ export class NaturalGallery<Model extends ModelAttributes = any> extends Abstrac
             item.height = Math.floor(rowHeight);
             item.row = row;
             item.last = i === chunk.length - 1;
+            item.style();
         }
     }
 

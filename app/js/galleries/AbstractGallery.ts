@@ -94,7 +94,16 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         this.init();
     }
 
+    protected abstract getEstimatedItemsPerRow(): number;
+
+    protected abstract organizeItems(items: Item[], fromRow?: number, toRow?: number): void;
+
+    protected abstract onScroll(): void;
+
+    protected abstract onPageAdd(): void;
+
     protected init(): void {
+
         this.elementRef.classList.add('natural-gallery-js');
 
         /**
@@ -111,7 +120,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
                 this.requiredItems = 0;
             }
 
-        }, 400, {leading: false, trailing: true});
+        }, 300, {leading: false, trailing: true});
 
         this.defaultsOptions();
 
@@ -121,50 +130,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         if (!this.options.rowsPerPage) {
             this.bindScroll(this.scrollElementRef !== null ? this.scrollElementRef : document);
         }
-    }
-
-    /**
-     * @param width
-     * @param defaultImageRatio
-     * @param options
-     */
-    protected abstract getEstimatedItemsPerRow(width: number, defaultImageRatio: number, options: GalleryOptions): number;
-
-    /**
-     *
-     * @param items
-     * @param fromRow
-     * @param toRow
-     */
-    protected abstract organizeItems(items: Item[], fromRow?: number, toRow?: number): void;
-
-    /**
-     * Add given number of rows to DOM
-     * @param rows
-     */
-    protected addRows(rows: number): void {
-
-        let nbVisibleImages = this.visibleCollection.length;
-
-        // Next row to add (first invisible row)
-        const nextRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row + 1 : 0;
-        const lastWantedRow = nextRow + rows - 1;
-
-        // Compute size only for elements we're going to add
-        this.organizeItems(this.collection.slice(nbVisibleImages), nextRow, lastWantedRow);
-
-        for (let i = nbVisibleImages; i < this.collection.length; i++) {
-            let item = this.collection[i];
-            item.style();
-            if (item.row <= lastWantedRow) {
-                this.addItemToDOM(item);
-            } else {
-                break;
-            }
-        }
-
-        this.flushBufferedItems();
-        this.updateNextButtonVisibility();
     }
 
     /**
@@ -197,9 +162,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      *
      * @param {number} nbItems
      */
-    protected requestItems(nbItems?: number) {
-        const estimatedPerRow = this.getEstimatedItemsPerRow(this.width, this.defaultImageRatio, this.options);
-        const limit = estimatedPerRow * this.getRowsPerPage();
+    protected requestItems() {
+        const estimatedPerRow = this.getEstimatedItemsPerRow();
+        const limit = estimatedPerRow * (this.getRowsPerPage() + 1);
         this.dispatchEvent('pagination', {offset: this.collection.length, limit: limit});
     }
 
@@ -209,7 +174,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * @returns {number}
      */
     protected getRowsPerPage() {
-        if (this.options.rowsPerPage) {
+        if (this.options.rowsPerPage > 0) {
             return this.options.rowsPerPage;
         }
 
@@ -223,7 +188,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * @param destination
      */
     protected addItemToDOM(item: Item<Model>, destination: HTMLElement = this.bodyElementRef): void {
-
         this.visibleCollection.push(item);
         destination.appendChild(item.init());
         this.scrollBufferedItems.push(item);
@@ -255,8 +219,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         this.nextButton.style.display = 'none';
         this.nextButton.addEventListener('click', (e) => {
             e.preventDefault();
-            const rows = this.options.rowsPerPage > 0 ? this.options.rowsPerPage : this.getRowsPerPage();
-            this.addRows(rows);
+            this.onPageAdd();
         });
 
         this.bodyElementRef = document.createElement('div');
@@ -310,9 +273,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         });
 
         if (display) {
-            this.addRows(this.getRowsPerPage());
+            this.onPageAdd();
         }
-
     }
 
     /**
@@ -336,59 +298,23 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             return this.options.rowsPerPage;
         }
 
-        this.elementRef.style.minHeight = (this.getFreeViewportSpace() + 10) + 'px';
+        this.elementRef.style.minHeight = (this.getGalleryVisibleHeight() + 10) + 'px';
     }
 
     /**
      * Space between the top of the gallery wrapper (parent of gallery root elementRef) and the bottom of the window
      */
-    protected getFreeViewportSpace() {
+    protected getGalleryVisibleHeight() {
         let winHeight = this.scrollElementRef ? this.scrollElementRef.clientHeight : document.documentElement.clientHeight;
         return winHeight - this.elementRef.offsetTop;
     }
 
-    public startResize() {
+    protected startResize() {
         this.bodyElementRef.classList.add('resizing');
     }
 
-    public endResize() {
-
+    protected endResize() {
         this.bodyElementRef.classList.remove('resizing');
-
-        if (!this.visibleCollection.length) {
-            return;
-        }
-
-        // Compute with new width. Rows indexes may have change
-        this.organizeItems(this.visibleCollection);
-
-        // Get new last row number
-        const lastVisibleRow = this.visibleCollection[this.visibleCollection.length - 1].row;
-
-        // Get number of items in that last row
-        const visibleItemsInLastRow = this.visibleCollection.filter(i => i.row === lastVisibleRow).length;
-
-        // Get a list from first item of last row until end of collection
-        const collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
-
-        // organizeItems entire last row + number of specified additional rows
-        this.organizeItems(collectionFromLastVisibleRow, lastVisibleRow, lastVisibleRow);
-
-        for (let i = this.visibleCollection.length; i < this.collection.length; i++) {
-            const testedItem = this.collection[i];
-            if (testedItem.row === lastVisibleRow) {
-                this.addItemToDOM(testedItem);
-            } else {
-                break;
-            }
-        }
-
-        this.flushBufferedItems();
-
-        for (const item of this.visibleCollection) {
-            item.style();
-        }
-
     }
 
     /**
@@ -405,7 +331,12 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             wrapper = element;
         }
 
+        const startScroll = _.debounce(() => this.elementRef.classList.add('scrolling'), 300, {leading: true, trailing: false});
+        const endScroll = _.debounce(() => this.elementRef.classList.remove('scrolling'), 300, {leading: false, trailing: true});
+
         scrollable.addEventListener('scroll', () => {
+            startScroll();
+            endScroll();
             let endOfGalleryAt = this.elementRef.offsetTop + this.elementRef.offsetHeight + this.options.infiniteScrollOffset;
 
             // Avoid to expand gallery if we are scrolling up
@@ -417,7 +348,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             // "enableMoreLoading" is a setting coming from the BE bloking / enabling dynamic loading of thumbnail
             if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
                 // When scrolling only add a row at once
-                this.addRows(1);
+                this.onScroll();
             }
         });
     }
@@ -439,7 +370,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             // Positive delta means next slide.
             // If we go next slide, and current index is out of visible collection bound, load more items
             if (delta === 1 && this._photoswipe.getCurrentIndex() === this.visibleCollection.length) {
-                this.addRows(1);
+                this.onPageAdd();
             }
         });
     }

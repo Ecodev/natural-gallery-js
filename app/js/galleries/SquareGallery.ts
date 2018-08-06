@@ -1,8 +1,8 @@
-import { AbstractGallery } from './AbstractGallery';
 import { ModelAttributes, SquareGalleryOptions } from '../types';
 import { Item } from '../Item';
+import { AbstractRowGallery } from './AbstractRowGallery';
 
-export class SquareGallery<Model extends ModelAttributes = any> extends AbstractGallery {
+export class SquareGallery<Model extends ModelAttributes = any> extends AbstractRowGallery {
 
     protected defaultOptions: SquareGalleryOptions = {
         itemsPerRow: 4,
@@ -29,10 +29,6 @@ export class SquareGallery<Model extends ModelAttributes = any> extends Abstract
         return this.options.itemsPerRow;
     }
 
-    protected getEstimatedRowsPerPage(): number {
-        return Math.ceil(this.getFreeViewportSpace() / this.getItemSideSize());
-    }
-
     /**
      * Compute sides with 1:1 ratio
      * @param items
@@ -51,13 +47,18 @@ export class SquareGallery<Model extends ModelAttributes = any> extends Abstract
             item.height = Math.floor(sideSize);
             item.last = i % this.options.itemsPerRow === this.options.itemsPerRow - 1;
             item.row = Math.floor(i / this.options.itemsPerRow) + firstRowIndex;
+            item.style();
         }
+    }
+
+    protected getEstimatedRowsPerPage(): number {
+        return Math.ceil(this.getGalleryVisibleHeight() / this.getItemSideSize());
     }
 
     /**
      * Return square side size
      */
-    private getItemSideSize(): number {
+    protected getItemSideSize(): number {
         const itemsPerRow = this.getEstimatedItemsPerRow();
         return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
     }

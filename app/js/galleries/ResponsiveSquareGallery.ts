@@ -1,8 +1,8 @@
-import { AbstractGallery } from './AbstractGallery';
 import { ModelAttributes, ResponsiveSquareGalleryOptions } from '../types';
 import { Item } from '../Item';
+import { AbstractResponsiveRowGallery } from './AbstractResponsiveRowGallery';
 
-export class ResponsiveSquareGallery<Model extends ModelAttributes = any> extends AbstractGallery {
+export class ResponsiveSquareGallery<Model extends ModelAttributes = any> extends AbstractResponsiveRowGallery {
 
     protected defaultOptions: ResponsiveSquareGalleryOptions = {
         rowHeight: 400,
@@ -27,10 +27,6 @@ export class ResponsiveSquareGallery<Model extends ModelAttributes = any> extend
 
     protected getEstimatedItemsPerRow(): number {
         return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
-    }
-
-    protected getEstimatedRowsPerPage(): number {
-        return Math.ceil(this.getFreeViewportSpace() / this.getItemSideSize());
     }
 
     /**
@@ -61,15 +57,17 @@ export class ResponsiveSquareGallery<Model extends ModelAttributes = any> extend
             if (item.last) {
                 item.width = Math.floor(sideSize + diff);
             }
+            item.style();
         }
     }
 
-    /**
-     * Return square side size
-     */
-    private getItemSideSize(): number {
+    protected getItemSideSize(): number {
         const itemsPerRow = this.getEstimatedItemsPerRow();
         return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
+    }
+
+    protected getEstimatedRowsPerPage(): number {
+        return Math.ceil(this.getGalleryVisibleHeight() / this.getItemSideSize());
     }
 
 }

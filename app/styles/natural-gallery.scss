@@ -28,6 +28,12 @@
         border: 0;
     }
 
+    &.scrolling {
+        &, & * {
+            pointer-events: none !important;
+        }
+    }
+
     /**
     * Columns
     * ===================================================
