@@ -7,12 +7,4 @@ export module Utility {
         return svg;
     }
 
-    export function defaults(dest, source) {
-        for (const key in Object.keys(source)) {
-            if (typeof dest[key] === 'undefined') {
-                dest[key] = source[key];
-            }
-        }
-    }
-
 }

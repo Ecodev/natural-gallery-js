@@ -146,7 +146,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      */
     protected defaultsOptions(): void {
         this.options = this.userOptions;
-        Utility.defaults(this.options, this.defaultOptions);
+        for (const key in this.defaultOptions) {
+            if (typeof this.options[key] === 'undefined') {
+                this.options[key] = this.defaultOptions[key];
+            }
+        }
     }
 
     /**
