@@ -20,7 +20,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         selectable: false,
         activable: false,
         infiniteScrollOffset: 0,
-        events: null,
         photoSwipeOptions: null,
     };
 
@@ -161,7 +160,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * The gallery asks for items it needs, including some buffer items that are not displayed when given but are available to be added
      * immediately to DOM when user scrolls.
      *
-     * @param {number} nbItems
      */
     protected requestItems() {
         const estimatedPerRow = this.getEstimatedItemsPerRow();

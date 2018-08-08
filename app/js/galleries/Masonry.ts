@@ -15,7 +15,7 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
         selectable: false,
         activable: false,
         infiniteScrollOffset: 0,
-        events: null,
+        photoSwipeOptions: null,
     };
 
     protected options: MasonryGalleryOptions;

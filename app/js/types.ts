@@ -21,7 +21,6 @@ export interface ModelAttributes {
 export interface GalleryOptions extends ItemOptions {
     rowsPerPage: number;
     minRowsAtStart: number;
-    events: GalleryEvents;
     infiniteScrollOffset: number;
     photoSwipeOptions: PhotoSwipeOptions;
 }
@@ -82,17 +81,6 @@ export interface MasonryGalleryOptions extends GalleryOptions {
 export interface ColumnOptions {
     width: number;
     gap: number;
-}
-
-export interface PaginationEvent {
-    offset: number;
-    limit: number;
-}
-
-export interface GalleryEvents {
-    select: (models: ModelAttributes[]) => void;
-    pagination: (event: PaginationEvent) => void;
-    activate: (model: ModelAttributes, event: Event) => void;
 }
 
 export interface PhotoswipeItem {
