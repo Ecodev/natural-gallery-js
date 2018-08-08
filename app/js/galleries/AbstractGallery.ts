@@ -1,6 +1,6 @@
 import { Item } from '../Item';
 import { Utility } from '../Utility';
-import { GalleryOptions, ItemOptions, ModelAttributes, PhotoswipeItem } from '../types';
+import { GalleryOptions, InnerPhotoSwipeOptions, ItemOptions, ModelAttributes, PhotoswipeItem, PhotoSwipeOptions } from '../types';
 import * as PhotoSwipe from 'photoswipe';
 import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 import * as _ from '../lodash/debounce.js';
@@ -21,8 +21,17 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         activable: false,
         infiniteScrollOffset: 0,
         events: null,
+        photoSwipeOptions: null,
     };
 
+    protected photoswipeDefaultOptions: PhotoSwipeOptions = {
+        bgOpacity: 0.85,
+        showHideOpacity: false,
+    };
+
+    /**
+     * Final gallery options after having defaulted user given options
+     */
     protected options: GalleryOptions;
 
     /**
@@ -61,13 +70,14 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     private nextButton: HTMLElement;
 
     /**
-     * This ratio is the supposed average ratio for the first pagination estimation
-     * When gallery is created without images, this ratio is used to estimate number of images per page
+     * Items for which container has been added to dom, but image has not been queries yet
      */
-    protected defaultImageRatio = .7;
-
     protected scrollBufferedItems = [];
-    protected flushBufferedItems;
+
+    /**
+     * Debounced function that queries for images after a little moment where no other images container have been added to DOM
+     */
+    protected flushBufferedItems: () => void;
 
     protected requiredItems = 0;
 
@@ -135,13 +145,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * @param options
      */
     protected defaultsOptions(): void {
-
         this.options = this.userOptions;
-        for (const key in this.defaultOptions) {
-            if (typeof this.options[key] === 'undefined') {
-                this.options[key] = this.defaultOptions[key];
-            }
-        }
+        Utility.defaults(this.options, this.defaultOptions);
     }
 
     /**
@@ -347,12 +352,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
     protected openPhotoSwipe(item: Item) {
 
-        let pswpOptions = {
+        let pswpOptions: InnerPhotoSwipeOptions = {
             index: this.collection.findIndex(i => i === item),
-            bgOpacity: 0.85,
-            showHideOpacity: true,
             loop: false,
         };
+        pswpOptions = Object.assign({}, this.photoswipeDefaultOptions, this.options.photoSwipeOptions, pswpOptions);
 
         const photoswipe = new PhotoSwipe(this.photoswipeElementRef, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
         photoswipe.init();

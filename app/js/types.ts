@@ -23,6 +23,44 @@ export interface GalleryOptions extends ItemOptions {
     minRowsAtStart: number;
     events: GalleryEvents;
     infiniteScrollOffset: number;
+    photoSwipeOptions: PhotoSwipeOptions;
+}
+
+export interface PhotoSwipeOptions {
+    getThumbBoundsFn?: (index?: number) => void;
+    showHideOpacity?: boolean;
+    showAnimationDuration?: number;
+    hideAnimationDuration?: number;
+    bgOpacity?: number;
+    spacing?: number;
+    allowPanToNext?: boolean;
+    maxSpreadZoom?: number;
+    getDoubleTapZoom?: (isMouseClick?: boolean, item?: any) => number;
+    pinchToClose?: boolean;
+    closeOnScroll?: boolean;
+    closeOnVerticalDrag?: boolean;
+    mouseUsed?: boolean;
+    escKey?: boolean;
+    arrowKeys?: boolean;
+    history?: boolean;
+    galleryUID?: number;
+    galleryPIDs?: boolean;
+    errorMsg?: string;
+    preload?: [number, number];
+    mainClass?: string;
+    getNumItemsFn?: () => number;
+    focus?: boolean;
+    modal?: boolean;
+    verticalDragRange?: number;
+    mainScrollEndFriction?: number;
+    panEndFriction?: number;
+    isClickableElement?: (el) => boolean;
+    scaleMode?: string;
+}
+
+export interface InnerPhotoSwipeOptions extends PhotoSwipeOptions {
+    index: number;
+    loop: boolean;
 }
 
 export interface NaturalGalleryOptions extends GalleryOptions {
