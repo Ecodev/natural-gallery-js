@@ -173,7 +173,7 @@ export class Item<Model extends ModelAttributes = any> {
 
         if (this.options.selectable) {
             this._selectBtn = document.createElement('div');
-            const icon = Utility.getIcon('icon-select');
+            const icon = Utility.getIcon('natural-gallery-icon-select');
             this._selectBtn.appendChild(icon);
             this._selectBtn.classList.add('selectBtn');
             this._selectBtn.addEventListener('click', (e) => {

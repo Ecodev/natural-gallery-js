@@ -15,9 +15,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         gap: 3,
         rowsPerPage: 0,
         showLabels: 'hover',
-        lightbox: true,
+        lightbox: false,
         minRowsAtStart: 2,
-        showCount: false,
         selectable: false,
         activable: false,
         infiniteScrollOffset: 0,
@@ -87,8 +86,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * @param scrollElementRef
      */
     protected constructor(protected elementRef: HTMLElement,
-                          protected photoswipeElementRef: HTMLElement,
                           protected userOptions: GalleryOptions,
+                          protected photoswipeElementRef: HTMLElement,
                           protected scrollElementRef: HTMLElement = null) {
 
         this.init();
@@ -215,7 +214,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         // Next button
         this.nextButton = document.createElement('div');
         this.nextButton.classList.add('natural-gallery-next');
-        this.nextButton.appendChild(Utility.getIcon('icon-next'));
+        this.nextButton.appendChild(Utility.getIcon('natural-gallery-icon-next'));
         this.nextButton.style.display = 'none';
         this.nextButton.addEventListener('click', (e) => {
             e.preventDefault();

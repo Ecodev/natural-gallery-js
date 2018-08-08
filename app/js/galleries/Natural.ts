@@ -2,7 +2,7 @@ import { ModelAttributes, NaturalGalleryOptions } from '../types';
 import { Item } from '../Item';
 import { AbstractResponsiveRowGallery } from './AbstractResponsiveRowGallery';
 
-export class NaturalGallery<Model extends ModelAttributes = any> extends AbstractResponsiveRowGallery {
+export class Natural<Model extends ModelAttributes = any> extends AbstractResponsiveRowGallery {
 
     protected defaultOptions: NaturalGalleryOptions = {
         rowHeight: 400,
@@ -11,7 +11,6 @@ export class NaturalGallery<Model extends ModelAttributes = any> extends Abstrac
         showLabels: 'hover',
         lightbox: true,
         minRowsAtStart: 2,
-        showCount: false,
         selectable: false,
         activable: false,
         infiniteScrollOffset: 0,

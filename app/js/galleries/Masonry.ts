@@ -3,7 +3,7 @@ import { MasonryGalleryOptions, ModelAttributes } from '../types';
 import { Item } from '../Item';
 import { Column } from '../Column';
 
-export class MasonryGallery<Model extends ModelAttributes = any> extends AbstractGallery {
+export class Masonry<Model extends ModelAttributes = any> extends AbstractGallery {
 
     protected defaultOptions: MasonryGalleryOptions = {
         columnWidth: 300,
@@ -12,7 +12,6 @@ export class MasonryGallery<Model extends ModelAttributes = any> extends Abstrac
         showLabels: 'hover',
         lightbox: true,
         minRowsAtStart: 2,
-        showCount: false,
         selectable: false,
         activable: false,
         infiniteScrollOffset: 0,

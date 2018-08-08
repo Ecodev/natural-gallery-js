@@ -2,7 +2,7 @@ import { ModelAttributes, SquareGalleryOptions } from '../types';
 import { Item } from '../Item';
 import { AbstractRowGallery } from './AbstractRowGallery';
 
-export class SquareGallery<Model extends ModelAttributes = any> extends AbstractRowGallery {
+export class Square<Model extends ModelAttributes = any> extends AbstractRowGallery {
 
     protected defaultOptions: SquareGalleryOptions = {
         itemsPerRow: 4,
@@ -11,7 +11,6 @@ export class SquareGallery<Model extends ModelAttributes = any> extends Abstract
         showLabels: 'hover',
         lightbox: true,
         minRowsAtStart: 2,
-        showCount: false,
         selectable: false,
         activable: false,
         infiniteScrollOffset: 0,

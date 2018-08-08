@@ -2,7 +2,7 @@ import { ModelAttributes, ResponsiveSquareGalleryOptions } from '../types';
 import { Item } from '../Item';
 import { AbstractResponsiveRowGallery } from './AbstractResponsiveRowGallery';
 
-export class ResponsiveSquareGallery<Model extends ModelAttributes = any> extends AbstractResponsiveRowGallery {
+export class ResponsiveSquare<Model extends ModelAttributes = any> extends AbstractResponsiveRowGallery {
 
     protected defaultOptions: ResponsiveSquareGalleryOptions = {
         rowHeight: 400,
@@ -11,7 +11,6 @@ export class ResponsiveSquareGallery<Model extends ModelAttributes = any> extend
         showLabels: 'hover',
         lightbox: true,
         minRowsAtStart: 2,
-        showCount: false,
         selectable: false,
         activable: false,
         infiniteScrollOffset: 0,

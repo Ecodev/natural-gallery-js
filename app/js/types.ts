@@ -21,19 +21,16 @@ export interface ModelAttributes {
 export interface GalleryOptions extends ItemOptions {
     rowsPerPage: number;
     minRowsAtStart: number;
-    showCount: boolean;
     events: GalleryEvents;
     infiniteScrollOffset: number;
 }
 
-export interface ResponsiveGalleryOptions extends GalleryOptions {
+export interface NaturalGalleryOptions extends GalleryOptions {
     rowHeight: number;
 }
 
-export interface NaturalGalleryOptions extends ResponsiveGalleryOptions {
-}
-
-export interface ResponsiveSquareGalleryOptions extends ResponsiveGalleryOptions {
+export interface ResponsiveSquareGalleryOptions extends GalleryOptions {
+    rowHeight: number;
 }
 
 export interface SquareGalleryOptions extends GalleryOptions {
