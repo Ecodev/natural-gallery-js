@@ -37,13 +37,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     protected bodyElementRef: HTMLElement;
 
     /**
-     * Photoswipe javascript object
-     * Contains api to interact with library
-     * @type PhotoSwipe
-     */
-    private _photoswipe: any;
-
-    /**
      * Complete collection of images
      * @type {Array}
      */
@@ -361,17 +354,19 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             loop: false,
         };
 
-        this._photoswipe = new PhotoSwipe(this.photoswipeElementRef, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
-        this._photoswipe.init();
+        const photoswipe = new PhotoSwipe(this.photoswipeElementRef, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
+        photoswipe.init();
 
         // Loading one more page when going to next image
-        this._photoswipe.listen('beforeChange', (delta) => {
+        photoswipe.listen('beforeChange', (delta) => {
             // Positive delta means next slide.
             // If we go next slide, and current index is out of visible collection bound, load more items
-            if (delta === 1 && this._photoswipe.getCurrentIndex() === this.visibleCollection.length) {
+            if (delta === 1 && photoswipe.getCurrentIndex() === this.visibleCollection.length) {
                 this.onPageAdd();
             }
         });
+
+        this.dispatchEvent('zoom', photoswipe);
     }
 
     /**
@@ -463,10 +458,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
     get width(): number {
         return Math.floor(this.bodyElementRef.getBoundingClientRect().width);
-    }
-
-    get photoswipe(): any {
-        return this._photoswipe;
     }
 
 }
