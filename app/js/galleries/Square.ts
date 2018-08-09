@@ -9,7 +9,7 @@ export class Square<Model extends ModelAttributes = any> extends AbstractRowGall
         gap: 3,
         rowsPerPage: 0,
         showLabels: 'hover',
-        lightbox: true,
+        lightbox: false,
         minRowsAtStart: 2,
         selectable: false,
         activable: false,

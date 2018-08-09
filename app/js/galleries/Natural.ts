@@ -9,7 +9,7 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
         gap: 3,
         rowsPerPage: 0,
         showLabels: 'hover',
-        lightbox: true,
+        lightbox: false,
         minRowsAtStart: 2,
         selectable: false,
         activable: false,
