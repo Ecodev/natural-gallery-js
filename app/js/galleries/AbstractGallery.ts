@@ -125,6 +125,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
         this.defaultsOptions();
 
+        if (this.options.lightbox && !this.photoswipeElementRef) {
+            console.error('Lightbox option is set to true, but no PhotoSwipe reference is given');
+        }
+
         this.render();
         this.requestItems();
 
@@ -353,6 +357,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     }
 
     protected openPhotoSwipe(item: Item) {
+
+        if (this.options.lightbox && !this.photoswipeElementRef) {
+            console.error('Lightbox option is set to true, but no PhotoSwipe reference is given');
+            return;
+        }
 
         let pswpOptions: InnerPhotoSwipeOptions = {
             index: this.collection.findIndex(i => i === item),
