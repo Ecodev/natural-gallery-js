@@ -116,10 +116,10 @@ export class Item<Model extends ModelAttributes = any> {
             // activable = element;
 
         } else if (!this.options.lightbox && label && link) {
-            element = link;
-            label = document.createElement('div');
+            image = this.getLinkElement();
+            label = link;
             label.classList.add('button');
-            activable = link;
+            activable = element;
 
         } else if (!this.options.lightbox && label && !link) {
             label = document.createElement('div');
@@ -129,7 +129,7 @@ export class Item<Model extends ModelAttributes = any> {
             }
 
         } else if (!this.options.lightbox && !label && link) {
-            element = link;
+            image = link;
             activable = link;
         }
 
