@@ -142,7 +142,7 @@ export class Item<Model extends ModelAttributes = any> {
             });
         }
 
-        if (activable && this.options.activable) {
+        if (activable) {
             activable.classList.add('activable');
             activable.addEventListener('click', (ev) => {
                 const data = {

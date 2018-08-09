@@ -1,21 +1,4 @@
-
 .natural-gallery-js {
-
-    .link {
-        cursor: pointer;
-    }
-
-    .button {
-        cursor: pointer;
-        margin: 10px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-        border-radius: 4px;
-        text-decoration: none;
-    }
-
-    .zoomable {
-        cursor: zoom-in;
-    }
 
     .figure {
         left: 0;
@@ -25,12 +8,21 @@
         float: left;
         overflow: hidden;
         margin: 0;
+        border:none;
         transition: 1s background-color;
 
         &:hover {
             .title.hover, .title.hover, .selectBtn {
                 transform: translateY(0%);
             }
+        }
+
+        &.zoomable, .zoomable {
+            cursor: zoom-in;
+        }
+
+        &.activable, .activable {
+            cursor: pointer;
         }
 
         &.loaded > .image {
@@ -95,7 +87,7 @@
             text-align: center;
             color: white;
             font-size: 14px;
-            line-height: 2em;
+            line-height: 1.7em;
             font-weight: normal;
             padding: 10px;
             transition: .2s ease all;
@@ -108,6 +100,16 @@
                 // + the margin of &[href]
                 transform: translateY(calc(100% + 12px));
             }
+        }
+
+        .button {
+            display:block;
+            margin: 10px;
+            padding: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
         }
     }
 }
