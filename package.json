@@ -21,6 +21,7 @@
         "dev": "cd docs; jekyll serve --livereload && yarn build:watch",
         "dev:sandbox": "webpack-dev-server --open --progress --colors --port 1405",
         "build": "NODE_ENV='production' webpack; NODE_ENV='production' webpack --env.nodependencies",
+        "build:docs": "NODE_ENV='production' webpack --env.demo",
         "build:watch": "webpack --watch --env.demo",
         "release": "yarn prod; yarn publish --access public"
     },

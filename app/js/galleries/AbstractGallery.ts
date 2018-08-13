@@ -381,7 +381,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             }
         });
 
-        this.dispatchEvent('zoom', photoswipe);
+        this.dispatchEvent('zoom', {item: item.model, photoswipe: photoswipe});
     }
 
     /**
@@ -449,7 +449,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * Public api for empty function
      * Emits a pagination event
      */
-    public clear() {
+    public reset() {
         this.empty();
         this.requestItems();
     }
@@ -473,6 +473,14 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
     get width(): number {
         return Math.floor(this.bodyElementRef.getBoundingClientRect().width);
+    }
+
+    get collectionLength(): number {
+        return this.collection.length;
+    }
+
+    get visibleCollectionLength(): number {
+        return this.visibleCollection.length;
     }
 
 }

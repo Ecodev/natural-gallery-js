@@ -31,6 +31,69 @@ layout: default
 
     <div class="row">
         <div class="container-1000px">
+            <h2>Public API</h2>
+            <table>
+                <tr>
+                    <th>Property / Getter</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Docs</th>
+                </tr>
+                <tr>
+                    <td>setItems(models[])</td>
+                    <td>void</td>
+                    <td>Resets the collection and inits a new one</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>addItems(models[])</td>
+                    <td>void</td>
+                    <td>Add items to current collection</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>addEventListener(string, fn)</td>
+                    <td></td>
+                    <td>Subscribe to gallery events</td>
+                    <td><a href="#events">Docs</a></td>
+                </tr>
+                <tr>
+                    <td>clear()</td>
+                    <td>void</td>
+                    <td>Empty the gallery and emits a pagination event</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>collectionLength</td>
+                    <td>number</td>
+                    <td>Size of full collection (including not yet displayed items)</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>visibleCollectionLength</td>
+                    <td>number</td>
+                    <td>Size of collection visible in the DOM</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>selectVisibleItems()</td>
+                    <td>void</td>
+                    <td>Select all items visible in the DOM</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>unselectAllItems()</td>
+                    <td>void</td>
+                    <td>Unselect all selected items</td>
+                    <td></td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+
+    <div class="row" id="events">
+        <div class="container-1000px">
             <h2>Events</h2>
             <p>The gallery emits some events that allows you to implement rich interactions. You can listen to them as follow : </p>
         </div>
@@ -63,6 +126,7 @@ gallery.addEventListener(eventName, function(ev) {
                     <td>pagination</td>
                     <td>Informs user the images that are required by the gallery</td>
                     <td>{% highlight javascript %}{offset: number, limit: number}{% endhighlight %}</td>
+                    <td><a href="#pagination">Docs</a></td>
                 </tr>
                 <tr>
                     <td>activate</td>
@@ -72,15 +136,15 @@ gallery.addEventListener(eventName, function(ev) {
                 </tr>
                 <tr>
                     <td>select</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td>Notifies the list of currently selected item</td>
+                    <td>{% highlight javascript %}model[]{% endhighlight %}</td>
+                    <td><a href="#select">Docs</a></td>
                 </tr>
                 <tr>
                     <td>zoom</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td>Notifies the item and PhotoSwipe object when it's opened.</td>
+                    <td>{% highlight javascript %}{item: Object, photoswipe: PhotoSwipeObject}{% endhighlight %}</td>
+                    <td><a href="#zoom">Docs</a></td>
                 </tr>
             </table>
         </div>
@@ -88,27 +152,85 @@ gallery.addEventListener(eventName, function(ev) {
 
     <div class="row">
         <div class="container-1000px">
-            <h3 id="activable">activate</h3>
-            <p>Notifies that an item has been clicked for something else than opening the lightbox.</p>
-        </div>
-{% highlight javascript %}
-gallery.addEventListener('activate', function(ev) {
-    console.log('activate', ev.detail);
+            <h3 id="pagination">pagination :</h3>
+            <p>The gallery emits a notification to tell you what it needs. </p>
+            <p>The event contains with a start index and a number of items that are required by the gallery to work smooth.</p>
+            <p>On first load, the gallery estimates the number of items to display considering given options and the free space of the viewport.</p>
+            <p>After each items displayed into the DOM, the gallery asks an equivalent amount of items to add in the end of the collection. It behaves like a buffer to provide a fluid scrolling without interruptions due to server loading next query.</p>
+            <p>This cause the following scenario : </p>
+            <ol>
+                <li>The page document is ready</li>
+                <li>The gallery inits and uses configuration to estimate the number of items to display. For example : 20.</li>
+                <li>The gallery emits a pagination event {offset: 0, limit : 20}</li>
+                <li>When received, the items are added to the DOM. The gallery can ask for 20 items, and only display 15 (because of estimation on variables formats like Natural and Masonry)</li>
+                <li>Assuming the gallery has displayed 15 items, it emits a new pagination event {offset: 20, limit: 15)</li>
+                <li>Those new 15 items are not added to DOM because user has not scrolled yet. The gallery don't emits any new pagination event</li>
+                <li>The user scrolls slowly, 5 new items are added to next row. The gallery will emit a pagination event with {offset:35, limit: 5}</li>
+                <li>If the user scrolls fast, a single pagination event will be emitted after all items have been displayed.</li>
+            </ol>
+            <p>Due to the variable ratios of items in Natural and Masonry formats, the pagination is only an estimation. Each row can have a
+               different number of images. For that reason the builtin pagination event is not compatible with a pagination of type PageSize
+               and PageIndex.</p>
 
-    // Prevents to redirect to destination page in case clicked element is an <a href />
-    ev.detail.clickEvent.preventDefault();
+        </div>
+
+{% highlight javascript %}
+gallery.addEventListener('pagination', function(ev) {
+    console.log(ev.detail); // {offset: 0, limit: 23}
 });
 {% endhighlight %}
+
+    </div>
+
+    <div class="row">
         <div class="container-1000px">
+            <h3 id="activable">activate</h3>
+            <p>Emits a notification when an item has been clicked for something else than opening the lightbox.</p>
 
             <p>If the lightbox option is set to true, there are two scenarios where the activate event is emitted :</p>
             <ul>
                 <li>If items have a link, a button appears in place of the "raw" label. Clicking on the button emits an activate event.</li>
                 <li>If items don't have a link, but the gallery option.activable is set to true, the label becomes a button and a click on it emits an activate event.</li>
             </ul>
-            <p>If the lightbox option is set to false, these two scenarios stay valid, but the whole image surface is considered as the button and emits the activate event.</p>
+            <p>If the lightbox option is set to false, these two scenarios stay valid, but the whole image area is considered as the button and emits the activate event.</p>
         </div>
 
+{% highlight javascript %}
+gallery.addEventListener('activate', function(ev) {
+    console.log(ev.detail); // {model: Object, clickEvent: MouseEvent}
+
+    // Prevents to redirect to destination page in case clicked element is an <a href />
+    ev.detail.clickEvent.preventDefault();
+});
+{% endhighlight %}
+    </div>
+
+    <div class="row">
+        <div class="container-1000px">
+            <h3 id="select">select</h3>
+            <p>Emits a notification with an array that contains the list of the currently selected items.</p>
+            <p>Items in the list are the same as those provided as input.</p>
+        </div>
+
+{% highlight javascript %}
+gallery.addEventListener('select', function(ev) {
+    console.log(ev.detail); // [Model1, Model2, Model3]
+});
+{% endhighlight %}
+
+    </div>
+    <div class="row">
+        <div class="container-1000px">
+            <h3 id="zoom">zoom</h3>
+            <p>Emits a notification with the target item and PhotoSwipe object when the lightbox is opened after a click.</p>
+            <p>See more about <a href="http://photoswipe.com/documentation/api.html">PhotoSwipe API</a>.</p>
+        </div>
+
+{% highlight javascript %}
+gallery.addEventListener('zoom', function(ev) {
+    console.log(ev.detail); // {item: Object, photoswipe: PhotoSwipeObject}
+});
+{% endhighlight %}
 
     </div>
 
