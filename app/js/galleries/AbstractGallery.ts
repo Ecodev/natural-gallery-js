@@ -449,7 +449,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * Public api for empty function
      * Emits a pagination event
      */
-    public reset() {
+    public clear() {
         this.empty();
         this.requestItems();
     }
