@@ -6,11 +6,12 @@ layout: default
     var rowHeight = 400;
 
     var options = {
-        rowHeight: rowHeight
+        rowHeight: rowHeight,
+        lightbox: true,
     };
 
     function getGallery(galleryElement, photoswipeElement, scrollableElement) {
-        return new NaturalGallery.ResponsiveSquareGallery(galleryElement, photoswipeElement, options, scrollableElement)
+        return new NaturalGallery.ResponsiveSquare(galleryElement, options, photoswipeElement, scrollableElement)
     }
 
 </script>

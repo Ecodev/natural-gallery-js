@@ -1,0 +1,119 @@
+---
+layout: default
+---
+
+{% include photoswipe.html %} {% include icons.html %}
+
+<div class="padding-v markdown">
+
+    <div class="row">
+        <div class="container-1000px">
+            <h4>Natural gallery js</h4>
+            <h1 id="option-style-customisation">Theming</h1>
+
+            <p>As you should've seen in
+                <a href="docs-getting-started.html" class="raised" style="position:relative;top:5px">
+                    {%- include icons/start.svg -%}
+                    Getting started
+                </a> there are two stylesheet files :</p>
+            <ul>
+                <li>natural-gallery.css : is used for layout purposes and should not be changed if don't know what you're doing.</li>
+                <li>themes/natural.css : is used only for colored elements. Feel free to copy this file in your project and edit with your colors.</li>
+            </ul>
+            <p>Be careful, if the gallery is updated and the css selectors change in this file, you'll need to update it manually.</p>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="container-1000px">
+            <h1>Style customisation</h1>
+            <h2>Border radius</h2>
+            <p>Natural-gallery-js styles the layout with the minimum required for an understandable behavior.
+               You can add your own styles to modify the gallery aspect.</p>
+        </div>
+
+{% highlight css %}
+.natural-gallery-js .figure {
+    border-radius: 10px; /* and lots of other amazing stuff */
+}
+{% endhighlight %}
+
+        <div class="container-1000px">
+            <div id="gallery-border-radius"></div>
+            <style>
+                #gallery-border-radius .figure:nth-child(1) {border-radius: 10px;}
+                #gallery-border-radius .figure:nth-child(2) {border-radius: 30px;}
+                #gallery-border-radius .figure:nth-child(3) {border-bottom-right-radius: 100%;border-top-left-radius: 100%;border-bottom-left-radius: 100%;}
+                #gallery-border-radius .figure:nth-child(4) {border-radius: 9999px;}
+                #gallery-border-radius .figure {border: 2px solid #cf57e6; box-shadow: 0 5px 12px rgba(0, 0, 0, 0.5)}
+            </style>
+            <script>
+                window.addEventListener('load', function() {
+                    var galleryRef = document.getElementById('gallery-border-radius');
+                    var galleryRadius = new NaturalGallery.Square(galleryRef, {gap:20, itemsPerRow:4, rowsPerPage:1, showLabels: 'never'});
+                    galleryRadius.setItems({% include sample.json %});
+                });
+            </script>
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="container-1000px">
+            <h2>Zoom hover effect</h2>
+            <p>Because of
+                <a href="docs-api.html#interactions">interactions</a>
+               configuration diversity, the hover effect for the zoom can be active on different elements. If you want to customize this
+               effect, you can use the bellow selector.
+            </p>
+        </div>
+
+{% highlight css %}
+.natural-gallery-js .figure.zoomable:hover .image,
+.natural-gallery-js .image.zoomable:hover {
+    /* This is the default hover effect when hovering the element that opens PhotoSwipe */
+    transform: rotate(1deg) scale(1.2);
+}
+{% endhighlight %}
+    </div>
+
+    <div class="row layout-row">
+        <div class="container-90perc layout-row small-gap">
+            <div style="width: 500px;" id="gallery-zoom-1"></div>
+            <div style="width: 500px;" id="gallery-zoom-2"></div>
+            <div style="width: 500px;" id="gallery-zoom-3"></div>
+        </div>
+        <style>
+            #gallery-zoom-3 .figure.zoomable:hover .image,
+            #gallery-zoom-3 .image.zoomable:hover {
+                transform: rotate(360deg) scale(1.2);
+            }
+        </style>
+        <script>
+            window.addEventListener('load', function() {
+                var photoswipeRef = document.getElementsByClassName('pswp')[0];
+
+                var galleryZoom1Ref = document.getElementById('gallery-zoom-1');
+                var galleryZoom1 = new NaturalGallery.Natural(galleryZoom1Ref, {gap:20, rowHeight: 400, showLabels: 'always', lightbox: true}, photoswipeRef);
+                var imagesZoom1 = {% include sample.json %}.slice(1, 2);
+                imagesZoom1[0].title = 'No interactions, whole surface is hoverable/zoomable';
+                galleryZoom1.setItems(imagesZoom1);
+
+                var galleryZoom2Ref = document.getElementById('gallery-zoom-2');
+                var galleryZoom2 = new NaturalGallery.Natural(galleryZoom2Ref, {gap:20, rowHeight: 400, showLabels: 'always', lightbox: true, activable: true}, photoswipeRef);
+                var imagesZoom2 = {% include sample.json %}.slice(1, 2);
+                imagesZoom2[0].title = 'With link or activable option, the button has different interaction, and only image is hoverable';
+                galleryZoom2.setItems(imagesZoom2);
+
+                var galleryZoom3Ref = document.getElementById('gallery-zoom-3');
+                var galleryZoom3 = new NaturalGallery.Natural(galleryZoom3Ref, {gap:20, rowHeight: 400, showLabels: 'always', lightbox: true, activable: true}, photoswipeRef);
+                var imagesZoom3 = {% include sample.json %}.slice(1, 2);
+                imagesZoom3[0].title = 'Custom hover for zoom effect (only on image)';
+                galleryZoom3.setItems(imagesZoom3);
+            });
+        </script>
+
+    </div>
+</div>

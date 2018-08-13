@@ -10,12 +10,27 @@ window.addEventListener('load', function() {
     var suggestions = document.getElementsByClassName('suggestion');
     loadingBar = document.getElementById('loadingBar');
 
+    // Create gallery
     gallery = getGallery(galleryElement, photoswipeElement, scrollableElement);
 
     gallery.addEventListener('pagination', function(ev) {
+        console.log('pagination', ev.detail);
         var currentPagination = ev.detail;
         var page = Math.ceil(currentPagination.offset / currentPagination.limit) + 1;
         search(lastSearch, page, currentPagination);
+    });
+
+    gallery.addEventListener('activate', function(ev) {
+        console.log('activate', ev.detail);
+        // ev.detail.clickEvent.preventDefault();
+    });
+
+    gallery.addEventListener('zoom', function(ev) {
+        console.log('zoom', ev.detail);
+    });
+
+    gallery.addEventListener('select', function(ev) {
+        console.log('select', ev.detail);
     });
 
     searchElement.addEventListener('change', function(e) {
@@ -97,7 +112,7 @@ function getImages(url, paginationEvent) {
                     enlargedSrc: i.urls.regular,
                     enlargedWidth: i.width,
                     enlargedHeight: i.height,
-                    title: i.description ? i.description : i.user.name
+                    title: i.description ? i.description : i.user.name,
                 };
             });
 

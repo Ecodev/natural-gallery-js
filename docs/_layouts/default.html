@@ -9,16 +9,9 @@
 
         <div class="flex layout-row stretch">
             {%- include menu.html -%}
-            <div id="body" class="flex">
-                <main aria-label="Content">
-                    {{ content }}
-                </main>
-                <div class="row">
-                    <div class="container-90perc">
-                        <div id="gallery"></div>
-                    </div>
-                </div>
-            </div>
+            <main aria-label="Content" class="flex" id="body">
+                {{ content }}
+            </main>
         </div>
 
     </body>

@@ -1,84 +1,35 @@
-/**
- * Reset some basic elements
- */
-body, h1, h2, h3, h4, h5, h6,
-p, blockquote, pre, hr,
-dl, dd, ol, ul, figure {
-    margin: 0;
-    padding: 0;
-}
-
 html, body {
     min-height: 100%;
     height: 100%;
 }
 
-/**
- * Basic styling
- */
-body {
-    font: $base-font-weight #{$base-font-size}/#{$base-line-height} $base-font-family;
+a {
     color: $text-color;
-    background-color: $background-color;
-    -webkit-text-size-adjust: 100%;
-    -webkit-font-feature-settings: "kern" 1;
-    -moz-font-feature-settings: "kern" 1;
-    -o-font-feature-settings: "kern" 1;
-    font-feature-settings: "kern" 1;
-    font-kerning: normal;
-    display: flex;
-    min-height: 100vh;
-    flex-direction: column;
-}
+    text-decoration: none;
 
-/**
- * Set `margin-bottom` to maintain vertical rhythm
- */
-h1, h2, h3, h4, h5, h6,
-p, blockquote, pre,
-ul, ol, dl,
-%vertical-rhythm {
-    //margin-bottom: $spacing-unit / 2;
-}
-
-/**
- * `main` element
- */
-main {
-    display: block; /* Default value of `display` of `main` element is 'inline' in IE 11. */
-}
-
-.hide {
-    display: none;
-}
-
-/**
- * Lists
- */
-ul, ol {
-    //margin-left: $spacing-unit;
-}
-
-li {
-    > ul,
-    > ol {
-        margin-bottom: 0;
+    &:hover {
+        color: $primary;
     }
-}
 
-/**
- * Headings
- */
-h1, h2, h3, h4, h5, h6 {
-    font-weight: $base-font-weight;
 }
 
 a {
-    text-decoration: none;
-    &:hover {
-        background: rgba(255, 255, 255, 0.2);
-    }
+    cursor: pointer;
+}
 
+a.button,
+a.raised {
+    display: inline-flex;
+    flex-direction: row;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: .9em;
+    align-items: center;
+    svg {
+        width: 1.5em;
+        height: 1.5em;
+        margin-right: 5px;
+    }
 }
 
 a.primary {
@@ -87,29 +38,16 @@ a.primary {
 
     &:hover {
         color: $text-color;
+        background: rgba(255, 255, 255, 0.2);
     }
 }
 
-/**
- * Code formatting
- */
-pre, code {
-    font-size: 16px;
-    line-height: 2em;
-}
-
-code {
-    padding: 1px 5px;
-}
-
-pre {
-    padding: 8px 12px;
-    overflow-x: auto;
-
-    > code {
-        border: 0;
-        padding-right: 0;
-        padding-left: 0;
+a.raised {
+    color: black;
+    background: rgba(255, 255, 255, .7);
+    &:hover {
+        background: rgba(255, 255, 255, 1);
+        color: $primary;
     }
 }
 
@@ -119,36 +57,8 @@ pre {
 svg {
     display: inline-block;
     fill: currentColor;
-    //vertical-align: text-top;
 }
 
-/**
- * Tables
- */
-table {
-    //margin-bottom: $spacing-unit;
-    width: 100%;
-    text-align: left;
-    color: lighten($text-color, 18%);
-    border-collapse: collapse;
-    border: 1px solid $grey-color-light;
-    tr {
-        &:nth-child(even) {
-            background-color: lighten($grey-color-light, 6%);
-        }
-    }
-    th, td {
-        //padding: ($spacing-unit / 3) ($spacing-unit / 2);
-    }
-    th {
-        background-color: lighten($grey-color-light, 3%);
-        border: 1px solid darken($grey-color-light, 4%);
-        border-bottom-color: darken($grey-color-light, 12%);
-    }
-    td {
-        border: 1px solid $grey-color-light;
-    }
-}
 
 #body {
     overflow: auto;

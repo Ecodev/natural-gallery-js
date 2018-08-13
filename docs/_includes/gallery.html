@@ -3,23 +3,36 @@
 <div class="row margin-v" id="header">
     <div class="container-1000px small-gap layout-column">
         <div class="small-gap layout-column">
-            <h1 class="no-margin">{{ site.title }}</h1>
+            <div class="layout-row gap">
+                <h1 class="no-margin">{{ site.title }}</h1>
+                <div class="flex">
+                    <div id="version">{{ site.version }}</div>
+                </div>
+                <a href="docs-getting-started.html" class="raised">
+                    {%- include icons/start.svg -%} Getting started
+                </a>
+            </div>
             <p>An infinite scroll, multi format, responsive, lazy load, touch and zoomable gallery</p>
         </div>
         <div id="searchZone" class="small-gap layout-column">
             <input type="text" id="search" placeholder="Search for what you like...">
             <div>
                 Maybe
-                <a class="suggestion" value="cats">🐱 cats</a>
+                <a class="button raised suggestion" value="cats">🐱 cats</a>
                 ,
-                <a class="suggestion" value="bunny">🐰 bunnies</a>
+                <a class="button raised suggestion" value="bunny">🐰 bunnies</a>
                 or
-                <a class="suggestion" value="baby animal">🐣 baby animals</a>
-                ...
+                <a class="button raised suggestion" value="baby animal">🐣 baby animals</a>
             </div>
         </div>
         <div id="rateExpired" class="hide">
             <h4>Oooops, seems the query rate has expire... you can still admire this awesome milky way collection</h4>
         </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="container-90perc">
+        <div id="gallery"></div>
     </div>
 </div>

@@ -1,0 +1,153 @@
+body {
+    font: $base-font-weight #{$base-font-size}/#{$base-line-height} $base-font-family;
+    color: $text-color;
+    background-color: $background-color;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-feature-settings: "kern" 1;
+    -moz-font-feature-settings: "kern" 1;
+    -o-font-feature-settings: "kern" 1;
+    font-feature-settings: "kern" 1;
+    font-kerning: normal;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+/**
+ * Reset some basic elements
+ */
+body, h1, h2, h3, h4, h5, h6,
+p, blockquote, pre, hr,
+dl, dd, ol, ul, figure {
+    margin: 0;
+    padding: 0;
+}
+
+/**
+ * Set `margin-bottom` to maintain vertical rhythm
+ */
+h1, h2, h3, h4, h5, h6,
+p, blockquote, pre,
+ul, ol, dl,
+%vertical-rhythm {
+    margin-bottom: $gap * 0.6;
+}
+
+/**
+ * Lists
+ */
+ul, ol {
+    margin-left: $gap;
+}
+
+li {
+    > ul,
+    > ol {
+        margin-bottom: 0;
+    }
+}
+
+/**
+ * Headings
+ */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: $base-font-weight;
+}
+
+.markdown {
+    line-height: 1.7;
+
+    h1 {
+        padding-bottom: 0.3em;
+        font-size: 2em;
+        margin-top: 0;
+        margin-bottom: 16px;
+        font-weight: 600;
+        line-height: 1.25;
+        color: $primary;
+    }
+
+    h2 {
+        padding-bottom: 0.3em;
+        font-size: 1.5em;
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+        line-height: 1.25;
+        color: $accent;
+    }
+
+    h3 {
+        padding-bottom: 0.3em;
+        font-size: 1.25em;
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+        line-height: 1.25;
+    }
+
+    h4 {
+        margin-bottom: 0;
+    }
+
+    a {
+        border-bottom: 1px solid $primary;
+        &:hover {
+            color: $primary;
+        }
+    }
+
+    figure.highlight {
+        font-size: 16px;
+        line-height: 2em;
+        margin-bottom: $gap;
+
+        pre {
+            padding: $small-gap;
+            overflow-x: auto;
+
+            code {
+                display: block;
+                max-width: 1000px;
+                min-width: 0;
+                width: auto;
+                margin: auto;
+            }
+        }
+    }
+
+    /**
+ * Tables
+ */
+    table {
+        margin-bottom: $gap;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+        border: 1px solid rgba(0, 0, 0, 0.3);
+
+        tr {
+            &:nth-child(odd) {
+                //background-color: rgba(255,255,255, 0.005);
+            }
+            &:nth-child(even) {
+                background-color: rgba(255, 255, 255, 0.02);
+            }
+        }
+        th, td {
+            padding: 10px 13px;
+        }
+        th {
+            border: 1px solid #333333;
+            text-align: center;
+        }
+        td {
+            border: 1px solid #333333;
+            vertical-align: top;
+            figure, pre {
+                margin-bottom: 0 !important;
+            }
+        }
+    }
+
+}

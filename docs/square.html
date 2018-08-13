@@ -7,10 +7,11 @@ layout: default
 
     var options = {
         itemsPerRow: 4,
+        lightbox: true,
     };
 
     function getGallery(galleryElement, photoswipeElement, scrollableElement) {
-        return new NaturalGallery.SquareGallery(galleryElement, photoswipeElement, options, scrollableElement)
+        return new NaturalGallery.Square(galleryElement, options, photoswipeElement, scrollableElement)
     }
 
 </script>

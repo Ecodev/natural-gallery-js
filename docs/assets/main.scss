@@ -1,20 +1,7 @@
 ---
 ---
 
-@import 'theme', 'base', 'layout', 'monokai', 'menu';
-
-body {
-    font-family: $base-font-family;
-    background: $background-color;
-    color: $text-color;
-    font-size: $base-font-size;
-}
-
-h1 {
-    font-size: 36px;
-    font-weight: bold;
-    margin: 0;
-}
+@import 'theme', 'typography', 'base', 'layout', 'monokai', 'menu';
 
 #search {
     flex: 1;
@@ -25,19 +12,6 @@ h1 {
     outline: none;
     box-sizing: border-box;
     border-radius: 4px;
-}
-
-.suggestion {
-    cursor: pointer;
-    padding: 3px 10px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 99px;
-    color: white;
-    text-decoration: none;
-
-    &:hover {
-        background: rgba(255, 255, 255, 0.3);
-    }
 }
 
 #loadingBar {
@@ -73,5 +47,13 @@ h1 {
     .figure {
         border-radius: 10px;
     }
+}
 
+#version {
+    display: inline-block;
+    padding:4px;
+    color:#999;
+    position:relative;
+    top:-5px;
+    margin-left:5px;
 }

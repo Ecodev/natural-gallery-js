@@ -74,8 +74,119 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ })
 /************************************************************************/
 /******/ ([
-/* 0 */,
-/* 1 */,
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var AbstractRowGallery_1 = __webpack_require__(1);
+var AbstractResponsiveRowGallery = /** @class */ (function (_super) {
+    __extends(AbstractResponsiveRowGallery, _super);
+    function AbstractResponsiveRowGallery() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    AbstractResponsiveRowGallery.prototype.addRows = function (rows) {
+        this.completeLastRow();
+        _super.prototype.addRows.call(this, rows);
+    };
+    AbstractResponsiveRowGallery.prototype.endResize = function () {
+        _super.prototype.endResize.call(this);
+        this.completeLastRow();
+        this.flushBufferedItems();
+    };
+    AbstractResponsiveRowGallery.prototype.completeLastRow = function () {
+        var _this = this;
+        if (!this.visibleCollection.length) {
+            return;
+        }
+        // Get last row number
+        var lastVisibleRow = this.visibleCollection[this.visibleCollection.length - 1].row;
+        // Get number of items in that last row
+        var visibleItemsInLastRow = this.visibleCollection.filter(function (i) { return i.row === lastVisibleRow; }).length;
+        // Get a list from first item of last row until end of collection
+        var collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
+        this.organizeItems(collectionFromLastVisibleRow, collectionFromLastVisibleRow[0].row, collectionFromLastVisibleRow[0].row);
+        var itemsToAdd = collectionFromLastVisibleRow.slice(visibleItemsInLastRow)
+            .filter(function (i) { return i.row <= collectionFromLastVisibleRow[0].row; });
+        itemsToAdd.forEach(function (i) { return _this.addItemToDOM(i); });
+    };
+    return AbstractResponsiveRowGallery;
+}(AbstractRowGallery_1.AbstractRowGallery));
+exports.AbstractResponsiveRowGallery = AbstractResponsiveRowGallery;
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var AbstractGallery_1 = __webpack_require__(2);
+var AbstractRowGallery = /** @class */ (function (_super) {
+    __extends(AbstractRowGallery, _super);
+    function AbstractRowGallery() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    AbstractRowGallery.prototype.onScroll = function () {
+        this.addRows(1);
+    };
+    AbstractRowGallery.prototype.onPageAdd = function () {
+        this.addRows(this.getRowsPerPage());
+    };
+    /**
+     * Add given number of rows to DOM
+     * @param rows
+     */
+    AbstractRowGallery.prototype.addRows = function (rows) {
+        var _this = this;
+        var nbVisibleImages = this.visibleCollection.length;
+        // Next row to add (first invisible row)
+        var nextRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row + 1 : 0;
+        var lastWantedRow = nextRow + rows - 1;
+        // Compute size only for elements we're going to add
+        var bufferedItems = this.collection.slice(nbVisibleImages);
+        this.organizeItems(bufferedItems, nextRow, lastWantedRow);
+        var itemsToAdd = bufferedItems.filter(function (i) { return i.row <= lastWantedRow; });
+        itemsToAdd.forEach(function (i) { return _this.addItemToDOM(i); });
+        this.flushBufferedItems();
+        this.updateNextButtonVisibility();
+    };
+    AbstractRowGallery.prototype.endResize = function () {
+        _super.prototype.endResize.call(this);
+        if (!this.visibleCollection.length) {
+            return;
+        }
+        // Compute with new width. Rows indexes may have change
+        this.organizeItems(this.visibleCollection);
+    };
+    return AbstractRowGallery;
+}(AbstractGallery_1.AbstractGallery));
+exports.AbstractRowGallery = AbstractRowGallery;
+
+
+/***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -95,11 +206,11 @@ var AbstractGallery = /** @class */ (function () {
      * @param userOptions
      * @param scrollElementRef
      */
-    function AbstractGallery(elementRef, photoswipeElementRef, userOptions, scrollElementRef) {
+    function AbstractGallery(elementRef, userOptions, photoswipeElementRef, scrollElementRef) {
         if (scrollElementRef === void 0) { scrollElementRef = null; }
         this.elementRef = elementRef;
-        this.photoswipeElementRef = photoswipeElementRef;
         this.userOptions = userOptions;
+        this.photoswipeElementRef = photoswipeElementRef;
         this.scrollElementRef = scrollElementRef;
         /**
          * Default options
@@ -109,13 +220,16 @@ var AbstractGallery = /** @class */ (function () {
             gap: 3,
             rowsPerPage: 0,
             showLabels: 'hover',
-            lightbox: true,
+            lightbox: false,
             minRowsAtStart: 2,
-            showCount: false,
             selectable: false,
             activable: false,
             infiniteScrollOffset: 0,
-            events: null,
+            photoSwipeOptions: null,
+        };
+        this.photoswipeDefaultOptions = {
+            bgOpacity: 0.85,
+            showHideOpacity: false,
         };
         /**
          * Used to test the scroll direction
@@ -139,10 +253,8 @@ var AbstractGallery = /** @class */ (function () {
          */
         this.photoswipeCollection = [];
         /**
-         * This ratio is the supposed average ratio for the first pagination estimation
-         * When gallery is created without images, this ratio is used to estimate number of images per page
+         * Items for which container has been added to dom, but image has not been queries yet
          */
-        this.defaultImageRatio = .7;
         this.scrollBufferedItems = [];
         this.requiredItems = 0;
         this.init();
@@ -164,6 +276,9 @@ var AbstractGallery = /** @class */ (function () {
             }
         }, 300, { leading: false, trailing: true });
         this.defaultsOptions();
+        if (this.options.lightbox && !this.photoswipeElementRef) {
+            console.error('Lightbox option is set to true, but no PhotoSwipe reference is given');
+        }
         this.render();
         this.requestItems();
         if (!this.options.rowsPerPage) {
@@ -189,7 +304,6 @@ var AbstractGallery = /** @class */ (function () {
      * The gallery asks for items it needs, including some buffer items that are not displayed when given but are available to be added
      * immediately to DOM when user scrolls.
      *
-     * @param {number} nbItems
      */
     AbstractGallery.prototype.requestItems = function () {
         var estimatedPerRow = this.getEstimatedItemsPerRow();
@@ -238,7 +352,7 @@ var AbstractGallery = /** @class */ (function () {
         // Next button
         this.nextButton = document.createElement('div');
         this.nextButton.classList.add('natural-gallery-next');
-        this.nextButton.appendChild(Utility_1.Utility.getIcon('icon-next'));
+        this.nextButton.appendChild(Utility_1.Utility.getIcon('natural-gallery-icon-next'));
         this.nextButton.style.display = 'none';
         this.nextButton.addEventListener('click', function (e) {
             e.preventDefault();
@@ -358,22 +472,26 @@ var AbstractGallery = /** @class */ (function () {
     };
     AbstractGallery.prototype.openPhotoSwipe = function (item) {
         var _this = this;
+        if (this.options.lightbox && !this.photoswipeElementRef) {
+            console.error('Lightbox option is set to true, but no PhotoSwipe reference is given');
+            return;
+        }
         var pswpOptions = {
             index: this.collection.findIndex(function (i) { return i === item; }),
-            bgOpacity: 0.85,
-            showHideOpacity: true,
             loop: false,
         };
-        this._photoswipe = new PhotoSwipe(this.photoswipeElementRef, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
-        this._photoswipe.init();
+        pswpOptions = Object.assign({}, this.photoswipeDefaultOptions, this.options.photoSwipeOptions, pswpOptions);
+        var photoswipe = new PhotoSwipe(this.photoswipeElementRef, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
+        photoswipe.init();
         // Loading one more page when going to next image
-        this._photoswipe.listen('beforeChange', function (delta) {
+        photoswipe.listen('beforeChange', function (delta) {
             // Positive delta means next slide.
             // If we go next slide, and current index is out of visible collection bound, load more items
-            if (delta === 1 && _this._photoswipe.getCurrentIndex() === _this.visibleCollection.length) {
+            if (delta === 1 && photoswipe.getCurrentIndex() === _this.visibleCollection.length) {
                 _this.onPageAdd();
             }
         });
+        this.dispatchEvent('zoom', photoswipe);
     };
     /**
      * Format an Item into a PhotoswipeItem that has different attributes
@@ -466,13 +584,6 @@ var AbstractGallery = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(AbstractGallery.prototype, "photoswipe", {
-        get: function () {
-            return this._photoswipe;
-        },
-        enumerable: true,
-        configurable: true
-    });
     return AbstractGallery;
 }());
 exports.AbstractGallery = AbstractGallery;
@@ -506,14 +617,14 @@ var Utility;
 Object.defineProperty(exports, "__esModule", { value: true });
 __webpack_require__(5);
 __webpack_require__(6);
-var SquareGallery_1 = __webpack_require__(7);
-exports.SquareGallery = SquareGallery_1.SquareGallery;
-var ResponsiveSquareGallery_1 = __webpack_require__(12);
-exports.ResponsiveSquareGallery = ResponsiveSquareGallery_1.ResponsiveSquareGallery;
-var NaturalGallery_1 = __webpack_require__(13);
-exports.NaturalGallery = NaturalGallery_1.NaturalGallery;
-var MasonryGallery_1 = __webpack_require__(14);
-exports.MasonryGallery = MasonryGallery_1.MasonryGallery;
+var Natural_1 = __webpack_require__(7);
+exports.Natural = Natural_1.Natural;
+var Masonry_1 = __webpack_require__(12);
+exports.Masonry = Masonry_1.Masonry;
+var ResponsiveSquare_1 = __webpack_require__(14);
+exports.ResponsiveSquare = ResponsiveSquare_1.ResponsiveSquare;
+var Square_1 = __webpack_require__(15);
+exports.Square = Square_1.Square;
 
 
 /***/ }),
@@ -545,67 +656,115 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractRowGallery_1 = __webpack_require__(26);
-var SquareGallery = /** @class */ (function (_super) {
-    __extends(SquareGallery, _super);
-    function SquareGallery() {
+var AbstractResponsiveRowGallery_1 = __webpack_require__(0);
+var Natural = /** @class */ (function (_super) {
+    __extends(Natural, _super);
+    function Natural() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.defaultOptions = {
-            itemsPerRow: 4,
+            rowHeight: 400,
             gap: 3,
             rowsPerPage: 0,
             showLabels: 'hover',
-            lightbox: true,
+            lightbox: false,
             minRowsAtStart: 2,
-            showCount: false,
             selectable: false,
             activable: false,
             infiniteScrollOffset: 0,
-            events: null,
+            photoSwipeOptions: null,
         };
         return _this;
     }
-    SquareGallery.prototype.init = function () {
+    Natural.prototype.init = function () {
         _super.prototype.init.call(this);
-        this.elementRef.classList.add('square-gallery');
+        this.elementRef.classList.add('responsive-square-gallery');
     };
-    SquareGallery.prototype.getEstimatedItemsPerRow = function () {
-        return this.options.itemsPerRow;
+    Natural.prototype.getEstimatedItemsPerRow = function () {
+        return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
+    };
+    Natural.prototype.getEstimatedRowsPerPage = function () {
+        return Math.ceil(this.getGalleryVisibleHeight() / (this.options.rowHeight + this.options.gap)) + 1;
     };
     /**
-     * Compute sides with 1:1 ratio
+     *
      * @param items
-     * @param firstRowIndex
+     * @param fromRow
      * @param toRow
+     * @param currentRow
      */
-    SquareGallery.prototype.organizeItems = function (items, firstRowIndex, toRow) {
-        if (firstRowIndex === void 0) { firstRowIndex = 0; }
+    Natural.prototype.organizeItems = function (items, fromRow, toRow, currentRow) {
+        if (fromRow === void 0) { fromRow = 0; }
         if (toRow === void 0) { toRow = null; }
-        var sideSize = this.getItemSideSize();
-        var lastIndex = toRow ? this.options.itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
-        lastIndex = lastIndex > items.length ? items.length : lastIndex;
-        for (var i = 0; i < lastIndex; i++) {
-            var item = items[i];
-            item.width = Math.floor(sideSize);
-            item.height = Math.floor(sideSize);
-            item.last = i % this.options.itemsPerRow === this.options.itemsPerRow - 1;
-            item.row = Math.floor(i / this.options.itemsPerRow) + firstRowIndex;
+        if (currentRow === void 0) { currentRow = null; }
+        if (!currentRow) {
+            currentRow = fromRow ? fromRow : 0;
+        }
+        for (var chunkSize = 1; chunkSize <= items.length; chunkSize++) {
+            var chunk = items.slice(0, chunkSize);
+            var rowWidth = this.getRowWidth(this.options.rowHeight, this.options.gap, chunk);
+            if (rowWidth >= this.width) {
+                this.computeSizes(chunk, this.width, this.options.gap, currentRow);
+                var nextRow = currentRow + 1;
+                if (toRow === null || nextRow <= toRow) {
+                    this.organizeItems(items.slice(chunkSize), fromRow, toRow, nextRow);
+                }
+                break;
+            }
+            else if (chunkSize === items.length) {
+                // if end of list
+                // the width is not fixed as we have not enough items
+                // size of images are indexed on max row height.
+                this.computeSizes(chunk, null, this.options.gap, currentRow, this.options.rowHeight);
+                break;
+            }
+        }
+    };
+    Natural.prototype.computeSizes = function (chunk, containerWidth, margin, row, maxRowHeight) {
+        if (maxRowHeight === void 0) { maxRowHeight = null; }
+        var rowHeight = containerWidth ? this.getRowHeight(containerWidth, margin, chunk) : maxRowHeight;
+        var rowWidth = this.getRowWidth(rowHeight, margin, chunk);
+        var excess = containerWidth ? this.apportionExcess(chunk, containerWidth, rowWidth) : 0;
+        var decimals = 0;
+        for (var i = 0; i < chunk.length; i++) {
+            var item = chunk[i];
+            var width = this.getImageRatio(item) * rowHeight - excess;
+            decimals += width - Math.floor(width);
+            width = Math.floor(width);
+            if (decimals >= 1 || i === chunk.length - 1 && Math.round(decimals) === 1) {
+                width++;
+                decimals--;
+            }
+            item.width = width;
+            item.height = Math.floor(rowHeight);
+            item.row = row;
+            item.last = i === chunk.length - 1;
             item.style();
         }
     };
-    SquareGallery.prototype.getEstimatedRowsPerPage = function () {
-        return Math.ceil(this.getGalleryVisibleHeight() / this.getItemSideSize());
+    Natural.prototype.getRowWidth = function (maxRowHeight, margin, items) {
+        return margin * (items.length - 1) + this.getRatios(items) * maxRowHeight;
     };
-    /**
-     * Return square side size
-     */
-    SquareGallery.prototype.getItemSideSize = function () {
-        var itemsPerRow = this.getEstimatedItemsPerRow();
-        return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
+    Natural.prototype.getRowHeight = function (containerWidth, margin, items) {
+        return containerWidth / this.getRatios(items) + margin * (items.length - 1);
     };
-    return SquareGallery;
-}(AbstractRowGallery_1.AbstractRowGallery));
-exports.SquareGallery = SquareGallery;
+    Natural.prototype.getRatios = function (items) {
+        var self = this;
+        var totalWidth = 0;
+        for (var i = 0; i < items.length; i++) {
+            totalWidth += self.getImageRatio(items[i]);
+        }
+        return totalWidth;
+    };
+    Natural.prototype.getImageRatio = function (el) {
+        return Number(el.thumbnailWidth) / Number(el.thumbnailHeight);
+    };
+    Natural.prototype.apportionExcess = function (items, containerWidth, rowWidth) {
+        var excess = rowWidth - containerWidth;
+        return excess / items.length;
+    };
+    return Natural;
+}(AbstractResponsiveRowGallery_1.AbstractResponsiveRowGallery));
+exports.Natural = Natural;
 
 
 /***/ }),
@@ -642,6 +801,7 @@ var Item = /** @class */ (function () {
         var container = document.createElement('div');
         container.innerHTML = term;
         return container.textContent;
+        // return term.replace(/<(?!\s*br\s*\/?)[^>]+>/gi, '');
     };
     /**
      * Create DOM elements according to element raw data (thumbnail and enlarged urls)
@@ -688,10 +848,10 @@ var Item = /** @class */ (function () {
             // activable = element;
         }
         else if (!this.options.lightbox && label && link) {
-            element = link;
-            label = document.createElement('div');
+            image = this.getLinkElement();
+            label = link;
             label.classList.add('button');
-            activable = link;
+            activable = element;
         }
         else if (!this.options.lightbox && label && !link) {
             label = document.createElement('div');
@@ -701,7 +861,7 @@ var Item = /** @class */ (function () {
             }
         }
         else if (!this.options.lightbox && !label && link) {
-            element = link;
+            image = link;
             activable = link;
         }
         if (zoomable) {
@@ -711,7 +871,7 @@ var Item = /** @class */ (function () {
                 _this._element.dispatchEvent(event);
             });
         }
-        if (activable && this.options.activable) {
+        if (activable) {
             activable.classList.add('activable');
             activable.addEventListener('click', function (ev) {
                 var data = {
@@ -737,7 +897,7 @@ var Item = /** @class */ (function () {
         }
         if (this.options.selectable) {
             this._selectBtn = document.createElement('div');
-            var icon = Utility_1.Utility.getIcon('icon-select');
+            var icon = Utility_1.Utility.getIcon('natural-gallery-icon-select');
             this._selectBtn.appendChild(icon);
             this._selectBtn.classList.add('selectBtn');
             this._selectBtn.addEventListener('click', function (e) {
@@ -5677,249 +5837,35 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractResponsiveRowGallery_1 = __webpack_require__(25);
-var ResponsiveSquareGallery = /** @class */ (function (_super) {
-    __extends(ResponsiveSquareGallery, _super);
-    function ResponsiveSquareGallery() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.defaultOptions = {
-            rowHeight: 400,
-            gap: 3,
-            rowsPerPage: 0,
-            showLabels: 'hover',
-            lightbox: true,
-            minRowsAtStart: 2,
-            showCount: false,
-            selectable: false,
-            activable: false,
-            infiniteScrollOffset: 0,
-            events: null,
-        };
-        return _this;
-    }
-    ResponsiveSquareGallery.prototype.init = function () {
-        _super.prototype.init.call(this);
-        this.elementRef.classList.add('responsive-square-gallery');
-    };
-    ResponsiveSquareGallery.prototype.getEstimatedItemsPerRow = function () {
-        return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
-    };
-    /**
-     * Compute sides with 1:1 ratio
-     * @param items
-     * @param firstRowIndex
-     * @param toRow
-     */
-    ResponsiveSquareGallery.prototype.organizeItems = function (items, firstRowIndex, toRow) {
-        if (firstRowIndex === void 0) { firstRowIndex = 0; }
-        if (toRow === void 0) { toRow = null; }
-        var itemsPerRow = this.getEstimatedItemsPerRow();
-        // Compute sideSize of pictures
-        var sideSize = this.getItemSideSize();
-        // Compute overflow of given images per row. This number affect the width of the last item of the row
-        var diff = this.width - itemsPerRow * sideSize - (itemsPerRow - 1) * this.options.gap;
-        var lastIndex = toRow ? itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
-        lastIndex = lastIndex > items.length ? items.length : lastIndex;
-        for (var i = 0; i < lastIndex; i++) {
-            var item = items[i];
-            item.last = i % itemsPerRow === itemsPerRow - 1;
-            item.row = Math.floor(i / itemsPerRow) + firstRowIndex;
-            item.width = Math.floor(sideSize);
-            item.height = Math.floor(sideSize);
-            if (item.last) {
-                item.width = Math.floor(sideSize + diff);
-            }
-            item.style();
-        }
-    };
-    ResponsiveSquareGallery.prototype.getItemSideSize = function () {
-        var itemsPerRow = this.getEstimatedItemsPerRow();
-        return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
-    };
-    ResponsiveSquareGallery.prototype.getEstimatedRowsPerPage = function () {
-        return Math.ceil(this.getGalleryVisibleHeight() / this.getItemSideSize());
-    };
-    return ResponsiveSquareGallery;
-}(AbstractResponsiveRowGallery_1.AbstractResponsiveRowGallery));
-exports.ResponsiveSquareGallery = ResponsiveSquareGallery;
-
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractResponsiveRowGallery_1 = __webpack_require__(25);
-var NaturalGallery = /** @class */ (function (_super) {
-    __extends(NaturalGallery, _super);
-    function NaturalGallery() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.defaultOptions = {
-            rowHeight: 400,
-            gap: 3,
-            rowsPerPage: 0,
-            showLabels: 'hover',
-            lightbox: true,
-            minRowsAtStart: 2,
-            showCount: false,
-            selectable: false,
-            activable: false,
-            infiniteScrollOffset: 0,
-            events: null,
-        };
-        return _this;
-    }
-    NaturalGallery.prototype.init = function () {
-        _super.prototype.init.call(this);
-        this.elementRef.classList.add('responsive-square-gallery');
-    };
-    NaturalGallery.prototype.getEstimatedItemsPerRow = function () {
-        return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
-    };
-    NaturalGallery.prototype.getEstimatedRowsPerPage = function () {
-        return Math.ceil(this.getGalleryVisibleHeight() / (this.options.rowHeight + this.options.gap)) + 1;
-    };
-    /**
-     *
-     * @param items
-     * @param fromRow
-     * @param toRow
-     * @param currentRow
-     */
-    NaturalGallery.prototype.organizeItems = function (items, fromRow, toRow, currentRow) {
-        if (fromRow === void 0) { fromRow = 0; }
-        if (toRow === void 0) { toRow = null; }
-        if (currentRow === void 0) { currentRow = null; }
-        if (!currentRow) {
-            currentRow = fromRow ? fromRow : 0;
-        }
-        for (var chunkSize = 1; chunkSize <= items.length; chunkSize++) {
-            var chunk = items.slice(0, chunkSize);
-            var rowWidth = this.getRowWidth(this.options.rowHeight, this.options.gap, chunk);
-            if (rowWidth >= this.width) {
-                this.computeSizes(chunk, this.width, this.options.gap, currentRow);
-                var nextRow = currentRow + 1;
-                if (toRow === null || nextRow <= toRow) {
-                    this.organizeItems(items.slice(chunkSize), fromRow, toRow, nextRow);
-                }
-                break;
-            }
-            else if (chunkSize === items.length) {
-                // if end of list
-                // the width is not fixed as we have not enough items
-                // size of images are indexed on max row height.
-                this.computeSizes(chunk, null, this.options.gap, currentRow, this.options.rowHeight);
-                break;
-            }
-        }
-    };
-    NaturalGallery.prototype.computeSizes = function (chunk, containerWidth, margin, row, maxRowHeight) {
-        if (maxRowHeight === void 0) { maxRowHeight = null; }
-        var rowHeight = containerWidth ? this.getRowHeight(containerWidth, margin, chunk) : maxRowHeight;
-        var rowWidth = this.getRowWidth(rowHeight, margin, chunk);
-        var excess = containerWidth ? this.apportionExcess(chunk, containerWidth, rowWidth) : 0;
-        var decimals = 0;
-        for (var i = 0; i < chunk.length; i++) {
-            var item = chunk[i];
-            var width = this.getImageRatio(item) * rowHeight - excess;
-            decimals += width - Math.floor(width);
-            width = Math.floor(width);
-            if (decimals >= 1 || i === chunk.length - 1 && Math.round(decimals) === 1) {
-                width++;
-                decimals--;
-            }
-            item.width = width;
-            item.height = Math.floor(rowHeight);
-            item.row = row;
-            item.last = i === chunk.length - 1;
-            item.style();
-        }
-    };
-    NaturalGallery.prototype.getRowWidth = function (maxRowHeight, margin, items) {
-        return margin * (items.length - 1) + this.getRatios(items) * maxRowHeight;
-    };
-    NaturalGallery.prototype.getRowHeight = function (containerWidth, margin, items) {
-        return containerWidth / this.getRatios(items) + margin * (items.length - 1);
-    };
-    NaturalGallery.prototype.getRatios = function (items) {
-        var self = this;
-        var totalWidth = 0;
-        for (var i = 0; i < items.length; i++) {
-            totalWidth += self.getImageRatio(items[i]);
-        }
-        return totalWidth;
-    };
-    NaturalGallery.prototype.getImageRatio = function (el) {
-        return Number(el.thumbnailWidth) / Number(el.thumbnailHeight);
-    };
-    NaturalGallery.prototype.apportionExcess = function (items, containerWidth, rowWidth) {
-        var excess = rowWidth - containerWidth;
-        return excess / items.length;
-    };
-    return NaturalGallery;
-}(AbstractResponsiveRowGallery_1.AbstractResponsiveRowGallery));
-exports.NaturalGallery = NaturalGallery;
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
 var AbstractGallery_1 = __webpack_require__(2);
-var Column_1 = __webpack_require__(15);
-var MasonryGallery = /** @class */ (function (_super) {
-    __extends(MasonryGallery, _super);
-    function MasonryGallery() {
+var Column_1 = __webpack_require__(13);
+var Masonry = /** @class */ (function (_super) {
+    __extends(Masonry, _super);
+    function Masonry() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.defaultOptions = {
             columnWidth: 300,
             gap: 3,
             rowsPerPage: 0,
             showLabels: 'hover',
-            lightbox: true,
+            lightbox: false,
             minRowsAtStart: 2,
-            showCount: false,
             selectable: false,
             activable: false,
             infiniteScrollOffset: 0,
-            events: null,
+            photoSwipeOptions: null,
         };
         return _this;
     }
-    MasonryGallery.prototype.init = function () {
+    Masonry.prototype.init = function () {
         _super.prototype.init.call(this);
         this.elementRef.classList.add('masonry-gallery');
         this.addColumns();
     };
-    MasonryGallery.prototype.onScroll = function () {
+    Masonry.prototype.onScroll = function () {
         this.addUntilFill();
     };
-    MasonryGallery.prototype.onPageAdd = function () {
+    Masonry.prototype.onPageAdd = function () {
         var itemsAdded = this.addUntilFill();
         var nbColumns = this.getEstimatedItemsPerRow();
         var itemsPerPage = this.getEstimatedRowsPerPage() * nbColumns;
@@ -5931,10 +5877,10 @@ var MasonryGallery = /** @class */ (function (_super) {
     /**
      * Returns here the number of columns
      */
-    MasonryGallery.prototype.getEstimatedItemsPerRow = function () {
+    Masonry.prototype.getEstimatedItemsPerRow = function () {
         return Math.ceil((this.width - this.options.gap) / (this.options.columnWidth + this.options.gap));
     };
-    MasonryGallery.prototype.getEstimatedRowsPerPage = function () {
+    Masonry.prototype.getEstimatedRowsPerPage = function () {
         var ratio = 1.75; // landscape format to estimate the maximum number of rows
         var columnWidth = this.getColumnWidth();
         var estimatedImageHeight = columnWidth / ratio;
@@ -5943,7 +5889,7 @@ var MasonryGallery = /** @class */ (function (_super) {
     /**
      * Use current gallery height as reference. To fill free space it add images until the gallery height changes, then are one more row
      */
-    MasonryGallery.prototype.addUntilFill = function () {
+    Masonry.prototype.addUntilFill = function () {
         var currentContainerHeight = this.elementRef.clientHeight;
         var counter = 0;
         do {
@@ -5954,7 +5900,7 @@ var MasonryGallery = /** @class */ (function (_super) {
         this.addItemsToDom(rowsPerPage);
         return counter + rowsPerPage;
     };
-    MasonryGallery.prototype.addItemsToDom = function (nbItems) {
+    Masonry.prototype.addItemsToDom = function (nbItems) {
         var nbVisibleImages = this.visibleCollection.length;
         // Next row to add (first invisible row)
         var firstIndex = this.visibleCollection.length ? nbVisibleImages : 0;
@@ -5973,13 +5919,13 @@ var MasonryGallery = /** @class */ (function (_super) {
         this.flushBufferedItems();
         this.updateNextButtonVisibility();
     };
-    MasonryGallery.prototype.addItemToDOM = function (item, destination) {
+    Masonry.prototype.addItemToDOM = function (item, destination) {
         if (destination === void 0) { destination = null; }
         var shortestColumn = this.getShortestColumn();
         shortestColumn.addItem(item);
         _super.prototype.addItemToDOM.call(this, item, shortestColumn.elementRef);
     };
-    MasonryGallery.prototype.endResize = function () {
+    Masonry.prototype.endResize = function () {
         _super.prototype.endResize.call(this);
         if (!this.visibleCollection.length) {
             return;
@@ -5989,7 +5935,7 @@ var MasonryGallery = /** @class */ (function (_super) {
         this.addColumns();
         this.addUntilFill();
     };
-    MasonryGallery.prototype.addColumns = function () {
+    Masonry.prototype.addColumns = function () {
         this.bodyElementRef.innerHTML = '';
         this.columns = [];
         var columnWidth = this.getColumnWidth();
@@ -6005,7 +5951,7 @@ var MasonryGallery = /** @class */ (function (_super) {
      * @param fromIndex
      * @param toIndex
      */
-    MasonryGallery.prototype.organizeItems = function (items, fromIndex, toIndex) {
+    Masonry.prototype.organizeItems = function (items, fromIndex, toIndex) {
         if (fromIndex === void 0) { fromIndex = 0; }
         if (toIndex === void 0) { toIndex = null; }
         var itemsPerRow = this.getEstimatedItemsPerRow();
@@ -6024,11 +5970,11 @@ var MasonryGallery = /** @class */ (function (_super) {
     /**
      * Return square side size
      */
-    MasonryGallery.prototype.getColumnWidth = function () {
+    Masonry.prototype.getColumnWidth = function () {
         var itemsPerRow = this.getEstimatedItemsPerRow();
         return Math.floor((this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow);
     };
-    MasonryGallery.prototype.getShortestColumn = function () {
+    Masonry.prototype.getShortestColumn = function () {
         return this.columns.reduce(function (shortestColumn, column) {
             if (!shortestColumn) {
                 return column;
@@ -6036,17 +5982,17 @@ var MasonryGallery = /** @class */ (function (_super) {
             return column.height < shortestColumn.height ? column : shortestColumn;
         });
     };
-    MasonryGallery.prototype.empty = function () {
+    Masonry.prototype.empty = function () {
         _super.prototype.empty.call(this);
         this.addColumns();
     };
-    return MasonryGallery;
+    return Masonry;
 }(AbstractGallery_1.AbstractGallery));
-exports.MasonryGallery = MasonryGallery;
+exports.Masonry = Masonry;
 
 
 /***/ }),
-/* 15 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6094,16 +6040,7 @@ exports.Column = Column;
 
 
 /***/ }),
-/* 16 */,
-/* 17 */,
-/* 18 */,
-/* 19 */,
-/* 20 */,
-/* 21 */,
-/* 22 */,
-/* 23 */,
-/* 24 */,
-/* 25 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6119,44 +6056,74 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractRowGallery_1 = __webpack_require__(26);
-var AbstractResponsiveRowGallery = /** @class */ (function (_super) {
-    __extends(AbstractResponsiveRowGallery, _super);
-    function AbstractResponsiveRowGallery() {
-        return _super !== null && _super.apply(this, arguments) || this;
+var AbstractResponsiveRowGallery_1 = __webpack_require__(0);
+var ResponsiveSquare = /** @class */ (function (_super) {
+    __extends(ResponsiveSquare, _super);
+    function ResponsiveSquare() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.defaultOptions = {
+            rowHeight: 400,
+            gap: 3,
+            rowsPerPage: 0,
+            showLabels: 'hover',
+            lightbox: false,
+            minRowsAtStart: 2,
+            selectable: false,
+            activable: false,
+            infiniteScrollOffset: 0,
+            photoSwipeOptions: null,
+        };
+        return _this;
     }
-    AbstractResponsiveRowGallery.prototype.addRows = function (rows) {
-        this.completeLastRow();
-        _super.prototype.addRows.call(this, rows);
+    ResponsiveSquare.prototype.init = function () {
+        _super.prototype.init.call(this);
+        this.elementRef.classList.add('responsive-square-gallery');
     };
-    AbstractResponsiveRowGallery.prototype.endResize = function () {
-        _super.prototype.endResize.call(this);
-        this.completeLastRow();
-        this.flushBufferedItems();
+    ResponsiveSquare.prototype.getEstimatedItemsPerRow = function () {
+        return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
     };
-    AbstractResponsiveRowGallery.prototype.completeLastRow = function () {
-        var _this = this;
-        if (!this.visibleCollection.length) {
-            return;
+    /**
+     * Compute sides with 1:1 ratio
+     * @param items
+     * @param firstRowIndex
+     * @param toRow
+     */
+    ResponsiveSquare.prototype.organizeItems = function (items, firstRowIndex, toRow) {
+        if (firstRowIndex === void 0) { firstRowIndex = 0; }
+        if (toRow === void 0) { toRow = null; }
+        var itemsPerRow = this.getEstimatedItemsPerRow();
+        // Compute sideSize of pictures
+        var sideSize = this.getItemSideSize();
+        // Compute overflow of given images per row. This number affect the width of the last item of the row
+        var diff = this.width - itemsPerRow * sideSize - (itemsPerRow - 1) * this.options.gap;
+        var lastIndex = toRow ? itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
+        lastIndex = lastIndex > items.length ? items.length : lastIndex;
+        for (var i = 0; i < lastIndex; i++) {
+            var item = items[i];
+            item.last = i % itemsPerRow === itemsPerRow - 1;
+            item.row = Math.floor(i / itemsPerRow) + firstRowIndex;
+            item.width = Math.floor(sideSize);
+            item.height = Math.floor(sideSize);
+            if (item.last) {
+                item.width = Math.floor(sideSize + diff);
+            }
+            item.style();
         }
-        // Get last row number
-        var lastVisibleRow = this.visibleCollection[this.visibleCollection.length - 1].row;
-        // Get number of items in that last row
-        var visibleItemsInLastRow = this.visibleCollection.filter(function (i) { return i.row === lastVisibleRow; }).length;
-        // Get a list from first item of last row until end of collection
-        var collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
-        this.organizeItems(collectionFromLastVisibleRow, collectionFromLastVisibleRow[0].row, collectionFromLastVisibleRow[0].row);
-        var itemsToAdd = collectionFromLastVisibleRow.slice(visibleItemsInLastRow)
-            .filter(function (i) { return i.row <= collectionFromLastVisibleRow[0].row; });
-        itemsToAdd.forEach(function (i) { return _this.addItemToDOM(i); });
     };
-    return AbstractResponsiveRowGallery;
-}(AbstractRowGallery_1.AbstractRowGallery));
-exports.AbstractResponsiveRowGallery = AbstractResponsiveRowGallery;
+    ResponsiveSquare.prototype.getItemSideSize = function () {
+        var itemsPerRow = this.getEstimatedItemsPerRow();
+        return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
+    };
+    ResponsiveSquare.prototype.getEstimatedRowsPerPage = function () {
+        return Math.ceil(this.getGalleryVisibleHeight() / this.getItemSideSize());
+    };
+    return ResponsiveSquare;
+}(AbstractResponsiveRowGallery_1.AbstractResponsiveRowGallery));
+exports.ResponsiveSquare = ResponsiveSquare;
 
 
 /***/ }),
-/* 26 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6172,47 +6139,66 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractGallery_1 = __webpack_require__(2);
-var AbstractRowGallery = /** @class */ (function (_super) {
-    __extends(AbstractRowGallery, _super);
-    function AbstractRowGallery() {
-        return _super !== null && _super.apply(this, arguments) || this;
+var AbstractRowGallery_1 = __webpack_require__(1);
+var Square = /** @class */ (function (_super) {
+    __extends(Square, _super);
+    function Square() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.defaultOptions = {
+            itemsPerRow: 4,
+            gap: 3,
+            rowsPerPage: 0,
+            showLabels: 'hover',
+            lightbox: false,
+            minRowsAtStart: 2,
+            selectable: false,
+            activable: false,
+            infiniteScrollOffset: 0,
+            photoSwipeOptions: null,
+        };
+        return _this;
     }
-    AbstractRowGallery.prototype.onScroll = function () {
-        this.addRows(1);
+    Square.prototype.init = function () {
+        _super.prototype.init.call(this);
+        this.elementRef.classList.add('square-gallery');
     };
-    AbstractRowGallery.prototype.onPageAdd = function () {
-        this.addRows(this.getRowsPerPage());
+    Square.prototype.getEstimatedItemsPerRow = function () {
+        return this.options.itemsPerRow;
     };
     /**
-     * Add given number of rows to DOM
-     * @param rows
+     * Compute sides with 1:1 ratio
+     * @param items
+     * @param firstRowIndex
+     * @param toRow
      */
-    AbstractRowGallery.prototype.addRows = function (rows) {
-        var _this = this;
-        var nbVisibleImages = this.visibleCollection.length;
-        // Next row to add (first invisible row)
-        var nextRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row + 1 : 0;
-        var lastWantedRow = nextRow + rows - 1;
-        // Compute size only for elements we're going to add
-        var bufferedItems = this.collection.slice(nbVisibleImages);
-        this.organizeItems(bufferedItems, nextRow, lastWantedRow);
-        var itemsToAdd = bufferedItems.filter(function (i) { return i.row <= lastWantedRow; });
-        itemsToAdd.forEach(function (i) { return _this.addItemToDOM(i); });
-        this.flushBufferedItems();
-        this.updateNextButtonVisibility();
-    };
-    AbstractRowGallery.prototype.endResize = function () {
-        _super.prototype.endResize.call(this);
-        if (!this.visibleCollection.length) {
-            return;
+    Square.prototype.organizeItems = function (items, firstRowIndex, toRow) {
+        if (firstRowIndex === void 0) { firstRowIndex = 0; }
+        if (toRow === void 0) { toRow = null; }
+        var sideSize = this.getItemSideSize();
+        var lastIndex = toRow ? this.options.itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
+        lastIndex = lastIndex > items.length ? items.length : lastIndex;
+        for (var i = 0; i < lastIndex; i++) {
+            var item = items[i];
+            item.width = Math.floor(sideSize);
+            item.height = Math.floor(sideSize);
+            item.last = i % this.options.itemsPerRow === this.options.itemsPerRow - 1;
+            item.row = Math.floor(i / this.options.itemsPerRow) + firstRowIndex;
+            item.style();
         }
-        // Compute with new width. Rows indexes may have change
-        this.organizeItems(this.visibleCollection);
     };
-    return AbstractRowGallery;
-}(AbstractGallery_1.AbstractGallery));
-exports.AbstractRowGallery = AbstractRowGallery;
+    Square.prototype.getEstimatedRowsPerPage = function () {
+        return Math.ceil(this.getGalleryVisibleHeight() / this.getItemSideSize());
+    };
+    /**
+     * Return square side size
+     */
+    Square.prototype.getItemSideSize = function () {
+        var itemsPerRow = this.getEstimatedItemsPerRow();
+        return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
+    };
+    return Square;
+}(AbstractRowGallery_1.AbstractRowGallery));
+exports.Square = Square;
 
 
 /***/ })

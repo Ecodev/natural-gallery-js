@@ -1,0 +1,109 @@
+---
+layout: default
+---
+
+<div class="padding-v markdown">
+
+    <div class="row">
+        <div class="container-1000px">
+            <h4>Natural gallery js</h4>
+            <h1>Getting started</h1>
+        </div>
+    </div>
+
+    <div class="row" id="assets">
+        <div class="container-1000px">
+            <h2>1. Include basics assets</h2>
+            <p>The minimal imports bellow don't include dependencies. The zoom in lightbox for example requires PhotoSwipe and needs either
+               to include it by yourself or by including full version of natural gallery assets.
+               See <a href="#lightbox">lighbox section for more</a>.
+            </p>
+        </div>
+
+{% highlight html %}
+<link rel="stylesheet" href="/your/awesome/path/natural-gallery.css">
+<link rel="stylesheet" href="/your/awesome/path/themes/natural.css">
+<script src="/your/awesome/path/natural-gallery.js" defer></script>
+{% endhighlight %}
+    </div>
+
+    <div class="row">
+        <div class="container-1000px">
+            <h2>2. Code initialisation</h2>
+            <p>In vanilla javascript (ES5) be sure to execute gallery initialization after the page is ready and assets are loaded.</p>
+        </div>
+
+{% highlight javascript %}
+window.addEventListener('load', function() {
+
+    // Get reference of gallery container
+    var elementRef = document.getElementById('gallery');
+
+    // Init gallery according to wanted format
+    var gallery = new NaturalGallery.Natural(elementRef); // or
+    var gallery = new NaturalGallery.Masonry(elementRef); // or
+    var gallery = new NaturalGallery.Square(elementRef); // or
+    var gallery = new NaturalGallery.ResponsiveSquare(elementRef);
+}
+{% endhighlight %}
+    </div>
+
+
+    <div class="row">
+        <div class="container-1000px">
+            <h2>3. Add images</h2>
+            <p>All galleries share some options, but they have specific options too. You can find them on their dedicated page.</p>
+        </div>
+
+{% highlight javascript %}
+
+// Convert your format into natural-gallery's format.
+var items = [
+     {
+        thumbnailSrc: number, // link to thumbnail image
+        thumbnailWidth: number,
+        thumbnailHeight: number,
+        enlargedSrc: number, // link to enlarged image
+        enlargedWidth: number,
+        enlargedHeight: number,
+        title: string, // Title for the label or button
+        link: string, // Link, transforms label into button
+        linkTarget: string // _blank | _top | _self | _parent
+    };
+];
+
+// Set the entire collection
+gallery.setItems(items);
+
+// Increment an existing collection.
+gallery.addItems(itemsSet1); // the first call as the same effect as setItems()
+gallery.addItems(itemsSet2);
+gallery.addItems(itemsSet3);
+{% endhighlight %}
+
+    </div>
+
+    <div class="row">
+        <div class="container-1000px">
+            <h2>Enjoy</h2>
+            <p>You can continue with
+                <a class="button raised" href="docs-options.html" style="position:relative;top:5px">
+                    {%- include icons/options.svg -%} options
+                </a>
+               ,
+                <a class="button raised" href="docs-api.html" style="position:relative;top:5px">
+                    {%- include icons/code.svg -%} api
+                </a>
+                and
+                <a class="button raised" href="docs-api.html" style="position:relative;top:5px">
+                    {%- include icons/brush.svg -%} theming
+                </a>
+               .
+            </p>
+        </div>
+    </div>
+
+</div>
+
+
+

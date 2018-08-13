@@ -1,13 +1,7 @@
 @charset "utf-8";
 
-$base-font-family: 'Raleway', sans-serif !default;
-$base-font-size: 20px !default;
-$base-font-weight: 400 !default;
-$small-font-size: $base-font-size * 0.875 !default;
-$base-line-height: 1.5 !default;
-
-$text-color: white !default;
-$background-color: #222 !default;
+$background-color: #222222 !default;
+$text-color: #ddd !default;
 
 $primary: #2a7ae2 !default;
 $primary-contrast: white !default;
@@ -18,3 +12,15 @@ $accent-contrast: white !default;
 $grey-color: #828282 !default;
 $grey-color-light: lighten($grey-color, 40%) !default;
 $grey-color-dark: darken($grey-color, 25%) !default;
+
+$base-font-family: 'Raleway', sans-serif !default;
+$base-font-size: 20px !default;
+$base-font-weight: 400 !default;
+$small-font-size: $base-font-size * 0.875 !default;
+$base-line-height: 1.5 !default;
+
+
+$small-gap: 20px;
+$gap: 2 * $small-gap;
+$big-gap: 2 * $gap;
+

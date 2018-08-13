@@ -7,11 +7,12 @@ layout: default
 
     var options = {
         columnWidth: 300,
-        gap: 5
+        gap: 5,
+        lightbox: true,
     };
 
     function getGallery(galleryElement, photoswipeElement, scrollableElement) {
-        return new NaturalGallery.MasonryGallery(galleryElement, photoswipeElement, options, scrollableElement)
+        return new NaturalGallery.Masonry(galleryElement, options, photoswipeElement, scrollableElement)
     }
 
 </script>
