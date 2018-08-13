@@ -61,9 +61,7 @@ export class Item<Model extends ModelAttributes = any> {
      * @returns {ItemTitle}
      */
     private getTitleDetails(term: string): string {
-        let container = document.createElement('div');
-        container.innerHTML = term;
-        return container.textContent;
+        return term.replace(/<(?!\s*br\s*\/?)[^>]+>/gi, '');
     }
 
     /**
