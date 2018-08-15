@@ -115,13 +115,12 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
                 i.loadImage();
             });
             this.scrollBufferedItems = [];
-
             if (this.requiredItems) {
                 this.dispatchEvent('pagination', {offset: this.collection.length, limit: this.requiredItems});
                 this.requiredItems = 0;
             }
 
-        }, 300, {leading: false, trailing: true});
+        }, 500, {leading: false, trailing: true});
 
         this.defaultsOptions();
 
