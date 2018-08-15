@@ -59,6 +59,14 @@
     }
 }
 
+.align-start {
+    align-items: flex-start !important;
+}
+
+.wrap {
+    flex-wrap: wrap;
+}
+
 .layout-row {
     display: flex;
     flex-direction: row;

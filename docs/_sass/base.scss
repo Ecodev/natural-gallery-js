@@ -59,7 +59,34 @@ svg {
     fill: currentColor;
 }
 
-
 #body {
     overflow: auto;
+}
+
+.txt-primary {
+    color: $primary
+}
+
+.txt-accent {
+    color: $accent;
+}
+
+.brand-logo {
+    font-size: 22px;
+
+    a {
+        width: 50px;
+        border: none !important;
+
+        svg {
+            position: relative;
+            top: 2px;
+        }
+    }
+}
+
+.big-logo {
+    width: 180px;
+    position: relative;
+    top: 15px
 }

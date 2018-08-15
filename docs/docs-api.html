@@ -8,8 +8,8 @@ layout: default
 
     <div class="row">
         <div class="container-1000px">
-            <h4>Natural gallery js</h4>
-            <h1>Api</h1>
+            {% include brand.html %}
+            <h1>Api and events</h1>
         </div>
     </div>
     <div class="row">
@@ -152,7 +152,7 @@ gallery.addEventListener(eventName, function(ev) {
 
     <div class="row">
         <div class="container-1000px">
-            <h3 id="pagination">pagination :</h3>
+            <h3 id="pagination">pagination</h3>
             <p>The gallery emits a notification to tell you what it needs. </p>
             <p>The event contains with a start index and a number of items that are required by the gallery to work smooth.</p>
             <p>On first load, the gallery estimates the number of items to display considering given options and the free space of the viewport.</p>

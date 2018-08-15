@@ -2,17 +2,18 @@
 
 <div class="row margin-v" id="header">
     <div class="container-1000px small-gap layout-column">
-        <div class="small-gap layout-column">
-            <div class="layout-row gap">
-                <h1 class="no-margin">{{ site.title }}</h1>
-                <div class="flex">
+        <div class="layout-row align-start">
+            <div class="big-logo">{%- include logo/logo.svg -%}</div>
+            <div class="layout-column">
+                <div class="layout-row wrap">
+                    <h1 class="no-margin">
+                        <span class="txt-primary">Natural Gallery</span>
+                        <span class="txt-accent">JS</span>
+                    </h1>
                     <div id="version">{{ site.version }}</div>
                 </div>
-                <a href="docs-getting-started.html" class="raised">
-                    {%- include icons/start.svg -%} Getting started
-                </a>
+                <p>An infinite scroll, multi format, responsive, lazy load, touch and zoomable gallery</p>
             </div>
-            <p>An infinite scroll, multi format, responsive, lazy load, touch and zoomable gallery</p>
         </div>
         <div id="searchZone" class="small-gap layout-column">
             <input type="text" id="search" placeholder="Search for what you like...">
