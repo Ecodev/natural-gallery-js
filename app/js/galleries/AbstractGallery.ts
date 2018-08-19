@@ -1,9 +1,71 @@
-import { Item } from '../Item';
+import { Item, ItemOptions } from '../Item';
 import { Utility } from '../Utility';
-import { GalleryOptions, InnerPhotoSwipeOptions, ItemOptions, ModelAttributes, PhotoswipeItem, PhotoSwipeOptions } from '../types';
 import * as PhotoSwipe from 'photoswipe';
 import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 import * as _ from '../lodash/debounce.js';
+
+export interface ModelAttributes {
+    thumbnailSrc: string;
+    thumbnailWidth: number;
+    thumbnailHeight: number;
+    enlargedSrc: string;
+    enlargedWidth: number;
+    enlargedHeight: number;
+    title: string;
+    link: string;
+    linkTarget: string;
+}
+
+export interface GalleryOptions extends ItemOptions {
+    rowsPerPage: number;
+    minRowsAtStart: number;
+    infiniteScrollOffset: number;
+    photoSwipeOptions: PhotoSwipeOptions;
+}
+
+export interface PhotoSwipeOptions {
+    getThumbBoundsFn?: (index?: number) => void;
+    showHideOpacity?: boolean;
+    showAnimationDuration?: number;
+    hideAnimationDuration?: number;
+    bgOpacity?: number;
+    spacing?: number;
+    allowPanToNext?: boolean;
+    maxSpreadZoom?: number;
+    getDoubleTapZoom?: (isMouseClick?: boolean, item?: any) => number;
+    pinchToClose?: boolean;
+    closeOnScroll?: boolean;
+    closeOnVerticalDrag?: boolean;
+    mouseUsed?: boolean;
+    escKey?: boolean;
+    arrowKeys?: boolean;
+    history?: boolean;
+    galleryUID?: number;
+    galleryPIDs?: boolean;
+    errorMsg?: string;
+    preload?: [number, number];
+    mainClass?: string;
+    getNumItemsFn?: () => number;
+    focus?: boolean;
+    modal?: boolean;
+    verticalDragRange?: number;
+    mainScrollEndFriction?: number;
+    panEndFriction?: number;
+    isClickableElement?: (el) => boolean;
+    scaleMode?: string;
+}
+
+export interface InnerPhotoSwipeOptions extends PhotoSwipeOptions {
+    index: number;
+    loop: boolean;
+}
+
+export interface PhotoswipeItem {
+    src: string;
+    w: number;
+    h: number;
+    title: string;
+}
 
 export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
@@ -87,11 +149,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * @param userOptions
      * @param scrollElementRef
      */
-    protected constructor(protected elementRef: HTMLElement,
-                          protected userOptions: GalleryOptions,
-                          protected photoswipeElementRef: HTMLElement,
-                          protected scrollElementRef: HTMLElement = null) {
-
+    constructor(protected elementRef: HTMLElement,
+                protected userOptions: GalleryOptions,
+                protected photoswipeElementRef: HTMLElement,
+                protected scrollElementRef: HTMLElement = null) {
         this.init();
     }
 
@@ -147,7 +208,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * @param options
      */
     protected defaultsOptions(): void {
-        this.options = this.userOptions;
+        this.options = this.userOptions || {} as any;
         for (const key in this.defaultOptions) {
             if (typeof this.options[key] === 'undefined') {
                 this.options[key] = this.defaultOptions[key];
@@ -367,6 +428,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             loop: false,
         };
         pswpOptions = Object.assign({}, this.photoswipeDefaultOptions, this.options.photoSwipeOptions, pswpOptions);
+
+        console.log('pswpOptions', pswpOptions);
+        console.log('item', item);
 
         const photoswipe = new PhotoSwipe(this.photoswipeElementRef, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
         photoswipe.init();

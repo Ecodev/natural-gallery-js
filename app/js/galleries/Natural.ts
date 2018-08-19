@@ -1,6 +1,10 @@
-import { ModelAttributes, NaturalGalleryOptions } from '../types';
 import { Item } from '../Item';
 import { AbstractResponsiveRowGallery } from './AbstractResponsiveRowGallery';
+import { GalleryOptions, ModelAttributes } from './AbstractGallery';
+
+export interface NaturalGalleryOptions extends GalleryOptions {
+    rowHeight: number;
+}
 
 export class Natural<Model extends ModelAttributes = any> extends AbstractResponsiveRowGallery {
 
@@ -18,11 +22,6 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
     };
 
     protected options: NaturalGalleryOptions;
-
-    protected init(): void {
-        super.init();
-        this.elementRef.classList.add('responsive-square-gallery');
-    }
 
     protected getEstimatedItemsPerRow(): number {
         return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));

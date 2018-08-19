@@ -1,7 +1,10 @@
-import { AbstractGallery } from './AbstractGallery';
-import { MasonryGalleryOptions, ModelAttributes } from '../types';
+import { AbstractGallery, GalleryOptions, ModelAttributes } from './AbstractGallery';
 import { Item } from '../Item';
 import { Column } from '../Column';
+
+export interface MasonryGalleryOptions extends GalleryOptions {
+    columnWidth: number;
+}
 
 export class Masonry<Model extends ModelAttributes = any> extends AbstractGallery {
 
@@ -24,7 +27,6 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
 
     protected init(): void {
         super.init();
-        this.elementRef.classList.add('masonry-gallery');
         this.addColumns();
     }
 

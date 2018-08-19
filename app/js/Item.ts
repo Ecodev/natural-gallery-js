@@ -1,5 +1,19 @@
 import { Utility } from './Utility';
-import { ItemOptions, ItemTitle, ModelAttributes } from './types';
+import { ModelAttributes } from './galleries/AbstractGallery';
+
+export declare interface ItemOptions {
+    lightbox: boolean;
+    selectable: boolean;
+    activable: boolean;
+    gap: number;
+    showLabels: 'hover' | 'never' | 'always';
+}
+
+export interface ItemTitle {
+    title: string;
+    link: string;
+    linkTarget: '_blank' | '_self' | '_parent' | '_top';
+}
 
 export class Item<Model extends ModelAttributes = any> {
 

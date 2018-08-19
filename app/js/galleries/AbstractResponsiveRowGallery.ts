@@ -1,4 +1,9 @@
 import { AbstractRowGallery } from './AbstractRowGallery';
+import { GalleryOptions } from './AbstractGallery';
+
+export interface ResponsiveSquareGalleryOptions extends GalleryOptions {
+    rowHeight: number;
+}
 
 export abstract class AbstractResponsiveRowGallery extends AbstractRowGallery {
 

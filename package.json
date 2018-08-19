@@ -12,18 +12,18 @@
         "url": "https://github.com/Ecodev/natural-gallery-js/issues"
     },
     "homepage": "https://github.com/Ecodev/natural-gallery-js#readme",
-    "main": "./dist/natural-gallery.js",
-    "module": "./dist/natural-gallery.js",
-    "jsnext:main": "./dist/natural-gallery.js",
-    "types": "./dist/index.d.ts",
-    "typings": "./dist/index.d.ts",
+    "main": "./natural-gallery.js",
+    "module": "./natural-gallery.js",
+    "jsnext:main": "./natural-gallery.js",
+    "types": "./app.d.ts",
+    "typings": "./app.d.ts",
     "scripts": {
-        "dev": "cd docs; jekyll serve --livereload && yarn build:watch",
-        "dev:sandbox": "webpack-dev-server --open --progress --colors --port 1405",
-        "build": "NODE_ENV='production' webpack; NODE_ENV='production' webpack --env.nodependencies",
-        "build:docs": "NODE_ENV='production' webpack --env.demo",
-        "build:watch": "webpack --watch --env.demo",
-        "release": "yarn prod; yarn publish --access public"
+        "dev-docs": "cd docs; jekyll serve --livereload",
+        "dev-lib": "webpack --watch --env.demo",
+        "build-docs": "NODE_ENV='production' webpack --watch --env.demo",
+        "build-lib": "NODE_ENV='production' webpack; NODE_ENV='production' webpack --env.nodependencies; cp package.json dist/",
+        "build-watch": "webpack --watch",
+        "release": "yarn build; cd dist; yarn publish --access public"
     },
     "keywords": [
         "gallery",
@@ -52,7 +52,6 @@
         "browserify-typescript": "0.0.1",
         "css-loader": "^0.28.4",
         "del": "^3.0.0",
-        "dts-bundle": "^0.7.3",
         "extract-text-webpack-plugin": "^3.0.2",
         "file-loader": "^1.1.5",
         "gulp": "^3.9.1",
@@ -102,7 +101,6 @@
         "typescript": "^2.6.1",
         "uglifyify": "^4.0.5",
         "vinyl-source-stream": "^1.1.0",
-        "webpack": "^3.8.1",
-        "webpack-dev-server": "^2.9.4"
+        "webpack": "^3.8.1"
     }
 }

@@ -1,6 +1,10 @@
-import { ModelAttributes, SquareGalleryOptions } from '../types';
 import { Item } from '../Item';
 import { AbstractRowGallery } from './AbstractRowGallery';
+import { GalleryOptions, ModelAttributes } from './AbstractGallery';
+
+export interface SquareGalleryOptions extends GalleryOptions {
+    itemsPerRow: number;
+}
 
 export class Square<Model extends ModelAttributes = any> extends AbstractRowGallery {
 
@@ -18,11 +22,6 @@ export class Square<Model extends ModelAttributes = any> extends AbstractRowGall
     };
 
     protected options: SquareGalleryOptions;
-
-    protected init(): void {
-        super.init();
-        this.elementRef.classList.add('square-gallery');
-    }
 
     protected getEstimatedItemsPerRow() {
         return this.options.itemsPerRow;

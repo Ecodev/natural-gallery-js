@@ -1,5 +1,9 @@
-import { ColumnOptions } from './types';
 import { Item } from './Item';
+
+export declare interface ColumnOptions {
+    width: number;
+    gap: number;
+}
 
 export class Column {
 

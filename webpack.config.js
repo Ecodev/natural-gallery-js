@@ -37,11 +37,9 @@ module.exports = function(env) {
     ];
 
     let externals = {};
+    plugins.push(new webpack.WatchIgnorePlugin([/\.d\.ts$/]));
+
     if (!dependencies) {
-        plugins.push(new DtsBundlePlugin());
-        plugins.push(new webpack.WatchIgnorePlugin([
-            /\.d\.ts$/
-        ]));
         externals = {
             'photoswipe': 'photoswipe',
             'photoswipe/dist/photoswipe-ui-default': 'photoswipe/dist/photoswipe-ui-default'
@@ -60,12 +58,6 @@ module.exports = function(env) {
             library: "NaturalGallery",
             libraryTarget: 'umd',
             umdNamedDefine: true
-        },
-        devServer: {
-            contentBase: ['sandbox', 'demo', 'docs/assets'],
-            watchContentBase: true,
-            port: 1405,
-            overlay: true,
         },
         devtool: prod ? false : "source-map", // 'inline-source-map'
         resolveLoader: {
@@ -149,21 +141,4 @@ module.exports = function(env) {
             ]
         },
     }
-};
-
-function DtsBundlePlugin(name, main) {
-}
-
-DtsBundlePlugin.prototype.apply = function(compiler) {
-    compiler.plugin('done', function() {
-        var dts = require('dts-bundle');
-
-        dts.bundle({
-            name: name,
-            main: 'app/app.d.ts',
-            out: '../dist/index.d.ts',
-            removeSource: false,
-            outputAsModuleFolder: true // to use npm in-package typings
-        });
-    });
 };

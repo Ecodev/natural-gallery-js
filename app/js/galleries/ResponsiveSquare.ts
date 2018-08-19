@@ -1,6 +1,6 @@
-import { ModelAttributes, ResponsiveSquareGalleryOptions } from '../types';
 import { Item } from '../Item';
-import { AbstractResponsiveRowGallery } from './AbstractResponsiveRowGallery';
+import { AbstractResponsiveRowGallery, ResponsiveSquareGalleryOptions } from './AbstractResponsiveRowGallery';
+import { ModelAttributes } from './AbstractGallery';
 
 export class ResponsiveSquare<Model extends ModelAttributes = any> extends AbstractResponsiveRowGallery {
 
@@ -18,11 +18,6 @@ export class ResponsiveSquare<Model extends ModelAttributes = any> extends Abstr
     };
 
     protected options: ResponsiveSquareGalleryOptions;
-
-    protected init(): void {
-        super.init();
-        this.elementRef.classList.add('responsive-square-gallery');
-    }
 
     protected getEstimatedItemsPerRow(): number {
         return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
