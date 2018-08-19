@@ -14,6 +14,7 @@ export interface ModelAttributes {
     title: string;
     link: string;
     linkTarget: string;
+    color: string;
 }
 
 export interface GalleryOptions extends ItemOptions {

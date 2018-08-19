@@ -168,8 +168,11 @@ export class Item<Model extends ModelAttributes = any> {
 
         image.classList.add('image');
         element.classList.add('figure');
-
         element.appendChild(image);
+
+        if (this.model.color) {
+            element.style.backgroundColor = this.model.color + '11';
+        }
 
         this._element = element;
         this._image = image;

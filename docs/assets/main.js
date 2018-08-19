@@ -113,6 +113,7 @@ function getImages(url, paginationEvent) {
                     enlargedWidth: i.width,
                     enlargedHeight: i.height,
                     title: i.description ? i.description : i.user.name,
+                    color: i.color
                 };
             });
 

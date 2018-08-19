@@ -20,7 +20,7 @@
     "scripts": {
         "dev-docs": "cd docs; jekyll serve --livereload",
         "dev-lib": "webpack --watch --env.demo",
-        "build-docs": "NODE_ENV='production' webpack --watch --env.demo",
+        "build-docs": "NODE_ENV='production' webpack --env.demo",
         "build-lib": "NODE_ENV='production' webpack; NODE_ENV='production' webpack --env.nodependencies; cp package.json dist/",
         "build-watch": "webpack --watch",
         "release": "yarn build; cd dist; yarn publish --access public"
