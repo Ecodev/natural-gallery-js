@@ -22,7 +22,14 @@ window.addEventListener('load', function() {
 
     gallery.addEventListener('activate', function(ev) {
         console.log('activate', ev.detail);
-        // ev.detail.clickEvent.preventDefault();
+    });
+
+    gallery.addEventListener('item-displayed', function(ev) {
+        console.log('item-displayed', ev.detail);
+    });
+
+    gallery.addEventListener('item-added-to-dom', function(ev) {
+        console.log('item-added-to-dom', ev.detail);
     });
 
     gallery.addEventListener('zoom', function(ev) {
