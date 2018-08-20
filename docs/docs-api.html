@@ -124,19 +124,19 @@ gallery.addEventListener(eventName, function(ev) {
                 </tr>
                 <tr>
                     <td>pagination</td>
-                    <td>Informs user the images that are required by the gallery</td>
+                    <td>Emitted when the gallery is ready to get the next items. Contains the limits of list for next items.<td>
                     <td>{% highlight javascript %}{offset: number, limit: number}{% endhighlight %}</td>
                     <td><a href="#pagination">Docs</a></td>
                 </tr>
                 <tr>
                     <td>activate</td>
-                    <td>Notifies an item has been clicked</td>
+                    <td>Emitted when an item has been clicked</td>
                     <td>{% highlight javascript %}{model: Object, clickEvent: MouseEvent}{% endhighlight %}</td>
                     <td><a href="#activable">Docs</a></td>
                 </tr>
                 <tr>
                     <td>select</td>
-                    <td>Notifies the list of currently selected item</td>
+                    <td>Emitted when an item is (un)selected. Contains the list of selected models</td>
                     <td>{% highlight javascript %}model[]{% endhighlight %}</td>
                     <td><a href="#select">Docs</a></td>
                 </tr>
@@ -146,6 +146,18 @@ gallery.addEventListener(eventName, function(ev) {
                     <td>{% highlight javascript %}{item: Object, photoswipe: PhotoSwipeObject}{% endhighlight %}</td>
                     <td><a href="#zoom">Docs</a></td>
                 </tr>
+                <tr>
+                    <td>item-added-to-dom</td>
+                    <td>Emitted when the item has been added to DOM but image is still not displayed</td>
+                    <td>{% highlight javascript %}model{% endhighlight %}</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>item-displayed</td>
+                    <td>Emitted when the item image is displayed</td>
+                    <td>{% highlight javascript %}model{% endhighlight %}</td>
+                    <td></td>
+                </tr>
             </table>
         </div>
     </div>
@@ -153,21 +165,23 @@ gallery.addEventListener(eventName, function(ev) {
     <div class="row">
         <div class="container-1000px">
             <h3 id="pagination">pagination</h3>
-            <p>The gallery emits a notification to tell you what it needs. </p>
-            <p>The event contains with a start index and a number of items that are required by the gallery to work smooth.</p>
-            <p>On first load, the gallery estimates the number of items to display considering given options and the free space of the viewport.</p>
-            <p>After each items displayed into the DOM, the gallery asks an equivalent amount of items to add in the end of the collection. It behaves like a buffer to provide a fluid scrolling without interruptions due to server loading next query.</p>
+            <p>The gallery tells you what it needs !</p>
+            <p>It uses the options to estimate the number of items to display in the viewport and then notifies you.</p>
+            <p>This option is only useful if your gallery is binded with a server. The pagination events allows you to display a big collection by chunks. And she computes the chunks for you.</p>
+            <p>The event contains a start index and a number of items that are required by the gallery to work smoothly.</p>
+            <p>After each item is displayed into the DOM, the gallery asks an equivalent amount of items to add in the end of the collection. It behaves like a buffer to provide a fluid scrolling without interruptions due to server loading next query.</p>
             <p>This cause the following scenario : </p>
             <ol>
-                <li>The page document is ready</li>
-                <li>The gallery inits and uses configuration to estimate the number of items to display. For example : 20.</li>
+                <li>The gallery init and uses configuration to estimate the number of items to display. For example : 3 rows can be visible, and it estimates a total of 20 items.</li>
                 <li>The gallery emits a pagination event {offset: 0, limit : 20}</li>
-                <li>When received, the items are added to the DOM. The gallery can ask for 20 items, and only display 15 (because of estimation on variables formats like Natural and Masonry)</li>
-                <li>Assuming the gallery has displayed 15 items, it emits a new pagination event {offset: 20, limit: 15)</li>
-                <li>Those new 15 items are not added to DOM because user has not scrolled yet. The gallery don't emits any new pagination event</li>
-                <li>The user scrolls slowly, 5 new items are added to next row. The gallery will emit a pagination event with {offset:35, limit: 5}</li>
-                <li>If the user scrolls fast, a single pagination event will be emitted after all items have been displayed.</li>
+                <li>When received, the items are added to the DOM, but due to the variable nature of image formats (for Natural and Masonry), all items may not be added. Those who are not go to a buffer.</li>
+                <li>To fill the 3 rows the gallery add 15 items to the dom and then emits a new pagination event {offset: 20, limit: 15}.</li>
+                <li>Those new 15 items are not added to DOM because user has not scrolled yet. They all go to the buffer and the gallery don't emits any new pagination event.</li>
+                <li>The user scrolls slowly, 5 new items are added to next row. The gallery will emit a pagination event with {offset:35, limit: 5} and so on.</li>
             </ol>
+            <p>If the user scrolls faster, the pagination event is debounced to prevent you to spam your server. After a short inactivity
+               (500ms) a new pagination event is emitted. It groups the offset and limits that would be produced by multiple
+               notifications.</p>
             <p>Due to the variable ratios of items in Natural and Masonry formats, the pagination is only an estimation. Each row can have a
                different number of images. For that reason the builtin pagination event is not compatible with a pagination of type PageSize
                and PageIndex.</p>
@@ -185,7 +199,7 @@ gallery.addEventListener('pagination', function(ev) {
     <div class="row">
         <div class="container-1000px">
             <h3 id="activable">activate</h3>
-            <p>Emits a notification when an item has been clicked for something else than opening the lightbox.</p>
+            <p>Emits when an item has been clicked for something else than opening the lightbox.</p>
 
             <p>If the lightbox option is set to true, there are two scenarios where the activate event is emitted :</p>
             <ul>

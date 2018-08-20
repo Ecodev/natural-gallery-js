@@ -175,8 +175,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         this.flushBufferedItems = _.debounce(() => {
             this.scrollBufferedItems.forEach(i => {
                 i.loadImage();
+                this.dispatchEvent('item-displayed', i.model);
             });
             this.scrollBufferedItems = [];
+
             if (this.requiredItems) {
                 this.dispatchEvent('pagination', {offset: this.collection.length, limit: this.requiredItems});
                 this.requiredItems = 0;
@@ -256,6 +258,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         destination.appendChild(item.init());
         this.scrollBufferedItems.push(item);
         this.requiredItems++;
+        this.dispatchEvent('item-added-to-dom', item.model);
 
         // When selected / unselected
         item.element.addEventListener('select', () => {
