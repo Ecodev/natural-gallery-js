@@ -368,8 +368,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * Space between the top of the gallery wrapper (parent of gallery root elementRef) and the bottom of the window
      */
     protected getGalleryVisibleHeight() {
-        let winHeight = this.scrollElementRef ? this.scrollElementRef.clientHeight : document.documentElement.clientHeight;
-        return winHeight - this.elementRef.offsetTop;
+        return document.documentElement.clientHeight - this.elementRef.offsetTop;
     }
 
     protected startResize() {
