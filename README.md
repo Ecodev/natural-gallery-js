@@ -1,7 +1,7 @@
 Natural Gallery JS
 ============================
 
-A library that allows you to display images with with natural layouts, infinite scroll, lazy loading, lightbox in a developer friendly way by emitting usefull events.
+A library that allows you to display images with with natural layouts, infinite scroll, lazy loading, lightbox and interactivity in a developer friendly by exposing an usefull api.
 
 [See the demo](https://ecodev.github.io/natural-gallery-js/)
 
