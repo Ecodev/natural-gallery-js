@@ -34,7 +34,7 @@ Consider a pull request, but create an issue before to expose your idea. Maybe t
 
 # Licence
 
-Developed by (ecodev)[https://ecodev.ch] under MIT licence, the app is free of use, even for commercial usage. Even if it's not required a credit would be much appreciated.
+Developed by [ecodev](https://ecodev.ch) under MIT licence, the app is free of use, even for commercial usage. Even if it's not required a credit would be much appreciated.
 
 # Credits
 
