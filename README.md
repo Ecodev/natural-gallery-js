@@ -38,4 +38,4 @@ Developed by [ecodev](https://ecodev.ch) under MIT licence, the app is free of u
 
 # Credits
 
-This gallery uses (Photoswipe)[http://photoswipe.com/] !
+This gallery uses [Photoswipe](http://photoswipe.com/) !
