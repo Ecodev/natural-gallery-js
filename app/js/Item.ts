@@ -2,11 +2,11 @@ import { Utility } from './Utility';
 import { ModelAttributes } from './galleries/AbstractGallery';
 
 export declare interface ItemOptions {
-    lightbox: boolean;
-    selectable: boolean;
-    activable: boolean;
-    gap: number;
-    showLabels: 'hover' | 'never' | 'always';
+    lightbox?: boolean;
+    selectable?: boolean;
+    activable?: boolean;
+    gap?: number;
+    showLabels?: 'hover' | 'never' | 'always';
 }
 
 export interface ItemTitle {

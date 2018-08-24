@@ -8,20 +8,20 @@ export interface ModelAttributes {
     thumbnailSrc: string;
     thumbnailWidth: number;
     thumbnailHeight: number;
-    enlargedSrc: string;
-    enlargedWidth: number;
-    enlargedHeight: number;
-    title: string;
-    link: string;
-    linkTarget: string;
-    color: string;
+    enlargedSrc?: string;
+    enlargedWidth?: number;
+    enlargedHeight?: number;
+    title?: string;
+    link?: string;
+    linkTarget?: string;
+    color?: string;
 }
 
 export interface GalleryOptions extends ItemOptions {
-    rowsPerPage: number;
-    minRowsAtStart: number;
-    infiniteScrollOffset: number;
-    photoSwipeOptions: PhotoSwipeOptions;
+    rowsPerPage?: number;
+    minRowsAtStart?: number;
+    infiniteScrollOffset?: number;
+    photoSwipeOptions?: PhotoSwipeOptions;
 }
 
 export interface PhotoSwipeOptions {
@@ -207,9 +207,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      */
     protected abstract getEstimatedRowsPerPage(): number;
 
-    /**
-     * @param options
-     */
     protected defaultsOptions(): void {
         this.options = this.userOptions || {} as any;
         for (const key in this.defaultOptions) {
@@ -346,7 +343,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
     /**
      * Combine options from gallery with attributes required to generate a figure
-     * @param {Model} model
      * @returns {ItemOptions}
      */
     private getItemOptions(): ItemOptions {
@@ -433,9 +429,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         };
         pswpOptions = Object.assign({}, this.photoswipeDefaultOptions, this.options.photoSwipeOptions, pswpOptions);
 
-        console.log('pswpOptions', pswpOptions);
-        console.log('item', item);
-
         const photoswipe = new PhotoSwipe(this.photoswipeElementRef, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
         photoswipe.init();
 
@@ -474,8 +467,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * Select all items visible in the DOM
      * Ignores buffered items
      */
-    public selectVisibleItems() {
+    public selectVisibleItems(): Model[] {
         this.visibleCollection.forEach((item) => item.select());
+        return this.selectedItems;
     }
 
     /**
