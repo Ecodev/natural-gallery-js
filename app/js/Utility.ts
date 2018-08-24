@@ -7,4 +7,9 @@ export module Utility {
         return svg;
     }
 
+    export function truncate(value: string, limit = 50, ellipsis = '...') {
+        ellipsis = value.length > limit ? ellipsis : '';
+        return `${value.substr(0, limit)}${ellipsis}`;
+    }
+
 }

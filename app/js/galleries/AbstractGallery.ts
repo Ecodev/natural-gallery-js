@@ -84,6 +84,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         activable: false,
         infiniteScrollOffset: 0,
         photoSwipeOptions: null,
+        titleMaxLength: 0,
     };
 
     protected photoswipeDefaultOptions: PhotoSwipeOptions = {
@@ -356,6 +357,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             activable: this.options.activable,
             gap: this.options.gap,
             showLabels: this.options.showLabels,
+            titleMaxLength: this.options.titleMaxLength,
         };
     }
 
