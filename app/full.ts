@@ -1,7 +1,7 @@
 import './styles/themes/natural.css';
 import './styles/natural-gallery.full.scss';
 
-export { Natural } from './js/galleries/Natural';
-export { Masonry } from './js/galleries/Masonry';
-export { ResponsiveSquare } from './js/galleries/ResponsiveSquare';
-export { Square } from './js/galleries/Square';
+export * from './js/galleries/Natural';
+export * from './js/galleries/Masonry';
+export * from './js/galleries/ResponsiveSquare';
+export * from './js/galleries/Square';
