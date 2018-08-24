@@ -33,7 +33,7 @@ All contributions are welcome, but keep in mind that the gallery will stay simpl
 
 ## Found a bug ?
 
-Report what you observe, what you expect to observe, and the context of usage. 
+Create an issue where you report what you observe, what you expect to observe, and the context of usage, as well as your browser and it's version. 
 
 ## Want a new feature ?
 
