@@ -12,9 +12,9 @@ It allows to you display images with with natural layouts, infinite scroll, lazy
 
 # Documentaion
 * [Getting started](https://ecodev.github.io/natural-gallery-js/docs-getting-started.html)
-* [Documentation: options](https://ecodev.github.io/natural-gallery-js/docs-options.html)
-* [Documentation: api and events](https://ecodev.github.io/natural-gallery-js/docs-api.html)
-* [Documentation: theming](https://ecodev.github.io/natural-gallery-js/docs-theming.html)
+* [Options](https://ecodev.github.io/natural-gallery-js/docs-options.html)
+* [Api and events](https://ecodev.github.io/natural-gallery-js/docs-api.html)
+* [Theming and customization](https://ecodev.github.io/natural-gallery-js/docs-theming.html)
 
 
 # Install with NPM or Yarn
