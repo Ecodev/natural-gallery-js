@@ -1,10 +1,13 @@
 Natural Gallery JS
 ============================
 
-* [Demo](https://ecodev.github.io/natural-gallery-js/)
-* [Getting started](https://ecodev.github.io/natural-gallery-js/docs-getting-started.html)
+Natural Gallery JS is a dependency free (or almost) library. It allows to you diplay images with lazy loading, responsivness, and multiple formats. 
+
+[See the demo](https://ecodev.github.io/natural-gallery-js/)
+
 
 # Documentaion
+* [Getting started](https://ecodev.github.io/natural-gallery-js/docs-getting-started.html)
 * [Documentation: options](https://ecodev.github.io/natural-gallery-js/docs-options.html)
 * [Documentation: api and events](https://ecodev.github.io/natural-gallery-js/docs-api.html)
 * [Documentation: theming](https://ecodev.github.io/natural-gallery-js/docs-theming.html)
