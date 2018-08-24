@@ -10,7 +10,7 @@ It allows to you display images with with natural layouts, infinite scroll, lazy
 [![screenshot](https://ecodev.github.io/natural-gallery-js/assets/screenshot.png)](https://ecodev.github.io/natural-gallery-js/)
 
 
-# Documentaion
+# Documentation
 * [Getting started](https://ecodev.github.io/natural-gallery-js/docs-getting-started.html)
 * [Options](https://ecodev.github.io/natural-gallery-js/docs-options.html)
 * [Api and events](https://ecodev.github.io/natural-gallery-js/docs-api.html)
