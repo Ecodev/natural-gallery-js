@@ -7,6 +7,7 @@ export declare interface ItemOptions {
     activable: boolean;
     gap: number;
     showLabels: 'hover' | 'never' | 'always';
+    titleMaxLength: number;
 }
 
 export interface ItemTitle {
@@ -178,7 +179,7 @@ export class Item<Model extends ModelAttributes = any> {
         this._image = image;
 
         if (label) {
-            label.textContent = this.title;
+            label.textContent = this.options.titleMaxLength ? Utility.truncate(this.title, this.options.titleMaxLength) : this.title;
             label.classList.add('title');
             if (this.options.showLabels === 'hover') {
                 label.classList.add('hover');
