@@ -1,9 +1,7 @@
 Natural Gallery JS
 ============================
 
-Natural Gallery JS is a dependency free (or almost) library. 
-
-It allows to you display images with with natural layouts, infinite scroll, lazy loading, lightbox (PhotoSwipe -> the dependency) in a developer friendly way by emitting usefull events.
+A library that allows you to display images with with natural layouts, infinite scroll, lazy loading, lightbox in a developer friendly way by emitting usefull events.
 
 [See the demo](https://ecodev.github.io/natural-gallery-js/)
 
