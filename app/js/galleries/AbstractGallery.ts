@@ -531,6 +531,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         return this._visibleCollection;
     }
 
+    get selectedItems(): Model[] {
+        return this.visibleCollection.filter((item) => item.selected).map(item => item.model);
+    }
+
     get width(): number {
         return Math.floor(this.bodyElementRef.getBoundingClientRect().width);
     }
