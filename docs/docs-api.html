@@ -15,9 +15,9 @@ layout: default
     <div class="row">
         <div class="container-1000px">
             <h2 id="interactions">Interactions</h2>
-            <p>Each item of the gallery can have two interactions : </p>
+            <p>Each item of the gallery can have two interactions: </p>
             <ul>
-                <li>Link or activation : if image has a link or if <a href="docs-api.html#activable">options.activable</a> is set to true</li>
+                <li>Link or activation: if image has a link or if <a href="docs-api.html#activable">options.activable</a> is set to true</li>
                 <li>Lightbox zoom when gallery has option.lightbox set to true</li>
             </ul>
             <p>If only one of those interactions is available, the whole image and/or button has the same hover effect and the same click
@@ -95,7 +95,7 @@ layout: default
     <div class="row" id="events">
         <div class="container-1000px">
             <h2>Events</h2>
-            <p>The gallery emits some events that allows you to implement rich interactions. You can listen to them as follow : </p>
+            <p>The gallery emits some events that allows you to implement rich interactions. You can listen to them as follow: </p>
         </div>
 
 {% highlight javascript %}
@@ -105,7 +105,7 @@ var elementRef = document.getElementById('gallery');
 // The gallery accepts a literal as second argument for options
 var gallery = new NaturalGallery.Natural(elementRef, options);
 
-// Recommended : listen to gallery returned object
+// Recommended: listen to gallery returned object
 gallery.addEventListener(eventName, function(ev) {
     // Access to data provided by gallery in event by calling detail attribute
     var eventData = ev.detail;
@@ -167,13 +167,13 @@ gallery.addEventListener(eventName, function(ev) {
             <h3 id="pagination">pagination</h3>
             <p>The gallery tells you what it needs !</p>
             <p>It uses the options to estimate the number of items to display in the viewport and then notifies you.</p>
-            <p>This option is only useful if your gallery is binded with a server. The pagination events allows you to display a big collection by chunks. And she computes the chunks for you.</p>
+            <p>This option is only useful if your gallery is binded with a server. The pagination events allows you to display a big collection by chunks. And it computes the chunks for you.</p>
             <p>The event contains a start index and a number of items that are required by the gallery to work smoothly.</p>
             <p>After each item is displayed into the DOM, the gallery asks an equivalent amount of items to add in the end of the collection. It behaves like a buffer to provide a fluid scrolling without interruptions due to server loading next query.</p>
-            <p>This cause the following scenario : </p>
+            <p>This cause the following scenario: </p>
             <ol>
-                <li>The gallery init and uses configuration to estimate the number of items to display. For example : 3 rows can be visible, and it estimates a total of 20 items.</li>
-                <li>The gallery emits a pagination event {offset: 0, limit : 20}</li>
+                <li>The gallery init and uses configuration to estimate the number of items to display. For example: 3 rows can be visible, and it estimates a total of 20 items.</li>
+                <li>The gallery emits a pagination event {offset: 0, limit: 20}</li>
                 <li>When received, the items are added to the DOM, but due to the variable nature of image formats (for Natural and Masonry), all items may not be added. Those who are not go to a buffer.</li>
                 <li>To fill the 3 rows the gallery add 15 items to the dom and then emits a new pagination event {offset: 20, limit: 15}.</li>
                 <li>Those new 15 items are not added to DOM because user has not scrolled yet. They all go to the buffer and the gallery don't emits any new pagination event.</li>
