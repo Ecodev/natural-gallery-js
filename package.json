@@ -18,7 +18,7 @@
     "types": "./app.d.ts",
     "typings": "./app.d.ts",
     "scripts": {
-        "dev-docs": "cd docs; jekyll serve --livereload",
+        "dev-docs": "cd docs; bundle exec jekyll serve --livereload",
         "dev-lib": "webpack --watch --env.demo",
         "build-docs": "NODE_ENV='production' webpack --env.demo",
         "build-lib": "NODE_ENV='production' webpack; NODE_ENV='production' webpack --env.nodependencies; cp package.json dist/",
