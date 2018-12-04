@@ -19,6 +19,7 @@ export class Square<Model extends ModelAttributes = any> extends AbstractRowGall
         activable: false,
         infiniteScrollOffset: 0,
         photoSwipeOptions: null,
+        cover: false,
     };
 
     protected options: SquareGalleryOptions;

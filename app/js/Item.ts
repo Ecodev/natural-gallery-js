@@ -7,6 +7,7 @@ export declare interface ItemOptions {
     activable?: boolean;
     gap?: number;
     showLabels?: 'hover' | 'never' | 'always';
+    cover: boolean;
 }
 
 export interface ItemTitle {
@@ -164,6 +165,10 @@ export class Item<Model extends ModelAttributes = any> {
                 const activableEvent = new CustomEvent('activate', {detail: data});
                 this._element.dispatchEvent(activableEvent);
             });
+        }
+
+        if (this.options.cover) {
+            image.classList.add('cover');
         }
 
         image.classList.add('image');

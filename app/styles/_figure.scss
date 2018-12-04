@@ -53,8 +53,12 @@
             opacity: 0;
             background-repeat: no-repeat;
             background-position: center center;
-            background-size: cover;
             transition: .2s ease all;
+
+            &.cover {
+                background-size: cover;
+            }
+
         }
 
         .selectBtn {
@@ -101,20 +105,18 @@
             }
         }
 
-
         .link {
-            border:none;
+            border: none;
             text-decoration: none;
             cursor: pointer;
         }
 
         .button {
-            display:block;
+            display: block;
             margin: 10px;
             padding: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
             border-radius: 4px;
-
         }
     }
 }

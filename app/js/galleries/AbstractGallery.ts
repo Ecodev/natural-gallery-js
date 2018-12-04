@@ -84,6 +84,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         activable: false,
         infiniteScrollOffset: 0,
         photoSwipeOptions: null,
+        cover: false
     };
 
     protected photoswipeDefaultOptions: PhotoSwipeOptions = {
@@ -346,12 +347,21 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * @returns {ItemOptions}
      */
     private getItemOptions(): ItemOptions {
+        console.log({
+            lightbox: this.options.lightbox,
+            selectable: this.options.selectable,
+            activable: this.options.activable,
+            gap: this.options.gap,
+            showLabels: this.options.showLabels,
+            cover : this.options.cover
+        });
         return {
             lightbox: this.options.lightbox,
             selectable: this.options.selectable,
             activable: this.options.activable,
             gap: this.options.gap,
             showLabels: this.options.showLabels,
+            cover : this.options.cover
         };
     }
 

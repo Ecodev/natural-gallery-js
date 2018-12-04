@@ -19,6 +19,7 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
         activable: false,
         infiniteScrollOffset: 0,
         photoSwipeOptions: null,
+        cover: false
     };
 
     protected options: NaturalGalleryOptions;
