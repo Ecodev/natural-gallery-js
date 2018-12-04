@@ -82,7 +82,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         activable: false,
         infiniteScrollOffset: 0,
         photoSwipeOptions: null,
-        cover: false
+        cover: true
     };
 
     protected photoswipeDefaultOptions: PhotoSwipeOptions = {

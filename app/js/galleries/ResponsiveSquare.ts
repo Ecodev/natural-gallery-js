@@ -15,7 +15,7 @@ export class ResponsiveSquare<Model extends ModelAttributes = any> extends Abstr
         activable: false,
         infiniteScrollOffset: 0,
         photoSwipeOptions: null,
-        cover: false
+        cover: true
     };
 
     protected options: ResponsiveSquareGalleryOptions;
