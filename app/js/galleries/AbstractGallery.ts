@@ -6,8 +6,6 @@ import * as _ from '../lodash/debounce.js';
 
 export interface ModelAttributes {
     thumbnailSrc: string;
-    thumbnailWidth: number;
-    thumbnailHeight: number;
     enlargedSrc?: string;
     enlargedWidth?: number;
     enlargedHeight?: number;

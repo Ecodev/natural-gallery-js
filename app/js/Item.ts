@@ -324,12 +324,12 @@ export class Item<Model extends ModelAttributes = any> {
         this._width = value;
     }
 
-    get thumbnailWidth(): number {
-        return this.model.thumbnailWidth;
+    get enlargedWidth(): number {
+        return this.model.enlargedWidth;
     }
 
-    get thumbnailHeight(): number {
-        return this.model.thumbnailHeight;
+    get enlargedHeight(): number {
+        return this.model.enlargedHeight;
     }
 
     get selected(): boolean {

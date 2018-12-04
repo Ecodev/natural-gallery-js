@@ -114,7 +114,7 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
     }
 
     private getImageRatio(el: Item): number {
-        return Number(el.thumbnailWidth) / Number(el.thumbnailHeight);
+        return Number(el.enlargedWidth) / Number(el.enlargedHeight);
     }
 
     private apportionExcess(items: Item[], containerWidth: number, rowWidth: number): number {
