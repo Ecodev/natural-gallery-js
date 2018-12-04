@@ -114,8 +114,6 @@ function getImages(url, paginationEvent) {
             var items = results.map(function(i) {
                 return {
                     thumbnailSrc: i.urls.small,
-                    thumbnailWidth: rowHeight * i.width / i.height,
-                    thumbnailHeight: rowHeight,
                     enlargedSrc: i.urls.regular,
                     enlargedWidth: i.width,
                     enlargedHeight: i.height,
