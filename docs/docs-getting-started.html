@@ -44,7 +44,7 @@ window.addEventListener('load', function() {
     var gallery = new NaturalGallery.Masonry(elementRef); // or
     var gallery = new NaturalGallery.Square(elementRef); // or
     var gallery = new NaturalGallery.ResponsiveSquare(elementRef);
-}
+})
 {% endhighlight %}
     </div>
 
@@ -60,15 +60,15 @@ window.addEventListener('load', function() {
 // Convert your format into natural-gallery's format.
 var items = [
      {
-        thumbnailSrc: number, // link to thumbnail image
-        enlargedSrc: number, // link to enlarged image
+        thumbnailSrc: string, // link to thumbnail image
+        enlargedSrc: string, // link to enlarged image
         enlargedWidth: number,
         enlargedHeight: number,
         title: string, // Title for the label or button
         link: string, // Link, transforms label into button
         linkTarget: string // _blank | _top | _self | _parent
         color: string // HEX color for background before image display
-    };
+    }
 ];
 
 // Set the entire collection
@@ -103,6 +103,3 @@ gallery.addItems(itemsSet3);
     </div>
 
 </div>
-
-
-
