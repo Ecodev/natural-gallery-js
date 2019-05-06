@@ -70,7 +70,6 @@
         "gulp-tslint": "^8.1.2",
         "gulp-typescript": "^3.1.4",
         "gulp-uglify": "^3.0.0",
-        "gulp-util": "^3.0.7",
         "gulp-watch": "^4.3.5",
         "gulp-wrap": "^0.13.0",
         "image-webpack-loader": "^3.3.1",
