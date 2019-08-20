@@ -18,11 +18,11 @@ A library that allows you to display images with with natural layouts, infinite 
 # Install with NPM or Yarn
 
 ```sh
-npm i natural-gallery-js
+npm i @ecodev/natural-gallery-js
 ```
 
 ```sh
-yarn add natural-gallery-js
+yarn add @ecodev/natural-gallery-js
 ```
 
 # Contributing
