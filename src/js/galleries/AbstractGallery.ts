@@ -1,8 +1,8 @@
-import { Item, ItemOptions } from '../Item';
-import { Utility } from '../Utility';
 import * as PhotoSwipe from 'photoswipe';
 import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
+import { Item, ItemOptions } from '../Item';
 import * as _ from '../lodash/debounce.js';
+import { Utility } from '../Utility';
 
 export interface ModelAttributes {
     thumbnailSrc: string;
@@ -82,7 +82,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         activable: false,
         infiniteScrollOffset: 0,
         photoSwipeOptions: null,
-        cover: true
+        cover: true,
     };
 
     protected photoswipeDefaultOptions: PhotoSwipeOptions = {
@@ -351,7 +351,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             activable: this.options.activable,
             gap: this.options.gap,
             showLabels: this.options.showLabels,
-            cover : this.options.cover
+            cover: this.options.cover,
         };
     }
 

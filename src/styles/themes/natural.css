@@ -1,0 +1,35 @@
+/*
+ * Colors
+ * -----------------------------------------
+ */
+
+.natural-gallery-js .natural-gallery-body .figure {
+    background-color: rgba(0, 137, 224, 0.1);
+}
+
+.natural-gallery-js .natural-gallery-body .figure.errored {
+    background-color: rgba(255, 0, 0, 0.1);
+}
+
+/* Highlighted */
+.natural-gallery-js .natural-gallery-next svg {
+    color: rgb(0, 137, 224) !important;
+    fill: currentColor !important;
+}
+
+.natural-gallery-js .natural-gallery-next:hover {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.natural-gallery-js .figure.selected .selectBtn {
+    color: orange !important;
+}
+
+.natural-gallery-js .button {
+    background: rgb(0, 137, 224) !important;
+    border-top: 1px solid #45a8e0;
+}
+
+.natural-gallery-js .button:hover {
+    background: rgb(0, 103, 187) !important;
+}

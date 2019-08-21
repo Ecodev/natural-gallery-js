@@ -15,14 +15,18 @@
 
     <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
 
-    <link rel="stylesheet" href="assets/natural-gallery-js/natural-gallery.full.css">
+    <!-- Photoswipe -->
+    <link rel="stylesheet" href="assets/photoswipe/photoswipe.css">
+    <link rel="stylesheet" href="assets/photoswipe/default-skin/default-skin.css">
+    <script src="assets/photoswipe/photoswipe.min.js" defer></script>
+    <script src="assets/photoswipe/photoswipe-ui-default.min.js" defer></script>
+
+    <!-- Natural gallery js assets -->
+    <link rel="stylesheet" href="assets/natural-gallery-js/natural-gallery.css">
     <link rel="stylesheet" href="assets/natural-gallery-js/themes/natural.css">
-    <script src="assets/natural-gallery-js/natural-gallery.full.js" defer></script>
+    <script src="assets/natural-gallery-js/natural-gallery.js" defer></script>
 
     <link rel="stylesheet" href="assets/main.css">
 
-    {%- feed_meta -%}
-    {%- if jekyll.environment == 'production' and site.google_analytics -%}
-        {%- include google-analytics.html -%}
-    {%- endif -%}
+    {%- feed_meta -%} {%- if jekyll.environment == 'production' and site.google_analytics -%} {%- include google-analytics.html -%} {%- endif -%}
 </head>
