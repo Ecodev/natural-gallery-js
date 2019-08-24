@@ -152,7 +152,7 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
             const item = items[i];
             item.last = true;
             item.width = Math.floor(columnWidth);
-            item.height = item.width * item.model.enlargedWidth / item.model.enlargedHeight;
+            item.height = item.width * item.model.enlargedHeight / item.model.enlargedWidth;
             item.style();
         }
     }
