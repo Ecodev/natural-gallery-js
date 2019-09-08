@@ -1,12 +1,31 @@
 {
     "compilerOptions": {
+        "baseUrl": "src",
         "declaration": true,
         "declarationDir": "dist",
         "target": "es5",
-        "lib": ["es2017", "dom"],
+        "lib": [
+            "es2017",
+            "dom"
+        ],
         "noImplicitAny": false,
         "sourceMap": true,
+        "esModuleInterop": true,
         "moduleResolution": "node",
-        "typeRoots": ["./node_modules/@types"]
-    }
+        "typeRoots": [
+            "./node_modules/@types"
+        ],
+        "paths": {
+            "@ecodev/natural-gallery-js": [
+                "."
+            ]
+        }
+    },
+    "exclude": [
+        ".idea",
+        "dist",
+        "docs",
+        "node_modules",
+        "testing"
+    ]
 }
