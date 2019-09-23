@@ -1,144 +1,81 @@
 const webpack = require('webpack');
 const path = require('path');
-const BabiliPlugin = require("babili-webpack-plugin"); // uglifier for typescript
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
-const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
-const name = 'natural-gallery';
+const dest = process.argv.indexOf('--docs') > -1 ? 'docs/assets/natural-gallery-js' : 'dist';
 
-module.exports = function(env) {
-
-    const prod = process.env.NODE_ENV === 'production';
-    const dependencies = !(env && env.nodependencies === true);
-    const demo = env && env.demo === true;
-
-    let entry = {'app': './app/app.ts'};
-    let outName = name;
-    if (dependencies) {
-        entry = {'full': './app/full.ts'};
-        outName = name + '.full';
-    }
-
-    const extractCSS = new ExtractTextPlugin("themes/natural.css");
-    const extractSASS = new ExtractTextPlugin(outName + ".css");
-
-    let plugins = [
-        extractCSS,
-        extractSASS,
-        new OptimizeCssAssetsPlugin({
-            assetNameRegExp: /natural-gallery\.css$/g,
-            cssProcessor: require('cssnano'),
-            cssProcessorOptions: {
-                discardComments: {removeAll: prod},
-                sourceMap: !prod
-            },
-            canPrint: true
-        }),
-    ];
-
-    let externals = {};
-    plugins.push(new webpack.WatchIgnorePlugin([/\.d\.ts$/]));
-
-    if (!dependencies) {
-        externals = {
-            'photoswipe': 'photoswipe',
-            'photoswipe/dist/photoswipe-ui-default': 'photoswipe/dist/photoswipe-ui-default'
-        }
-    }
-
-    if (prod) {
-        plugins.push(new BabiliPlugin());
-    }
-
-    return {
-        entry: entry,
-        output: {
-            path: path.join(__dirname, demo ? 'docs/assets/natural-gallery-js' : 'dist'),
-            filename: outName + '.js',
-            library: "NaturalGallery",
-            libraryTarget: 'umd',
-            umdNamedDefine: true
-        },
-        devtool: prod ? false : "source-map", // 'inline-source-map'
-        resolveLoader: {
-            modules: [
-                path.join(__dirname, 'node_modules')
-            ]
-        },
-        resolve: {
-            extensions: [".ts", ".js"],
-            modules: [
-                path.join(__dirname, 'node_modules')
-            ]
-        },
-        plugins: plugins,
-        externals: externals,
-        module: {
-            rules: [
-                {
-                    test: /\.ts?$/,
-                    loader: "awesome-typescript-loader"
-                }, {
-                    enforce: "pre",
-                    test: /\.js$/,
-                    loader: "source-map-loader"
-                }, {
-                    test: /\.css$/,
-                    loader: extractCSS.extract(['css-loader']),
-                }, {
-                    test: /\.scss$/,
-                    loader: extractSASS.extract({
-                        fallback: 'style-loader',
-                        use: [
-                            {
-                                loader: 'css-loader',
-                                options: {
-                                    sourceMap: !prod,
-                                    minimize: prod
-                                }
-                            }, {
-                                loader: 'postcss-loader',
-                                options: {sourceMap: 'inline'}
-                            }, {
-                                loader: 'sass-loader',
-                                options: {
-                                    sourceMap: !prod,
-                                    sourceMapContents: !prod,
-                                    outputStyle: 'expanded'
-                                }
-                            }
-                        ]
-                    })
-                }, {
-                    test: /\.(gif|png|jpe?g|svg)$/i,
-                    loaders: [
-                        {
-                            loader: 'file-loader',
-                            options: {
-                                name: 'images/[name].[ext]'
-                            }
-                        },
-                        {
-                            loader: 'image-webpack-loader',
-                            query: {
-                                mozjpeg: {
-                                    progressive: true,
-                                },
-                                pngquant: {
-                                    quality: '65-90',
-                                    speed: 4,
-                                    optimizationLevel: 7,
-                                    interlaced: false,
-                                },
-                                gifsicle: {
-                                    optimizationLevel: 7,
-                                    interlaced: false
-                                },
-                            }
-                        }
-                    ]
+module.exports = {
+    mode: 'production',
+    devtool: "source-map",
+    output: {
+        path: path.join(__dirname, dest),
+        library: "NaturalGallery",
+        filename: 'natural-gallery.js',
+        libraryTarget: 'umd',
+        umdNamedDefine: true
+    },
+    resolveLoader: {modules: [path.join(__dirname, 'node_modules')]},
+    resolve: {
+        extensions: [".ts", ".js"],
+        modules: [path.join(__dirname, 'node_modules')]
+    },
+    externals: {
+        'photoswipe': 'PhotoSwipe',
+        'photoswipe/dist/photoswipe-ui-default': 'PhotoSwipeUI_Default'
+    },
+    optimization: {
+        minimizer: [
+            new TerserPlugin({sourceMap: true}),
+            new OptimizeCSSAssetsPlugin({
+                cssProcessorOptions: {
+                    map: {
+                        inline: false,
+                        annotation: true,
+                    }
                 }
-            ]
-        },
-    }
+            })
+        ],
+    },
+    plugins: [
+        new webpack.WatchIgnorePlugin([/\.d\.ts$/]),
+        new MiniCssExtractPlugin({filename: 'natural-gallery.css'}),
+        new CopyPlugin([
+            {from: 'package.json'},
+            {
+                from: 'src/styles/themes',
+                to: 'themes'
+            },
+        ])
+    ],
+    module: {
+        rules: [
+            {
+                test: /\.ts?$/,
+                loader: "awesome-typescript-loader"
+            }, {
+                enforce: "pre",
+                test: /\.js$/,
+                loader: "source-map-loader"
+            },
+            {
+                test: /\.scss$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: {sourceMap: true}
+                    }, {
+                        loader: 'postcss-loader',
+                        options: {sourceMap: true}
+                    }, {
+                        loader: 'sass-loader',
+                        options: {sourceMap: true}
+                    }
+                ]
+            }
+        ]
+    },
 };

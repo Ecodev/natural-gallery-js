@@ -7,7 +7,7 @@ export declare interface ItemOptions {
     activable?: boolean;
     gap?: number;
     showLabels?: 'hover' | 'never' | 'always';
-    cover: boolean;
+    cover?: boolean;
 }
 
 export interface ItemTitle {

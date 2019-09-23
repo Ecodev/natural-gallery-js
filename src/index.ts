@@ -1,5 +1,4 @@
-import './styles/themes/natural.css';
-import './styles/natural-gallery.full.scss';
+import './styles/natural-gallery.scss';
 
 export * from './js/galleries/Natural';
 export * from './js/galleries/Masonry';

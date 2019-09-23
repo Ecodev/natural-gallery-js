@@ -37,6 +37,12 @@ Create an issue where you report what you observe, what you expect to observe, a
 
 Consider a pull request, but create an issue before to expose your idea. Maybe the feature you would like to add is already on the pipeline or is intentionally not included for good reasons. 
 
+# Testing
+
+```
+yarn test
+```
+
 # Licence
 
 Developed by [ecodev](https://ecodev.ch) under MIT licence, the app is free of use, even for commercial usage. Even if it's not required a credit would be much appreciated.

@@ -174,14 +174,14 @@ var gallery = new NaturalGallery.Natural(elementRef, options);
 
         <div class="container-1000px">
             <h3>Photoswipe assets</h3>
-            <p>Natural-gallery-js distribute two versions of files. A minimalist already exposed <a href="docs-getting-started.html#assets">here</a> and a full version including PhotoSwipe.</p>
-            <p>All you have to do add ".full" suffix to files</p>
+            <p>Natural-gallery-js distributed files don't include PhotoSwipe sources. You need to add them by yourself before including natural assets.</p>
         </div>
 
 {% highlight html %}
-<link rel="stylesheet" href="/your/awesome/path/natural-gallery.full.css">
-<link rel="stylesheet" href="/your/awesome/path/themes/natural.css"><!-- this one stay unchanged -->
-<script src="/your/awesome/path/natural-gallery.full.js" defer></script>
+<link rel="stylesheet" href="assets/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="assets/photoswipe/default-skin/default-skin.css">
+<script src="assets/photoswipe/photoswipe.min.js" defer></script>
+<script src="assets/photoswipe/photoswipe-ui-default.min.js" defer></script>
 {% endhighlight %}
 
         <div class="container-1000px">
