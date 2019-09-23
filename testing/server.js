@@ -31,7 +31,7 @@ const app = express()
             <body>
               <script>var images = JSON.parse('${JSON.stringify(images)}');</script>
               <script src="natural-gallery.js"></script>
-              <div id="root" style="border:2px solid deeppink"></div>
+              <div id="root" style="border:2px solid purple"></div>
             </body></html>`);
     })
     .listen(port, () => {
