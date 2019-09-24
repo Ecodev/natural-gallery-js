@@ -20,7 +20,6 @@ module.exports = {
     resolveLoader: {modules: [path.join(__dirname, 'node_modules')]},
     resolve: {
         extensions: [".ts", ".js"],
-        modules: [path.join(__dirname, 'node_modules')]
     },
     externals: {
         'photoswipe': 'PhotoSwipe',

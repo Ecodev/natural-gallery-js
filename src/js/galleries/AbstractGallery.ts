@@ -1,5 +1,5 @@
-import * as PhotoSwipe from 'photoswipe';
-import * as PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
+import PhotoSwipe from 'photoswipe';
+import PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 import { Item, ItemOptions } from '../Item';
 import * as _ from '../lodash/debounce.js';
 import { Utility } from '../Utility';

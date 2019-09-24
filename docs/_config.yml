@@ -22,7 +22,7 @@ url: "https://ecodev.github.io/natural-gallery-js" # the base hostname & protoco
 github_username:  sambaptista
 
 highlighter: rouge
-version: 5.0.0
+version: 5.0.1
 google_analytics: UA-123879153-1
 
 # Build settings
