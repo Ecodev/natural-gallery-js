@@ -1,14 +1,9 @@
-# Created by .ignore support plugin (hsz.mobi)
-
 *.log
 .idea
 .DS_store
 node_modules
 cache/*
 dist/*
-app/**/*.js.map
-app/**/*.d.ts
-app/*.js
 
 # Jekyll
 _site

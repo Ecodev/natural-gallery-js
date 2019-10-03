@@ -22,8 +22,18 @@ module.exports = {
         extensions: [".ts", ".js"],
     },
     externals: {
-        'photoswipe': 'PhotoSwipe',
-        'photoswipe/dist/photoswipe-ui-default': 'PhotoSwipeUI_Default'
+        'photoswipe': {
+            commonjs: 'photoswipe',
+            commonjs2: 'photoswipe',
+            amd: 'photoswipe',
+            root: 'PhotoSwipe'
+        },
+        'photoswipe/dist/photoswipe-ui-default': {
+            commonjs: 'photoswipe/dist/photoswipe-ui-default',
+            commonjs2: 'photoswipe/dist/photoswipe-ui-default',
+            amd: 'photoswipe/dist/photoswipe-ui-default',
+            root: 'PhotoSwipeUI_Default'
+        },
     },
     optimization: {
         minimizer: [
