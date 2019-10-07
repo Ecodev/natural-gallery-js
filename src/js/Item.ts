@@ -1,5 +1,5 @@
-import { Utility } from './Utility';
 import { ModelAttributes } from './galleries/AbstractGallery';
+import { Utility } from './Utility';
 
 export declare interface ItemOptions {
     lightbox?: boolean;
@@ -84,7 +84,6 @@ export class Item<Model extends ModelAttributes = any> {
      * Also apply border-radius at this level because it never changed threw time
      */
     public init() {
-
         let label = null;
 
         // Test if label should be added to dom
@@ -192,9 +191,11 @@ export class Item<Model extends ModelAttributes = any> {
         }
 
         if (this.options.selectable) {
+            if (this.model.selected) {
+                this.select();
+            }
             this._selectBtn = document.createElement('div');
-            const icon = Utility.getIcon('natural-gallery-icon-select');
-            this._selectBtn.appendChild(icon);
+            this._selectBtn.appendChild(Utility.getIcon('natural-gallery-icon-select'));
             this._selectBtn.classList.add('selectBtn');
             this._selectBtn.addEventListener('click', (e) => {
                 e.stopPropagation();

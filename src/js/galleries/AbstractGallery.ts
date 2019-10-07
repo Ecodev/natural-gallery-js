@@ -13,6 +13,7 @@ export interface ModelAttributes {
     link?: string;
     linkTarget?: string;
     color?: string;
+    selected?: boolean;
 }
 
 export interface GalleryOptions extends ItemOptions {
