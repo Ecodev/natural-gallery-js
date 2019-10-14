@@ -12,6 +12,7 @@ window.addEventListener('load', function() {
 
     // Create gallery
     gallery = getGallery(galleryElement, photoswipeElement, scrollableElement);
+    gallery.init();
 
     gallery.addEventListener('pagination', function(ev) {
         console.log('pagination', ev.detail);

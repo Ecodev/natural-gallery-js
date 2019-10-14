@@ -1,24 +1,24 @@
 import { Item } from '../Item';
-import { AbstractResponsiveRowGallery, ResponsiveSquareGalleryOptions } from './AbstractResponsiveRowGallery';
 import { ModelAttributes } from './AbstractGallery';
+import { AbstractResponsiveRowGallery, ResponsiveGalleryOptions } from './AbstractResponsiveRowGallery';
+
+export interface ResponsiveSquareGalleryOptions extends ResponsiveGalleryOptions {
+}
 
 export class ResponsiveSquare<Model extends ModelAttributes = any> extends AbstractResponsiveRowGallery {
 
-    protected defaultOptions: ResponsiveSquareGalleryOptions = {
-        rowHeight: 400,
-        gap: 3,
-        rowsPerPage: 0,
-        showLabels: 'hover',
-        lightbox: false,
-        minRowsAtStart: 2,
-        selectable: false,
-        activable: false,
-        infiniteScrollOffset: 0,
-        photoSwipeOptions: null,
-        cover: true
-    };
-
+    /**
+     * Options after having been defaulted
+     */
     protected options: ResponsiveSquareGalleryOptions;
+
+    constructor(protected elementRef: HTMLElement,
+                options: ResponsiveSquareGalleryOptions,
+                protected photoswipeElementRef?: HTMLElement,
+                protected scrollElementRef?: HTMLElement) {
+
+        super(elementRef, options, photoswipeElementRef, scrollElementRef);
+    }
 
     protected getEstimatedItemsPerRow(): number {
         return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));

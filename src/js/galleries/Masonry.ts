@@ -1,6 +1,6 @@
-import { AbstractGallery, GalleryOptions, ModelAttributes } from './AbstractGallery';
-import { Item } from '../Item';
 import { Column } from '../Column';
+import { Item } from '../Item';
+import { AbstractGallery, GalleryOptions, ModelAttributes } from './AbstractGallery';
 
 export interface MasonryGalleryOptions extends GalleryOptions {
     columnWidth: number;
@@ -8,23 +8,28 @@ export interface MasonryGalleryOptions extends GalleryOptions {
 
 export class Masonry<Model extends ModelAttributes = any> extends AbstractGallery {
 
-    protected defaultOptions: MasonryGalleryOptions = {
-        columnWidth: 300,
-        gap: 3,
-        rowsPerPage: 0,
-        showLabels: 'hover',
-        lightbox: false,
-        minRowsAtStart: 2,
-        selectable: false,
-        activable: false,
-        infiniteScrollOffset: 0,
-        photoSwipeOptions: null,
-        cover: true
-    };
-
+    /**
+     * Options after having been defaulted
+     */
     protected options: MasonryGalleryOptions;
 
+    /**
+     * Regroup the list of columns
+     */
     protected columns: Column[];
+
+    constructor(protected elementRef: HTMLElement,
+                options: MasonryGalleryOptions,
+                protected photoswipeElementRef?: HTMLElement,
+                protected scrollElementRef?: HTMLElement) {
+
+        super(elementRef, options, photoswipeElementRef, scrollElementRef);
+
+        if (!options.columnWidth || options.columnWidth <= 0) {
+            throw new Error('Option.columnWidth must be positive');
+        }
+
+    }
 
     protected init(): void {
         super.init();

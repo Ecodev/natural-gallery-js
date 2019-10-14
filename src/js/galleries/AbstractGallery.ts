@@ -1,7 +1,9 @@
+import debounce from 'lodash-es/debounce';
+import defaults from 'lodash-es/defaults';
+import pick from 'lodash-es/pick';
 import PhotoSwipe from 'photoswipe';
 import PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 import { Item, ItemOptions } from '../Item';
-import * as _ from '../lodash/debounce.js';
 import { Utility } from '../Utility';
 
 export interface ModelAttributes {
@@ -71,9 +73,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
     /**
      * Default options
-     * @private
      */
-    protected defaultOptions: GalleryOptions = {
+    protected options: GalleryOptions = {
         gap: 3,
         rowsPerPage: 0,
         showLabels: 'hover',
@@ -90,11 +91,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         bgOpacity: 0.85,
         showHideOpacity: false,
     };
-
-    /**
-     * Final gallery options after having defaulted user given options
-     */
-    protected options: GalleryOptions;
 
     /**
      * Used to test the scroll direction
@@ -146,15 +142,22 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     /**
      *
      * @param elementRef
+     * @param options
      * @param photoswipeElementRef
-     * @param userOptions
      * @param scrollElementRef
      */
     constructor(protected elementRef: HTMLElement,
-                protected userOptions: GalleryOptions,
-                protected photoswipeElementRef: HTMLElement,
-                protected scrollElementRef: HTMLElement = null) {
-        this.init();
+                options: GalleryOptions,
+                protected photoswipeElementRef?: HTMLElement,
+                protected scrollElementRef?: HTMLElement) {
+
+        this.options = defaults(options, this.options);
+        console.log('this.options', this.options);
+
+        if (this.options.lightbox && !this.photoswipeElementRef) {
+            console.error('Lightbox option is set to true, but no PhotoSwipe reference is given');
+        }
+
     }
 
     protected abstract getEstimatedItemsPerRow(): number;
@@ -169,14 +172,14 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
         this.elementRef.classList.add('natural-gallery-js');
 
-        /**
-         * After having finished to add figures to dom, show images inside containers and emit updated pagination
-         */
-        this.flushBufferedItems = _.debounce(() => {
+        // After having finished to add figures to dom, show images inside containers and emit updated pagination
+        this.flushBufferedItems = debounce(() => {
+
             this.scrollBufferedItems.forEach(i => {
                 i.loadImage();
                 this.dispatchEvent('item-displayed', i.model);
             });
+
             this.scrollBufferedItems = [];
 
             if (this.requiredItems) {
@@ -186,13 +189,36 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
         }, 500, {leading: false, trailing: true});
 
-        this.defaultsOptions();
+        // Next button
+        this.nextButton = document.createElement('div');
+        this.nextButton.classList.add('natural-gallery-next');
+        this.nextButton.appendChild(Utility.getIcon('natural-gallery-icon-next'));
+        this.nextButton.style.display = 'none';
+        this.nextButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.onPageAdd();
+        });
 
-        if (this.options.lightbox && !this.photoswipeElementRef) {
-            console.error('Lightbox option is set to true, but no PhotoSwipe reference is given');
-        }
+        this.bodyElementRef = document.createElement('div');
+        this.bodyElementRef.classList.add('natural-gallery-body');
+        this.extendToFreeViewport();
 
-        this.render();
+        // Iframe
+        const iframe = document.createElement('iframe');
+        this.elementRef.appendChild(iframe);
+
+        // Resize debounce
+        const resizeDebounceDuration = 500;
+        const startResize = debounce(() => this.startResize(), resizeDebounceDuration, {leading: true, trailing: false});
+        const endResize = debounce(() => this.endResize(), resizeDebounceDuration, {leading: false, trailing: true});
+        iframe.contentWindow.addEventListener('resize', () => {
+            endResize();
+            startResize();
+        });
+
+        this.elementRef.appendChild(this.bodyElementRef);
+        this.elementRef.appendChild(this.nextButton);
+
         this.requestItems();
 
         if (!this.options.rowsPerPage) {
@@ -206,15 +232,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * @returns {number}
      */
     protected abstract getEstimatedRowsPerPage(): number;
-
-    protected defaultsOptions(): void {
-        this.options = this.userOptions || {} as any;
-        for (const key in this.defaultOptions) {
-            if (typeof this.options[key] === 'undefined') {
-                this.options[key] = this.defaultOptions[key];
-            }
-        }
-    }
 
     /**
      * Fire pagination event
@@ -274,39 +291,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
     }
 
-    protected render() {
-
-        // Next button
-        this.nextButton = document.createElement('div');
-        this.nextButton.classList.add('natural-gallery-next');
-        this.nextButton.appendChild(Utility.getIcon('natural-gallery-icon-next'));
-        this.nextButton.style.display = 'none';
-        this.nextButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.onPageAdd();
-        });
-
-        this.bodyElementRef = document.createElement('div');
-        this.bodyElementRef.classList.add('natural-gallery-body');
-        this.extendToFreeViewport();
-
-        // Iframe
-        const iframe = document.createElement('iframe');
-        this.elementRef.appendChild(iframe);
-
-        // Resize debounce
-        const resizeDebounceDuration = 500;
-        const startResize = _.debounce(() => this.startResize(), resizeDebounceDuration, {leading: true, trailing: false});
-        const endResize = _.debounce(() => this.endResize(), resizeDebounceDuration, {leading: false, trailing: true});
-        iframe.contentWindow.addEventListener('resize', () => {
-            endResize();
-            startResize();
-        });
-
-        this.elementRef.appendChild(this.bodyElementRef);
-        this.elementRef.appendChild(this.nextButton);
-    }
-
     protected updateNextButtonVisibility() {
         if (this.visibleCollection.length === this.collection.length) {
             this.nextButton.style.display = 'none';
@@ -331,7 +315,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
         // Complete collection
         models.forEach((model: Model) => {
-            const item = new Item<Model>(this.getItemOptions(), model);
+            const itemOptions = pick(this.options, ['lightbox', 'selectable', 'activable', 'gap', 'showLabels', 'cover']);
+            const item = new Item<Model>(itemOptions, model);
             this._collection.push(item);
             this.photoswipeCollection.push(this.getPhotoswipeItem(item));
         });
@@ -342,20 +327,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     }
 
     /**
-     * Combine options from gallery with attributes required to generate a figure
-     * @returns {ItemOptions}
+     * If infinite scroll (no option.rowsPerPage provided), a minimum height is setted to force gallery to overflow from viewport.
+     * This activates the scroll before adding items to dom. This prevents the scroll to fire new resize event and recompute all gallery
+     * twice on start.
      */
-    private getItemOptions(): ItemOptions {
-        return {
-            lightbox: this.options.lightbox,
-            selectable: this.options.selectable,
-            activable: this.options.activable,
-            gap: this.options.gap,
-            showLabels: this.options.showLabels,
-            cover: this.options.cover,
-        };
-    }
-
     protected extendToFreeViewport() {
 
         if (this.options.rowsPerPage) {
@@ -394,8 +369,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             wrapper = element;
         }
 
-        const startScroll = _.debounce(() => this.elementRef.classList.add('scrolling'), 300, {leading: true, trailing: false});
-        const endScroll = _.debounce(() => this.elementRef.classList.remove('scrolling'), 300, {leading: false, trailing: true});
+        const startScroll = debounce(() => this.elementRef.classList.add('scrolling'), 300, {leading: true, trailing: false});
+        const endScroll = debounce(() => this.elementRef.classList.remove('scrolling'), 300, {leading: false, trailing: true});
 
         scrollable.addEventListener('scroll', () => {
             startScroll();

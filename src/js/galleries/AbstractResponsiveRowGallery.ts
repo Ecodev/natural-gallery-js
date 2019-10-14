@@ -1,11 +1,23 @@
-import { AbstractRowGallery } from './AbstractRowGallery';
 import { GalleryOptions } from './AbstractGallery';
+import { AbstractRowGallery } from './AbstractRowGallery';
 
-export interface ResponsiveSquareGalleryOptions extends GalleryOptions {
+export interface ResponsiveGalleryOptions extends GalleryOptions {
     rowHeight: number;
 }
 
 export abstract class AbstractResponsiveRowGallery extends AbstractRowGallery {
+
+    constructor(protected elementRef: HTMLElement,
+                options: ResponsiveGalleryOptions,
+                protected photoswipeElementRef?: HTMLElement,
+                protected scrollElementRef?: HTMLElement) {
+
+        super(elementRef, options, photoswipeElementRef, scrollElementRef);
+
+        if (!options.rowHeight || options.rowHeight <= 0) {
+            throw new Error('Option.rowHeight must be positive');
+        }
+    }
 
     protected addRows(rows: number): void {
         this.completeLastRow();

@@ -272,6 +272,7 @@ gallery.addEventListener('zoom', function(ev) {
 
                 var galleryApi1Ref = document.getElementById('gallery-api-1');
                 var galleryApi1 = new NaturalGallery.Square(galleryApi1Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: false, selectable: true}, photoswipeRef);
+                galleryApi1.init();
                 var imagesZoom1 = {% include sample.json %}.slice(0, 1);
                 imagesZoom1[0].title = 'Image link and no lightbox = whole image click should emit activate event';
                 imagesZoom1[0].link = '#demo-events';
@@ -279,6 +280,7 @@ gallery.addEventListener('zoom', function(ev) {
 
                 var galleryApi2Ref = document.getElementById('gallery-api-2');
                 var galleryApi2 = new NaturalGallery.Square(galleryApi2Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: true, selectable: true}, photoswipeRef);
+                galleryApi2.init();
                 var imagesZoom2 = {% include sample.json %}.slice(0, 1);
                 imagesZoom2[0].title = 'Image link and  lightbox = button click should emit activate, image click should emit zoom';
                 imagesZoom2[0].link = '#demo-events';
@@ -286,12 +288,14 @@ gallery.addEventListener('zoom', function(ev) {
 
                 var galleryApi3Ref = document.getElementById('gallery-api-3');
                 var galleryApi3 = new NaturalGallery.Square(galleryApi3Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: false, activable: true, selectable: true}, photoswipeRef);
+                galleryApi3.init();
                 var imagesZoom3 = {% include sample.json %}.slice(0, 1);
                 imagesZoom3[0].title = 'Without image link and no lightbox, but option.activable = true';
                 galleryApi3.setItems(imagesZoom3);
 
                 var galleryApi4Ref = document.getElementById('gallery-api-4');
                 var galleryApi4 = new NaturalGallery.Square(galleryApi4Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: true, activable: true, selectable: true}, photoswipeRef);
+                galleryApi4.init();
                 var imagesZoom4 = {% include sample.json %}.slice(0, 1);
                 imagesZoom4[0].title = 'Without image link but with lightbox and option.activable = true';
                 galleryApi4.setItems(imagesZoom4);

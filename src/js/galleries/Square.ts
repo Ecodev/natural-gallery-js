@@ -1,6 +1,6 @@
 import { Item } from '../Item';
-import { AbstractRowGallery } from './AbstractRowGallery';
 import { GalleryOptions, ModelAttributes } from './AbstractGallery';
+import { AbstractRowGallery } from './AbstractRowGallery';
 
 export interface SquareGalleryOptions extends GalleryOptions {
     itemsPerRow: number;
@@ -8,21 +8,22 @@ export interface SquareGalleryOptions extends GalleryOptions {
 
 export class Square<Model extends ModelAttributes = any> extends AbstractRowGallery {
 
-    protected defaultOptions: SquareGalleryOptions = {
-        itemsPerRow: 4,
-        gap: 3,
-        rowsPerPage: 0,
-        showLabels: 'hover',
-        lightbox: false,
-        minRowsAtStart: 2,
-        selectable: false,
-        activable: false,
-        infiniteScrollOffset: 0,
-        photoSwipeOptions: null,
-        cover: true,
-    };
-
+    /**
+     * Options after having been defaulted
+     */
     protected options: SquareGalleryOptions;
+
+    constructor(protected elementRef: HTMLElement,
+                options: SquareGalleryOptions,
+                protected photoswipeElementRef?: HTMLElement,
+                protected scrollElementRef?: HTMLElement) {
+
+        super(elementRef, options, photoswipeElementRef, scrollElementRef);
+
+        if (!options.itemsPerRow || options.itemsPerRow <= 0) {
+            throw new Error('Option.itemsPerRow must be positive');
+        }
+    }
 
     protected getEstimatedItemsPerRow() {
         return this.options.itemsPerRow;

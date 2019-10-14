@@ -19,6 +19,7 @@ var elementRef = document.getElementById('gallery');
 
 // The gallery accepts a literal as second argument for options
 var gallery = new NaturalGallery.Natural(elementRef, options);
+gallery.init();
 {% endhighlight %}
 
         <div class="container-1000px">
@@ -215,6 +216,7 @@ window.addEventListener('load', function() {
     var photoswipeRef = document.getElementsByClassName('pswp')[0];
 
     var gallery = new NaturalGallery.Natural(elementRef, options, photoswipeRef);
+    gallery.init();
 }
 {% endhighlight %}
 
@@ -226,6 +228,7 @@ window.addEventListener('load', function() {
                     var galleryRef = document.getElementById('gallery-border-radius');
                     var photoswipeRef = document.getElementsByClassName('pswp')[0];
                     var galleryRadius = new NaturalGallery.Square(galleryRef, {gap:20, itemsPerRow:4, showLabels: 'never', lightbox: true}, photoswipeRef);
+                    galleryRadius.init();
                     galleryRadius.setItems({% include sample.json %});
                 });
             </script>

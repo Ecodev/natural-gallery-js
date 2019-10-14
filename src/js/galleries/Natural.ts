@@ -1,28 +1,24 @@
 import { Item } from '../Item';
-import { AbstractResponsiveRowGallery } from './AbstractResponsiveRowGallery';
-import { GalleryOptions, ModelAttributes } from './AbstractGallery';
+import { ModelAttributes } from './AbstractGallery';
+import { AbstractResponsiveRowGallery, ResponsiveGalleryOptions } from './AbstractResponsiveRowGallery';
 
-export interface NaturalGalleryOptions extends GalleryOptions {
-    rowHeight: number;
+export interface NaturalGalleryOptions extends ResponsiveGalleryOptions {
 }
 
 export class Natural<Model extends ModelAttributes = any> extends AbstractResponsiveRowGallery {
 
-    protected defaultOptions: NaturalGalleryOptions = {
-        rowHeight: 400,
-        gap: 3,
-        rowsPerPage: 0,
-        showLabels: 'hover',
-        lightbox: false,
-        minRowsAtStart: 2,
-        selectable: false,
-        activable: false,
-        infiniteScrollOffset: 0,
-        photoSwipeOptions: null,
-        cover: true
-    };
-
+    /**
+     * Options after having been defaulted
+     */
     protected options: NaturalGalleryOptions;
+
+    constructor(protected elementRef: HTMLElement,
+                options: NaturalGalleryOptions,
+                protected photoswipeElementRef?: HTMLElement,
+                protected scrollElementRef?: HTMLElement) {
+
+        super(elementRef, options, photoswipeElementRef, scrollElementRef);
+    }
 
     protected getEstimatedItemsPerRow(): number {
         return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
@@ -48,7 +44,10 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
         for (let chunkSize = 1; chunkSize <= items.length; chunkSize++) {
             let chunk = items.slice(0, chunkSize);
             let rowWidth = this.getRowWidth(this.options.rowHeight, this.options.gap, chunk);
-            if (rowWidth >= this.width) { // if end of row
+
+            if (rowWidth >= this.width) {
+                // if end of row
+
                 this.computeSizes(chunk, this.width, this.options.gap, currentRow);
 
                 const nextRow = currentRow + 1;
