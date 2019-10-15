@@ -14,7 +14,6 @@ module.exports = {
             preset: 'ts-jest',
             testMatch: ['<rootDir>/testing/unit/**/*.spec.ts'],
             testEnvironment: 'node',
-            // transform: {".(js|ts)": "ts-jest"},
             moduleNameMapper: {
                 "^.+\\.(css|scss)$": "<rootDir>/testing/mocks/styleMock.js",
                 "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/testing/mocks/fileMocks.js",

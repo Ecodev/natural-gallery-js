@@ -1,6 +1,6 @@
-import debounce from 'lodash-es/debounce';
-import defaults from 'lodash-es/defaults';
-import pick from 'lodash-es/pick';
+import debounce from 'lodash/debounce';
+import defaults from 'lodash/defaults';
+import pick from 'lodash/pick';
 import PhotoSwipe from 'photoswipe';
 import PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 import { Item, ItemOptions } from '../Item';
@@ -152,7 +152,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
                 protected scrollElementRef?: HTMLElement) {
 
         this.options = defaults(options, this.options);
-        console.log('this.options', this.options);
 
         if (this.options.lightbox && !this.photoswipeElementRef) {
             console.error('Lightbox option is set to true, but no PhotoSwipe reference is given');
@@ -222,7 +221,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         this.requestItems();
 
         if (!this.options.rowsPerPage) {
-            this.bindScroll(this.scrollElementRef !== null ? this.scrollElementRef : document);
+            this.bindScroll(this.scrollElementRef != null ? this.scrollElementRef : document);
         }
     }
 
@@ -488,6 +487,13 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     public clear() {
         this.empty();
         this.requestItems();
+    }
+
+    /**
+     * Return copy of options to prevent modification
+     */
+    public getOptions(): GalleryOptions {
+        return {...this.options};
     }
 
     /**

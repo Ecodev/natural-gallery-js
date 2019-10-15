@@ -1,6 +1,5 @@
 // await jestPuppeteer.debug();
 
-
 describe('Masonry', () => {
 
     it('should create gallery, init, scroll and resize"', async () => {
@@ -8,7 +7,11 @@ describe('Masonry', () => {
         await page.goto(PATH, {waitUntil: 'networkidle0'});
 
         // Init gallery and data
-        await page.evaluate(() => new NaturalGallery.Square(document.getElementById('root'), {itemsPerRow: 4}).addItems(images));
+        await page.evaluate(() => {
+            var gallery = new NaturalGallery.Square(document.getElementById('root'), {itemsPerRow: 4});
+            gallery.init();
+            gallery.addItems(images);
+        });
 
         let items = await page.$$('#root .natural-gallery-body .figure');
         expect(items.length).toBe(16);

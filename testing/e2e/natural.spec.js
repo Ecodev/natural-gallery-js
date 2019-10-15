@@ -13,7 +13,11 @@ describe('Natural', () => {
         await page.goto(PATH, {waitUntil: 'networkidle0'});
 
         // Init gallery and data
-        await page.evaluate(() => new NaturalGallery.Natural(document.getElementById('root'), {rowHeight: 400}).addItems(images));
+        await page.evaluate(() => {
+            var gallery = new NaturalGallery.Natural(document.getElementById('root'), {rowHeight: 400});
+            gallery.init();
+            gallery.addItems(images);
+        });
         let items = await page.$$('#root .natural-gallery-body .figure');
         expect(items.length).toBe(9);
 
