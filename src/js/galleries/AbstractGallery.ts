@@ -167,7 +167,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
     protected abstract onPageAdd(): void;
 
-    protected init(): void {
+    public init(): void {
 
         this.elementRef.classList.add('natural-gallery-js');
 
@@ -268,7 +268,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      */
     protected addItemToDOM(item: Item<Model>, destination: HTMLElement = this.bodyElementRef): void {
         this.visibleCollection.push(item);
-        destination.appendChild(item.init());
+
+        // if (destination) {
+            destination.appendChild(item.init());
+        // }
+
         this.scrollBufferedItems.push(item);
         this.requiredItems++;
         this.dispatchEvent('item-added-to-dom', item.model);
@@ -317,10 +321,14 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             const itemOptions = pick(this.options, ['lightbox', 'selectable', 'activable', 'gap', 'showLabels', 'cover']);
             const item = new Item<Model>(itemOptions, model);
             this._collection.push(item);
-            this.photoswipeCollection.push(this.getPhotoswipeItem(item));
+
+            if (this.photoswipeElementRef) {
+                this.photoswipeCollection.push(this.getPhotoswipeItem(item));
+            }
         });
 
-        if (display) {
+        // If display and ready to display ( = if gallery has been initialized)
+        if (display && this.bodyElementRef) {
             this.onPageAdd();
         }
     }

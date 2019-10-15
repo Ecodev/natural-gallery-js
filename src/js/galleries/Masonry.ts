@@ -31,7 +31,7 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
 
     }
 
-    protected init(): void {
+    public init(): void {
         super.init();
         this.addColumns();
     }

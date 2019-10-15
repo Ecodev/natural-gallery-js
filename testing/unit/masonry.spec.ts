@@ -1,5 +1,14 @@
 import { Masonry, MasonryGalleryOptions } from '../../src';
 
+const imageModel = {
+    'thumbnailSrc': 'thumbnailSrc',
+    'enlargedSrc': 'enlargedSrc',
+    'enlargedWidth': 1980,
+    'enlargedHeight': 1080,
+    'title': 'title 1',
+    'color': 'color',
+};
+
 fdescribe('Masonry Gallery', () => {
 
     test('Options should be completed and overriden', () => {
@@ -20,6 +29,17 @@ fdescribe('Masonry Gallery', () => {
 
         let gallery = new Masonry(null, {columnWidth: 123, gap: 4});
         expect(gallery.getOptions()).toEqual(result);
+
+    });
+
+    test('should add items before creation and not render them', () => {
+
+        const images = [imageModel, imageModel, imageModel, imageModel, imageModel, imageModel];
+        let gallery = new Masonry(null, {columnWidth: 123});
+        gallery.addItems(images);
+
+        expect(gallery.collection.length).toEqual(6);
+        expect(gallery.visibleCollection.length).toEqual(0);
 
     });
 });

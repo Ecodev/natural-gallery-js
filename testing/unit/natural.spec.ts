@@ -1,8 +1,17 @@
 import { Natural, NaturalGalleryOptions } from '../../src';
 
+const imageModel = {
+    'thumbnailSrc': 'thumbnailSrc',
+    'enlargedSrc': 'enlargedSrc',
+    'enlargedWidth': 1980,
+    'enlargedHeight': 1080,
+    'title': 'title 1',
+    'color': 'color',
+};
+
 fdescribe('Natural Gallery', () => {
 
-    test('Options should be completed and overriden', () => {
+    test('options should be completed and overriden', () => {
 
         const result: NaturalGalleryOptions = {
             rowHeight: 123, // new attribute
@@ -22,5 +31,15 @@ fdescribe('Natural Gallery', () => {
         expect(gallery.getOptions()).toEqual(result);
 
     });
-});
 
+    test('should add items before creation and not render them', () => {
+
+        const images = [imageModel, imageModel, imageModel, imageModel, imageModel, imageModel];
+        let gallery = new Natural(null, {rowHeight: 123});
+        gallery.addItems(images);
+
+        expect(gallery.collection.length).toEqual(6);
+        expect(gallery.visibleCollection.length).toEqual(0);
+    });
+    
+});
