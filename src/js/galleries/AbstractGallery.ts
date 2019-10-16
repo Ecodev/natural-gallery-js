@@ -4,7 +4,7 @@ import pick from 'lodash/pick';
 import PhotoSwipe from 'photoswipe';
 import PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 import { Item, ItemOptions } from '../Item';
-import { Utility } from '../Utility';
+import { getIcon } from '../Utility';
 
 export interface SizedModel {
 
@@ -238,7 +238,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     }
 
     get width(): number {
-        return Math.floor(this.elementRef.getBoundingClientRect().width);
+        // return Math.floor(this.bodyElementRef.getBoundingClientRect().width);
+        return Math.floor(this.elementRef.clientWidth);
+        // return Math.floor(this.elementRef.getBoundingClientRect().width);
     }
 
     get collectionLength(): number {
@@ -259,7 +261,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         // Next button
         this.nextButton = document.createElement('div');
         this.nextButton.classList.add('natural-gallery-next');
-        this.nextButton.appendChild(Utility.getIcon('natural-gallery-icon-next'));
+        this.nextButton.appendChild(getIcon('natural-gallery-icon-next'));
         this.nextButton.style.display = 'none';
         this.nextButton.addEventListener('click', (e) => {
             e.preventDefault();

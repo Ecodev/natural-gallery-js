@@ -1,9 +1,11 @@
 import { Column } from '../Column';
 import { Item } from '../Item';
+import { getImageRatio, RatioLimits } from '../Utility';
 import { AbstractGallery, GalleryOptions, ModelAttributes } from './AbstractGallery';
 
 export interface MasonryGalleryOptions extends GalleryOptions {
     columnWidth: number;
+    ratioLimit?: RatioLimits
 }
 
 export class Masonry<Model extends ModelAttributes = any> extends AbstractGallery {
@@ -46,11 +48,17 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
 
         for (let i = 0; i < lastIndex; i++) {
             const item = items[i];
+            const ratio = getImageRatio(item.model, gallery.options.ratioLimit);
+
             item.last = true;
             item.width = Math.floor(columnWidth);
-            item.height = item.width * item.model.enlargedHeight / item.model.enlargedWidth;
-            item.style();
+            item.height = item.width * ratio;
+            item.style(); // todo : externalise to split dom manipulation and logic computing
         }
+    }
+
+    public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
+        Masonry.organizeItems(this, items, fromRow, toRow);
     }
 
     protected initItems(): void {
@@ -135,10 +143,6 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
     protected empty() {
         super.empty();
         this.addColumns();
-    }
-
-    public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
-        Masonry.organizeItems(this, items, fromRow, toRow);
     }
 
     private addItemsToDom(nbItems) {

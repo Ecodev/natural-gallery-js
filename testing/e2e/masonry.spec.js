@@ -24,13 +24,13 @@ describe('Masonry', () => {
         // Scroll more
         await page.evaluate(() => window.scrollTo(0, 3200));
         items = await page.$$('#root .natural-gallery-body .figure');
-        expect(items.length).toBe(29);
+        expect(items.length).toBe(27);
 
         // Change viewport with to test resize
         await page.setViewport({width: 1160, height: page.viewport().height});
         await page.waitFor(600); // wait debounce from gallery
         items = await page.$$('#root .natural-gallery-body .figure');
-        expect(items.length).toBe(8);
+        expect(items.length).toBe(10);
 
     }, 30000);
 

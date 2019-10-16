@@ -4,20 +4,21 @@ layout: default
 
 <script>
     var options = {
-        rowHeight: 400,
+        columnWidth: 300,
+        gap: 5,
         lightbox: true,
         ratioLimit: {
-            min: 1,
-            max: 1
+            min: .5,
+            max: 2
         }
     };
 
     function getGallery(galleryElement, photoswipeElement, scrollableElement) {
-        return new NaturalGallery.Natural(galleryElement, options, photoswipeElement, scrollableElement)
+        return new NaturalGallery.Masonry(galleryElement, options, photoswipeElement, scrollableElement)
     }
 
 </script>
 
-<script src="assets/main.js" defer></script>
+<script src="assets/main-extreme.js" defer></script>
 
 {%- include gallery.html -%}

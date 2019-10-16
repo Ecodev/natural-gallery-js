@@ -17,7 +17,6 @@ const images = data.results.map(function(i) {
     };
 });
 
-
 let port = 4444;
 const app = express()
     .use(middleware(compiler, {serverSideRender: true}))
@@ -31,7 +30,7 @@ const app = express()
             <body>
               <script>var images = JSON.parse('${JSON.stringify(images)}');</script>
               <script src="natural-gallery.js"></script>
-              <div id="root" style="border:2px solid purple"></div>
+              <div id="root" style="background-color:blue"></div>
             </body></html>`);
     })
     .listen(port, () => {

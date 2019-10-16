@@ -1,5 +1,5 @@
 import { ModelAttributes } from './galleries/AbstractGallery';
-import { Utility } from './Utility';
+import { getIcon } from './Utility';
 
 export declare interface ItemOptions {
     lightbox?: boolean;
@@ -195,7 +195,7 @@ export class Item<Model extends ModelAttributes = any> {
                 this.select();
             }
             this._selectBtn = document.createElement('div');
-            this._selectBtn.appendChild(Utility.getIcon('natural-gallery-icon-select'));
+            this._selectBtn.appendChild(getIcon('natural-gallery-icon-select'));
             this._selectBtn.classList.add('selectBtn');
             this._selectBtn.addEventListener('click', (e) => {
                 e.stopPropagation();

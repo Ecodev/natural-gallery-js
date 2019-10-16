@@ -12,7 +12,7 @@ window.addEventListener('load', function() {
 
     // Create gallery
     gallery = getGallery(galleryElement, photoswipeElement, scrollableElement);
-    gallery.init();
+    search();
 
     gallery.addEventListener('pagination', function(ev) {
         console.log('pagination', ev.detail);
@@ -83,6 +83,8 @@ function search(term, page, currentPagination) {
     getImages(url);
 }
 
+init = false;
+
 function getImages(url, paginationEvent) {
 
     if (!url) {
@@ -124,6 +126,12 @@ function getImages(url, paginationEvent) {
             });
 
             gallery.addItems(items);
+
+            if (!init) {
+                init = true;
+                gallery.init();
+            }
+
         }
     });
 

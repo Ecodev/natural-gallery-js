@@ -2,9 +2,15 @@ import { Item } from '../Item';
 import { ModelAttributes } from './AbstractGallery';
 import { AbstractResponsiveRowGallery, ResponsiveGalleryOptions } from './AbstractResponsiveRowGallery';
 
+/**
+ * @deprecated
+ */
 export interface ResponsiveSquareGalleryOptions extends ResponsiveGalleryOptions {
 }
 
+/**
+ * @deprecated use Natural with option.ratioLimit = {min: 1, max: 1}
+ */
 export class ResponsiveSquare<Model extends ModelAttributes = any> extends AbstractResponsiveRowGallery {
 
     /**
@@ -49,6 +55,10 @@ export class ResponsiveSquare<Model extends ModelAttributes = any> extends Abstr
         }
     }
 
+    public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
+        ResponsiveSquare.organizeItems(this, items, fromRow, toRow);
+    }
+
     protected getEstimatedColumnsPerRow(): number {
         return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
     }
@@ -60,10 +70,6 @@ export class ResponsiveSquare<Model extends ModelAttributes = any> extends Abstr
     protected getItemSideSize(): number {
         const itemsPerRow = this.getEstimatedColumnsPerRow();
         return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
-    }
-
-    public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
-        ResponsiveSquare.organizeItems(this, items, fromRow, toRow);
     }
 
 }

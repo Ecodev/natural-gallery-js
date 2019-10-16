@@ -62,10 +62,10 @@ describe('Natural Gallery', () => {
             },
         ];
 
-        const rowHeight1 = Natural.getRowHeight(images, 1000, 0);
+        const rowHeight1 = Natural.getRowHeight(images, 1000, 0, {});
         expect(rowHeight1).toBe(272.72727272727275);
 
-        const rowHeight2 = Natural.getRowHeight(images, 1000, 10);
+        const rowHeight2 = Natural.getRowHeight(images, 1000, 10, {});
         expect(rowHeight2).toBe(252.72727272727275);
 
         expect(rowHeight2).toBeLessThan(rowHeight1);
@@ -85,7 +85,7 @@ describe('Natural Gallery', () => {
             },
         ];
 
-        const container = {getBoundingClientRect: () => ({width: 999})} as HTMLElement;
+        const container = {clientWidth:  999} as HTMLElement;
         let gallery = new Natural(container, {rowHeight: 400});
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0, 999);
@@ -95,7 +95,6 @@ describe('Natural Gallery', () => {
             {width: 267, height: 400, row: 0},
         ];
 
-        console.log(gallery.collection.map(getSize));
         expect(gallery.collection.map(getSize)).toEqual(result);
     });
 
@@ -127,7 +126,7 @@ describe('Natural Gallery', () => {
             },
         ];
 
-        const container = {getBoundingClientRect: () => ({width: 999})} as HTMLElement;
+        const container = {clientWidth:  999} as HTMLElement;
         let gallery = new Natural(container, {rowHeight: 400, gap: 0});
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0, 999);
@@ -140,7 +139,6 @@ describe('Natural Gallery', () => {
             {width: 267, height: 400, row: 1},
         ];
 
-        console.log(gallery.collection.map(getSize));
         expect(gallery.collection.map(getSize)).toEqual(result);
 
     });
@@ -173,7 +171,7 @@ describe('Natural Gallery', () => {
             },
         ];
 
-        const container = {getBoundingClientRect: () => ({width: 999})} as HTMLElement;
+        const container = {clientWidth:  999} as HTMLElement;
         let gallery = new Natural(container, {rowHeight: 400, gap: 20});
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0, 999);
@@ -186,7 +184,6 @@ describe('Natural Gallery', () => {
             {width: 267, height: 400, row: 1},
         ];
 
-        console.log(gallery.collection.map(getSize));
         expect(gallery.collection.map(getSize)).toEqual(result);
 
     });
