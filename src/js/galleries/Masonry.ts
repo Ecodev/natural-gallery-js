@@ -52,9 +52,31 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
 
             item.last = true;
             item.width = Math.floor(columnWidth);
-            item.height = item.width * ratio;
+            item.height = item.width / ratio;
             item.style(); // todo : externalise to split dom manipulation and logic computing
         }
+    }
+
+    public init() {
+        super.init();
+
+        /**
+         * Setup scroll detection to prevent empty zones due to different heights
+         */
+        if (!this.options.infiniteScrollOffset) {
+
+            let ratio = 0.5; // Portrait format to maximize estimated height
+
+            // Better prediction using ratio if provided
+            if (this.options.ratioLimit && this.options.ratioLimit.min) {
+                ratio = this.options.ratioLimit.min;
+            }
+
+            const columnWidth = this.getColumnWidth();
+
+            this.options.infiniteScrollOffset = -1 * columnWidth / ratio;
+        }
+
     }
 
     public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
@@ -71,14 +93,7 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
     }
 
     protected onPageAdd(): void {
-        const itemsAdded = this.addUntilFill();
-        const nbColumns = this.getEstimatedColumnsPerRow();
-        const itemsPerPage = this.getEstimatedRowsPerPage() * nbColumns;
-        const missingItems = itemsPerPage - itemsAdded;
-
-        if (missingItems > 0) {
-            this.addItemsToDom(missingItems);
-        }
+        this.addUntilFill();
     }
 
     protected getEstimatedColumnsPerRow(): number {
@@ -102,18 +117,10 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
     /**
      * Use current gallery height as reference. To fill free space it add images until the gallery height changes, then are one more row
      */
-    protected addUntilFill(): number {
-        const currentContainerHeight = this.elementRef.clientHeight;
-        let counter = 0;
-
+    protected addUntilFill() {
         do {
-            counter++;
             this.addItemsToDom(1);
-        } while (this.elementRef.clientHeight === currentContainerHeight && this.visibleCollection.length < this.collection.length);
-
-        const rowsPerPage = this.getEstimatedRowsPerPage();
-        this.addItemsToDom(rowsPerPage);
-        return counter + rowsPerPage;
+        } while (this.viewPortIsNotFilled() && this.visibleCollection.length < this.collection.length);
     }
 
     protected addItemToDOM(item: Item<Model>, destination: HTMLElement = null): void {
@@ -152,7 +159,14 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
         this.addColumns();
     }
 
-    private addItemsToDom(nbItems) {
+    /**
+     * Returns true if at least one columns doesn't overflow on the bottom of the viewport
+     */
+    private viewPortIsNotFilled(): boolean {
+        return this.columns.some(c => c.elementRef.getBoundingClientRect().bottom < document.documentElement.clientHeight);
+    }
+
+    private addItemsToDom(nbItems: number) {
 
         let nbVisibleImages = this.visibleCollection.length;
 
