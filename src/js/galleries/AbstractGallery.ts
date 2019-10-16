@@ -455,7 +455,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      */
     protected requestItems() {
         const estimatedPerRow = this.getEstimatedColumnsPerRow();
-        const limit = estimatedPerRow * this.getRowsPerPage();
+
+        // +1 because we have to get more than that is used under onPageAdd().
+        // Without +1 all items are always added to DOM and gallery will loop load until end of collection
+        const limit = estimatedPerRow * this.getRowsPerPage() + 1;
         this.dispatchEvent('pagination', {offset: this.collection.length, limit: limit});
     }
 

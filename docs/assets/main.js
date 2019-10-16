@@ -25,21 +25,21 @@ window.addEventListener('load', function() {
         console.log('activate', ev.detail);
     });
 
-    // gallery.addEventListener('item-displayed', function(ev) {
-    //     console.log('item-displayed', ev.detail);
-    // });
-    //
-    // gallery.addEventListener('item-added-to-dom', function(ev) {
-    //     console.log('item-added-to-dom', ev.detail);
-    // });
-    //
-    // gallery.addEventListener('zoom', function(ev) {
-    //     console.log('zoom', ev.detail);
-    // });
-    //
-    // gallery.addEventListener('select', function(ev) {
-    //     console.log('select', ev.detail);
-    // });
+    gallery.addEventListener('item-displayed', function(ev) {
+        console.log('item-displayed', ev.detail);
+    });
+
+    gallery.addEventListener('item-added-to-dom', function(ev) {
+        console.log('item-added-to-dom', ev.detail);
+    });
+
+    gallery.addEventListener('zoom', function(ev) {
+        console.log('zoom', ev.detail);
+    });
+
+    gallery.addEventListener('select', function(ev) {
+        console.log('select', ev.detail);
+    });
 
     searchElement.addEventListener('change', function(e) {
         newSearch(e.target.value);
@@ -123,12 +123,9 @@ function getImages(url, paginationEvent) {
                 };
             });
 
-            console.log('items', items);
-
             gallery.addItems(items);
         }
     });
 
     xhr.send(null);
-
 }

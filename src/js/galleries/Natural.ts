@@ -33,8 +33,6 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRowGal
                                 toRow: number = null,
                                 currentRow: number = null): void {
 
-        console.log('gallery.width', gallery.width);
-
         if (!currentRow) {
             currentRow = fromRow ? fromRow : 0;
         }
