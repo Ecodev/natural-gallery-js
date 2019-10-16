@@ -30,7 +30,7 @@ const app = express()
             <body>
               <script>var images = JSON.parse('${JSON.stringify(images)}');</script>
               <script src="natural-gallery.js"></script>
-              <div id="root" style="background-color:blue"></div>
+              <div id="root" style="background-color:red"></div>
             </body></html>`);
     })
     .listen(port, () => {
