@@ -238,9 +238,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     }
 
     get width(): number {
-        // return Math.floor(this.bodyElementRef.getBoundingClientRect().width);
-        return Math.floor(this.elementRef.clientWidth);
-        // return Math.floor(this.elementRef.getBoundingClientRect().width);
+
+        // elementRef.clientWidth rounds ceil, we need round floor to grant computing fits in the available space
+        // elementRef.getBoundingClientRect().width doesn't round, so we can round floor.
+        return Math.floor(this.elementRef.getBoundingClientRect().width);
     }
 
     get collectionLength(): number {
