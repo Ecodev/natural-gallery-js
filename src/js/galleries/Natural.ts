@@ -1,5 +1,5 @@
 import { Item } from '../Item';
-import { ModelAttributes } from './AbstractGallery';
+import { ModelAttributes, SizedModel } from './AbstractGallery';
 import { AbstractResponsiveRowGallery, ResponsiveGalleryOptions } from './AbstractResponsiveRowGallery';
 
 export interface NaturalGalleryOptions extends ResponsiveGalleryOptions {
@@ -32,7 +32,7 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
 
         for (let chunkSize = 1; chunkSize <= items.length; chunkSize++) {
             let chunk = items.slice(0, chunkSize);
-            let rowWidth = this.getRowWidth(gallery.options.rowHeight, gallery.options.gap, chunk);
+            let rowWidth = this.getRowWidth(chunk.map(c => c.model), gallery.options.rowHeight, gallery.options.gap);
 
             if (rowWidth >= gallery.width) {
                 // if end of row
@@ -55,21 +55,34 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
         }
     }
 
-    private static computeSizes(chunk: Item[],
-                                containerWidth: number,
-                                margin: number,
-                                row: number,
-                                maxRowHeight: number = null): void {
+    /**
+     * Compute sizes for given images to fit in given row width
+     * Items are updated
+     *
+     * @param chunk
+     * @param containerWidth
+     * @param margin
+     * @param row
+     * @param maxRowHeight
+     */
+    public static computeSizes(chunk: Item[],
+                               containerWidth: number,
+                               margin: number,
+                               row: number,
+                               maxRowHeight: number = null): void {
 
-        let rowHeight = containerWidth ? this.getRowHeight(containerWidth, margin, chunk) : maxRowHeight;
-        let rowWidth = this.getRowWidth(rowHeight, margin, chunk);
+        const chunkModels = chunk.map(c => c.model);
+        let rowHeight = containerWidth ? this.getRowHeight(chunkModels, containerWidth, margin) : maxRowHeight;
+        let rowWidth = this.getRowWidth(chunkModels, rowHeight, margin);
 
-        let excess = containerWidth ? this.apportionExcess(chunk, containerWidth, rowWidth) : 0;
+        // Overflowed pixels
+        const apportion = (rowWidth - containerWidth) / chunk.length;
+        let excess = containerWidth ? apportion : 0;
         let decimals = 0;
 
         for (let i = 0; i < chunk.length; i++) {
             let item = chunk[i];
-            let width = this.getImageRatio(item) * rowHeight - excess;
+            let width = this.getImageRatio(item.model) * rowHeight - excess;
             decimals += width - Math.floor(width);
             width = Math.floor(width);
 
@@ -86,32 +99,27 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
         }
     }
 
-    private static getRowWidth(maxRowHeight: number, margin: number, items: Item[]): number {
-        return margin * (items.length - 1) + this.getRatios(items) * maxRowHeight;
+    public static getRowWidth(models: SizedModel[], maxRowHeight: number, margin: number): number {
+        return margin * (models.length - 1) + this.getRatios(models) * maxRowHeight;
     }
 
-    private static getRowHeight(containerWidth: number, margin: number, items: Item[]): number {
-        return containerWidth / this.getRatios(items) + margin * (items.length - 1);
+    public static getRowHeight(models: SizedModel[], containerWidth: number, margin: number): number {
+        return containerWidth / this.getRatios(models) - margin * (models.length - 1);
     }
 
-    private static getRatios(items: Item[]): number {
-
-        let totalWidth = 0;
-
-        for (let i = 0; i < items.length; i++) {
-            totalWidth += this.getImageRatio(items[i]);
-        }
-
-        return totalWidth;
+    /**
+     * Return the ratio format of models as if they where a single image
+     */
+    public static getRatios(models: SizedModel[]): number {
+        return models.reduce((total, model) => total + this.getImageRatio(model), 0);
     }
 
-    private static getImageRatio(el: Item): number {
-        return Number(el.enlargedWidth) / Number(el.enlargedHeight);
+    private static getImageRatio(model: SizedModel): number {
+        return Number(model.enlargedWidth) / Number(model.enlargedHeight);
     }
 
-    private static apportionExcess(items: Item[], containerWidth: number, rowWidth: number): number {
-        let excess = rowWidth - containerWidth;
-        return excess / items.length;
+    public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
+        Natural.organizeItems(this, items, fromRow, toRow);
     }
 
     protected getEstimatedColumnsPerRow(): number {
@@ -120,9 +128,5 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
 
     protected getEstimatedRowsPerPage(): number {
         return Math.ceil(this.getGalleryVisibleHeight() / (this.options.rowHeight + this.options.gap)) + 1;
-    }
-
-    public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
-        Natural.organizeItems(this, items, fromRow, toRow);
     }
 }

@@ -1,5 +1,7 @@
 import { Natural, NaturalGalleryOptions } from '../../src';
 
+const getSize = ({width, height, row}) => ({width, height, row});
+
 const imageModel = {
     'thumbnailSrc': 'thumbnailSrc',
     'enlargedSrc': 'enlargedSrc',
@@ -9,7 +11,7 @@ const imageModel = {
     'color': 'color',
 };
 
-fdescribe('Natural Gallery', () => {
+describe('Natural Gallery', () => {
 
     test('options should be completed and overriden', () => {
 
@@ -41,5 +43,152 @@ fdescribe('Natural Gallery', () => {
         expect(gallery.collection.length).toEqual(6);
         expect(gallery.visibleCollection.length).toEqual(0);
     });
-    
+
+    test('should return row height', () => {
+
+        const images = [
+            {
+                'enlargedWidth': 6000,
+                'enlargedHeight': 4000,
+            },
+            {
+                'enlargedWidth': 3648,
+                'enlargedHeight': 5472,
+            },
+            {
+                'title': '2',
+                'enlargedWidth': 5472,
+                'enlargedHeight': 3648,
+            },
+        ];
+
+        const rowHeight1 = Natural.getRowHeight(images, 1000, 0);
+        expect(rowHeight1).toBe(272.72727272727275);
+
+        const rowHeight2 = Natural.getRowHeight(images, 1000, 10);
+        expect(rowHeight2).toBe(252.72727272727275);
+
+        expect(rowHeight2).toBeLessThan(rowHeight1);
+
+    });
+
+    test('should organize items that dont fill the line', () => {
+
+        const images = [
+            {
+                'enlargedWidth': 6000,
+                'enlargedHeight': 4000,
+            },
+            {
+                'enlargedWidth': 3648,
+                'enlargedHeight': 5472,
+            },
+        ];
+
+        const container = {getBoundingClientRect: () => ({width: 999})} as HTMLElement;
+        let gallery = new Natural(container, {rowHeight: 400});
+        gallery.addItems(images);
+        gallery.organizeItems(gallery.collection, 0, 999);
+
+        const result = [
+            {width: 600, height: 400, row: 0},
+            {width: 267, height: 400, row: 0},
+        ];
+
+        console.log(gallery.collection.map(getSize));
+        expect(gallery.collection.map(getSize)).toEqual(result);
+    });
+
+    test('should organize items that overflow first line with no gap', () => {
+
+        const images = [
+            {
+                'enlargedWidth': 6000,
+                'enlargedHeight': 4000,
+            },
+            {
+                'enlargedWidth': 3648,
+                'enlargedHeight': 5472,
+            },
+            {
+                'title': '2',
+                'enlargedWidth': 5472,
+                'enlargedHeight': 3648,
+            },
+            {
+                'title': '3',
+                'enlargedWidth': 3456,
+                'enlargedHeight': 5184,
+            },
+            {
+                'title': '4',
+                'enlargedWidth': 3264,
+                'enlargedHeight': 4894,
+            },
+        ];
+
+        const container = {getBoundingClientRect: () => ({width: 999})} as HTMLElement;
+        let gallery = new Natural(container, {rowHeight: 400, gap: 0});
+        gallery.addItems(images);
+        gallery.organizeItems(gallery.collection, 0, 999);
+
+        const result = [
+            {width: 408, height: 272, row: 0},
+            {width: 182, height: 272, row: 0},
+            {width: 409, height: 272, row: 0},
+            {width: 266, height: 400, row: 1},
+            {width: 267, height: 400, row: 1},
+        ];
+
+        console.log(gallery.collection.map(getSize));
+        expect(gallery.collection.map(getSize)).toEqual(result);
+
+    });
+
+    test('should organize items that overflow first line with gap', () => {
+
+        const images = [
+            {
+                'enlargedWidth': 6000,
+                'enlargedHeight': 4000,
+            },
+            {
+                'enlargedWidth': 3648,
+                'enlargedHeight': 5472,
+            },
+            {
+                'title': '2',
+                'enlargedWidth': 5472,
+                'enlargedHeight': 3648,
+            },
+            {
+                'title': '3',
+                'enlargedWidth': 3456,
+                'enlargedHeight': 5184,
+            },
+            {
+                'title': '4',
+                'enlargedWidth': 3264,
+                'enlargedHeight': 4894,
+            },
+        ];
+
+        const container = {getBoundingClientRect: () => ({width: 999})} as HTMLElement;
+        let gallery = new Natural(container, {rowHeight: 400, gap: 20});
+        gallery.addItems(images);
+        gallery.organizeItems(gallery.collection, 0, 999);
+
+        const result = [
+            {width: 384, height: 232, row: 0},
+            {width: 190, height: 232, row: 0},
+            {width: 385, height: 232, row: 0},
+            {width: 266, height: 400, row: 1},
+            {width: 267, height: 400, row: 1},
+        ];
+
+        console.log(gallery.collection.map(getSize));
+        expect(gallery.collection.map(getSize)).toEqual(result);
+
+    });
+
 });

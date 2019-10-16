@@ -6,7 +6,24 @@ import PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 import { Item, ItemOptions } from '../Item';
 import { Utility } from '../Utility';
 
-export interface ModelAttributes {
+export interface SizedModel {
+
+    /**
+     * Height in pixels of the enlarged version the image
+     * If photoswipe is used, the size of the photoswipe enlarged image is required
+     * If photoswipe is not used, any size that match the ratio is enough
+     */
+    enlargedWidth: number;
+
+    /**
+     * Width in pixels of the enlarged version the image
+     * If photoswipe is used, the size of the photoswipe enlarged image is required
+     * If photoswipe is not used, any size that match the ratio is enough
+     */
+    enlargedHeight: number;
+}
+
+export interface ModelAttributes extends SizedModel {
 
     /**
      * Source link for thumbnail image
@@ -17,16 +34,6 @@ export interface ModelAttributes {
      * Source link for enlarged (photoswipe) image
      */
     enlargedSrc?: string;
-
-    /**
-     * Height in pixels of the enlarged version the image
-     */
-    enlargedWidth?: number;
-
-    /**
-     * Width in pixels of the enlarged version the image
-     */
-    enlargedHeight?: number;
 
     /**
      * Label of item (or button)
@@ -377,6 +384,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     }
 
     /**
+     *
+     */
+    public abstract organizeItems(items: Item[], fromRow?: number, toRow?: number): void;
+
+    /**
      * If gallery already has items on initialisation, set first page visible, load second page and query for more items if needed
      * If not, just query for items
      */
@@ -406,11 +418,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         this.flushBufferedItems();
         this.updateNextButtonVisibility();
     }
-
-    /**
-     *
-     */
-    public abstract organizeItems(items: Item[], fromRow?: number, toRow?: number): void;
 
     /**
      *
