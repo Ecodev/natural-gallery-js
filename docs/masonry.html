@@ -4,9 +4,13 @@ layout: default
 
 <script>
     var options = {
-        columnWidth: 300,
+        columnWidth: 350,
         gap: 5,
         lightbox: true,
+        ratioLimit: {
+            min: .5,
+            // max: 3
+        }
     };
 
     function getGallery(galleryElement, photoswipeElement, scrollableElement) {
