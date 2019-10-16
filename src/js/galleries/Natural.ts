@@ -20,22 +20,11 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
         super(elementRef, options, photoswipeElementRef, scrollElementRef);
     }
 
-    protected getEstimatedItemsPerRow(): number {
-        return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
-    }
-
-    protected getEstimatedRowsPerPage(): number {
-        return Math.ceil(this.getGalleryVisibleHeight() / (this.options.rowHeight + this.options.gap)) + 1;
-    }
-
-    /**
-     *
-     * @param items
-     * @param fromRow
-     * @param toRow
-     * @param currentRow
-     */
-    protected organizeItems(items: Item[], fromRow: number = 0, toRow: number = null, currentRow: number = null): void {
+    public static organizeItems(gallery: Natural,
+                                items: Item[],
+                                fromRow: number = 0,
+                                toRow: number = null,
+                                currentRow: number = null): void {
 
         if (!currentRow) {
             currentRow = fromRow ? fromRow : 0;
@@ -43,16 +32,16 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
 
         for (let chunkSize = 1; chunkSize <= items.length; chunkSize++) {
             let chunk = items.slice(0, chunkSize);
-            let rowWidth = this.getRowWidth(this.options.rowHeight, this.options.gap, chunk);
+            let rowWidth = this.getRowWidth(gallery.options.rowHeight, gallery.options.gap, chunk);
 
-            if (rowWidth >= this.width) {
+            if (rowWidth >= gallery.width) {
                 // if end of row
 
-                this.computeSizes(chunk, this.width, this.options.gap, currentRow);
+                this.computeSizes(chunk, gallery.width, gallery.options.gap, currentRow);
 
                 const nextRow = currentRow + 1;
                 if (toRow === null || nextRow <= toRow) {
-                    this.organizeItems(items.slice(chunkSize), fromRow, toRow, nextRow);
+                    Natural.organizeItems(gallery, items.slice(chunkSize), fromRow, toRow, nextRow);
                 }
 
                 break;
@@ -60,13 +49,18 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
                 // if end of list
                 // the width is not fixed as we have not enough items
                 // size of images are indexed on max row height.
-                this.computeSizes(chunk, null, this.options.gap, currentRow, this.options.rowHeight);
+                this.computeSizes(chunk, null, gallery.options.gap, currentRow, gallery.options.rowHeight);
                 break;
             }
         }
     }
 
-    private computeSizes(chunk: Item[], containerWidth: number, margin: number, row: number, maxRowHeight: number = null): void {
+    private static computeSizes(chunk: Item[],
+                                containerWidth: number,
+                                margin: number,
+                                row: number,
+                                maxRowHeight: number = null): void {
+
         let rowHeight = containerWidth ? this.getRowHeight(containerWidth, margin, chunk) : maxRowHeight;
         let rowWidth = this.getRowWidth(rowHeight, margin, chunk);
 
@@ -92,32 +86,43 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
         }
     }
 
-    private getRowWidth(maxRowHeight: number, margin: number, items: Item[]): number {
+    private static getRowWidth(maxRowHeight: number, margin: number, items: Item[]): number {
         return margin * (items.length - 1) + this.getRatios(items) * maxRowHeight;
     }
 
-    private getRowHeight(containerWidth: number, margin: number, items: Item[]): number {
+    private static getRowHeight(containerWidth: number, margin: number, items: Item[]): number {
         return containerWidth / this.getRatios(items) + margin * (items.length - 1);
     }
 
-    private getRatios(items: Item[]): number {
+    private static getRatios(items: Item[]): number {
 
-        const self = this;
         let totalWidth = 0;
 
         for (let i = 0; i < items.length; i++) {
-            totalWidth += self.getImageRatio(items[i]);
+            totalWidth += this.getImageRatio(items[i]);
         }
 
         return totalWidth;
     }
 
-    private getImageRatio(el: Item): number {
+    private static getImageRatio(el: Item): number {
         return Number(el.enlargedWidth) / Number(el.enlargedHeight);
     }
 
-    private apportionExcess(items: Item[], containerWidth: number, rowWidth: number): number {
+    private static apportionExcess(items: Item[], containerWidth: number, rowWidth: number): number {
         let excess = rowWidth - containerWidth;
         return excess / items.length;
+    }
+
+    protected getEstimatedColumnsPerRow(): number {
+        return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
+    }
+
+    protected getEstimatedRowsPerPage(): number {
+        return Math.ceil(this.getGalleryVisibleHeight() / (this.options.rowHeight + this.options.gap)) + 1;
+    }
+
+    public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
+        Natural.organizeItems(this, items, fromRow, toRow);
     }
 }

@@ -31,9 +31,31 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
 
     }
 
-    public init(): void {
-        super.init();
+    /**
+     * Compute sides with 1:1 ratio
+     */
+    public static organizeItems(gallery: Masonry, items: Item[], fromIndex: number = 0, toIndex: number = null): void {
+
+        let itemsPerRow = gallery.getEstimatedColumnsPerRow();
+
+        // Compute columnWidth of pictures
+        let columnWidth = gallery.getColumnWidth();
+
+        let lastIndex = toIndex ? itemsPerRow * (toIndex - fromIndex + 1) : items.length;
+        lastIndex = lastIndex > items.length ? items.length : lastIndex;
+
+        for (let i = 0; i < lastIndex; i++) {
+            const item = items[i];
+            item.last = true;
+            item.width = Math.floor(columnWidth);
+            item.height = item.width * item.model.enlargedHeight / item.model.enlargedWidth;
+            item.style();
+        }
+    }
+
+    protected initItems(): void {
         this.addColumns();
+        super.initItems();
     }
 
     protected onScroll(): void {
@@ -42,7 +64,7 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
 
     protected onPageAdd(): void {
         const itemsAdded = this.addUntilFill();
-        const nbColumns = this.getEstimatedItemsPerRow();
+        const nbColumns = this.getEstimatedColumnsPerRow();
         const itemsPerPage = this.getEstimatedRowsPerPage() * nbColumns;
         const missingItems = itemsPerPage - itemsAdded;
 
@@ -51,15 +73,12 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
         }
     }
 
-    /**
-     * Returns here the number of columns
-     */
-    protected getEstimatedItemsPerRow(): number {
+    protected getEstimatedColumnsPerRow(): number {
         return Math.ceil((this.width - this.options.gap) / (this.options.columnWidth + this.options.gap));
     }
 
     protected getEstimatedRowsPerPage(): number {
-        const ratio = 1.75; // landscape format to estimate the maximum number of rows
+        const ratio = 1.75; // ~16/9 - landscape format to estimate the maximum number of rows
         const columnWidth = this.getColumnWidth();
         const estimatedImageHeight = columnWidth / ratio;
         return Math.ceil(this.getGalleryVisibleHeight() / estimatedImageHeight);
@@ -80,30 +99,6 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
         const rowsPerPage = this.getEstimatedRowsPerPage();
         this.addItemsToDom(rowsPerPage);
         return counter + rowsPerPage;
-    }
-
-    private addItemsToDom(nbItems) {
-
-        let nbVisibleImages = this.visibleCollection.length;
-
-        // Next row to add (first invisible row)
-        const firstIndex = this.visibleCollection.length ? nbVisibleImages : 0;
-        const lastWantedIndex = firstIndex + nbItems - 1;
-
-        // Compute size only for elements we're going to add
-        this.organizeItems(this.collection.slice(nbVisibleImages), firstIndex, lastWantedIndex);
-
-        for (let i = nbVisibleImages; i < this.collection.length; i++) {
-            let item = this.collection[i];
-            if (i <= lastWantedIndex) {
-                this.addItemToDOM(item);
-            } else {
-                break;
-            }
-        }
-
-        this.flushBufferedItems();
-        this.updateNextButtonVisibility();
     }
 
     protected addItemToDOM(item: Item<Model>, destination: HTMLElement = null): void {
@@ -130,43 +125,51 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
         this.bodyElementRef.innerHTML = '';
         this.columns = [];
         const columnWidth = this.getColumnWidth();
-        for (let i = 0; i < this.getEstimatedItemsPerRow(); i++) {
+        for (let i = 0; i < this.getEstimatedColumnsPerRow(); i++) {
             const columnRef = new Column({width: columnWidth, gap: this.options.gap});
             this.columns.push(columnRef);
             this.bodyElementRef.appendChild(columnRef.init());
         }
     }
 
-    /**
-     * Compute sides with 1:1 ratio
-     * @param items
-     * @param fromIndex
-     * @param toIndex
-     */
-    protected organizeItems(items: Item[], fromIndex: number = 0, toIndex: number = null): void {
+    protected empty() {
+        super.empty();
+        this.addColumns();
+    }
 
-        let itemsPerRow = this.getEstimatedItemsPerRow();
+    public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
+        Masonry.organizeItems(this, items, fromRow, toRow);
+    }
 
-        // Compute columnWidth of pictures
-        let columnWidth = this.getColumnWidth();
+    private addItemsToDom(nbItems) {
 
-        let lastIndex = toIndex ? itemsPerRow * (toIndex - fromIndex + 1) : items.length;
-        lastIndex = lastIndex > items.length ? items.length : lastIndex;
+        let nbVisibleImages = this.visibleCollection.length;
 
-        for (let i = 0; i < lastIndex; i++) {
-            const item = items[i];
-            item.last = true;
-            item.width = Math.floor(columnWidth);
-            item.height = item.width * item.model.enlargedHeight / item.model.enlargedWidth;
-            item.style();
+        // Next row to add (first invisible row)
+        const firstIndex = this.visibleCollection.length ? nbVisibleImages : 0;
+        const lastWantedIndex = firstIndex + nbItems - 1;
+
+        // Compute size only for elements we're going to add
+        this.organizeItems(this.collection.slice(nbVisibleImages), firstIndex, lastWantedIndex);
+
+        for (let i = nbVisibleImages; i < this.collection.length; i++) {
+            let item = this.collection[i];
+            if (i <= lastWantedIndex) {
+                this.addItemToDOM(item);
+            } else {
+                break;
+            }
         }
+
+        this.flushBufferedItems();
+        this.updateNextButtonVisibility();
     }
 
     /**
      * Return square side size
      */
     private getColumnWidth(): number {
-        const itemsPerRow = this.getEstimatedItemsPerRow();
+        const itemsPerRow = this.getEstimatedColumnsPerRow();
         return Math.floor((this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow);
     }
 
@@ -178,11 +181,6 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
 
             return column.height < shortestColumn.height ? column : shortestColumn;
         });
-    }
-
-    protected empty() {
-        super.empty();
-        this.addColumns();
     }
 
 }

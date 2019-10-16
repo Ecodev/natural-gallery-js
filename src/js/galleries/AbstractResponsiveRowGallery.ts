@@ -44,7 +44,7 @@ export abstract class AbstractResponsiveRowGallery extends AbstractRowGallery {
 
         // Get a list from first item of last row until end of collection
         const collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
-        this.organizeItems(this, collectionFromLastVisibleRow, collectionFromLastVisibleRow[0].row, collectionFromLastVisibleRow[0].row);
+        this.organizeItems(collectionFromLastVisibleRow, collectionFromLastVisibleRow[0].row, collectionFromLastVisibleRow[0].row);
         const itemsToAdd = collectionFromLastVisibleRow.slice(visibleItemsInLastRow)
                                                        .filter(i => i.row <= collectionFromLastVisibleRow[0].row);
 

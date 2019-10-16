@@ -20,33 +20,26 @@ export class ResponsiveSquare<Model extends ModelAttributes = any> extends Abstr
         super(elementRef, options, photoswipeElementRef, scrollElementRef);
     }
 
-    protected getEstimatedItemsPerRow(): number {
-        return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
-    }
-
     /**
      * Compute sides with 1:1 ratio
-     * @param items
-     * @param firstRowIndex
-     * @param toRow
      */
-    protected organizeItems(items: Item[], firstRowIndex: number = 0, toRow: number = null): void {
+    public static organizeItems(gallery: ResponsiveSquare, items: Item[], fromRow: number = 0, toRow: number = null): void {
 
-        let itemsPerRow = this.getEstimatedItemsPerRow();
+        let itemsPerRow = gallery.getEstimatedColumnsPerRow();
 
         // Compute sideSize of pictures
-        let sideSize = this.getItemSideSize();
+        let sideSize = gallery.getItemSideSize();
 
         // Compute overflow of given images per row. This number affect the width of the last item of the row
-        let diff = this.width - itemsPerRow * sideSize - (itemsPerRow - 1) * this.options.gap;
+        let diff = gallery.width - itemsPerRow * sideSize - (itemsPerRow - 1) * gallery.options.gap;
 
-        let lastIndex = toRow ? itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
+        let lastIndex = toRow ? itemsPerRow * (toRow - fromRow + 1) : items.length;
         lastIndex = lastIndex > items.length ? items.length : lastIndex;
 
         for (let i = 0; i < lastIndex; i++) {
             const item = items[i];
             item.last = i % itemsPerRow === itemsPerRow - 1;
-            item.row = Math.floor(i / itemsPerRow) + firstRowIndex;
+            item.row = Math.floor(i / itemsPerRow) + fromRow;
             item.width = Math.floor(sideSize);
             item.height = Math.floor(sideSize);
             if (item.last) {
@@ -56,13 +49,21 @@ export class ResponsiveSquare<Model extends ModelAttributes = any> extends Abstr
         }
     }
 
-    protected getItemSideSize(): number {
-        const itemsPerRow = this.getEstimatedItemsPerRow();
-        return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
+    protected getEstimatedColumnsPerRow(): number {
+        return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
     }
 
     protected getEstimatedRowsPerPage(): number {
         return Math.ceil(this.getGalleryVisibleHeight() / this.getItemSideSize());
+    }
+
+    protected getItemSideSize(): number {
+        const itemsPerRow = this.getEstimatedColumnsPerRow();
+        return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
+    }
+
+    public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
+        ResponsiveSquare.organizeItems(this, items, fromRow, toRow);
     }
 
 }

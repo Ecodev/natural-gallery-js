@@ -25,30 +25,27 @@ export class Square<Model extends ModelAttributes = any> extends AbstractRowGall
         }
     }
 
-    protected getEstimatedItemsPerRow() {
-        return this.options.itemsPerRow;
-    }
-
     /**
      * Compute sides with 1:1 ratio
-     * @param items
-     * @param firstRowIndex
-     * @param toRow
      */
-    protected organizeItems(items: Item[], firstRowIndex: number = 0, toRow: number = null): void {
+    public static organizeItems(gallery: Square, items: Item[], firstRowIndex: number = 0, toRow: number = null): void {
 
-        let sideSize = this.getItemSideSize();
-        let lastIndex = toRow ? this.options.itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
+        let sideSize = gallery.getItemSideSize();
+        let lastIndex = toRow ? gallery.options.itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
         lastIndex = lastIndex > items.length ? items.length : lastIndex;
 
         for (let i = 0; i < lastIndex; i++) {
             let item = items[i];
             item.width = Math.floor(sideSize);
             item.height = Math.floor(sideSize);
-            item.last = i % this.options.itemsPerRow === this.options.itemsPerRow - 1;
-            item.row = Math.floor(i / this.options.itemsPerRow) + firstRowIndex;
+            item.last = i % gallery.options.itemsPerRow === gallery.options.itemsPerRow - 1;
+            item.row = Math.floor(i / gallery.options.itemsPerRow) + firstRowIndex;
             item.style();
         }
+    }
+
+    protected getEstimatedColumnsPerRow() {
+        return this.options.itemsPerRow;
     }
 
     protected getEstimatedRowsPerPage(): number {
@@ -59,8 +56,12 @@ export class Square<Model extends ModelAttributes = any> extends AbstractRowGall
      * Return square side size
      */
     protected getItemSideSize(): number {
-        const itemsPerRow = this.getEstimatedItemsPerRow();
+        const itemsPerRow = this.getEstimatedColumnsPerRow();
         return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
+    }
+
+    public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
+        Square.organizeItems(this, items, fromRow, toRow);
     }
 
 }
