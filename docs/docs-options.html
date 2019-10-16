@@ -23,7 +23,7 @@ gallery.init();
 {% endhighlight %}
 
         <div class="container-1000px">
-            <h3>Natural and ResponsiveSquare options</h3>
+            <h3>Natural and Responsive Square options</h3>
             <table>
                 <tr>
                     <th>Name</th>
@@ -33,13 +33,21 @@ gallery.init();
                     <th>Docs</th>
                 </tr>
                 <tr>
-                    <td>maxRowHeight</td>
+                    <td>rowHeight</td>
                     <td>Number</td>
                     <td>400</td>
                     <td>Maximum height for each row.</td>
                     <td></td>
                 </tr>
+                <tr>
+                    <td>ratioLimit</td>
+                    <td>Number</td>
+                    <td>{min: number, max: number}</td>
+                    <td>Prevents narrow images by forcing the ratio to be in the given limits. <br/>min:1 and max:1 produce squares</td>
+                    <td></td>
+                </tr>
             </table>
+
             <h3>Square options</h3>
             <table>
                 <tr>
@@ -57,6 +65,7 @@ gallery.init();
                     <td></td>
                 </tr>
             </table>
+
             <h3>Masonry options</h3>
             <table>
                 <tr>
@@ -73,7 +82,15 @@ gallery.init();
                     <td>Maximum width for each row.</td>
                     <td></td>
                 </tr>
+                <tr>
+                    <td>ratioLimit</td>
+                    <td>Number</td>
+                    <td>{min: number, max: number}</td>
+                    <td>Prevents narrow images by forcing the ratio to be in the given limits. <br/>min:1 and max:1 produce squares</td>
+                    <td></td>
+                </tr>
             </table>
+
             <h3>Options summary for all galleries</h3>
             <table>
                 <tr>

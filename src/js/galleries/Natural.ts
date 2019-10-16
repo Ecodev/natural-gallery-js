@@ -1,13 +1,14 @@
 import { Item } from '../Item';
 import { getImageRatio, RatioLimits } from '../Utility';
-import { ModelAttributes, SizedModel } from './AbstractGallery';
-import { AbstractResponsiveRowGallery, ResponsiveGalleryOptions } from './AbstractResponsiveRowGallery';
+import { GalleryOptions, ModelAttributes, SizedModel } from './AbstractGallery';
+import { AbstractRowGallery } from './AbstractRowGallery';
 
-export interface NaturalGalleryOptions extends ResponsiveGalleryOptions {
+export interface NaturalGalleryOptions extends GalleryOptions {
+    rowHeight: number;
     ratioLimit?: RatioLimits
 }
 
-export class Natural<Model extends ModelAttributes = any> extends AbstractResponsiveRowGallery {
+export class Natural<Model extends ModelAttributes = any> extends AbstractRowGallery {
 
     /**
      * Options after having been defaulted
@@ -20,6 +21,10 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
                 protected scrollElementRef?: HTMLElement) {
 
         super(elementRef, options, photoswipeElementRef, scrollElementRef);
+
+        if (!options.rowHeight || options.rowHeight <= 0) {
+            throw new Error('Option.rowHeight must be positive');
+        }
     }
 
     public static organizeItems(gallery: Natural,
@@ -114,8 +119,19 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
         return models.reduce((total, model) => total + getImageRatio(model, ratioLimits), 0);
     }
 
+    public addRows(rows: number): void {
+        this.completeLastRow();
+        super.addRows(rows);
+    }
+
     public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
         Natural.organizeItems(this, items, fromRow, toRow);
+    }
+
+    protected endResize() {
+        super.endResize();
+        this.completeLastRow();
+        this.flushBufferedItems();
     }
 
     protected getEstimatedColumnsPerRow(): number {
@@ -124,5 +140,26 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRespon
 
     protected getEstimatedRowsPerPage(): number {
         return Math.ceil(this.getGalleryVisibleHeight() / (this.options.rowHeight + this.options.gap)) + 1;
+    }
+
+    private completeLastRow() {
+
+        if (!this.visibleCollection.length) {
+            return;
+        }
+
+        // Get last row number
+        const lastVisibleRow = this.visibleCollection[this.visibleCollection.length - 1].row;
+
+        // Get number of items in that last row
+        const visibleItemsInLastRow = this.visibleCollection.filter(i => i.row === lastVisibleRow).length;
+
+        // Get a list from first item of last row until end of collection
+        const collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
+        this.organizeItems(collectionFromLastVisibleRow, collectionFromLastVisibleRow[0].row, collectionFromLastVisibleRow[0].row);
+        const itemsToAdd = collectionFromLastVisibleRow.slice(visibleItemsInLastRow)
+                                                       .filter(i => i.row <= collectionFromLastVisibleRow[0].row);
+
+        itemsToAdd.forEach(i => this.addItemToDOM(i));
     }
 }
