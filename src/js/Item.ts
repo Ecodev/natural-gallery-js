@@ -76,7 +76,7 @@ export class Item<Model extends ModelAttributes = any> {
      * @returns {ItemTitle}
      */
     private getTitleDetails(term: string): string {
-        return term.replace(/<(?!\s*br\s*\/?)[^>]+>/gi, '');
+        return term ? term.replace(/<(?!\s*br\s*\/?)[^>]+>/gi, '') : '';
     }
 
     /**

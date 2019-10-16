@@ -13,7 +13,11 @@ export interface ModelAttributes {
     enlargedHeight?: number;
     title?: string;
     link?: string;
-    linkTarget?: string;
+
+    /**
+     * a href target attribute
+     */
+    linkTarget?: '_blank' | '_self' | '_parent' | '_top';
     color?: string;
     selected?: boolean;
 }
