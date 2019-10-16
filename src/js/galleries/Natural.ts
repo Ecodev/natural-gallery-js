@@ -135,7 +135,15 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRowGal
     }
 
     protected getEstimatedColumnsPerRow(): number {
-        return Math.ceil((this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
+
+        let ratio = 1;
+
+        // Better prediction using ratio if provided
+        if (this.options.ratioLimit && this.options.ratioLimit.min) {
+            ratio = this.options.ratioLimit.min;
+        }
+
+        return Math.ceil(((1 / ratio) * this.width + this.options.gap) / (this.options.rowHeight + this.options.gap));
     }
 
     protected getEstimatedRowsPerPage(): number {

@@ -86,7 +86,14 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
     }
 
     protected getEstimatedRowsPerPage(): number {
-        const ratio = 1.75; // ~16/9 - landscape format to estimate the maximum number of rows
+
+        let ratio = 1.75; // ~16/9 - landscape format to minimum the height and maximize the prediction of the number of items
+
+        // Better prediction using ratio if provided
+        if (this.options.ratioLimit && this.options.ratioLimit.max) {
+            ratio = this.options.ratioLimit.max;
+        }
+
         const columnWidth = this.getColumnWidth();
         const estimatedImageHeight = columnWidth / ratio;
         return Math.ceil(this.getGalleryVisibleHeight() / estimatedImageHeight);
