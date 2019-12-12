@@ -85,7 +85,7 @@ describe('Natural Gallery', () => {
             },
         ];
 
-        const container = {clientWidth:  999} as HTMLElement;
+        const container = {getBoundingClientRect: () => ({width:999})} as HTMLElement;
         let gallery = new Natural(container, {rowHeight: 400});
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0, 999);
@@ -126,7 +126,7 @@ describe('Natural Gallery', () => {
             },
         ];
 
-        const container = {clientWidth:  999} as HTMLElement;
+        const container = {getBoundingClientRect: () => ({width:999})} as HTMLElement;
         let gallery = new Natural(container, {rowHeight: 400, gap: 0});
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0, 999);
@@ -171,7 +171,7 @@ describe('Natural Gallery', () => {
             },
         ];
 
-        const container = {clientWidth:  999} as HTMLElement;
+        const container = {getBoundingClientRect: () => ({width:999})} as HTMLElement;
         let gallery = new Natural(container, {rowHeight: 400, gap: 20});
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0, 999);
