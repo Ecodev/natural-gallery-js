@@ -1,6 +1,6 @@
 {
     "name": "@ecodev/natural-gallery-js",
-    "version": "6.0.0",
+    "version": "6.0.1",
     "description": "A lazy load, infinite scroll, natural and masonry layout gallery",
     "author": "Samuel Baptista <samuel.baptista@ecodev.ch>",
     "license": "MIT",
@@ -71,7 +71,7 @@
         "terser-webpack-plugin": "^1.4.1",
         "ts-jest": "^24.0.2",
         "tslint": "^5.18.0",
-        "typescript": "^3.5.3",
+        "typescript": "~3.5.3",
         "webpack": "^4.39.2",
         "webpack-cli": "^3.3.7",
         "webpack-dev-middleware": "^3.7.1"
