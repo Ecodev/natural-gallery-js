@@ -27,6 +27,7 @@ describe('Natural Gallery', () => {
             infiniteScrollOffset: 0,
             photoSwipeOptions: null,
             cover: true,
+            focalpoint: false,
         };
 
         let gallery = new Natural(null, {rowHeight: 123, gap: 4});
