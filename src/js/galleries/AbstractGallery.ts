@@ -61,9 +61,14 @@ export interface ModelAttributes extends SizedModel {
     selected?: boolean;
 
     /**
-     * Focalpoint for backgroundPosition
+     * Background size, default : cover
      */
-    focalpoint?: string;
+    backgroundSize?: string;
+
+    /**
+     * Background position, default : center
+     */
+    backgroundPosition?: string;
 }
 
 export interface GalleryOptions extends ItemOptions {
@@ -132,8 +137,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         activable: false,
         infiniteScrollOffset: 0,
         photoSwipeOptions: null,
-        cover: true,
-        focalpoint: false,
     };
 
     protected photoswipeDefaultOptions: PhotoSwipeOptions = {
@@ -319,7 +322,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
         // Complete collection
         models.forEach((model: Model) => {
-            const itemOptions = pick(this.options, ['lightbox', 'selectable', 'activable', 'gap', 'showLabels', 'cover' ,'focalpoint']);
+            const itemOptions = pick(this.options, ['lightbox', 'selectable', 'activable', 'gap', 'showLabels']);
             const item = new Item<Model>(itemOptions, model);
             this._collection.push(item);
 

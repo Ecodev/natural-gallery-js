@@ -7,8 +7,6 @@ export declare interface ItemOptions {
     activable?: boolean;
     gap?: number;
     showLabels?: 'hover' | 'never' | 'always';
-    cover?: boolean;
-    focalpoint?: boolean;
 }
 
 export interface ItemTitle {
@@ -167,9 +165,8 @@ export class Item<Model extends ModelAttributes = any> {
             });
         }
 
-        if (this.options.cover) {
-            image.classList.add('cover');
-        }
+        image.style.backgroundSize = this.model.backgroundSize || 'cover';
+        image.style.backgroundPosition = this.model.backgroundPosition || 'center';
 
         image.classList.add('image');
         element.classList.add('figure');
@@ -243,13 +240,6 @@ export class Item<Model extends ModelAttributes = any> {
         img.setAttribute('src', this.model.thumbnailSrc);
 
         this._image.style.backgroundImage = 'url(' + this.model.thumbnailSrc + ')';
-
-        if (this.options.focalpoint) {
-            if (this.model.focalpoint !== undefined) {
-                this._image.style.backgroundPosition = this.model.focalpoint;
-                this._image.classList.remove('cover');
-            }
-        }
 
         img.addEventListener('load', () => {
             this._element.classList.add('loaded');

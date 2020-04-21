@@ -24,8 +24,6 @@ fdescribe('Masonry Gallery', () => {
             activable: false,
             infiniteScrollOffset: 0,
             photoSwipeOptions: null,
-            cover: true,
-            focalpoint: false,
         };
 
         let gallery = new Square(null, {itemsPerRow: 123, gap: 4});

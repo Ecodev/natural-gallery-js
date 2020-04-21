@@ -15,30 +15,30 @@ window.addEventListener('load', function() {
     gallery.init();
 
     gallery.addEventListener('pagination', function(ev) {
-        console.warn('pagination', ev.detail);
+        // console.warn('pagination', ev.detail);
         var currentPagination = ev.detail;
         var page = Math.ceil(currentPagination.offset / currentPagination.limit) + 1;
         search(lastSearch, page, currentPagination);
     });
 
     gallery.addEventListener('activate', function(ev) {
-        console.log('activate', ev.detail);
+        // console.log('activate', ev.detail);
     });
 
     gallery.addEventListener('item-displayed', function(ev) {
-        console.log('item-displayed', ev.detail);
+        // console.log('item-displayed', ev.detail);
     });
 
     gallery.addEventListener('item-added-to-dom', function(ev) {
-        console.log('item-added-to-dom', ev.detail);
+        // console.log('item-added-to-dom', ev.detail);
     });
 
     gallery.addEventListener('zoom', function(ev) {
-        console.log('zoom', ev.detail);
+        // console.log('zoom', ev.detail);
     });
 
     gallery.addEventListener('select', function(ev) {
-        console.log('select', ev.detail);
+        // console.log('select', ev.detail);
     });
 
     searchElement.addEventListener('change', function(e) {
@@ -114,12 +114,14 @@ function getImages(url, paginationEvent) {
 
             var items = results.map(function(i) {
                 return {
-                    thumbnailSrc: i.urls.small,
+                    thumbnailSrc: options.rowHeight ? i.urls.small.replace('w=400', 'h=' + options.rowHeight) : i.urls.small,
                     enlargedSrc: i.urls.regular,
                     enlargedWidth: i.width,
                     enlargedHeight: i.height,
                     title: i.description ? i.description : i.user.name,
-                    color: i.color
+                    color: i.color,
+                    // backgroundPosition: ['0% 0%', '100% 100%', undefined][Math.floor(Math.random() * 3)],
+                    // backgroundSize: ['cover', 'contain', undefined][Math.floor(Math.random() * 3)],
                 };
             });
 
