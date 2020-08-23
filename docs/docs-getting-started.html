@@ -13,23 +13,38 @@ layout: default
 
     <div class="row" id="assets">
         <div class="container-1000px">
-            <h2>1. Include basics assets</h2>
-            <p>The minimal imports bellow don't include dependencies. The zoom in lightbox for example requires PhotoSwipe and needs either
-               to include it by yourself or by including full version of natural gallery assets.
-               See <a href="#lightbox">lighbox section for more</a>.
+            <h2>1. Include basic assets</h2>
+            <p>The minimal imports below don't include dependencies. The zoom in lightbox for example requires PhotoSwipe and needs either
+               to be included by yourself or by including the full version of natural gallery assets.
+               See the <a href="docs-options.html#lightbox">lighbox section</a> for more details.
             </p>
         </div>
 
 {% highlight html %}
-<link rel="stylesheet" href="/your/awesome/path/natural-gallery.css">
-<link rel="stylesheet" href="/your/awesome/path/themes/natural.css">
-<script src="/your/awesome/path/natural-gallery.js" defer></script>
+<link rel="stylesheet" href="assets/natural-gallery-js/natural-gallery.css">
+<link rel="stylesheet" href="assets/natural-gallery-js/themes/natural.css">
+<script src="assets/natural-gallery-js/natural-gallery.js" defer></script>
 {% endhighlight %}
     </div>
 
     <div class="row">
         <div class="container-1000px">
-            <h2>2. Code initialisation</h2>
+            <h2>2. Include placeholder markup</h2>
+            <p>The minimal HTML below doesn't include the lightbox template.
+               See the <a href="docs-options.html#lightbox">lighbox section</a> for more details.
+            </p>
+        </div>
+
+        {% highlight html %}
+            <div id="body" style="overflow:auto; min-height:100%; height:100%;">
+                <div id="gallery"></div>
+            </div>
+        {% endhighlight %}
+    </div>
+
+    <div class="row">
+        <div class="container-1000px">
+            <h2>3. Code initialisation</h2>
             <p>In vanilla javascript (ES5) be sure to execute gallery initialization after the page is ready and assets are loaded.</p>
         </div>
 
@@ -51,7 +66,7 @@ window.addEventListener('load', function() {
 
     <div class="row">
         <div class="container-1000px">
-            <h2>3. Add images</h2>
+            <h2>4. Add images</h2>
             <p>All galleries share some options, but they have specific options too. You can find them on their dedicated page.</p>
         </div>
 
