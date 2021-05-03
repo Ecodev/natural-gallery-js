@@ -1,6 +1,4 @@
-import debounce from 'lodash/debounce';
-import defaults from 'lodash/defaults';
-import pick from 'lodash/pick';
+import {debounce, defaults, pick} from 'lodash-es';
 import PhotoSwipe from 'photoswipe';
 import PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 import { Item, ItemOptions } from '../Item';
@@ -158,7 +156,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     /**
      * Debounce function
      * Runs a small delay after last image has been added to dom
-     * When it runs, images are loaded (appear with fade) and more images are queries to preserve a buffer of out-of-dom items
+     * When it runs, images are loaded (appear with fade) and more images are queries to preserve a buffer of
+     * out-of-dom items
      */
     protected flushBufferedItems: () => void;
 
@@ -354,10 +353,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     }
 
     /**
-     * Allows to use the same approach and method name to listen as gallery events on DOM or on javascript gallery object
+     * Allows to use the same approach and method name to listen as gallery events on DOM or on javascript gallery
+     * object
      *
-     * Gallery requests items when it's instantiated. But user may subscribe after creation, so we need to request again if
-     * user subscribes by this function.
+     * Gallery requests items when it's instantiated. But user may subscribe after creation, so we need to request
+     * again if user subscribes by this function.
      *
      * @param name
      * @param callback
@@ -401,8 +401,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     public abstract organizeItems(items: Item[], fromRow?: number, toRow?: number): void;
 
     /**
-     * If gallery already has items on initialisation, set first page visible, load second page and query for more items if needed
-     * If not, just query for items
+     * If gallery already has items on initialisation, set first page visible, load second page and query for more
+     * items if needed If not, just query for items
      */
     protected initItems() {
 
@@ -458,8 +458,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * Information provided in the event allows to retrieve items from the server using given data :
      * "offset" and "limit" that have the same semantic that respective attributes in mySQL.
      *
-     * The gallery asks for items it needs, including some buffer items that are not displayed when given but are available to be added
-     * immediately to DOM when user scrolls.
+     * The gallery asks for items it needs, including some buffer items that are not displayed when given but are
+     * available to be added immediately to DOM when user scrolls.
      *
      */
     protected requestItems() {
@@ -525,9 +525,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     }
 
     /**
-     * If infinite scroll (no option.rowsPerPage provided), a minimum height is setted to force gallery to overflow from viewport.
-     * This activates the scroll before adding items to dom. This prevents the scroll to fire new resize event and recompute all gallery
-     * twice on start.
+     * If infinite scroll (no option.rowsPerPage provided), a minimum height is setted to force gallery to overflow
+     * from viewport. This activates the scroll before adding items to dom. This prevents the scroll to fire new resize
+     * event and recompute all gallery twice on start.
      */
     protected extendToFreeViewport() {
 
@@ -542,7 +542,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * Space between the top of the gallery wrapper (parent of gallery root elementRef) and the bottom of the window
      */
     protected getGalleryVisibleHeight() {
-        return document.documentElement.clientHeight - this.elementRef.offsetTop;
+        return window.innerHeight - this.elementRef.offsetTop;
     }
 
     protected startResize() {
