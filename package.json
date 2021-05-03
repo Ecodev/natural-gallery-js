@@ -1,6 +1,6 @@
 {
     "name": "@ecodev/natural-gallery-js",
-    "version": "6.0.1",
+    "version": "6.1.0",
     "description": "A lazy load, infinite scroll, natural and masonry layout gallery",
     "author": "Samuel Baptista <samuel.baptista@ecodev.ch>",
     "license": "MIT",
@@ -12,14 +12,14 @@
         "url": "https://github.com/Ecodev/natural-gallery-js/issues"
     },
     "homepage": "https://github.com/Ecodev/natural-gallery-js#readme",
-    "main": "./natural-gallery.js",
-    "module": "./natural-gallery.js",
-    "jsnext:main": "./natural-gallery.js",
+    "main": "./natural-gallery-server.js",
+    "module": "./natural-gallery-server.js",
+    "jsnext:main": "./natural-gallery-server.js",
     "types": "./natural-gallery.d.ts",
     "typings": "./natural-gallery.d.ts",
     "scripts": {
         "dev": "concurrently --kill-others \"webpack --watch\" \"webpack --watch --docs\" \"yarn run dev-docs\"",
-        "dev-docs": "cd docs; bundle exec jekyll serve --livereload",
+        "dev-docs": "cd docs; bundle install; bundle exec jekyll serve --livereload",
         "build-lib": "webpack; webpack --docs",
         "release": "yarn build-lib; cd dist; yarn publish --access public",
         "test": "jest --runInBand --detectOpenHandles",
@@ -59,7 +59,7 @@
         "image-webpack-loader": "^5.0.0",
         "jest": "^24.9.0",
         "jest-puppeteer": "^4.3.0",
-        "lodash": "^4.17.15",
+        "lodash-es": "^4.17.21",
         "mini-css-extract-plugin": "^0.8.0",
         "node-sass": "^4.12.0",
         "optimize-css-assets-webpack-plugin": "^5.0.3",
@@ -74,6 +74,7 @@
         "typescript": "~3.5.3",
         "webpack": "^4.39.2",
         "webpack-cli": "^3.3.7",
-        "webpack-dev-middleware": "^3.7.1"
+        "webpack-dev-middleware": "^3.7.1",
+        "webpack-node-externals": "^2.5.2"
     }
 }

@@ -4,10 +4,11 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const nodeExternals = require('webpack-node-externals');
 
 const dest = process.argv.indexOf('--docs') > -1 ? 'docs/assets/natural-gallery-js' : 'dist';
 
-module.exports = {
+const client = {
     mode: 'production',
     devtool: "source-map",
     output: {
@@ -88,3 +89,15 @@ module.exports = {
         ]
     },
 };
+
+// Copy original config and change stuff dedicated for server
+const serverConfig = {
+    target: 'node',
+    output: {
+        filename: 'natural-gallery-server.js',
+    },
+    externals: [nodeExternals()]
+};
+const server = Object.assign({}, client, serverConfig);
+
+module.exports = [client, server]
