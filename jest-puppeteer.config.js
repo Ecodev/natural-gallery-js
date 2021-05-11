@@ -4,7 +4,7 @@ module.exports = {
         port: 4444,
     },
     launch: {
-        headless: false,
+        headless: process.env.HEADLESS ?? false,
         devtools: false,
         slowMo: 20,
         defaultViewport: {width: 960, height: 800},

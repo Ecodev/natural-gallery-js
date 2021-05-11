@@ -1,0 +1,21 @@
+name: main
+on: [push, pull_request]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+              with:
+                  fetch-depth: 0 # Need all tags to get a version number in-between tags
+            - uses: actions/setup-node@v2-beta
+            - run: yarn --frozen-lockfile
+            - run: yarn build-lib
+
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2-beta
+            - run: yarn --frozen-lockfile
+            - run: HEADLESS=1 yarn test
