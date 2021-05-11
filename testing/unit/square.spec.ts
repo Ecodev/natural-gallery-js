@@ -9,7 +9,7 @@ const imageModel = {
     'color': 'color',
 };
 
-fdescribe('Masonry Gallery', () => {
+describe('Square Gallery', () => {
 
     test('Options should be completed and overriden', () => {
 
@@ -26,7 +26,7 @@ fdescribe('Masonry Gallery', () => {
             photoSwipeOptions: null,
         };
 
-        let gallery = new Square(null, {itemsPerRow: 123, gap: 4});
+        let gallery = new Square(document.createElement('div'), {itemsPerRow: 123, gap: 4});
         expect(gallery.getOptions()).toEqual(result);
 
     });
@@ -34,7 +34,7 @@ fdescribe('Masonry Gallery', () => {
     test('should add items before creation and not render them', () => {
 
         const images = [imageModel, imageModel, imageModel, imageModel, imageModel, imageModel];
-        let gallery = new Square(null, {itemsPerRow: 123});
+        let gallery = new Square(document.createElement('div'), {itemsPerRow: 123});
         gallery.addItems(images);
 
         expect(gallery.collection.length).toEqual(6);

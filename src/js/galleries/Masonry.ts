@@ -148,7 +148,7 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
         this.columns = [];
         const columnWidth = this.getColumnWidth();
         for (let i = 0; i < this.getEstimatedColumnsPerRow(); i++) {
-            const columnRef = new Column({width: columnWidth, gap: this.options.gap});
+            const columnRef = new Column(this.document, {width: columnWidth, gap: this.options.gap});
             this.columns.push(columnRef);
             this.bodyElementRef.appendChild(columnRef.init());
         }
@@ -163,7 +163,7 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
      * Returns true if at least one columns doesn't overflow on the bottom of the viewport
      */
     private viewPortIsNotFilled(): boolean {
-        return this.columns.some(c => c.elementRef.getBoundingClientRect().bottom < document.documentElement.clientHeight);
+        return this.columns.some(c => c.elementRef.getBoundingClientRect().bottom < this.document.documentElement.clientHeight);
     }
 
     private addItemsToDom(nbItems: number) {

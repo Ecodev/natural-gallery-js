@@ -65,7 +65,11 @@ export class Item<Model extends ModelAttributes = any> {
      * @param {ItemOptions} options
      * @param model Contains the source data given for an item (e.g object instance from database with id etc..)
      */
-    public constructor(private readonly options: ItemOptions, public readonly model: Model) {
+    public constructor(
+        private readonly document: Document,
+        private readonly options: ItemOptions,
+        public readonly model: Model,
+    ) {
         this.title = this.getTitleDetails(model.title);
     }
 
@@ -91,8 +95,8 @@ export class Item<Model extends ModelAttributes = any> {
             label = true;
         }
 
-        let element = document.createElement('div') as HTMLElement;
-        let image = document.createElement('div') as HTMLElement;
+        let element = this.document.createElement('div') as HTMLElement;
+        let image = this.document.createElement('div') as HTMLElement;
         let link = this.getLinkElement();
         let zoomable: HTMLElement = null;
 
@@ -107,7 +111,7 @@ export class Item<Model extends ModelAttributes = any> {
             activable = link;
 
         } else if (this.options.lightbox && label && !link) {
-            label = document.createElement('div');
+            label = this.document.createElement('div');
 
             if (this.options.activable) {
                 activable = label;
@@ -133,7 +137,7 @@ export class Item<Model extends ModelAttributes = any> {
             activable = element;
 
         } else if (!this.options.lightbox && label && !link) {
-            label = document.createElement('div');
+            label = this.document.createElement('div');
             if (this.options.activable) {
                 activable = element;
                 label.classList.add('button');
@@ -192,8 +196,8 @@ export class Item<Model extends ModelAttributes = any> {
             if (this.model.selected) {
                 this.select();
             }
-            this._selectBtn = document.createElement('div');
-            this._selectBtn.appendChild(getIcon('natural-gallery-icon-select'));
+            this._selectBtn = this.document.createElement('div');
+            this._selectBtn.appendChild(getIcon(this.document, 'natural-gallery-icon-select'));
             this._selectBtn.classList.add('selectBtn');
             this._selectBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -236,7 +240,7 @@ export class Item<Model extends ModelAttributes = any> {
      */
     public loadImage() {
 
-        let img = document.createElement('img');
+        let img = this.document.createElement('img');
         img.setAttribute('src', this.model.thumbnailSrc);
 
         this._image.style.backgroundImage = 'url(' + this.model.thumbnailSrc + ')';
@@ -272,7 +276,7 @@ export class Item<Model extends ModelAttributes = any> {
     private getLinkElement(): HTMLElement {
 
         if (this.model.link) {
-            let link = document.createElement('a');
+            let link = this.document.createElement('a');
             link.setAttribute('href', this.model.link);
             link.classList.add('link');
             if (this.model.linkTarget) {

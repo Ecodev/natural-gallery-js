@@ -1,4 +1,4 @@
-import { Masonry, MasonryGalleryOptions } from '../../src';
+import {Masonry, MasonryGalleryOptions} from '../../src';
 
 const imageModel = {
     'thumbnailSrc': 'thumbnailSrc',
@@ -9,7 +9,7 @@ const imageModel = {
     'color': 'color',
 };
 
-fdescribe('Masonry Gallery', () => {
+describe('Masonry Gallery', () => {
 
     test('Options should be completed and overriden', () => {
 
@@ -25,8 +25,7 @@ fdescribe('Masonry Gallery', () => {
             infiniteScrollOffset: 0,
             photoSwipeOptions: null,
         };
-
-        let gallery = new Masonry(null, {columnWidth: 123, gap: 4});
+        let gallery = new Masonry(document.createElement('div'), {columnWidth: 123, gap: 4});
         expect(gallery.getOptions()).toEqual(result);
 
     });
@@ -34,7 +33,7 @@ fdescribe('Masonry Gallery', () => {
     test('should add items before creation and not render them', () => {
 
         const images = [imageModel, imageModel, imageModel, imageModel, imageModel, imageModel];
-        let gallery = new Masonry(null, {columnWidth: 123});
+        let gallery = new Masonry(document.createElement('div'), {columnWidth: 123});
         gallery.addItems(images);
 
         expect(gallery.collection.length).toEqual(6);

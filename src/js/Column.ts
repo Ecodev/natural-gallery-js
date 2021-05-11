@@ -11,11 +11,11 @@ export class Column {
 
     private _elementRef: HTMLElement;
 
-    public constructor(private options: ColumnOptions) {
+    public constructor(private readonly document: Document, private options: ColumnOptions) {
     }
 
     public init() {
-        this._elementRef = document.createElement('div');
+        this._elementRef = this.document.createElement('div');
         this._elementRef.classList.add('column');
         this._elementRef.style.marginRight = this.options.gap + 'px';
         this._elementRef.style.width = this.options.width + 'px';

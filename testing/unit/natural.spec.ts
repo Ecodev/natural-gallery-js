@@ -28,7 +28,7 @@ describe('Natural Gallery', () => {
             photoSwipeOptions: null,
         };
 
-        let gallery = new Natural(null, {rowHeight: 123, gap: 4});
+        let gallery = new Natural(document.createElement('div'), {rowHeight: 123, gap: 4});
         expect(gallery.getOptions()).toEqual(result);
 
     });
@@ -36,7 +36,7 @@ describe('Natural Gallery', () => {
     test('should add items before creation and not render them', () => {
 
         const images = [imageModel, imageModel, imageModel, imageModel, imageModel, imageModel];
-        let gallery = new Natural(null, {rowHeight: 123});
+        let gallery = new Natural(document.createElement('div'), {rowHeight: 123});
         gallery.addItems(images);
 
         expect(gallery.collection.length).toEqual(6);

@@ -1,6 +1,6 @@
 // await jestPuppeteer.debug();
 
-describe('Masonry', () => {
+describe('Square', () => {
 
     it('should create gallery, init, scroll and resize"', async () => {
 

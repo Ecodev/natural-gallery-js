@@ -13,6 +13,7 @@
     },
     "homepage": "https://github.com/Ecodev/natural-gallery-js#readme",
     "main": "./natural-gallery-server.js",
+    "browser": "./natural-gallery.js",
     "module": "./natural-gallery-server.js",
     "jsnext:main": "./natural-gallery-server.js",
     "types": "./natural-gallery.d.ts",
@@ -24,7 +25,8 @@
         "release": "yarn build-lib; cd dist; yarn publish --access public",
         "test": "jest --runInBand --detectOpenHandles",
         "llink": "cd dist && (yarn unlink ; yarn link)",
-        "serve": "node testing/server.js"
+        "serve": "node testing/server.js",
+        "lint": "tslint --project ."
     },
     "keywords": [
         "gallery",

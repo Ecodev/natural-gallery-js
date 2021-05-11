@@ -182,6 +182,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * Reference to next button element
      */
     private nextButton: HTMLElement;
+    protected readonly document: Document;
 
     /**
      *
@@ -194,7 +195,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
                 options: GalleryOptions,
                 protected photoswipeElementRef?: HTMLElement,
                 protected scrollElementRef?: HTMLElement) {
-
+        this.document = this.elementRef.ownerDocument;
         this.options = defaults(options, this.options);
 
         if (this.options.lightbox && !this.photoswipeElementRef) {
@@ -268,21 +269,21 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         this.elementRef.classList.add('natural-gallery-js');
 
         // Next button
-        this.nextButton = document.createElement('div');
+        this.nextButton = this.document.createElement('div');
         this.nextButton.classList.add('natural-gallery-next');
-        this.nextButton.appendChild(getIcon('natural-gallery-icon-next'));
+        this.nextButton.appendChild(getIcon(this.document, 'natural-gallery-icon-next'));
         this.nextButton.style.display = 'none';
         this.nextButton.addEventListener('click', (e) => {
             e.preventDefault();
             this.onPageAdd();
         });
 
-        this.bodyElementRef = document.createElement('div');
+        this.bodyElementRef = this.document.createElement('div');
         this.bodyElementRef.classList.add('natural-gallery-body');
         this.extendToFreeViewport();
 
         // Iframe
-        const iframe = document.createElement('iframe');
+        const iframe = this.document.createElement('iframe');
         this.elementRef.appendChild(iframe);
 
         // Resize debounce
@@ -298,7 +299,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         this.elementRef.appendChild(this.nextButton);
 
         if (!this.options.rowsPerPage) {
-            this.bindScroll(this.scrollElementRef || document);
+            this.bindScroll(this.scrollElementRef || this.document);
         }
 
         this.initItems();
@@ -322,7 +323,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         // Complete collection
         models.forEach((model: Model) => {
             const itemOptions = pick(this.options, ['lightbox', 'selectable', 'activable', 'gap', 'showLabels']);
-            const item = new Item<Model>(itemOptions, model);
+            const item = new Item<Model>(this.document, itemOptions, model);
             this._collection.push(item);
 
             if (this.photoswipeElementRef) {
@@ -542,7 +543,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * Space between the top of the gallery wrapper (parent of gallery root elementRef) and the bottom of the window
      */
     protected getGalleryVisibleHeight() {
-        return window.innerHeight - this.elementRef.offsetTop;
+        return this.document.defaultView.innerHeight - this.elementRef.offsetTop;
     }
 
     protected startResize() {
