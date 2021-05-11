@@ -33,7 +33,7 @@ describe('Natural', () => {
 
         // Change viewport with to test resize
         await page.setViewport({width: 1200, height: page.viewport().height});
-        await page.waitFor(600); // wait debounce from gallery
+        await page.waitForTimeout(600); // wait debounce from gallery
         items = await page.$$('#root .natural-gallery-body .figure');
         expect(items.length).toBe(17);
 

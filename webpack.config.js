@@ -2,11 +2,10 @@ const webpack = require('webpack');
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const nodeExternals = require('webpack-node-externals');
 
-const dest = process.argv.indexOf('--docs') > -1 ? 'docs/assets/natural-gallery-js' : 'dist';
+const dest = process.env.DOCS ? 'docs/assets/natural-gallery-js' : 'dist';
 
 const client = {
     mode: 'production',
@@ -38,33 +37,27 @@ const client = {
     },
     optimization: {
         minimizer: [
-            new TerserPlugin({sourceMap: true}),
-            new OptimizeCSSAssetsPlugin({
-                cssProcessorOptions: {
-                    map: {
-                        inline: false,
-                        annotation: true,
-                    }
-                }
-            })
+            new TerserPlugin(),
         ],
     },
     plugins: [
-        new webpack.WatchIgnorePlugin([/\.d\.ts$/]),
+        new webpack.WatchIgnorePlugin({paths: [/\.d\.ts$/]}),
         new MiniCssExtractPlugin({filename: 'natural-gallery.css'}),
-        new CopyPlugin([
-            {from: 'package.json'},
-            {
-                from: 'src/styles/themes',
-                to: 'themes'
-            },
-        ])
+        new CopyPlugin({
+            patterns: [
+                {from: 'package.json'},
+                {
+                    from: 'src/styles/themes',
+                    to: 'themes',
+                },
+            ],
+        })
     ],
     module: {
         rules: [
             {
                 test: /\.ts?$/,
-                loader: "awesome-typescript-loader"
+                loader: "ts-loader"
             }, {
                 enforce: "pre",
                 test: /\.js$/,
