@@ -5,7 +5,7 @@ import { AbstractRowGallery } from './AbstractRowGallery';
 
 export interface NaturalGalleryOptions extends GalleryOptions {
     rowHeight: number;
-    ratioLimit?: RatioLimits
+    ratioLimit?: RatioLimits;
 }
 
 export class Natural<Model extends ModelAttributes = any> extends AbstractRowGallery {

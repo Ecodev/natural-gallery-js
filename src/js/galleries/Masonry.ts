@@ -5,7 +5,7 @@ import { AbstractGallery, GalleryOptions, ModelAttributes } from './AbstractGall
 
 export interface MasonryGalleryOptions extends GalleryOptions {
     columnWidth: number;
-    ratioLimit?: RatioLimits
+    ratioLimit?: RatioLimits;
 }
 
 export class Masonry<Model extends ModelAttributes = any> extends AbstractGallery {

@@ -19,3 +19,11 @@ jobs:
             - uses: actions/setup-node@v2-beta
             - run: yarn --frozen-lockfile
             - run: HEADLESS=1 yarn test
+
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2-beta
+            - run: yarn --frozen-lockfile
+            - run: yarn lint

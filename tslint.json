@@ -16,11 +16,6 @@
         "jsdoc-format": true,
         "label-position": true,
         "member-access": true,
-        "member-ordering": [
-            true,
-            "static-before-instance",
-            "variables-before-functions"
-        ],
         "no-any": false,
         "no-arg": true,
         "no-bitwise": true,
@@ -47,7 +42,6 @@
         "no-switch-case-fall-through": true,
         "no-trailing-whitespace": true,
         "no-unused-expression": true,
-        "no-use-before-declare": true,
         "no-var-keyword": true,
         "no-var-requires": false,
         "one-line": [

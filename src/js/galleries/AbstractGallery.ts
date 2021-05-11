@@ -1,4 +1,4 @@
-import {debounce, defaults, pick} from 'lodash-es';
+import { debounce, defaults, pick } from 'lodash-es';
 import PhotoSwipe from 'photoswipe';
 import PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 import { Item, ItemOptions } from '../Item';

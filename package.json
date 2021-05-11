@@ -25,7 +25,8 @@
         "release": "yarn build-lib; cd dist; yarn publish --access public",
         "test": "jest --runInBand --detectOpenHandles",
         "llink": "cd dist && (yarn unlink ; yarn link)",
-        "serve": "node testing/server.js"
+        "serve": "node testing/server.js",
+        "lint": "tslint --project ."
     },
     "keywords": [
         "gallery",
