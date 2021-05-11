@@ -13,6 +13,7 @@
     },
     "homepage": "https://github.com/Ecodev/natural-gallery-js#readme",
     "main": "./natural-gallery-server.js",
+    "browser": "./natural-gallery.js",
     "module": "./natural-gallery-server.js",
     "jsnext:main": "./natural-gallery-server.js",
     "types": "./natural-gallery.d.ts",
