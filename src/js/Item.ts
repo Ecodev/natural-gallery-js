@@ -15,12 +15,12 @@ export interface ItemTitle {
     linkTarget: '_blank' | '_self' | '_parent' | '_top';
 }
 
-export class Item<Model extends ModelAttributes = any> {
+export class Item<Model extends ModelAttributes = ModelAttributes> {
 
     /**
      * Cleaned title, used for label / button
      */
-    private readonly title: string;
+    public readonly title: string;
 
     /**
      * Actual row index in the list
@@ -86,7 +86,7 @@ export class Item<Model extends ModelAttributes = any> {
      * Create DOM elements according to element raw data (thumbnail and enlarged urls)
      * Also apply border-radius at this level because it never changed threw time
      */
-    public init() {
+    public init(): HTMLElement {
         let label = null;
 
         // Test if label should be added to dom
@@ -95,9 +95,9 @@ export class Item<Model extends ModelAttributes = any> {
             label = true;
         }
 
-        let element = this.document.createElement('div') as HTMLElement;
+        const element = this.document.createElement('div') as HTMLElement;
         let image = this.document.createElement('div') as HTMLElement;
-        let link = this.getLinkElement();
+        const link = this.getLinkElement();
         let zoomable: HTMLElement = null;
 
         // Activation is listened on label/button or on whole image if lightbox is off.
@@ -217,7 +217,7 @@ export class Item<Model extends ModelAttributes = any> {
      * Use computed (organized) data to apply style (size and margin) to elements on DOM
      * Does not apply border-radius because is used to restyle data on browser resize, and border-radius don't change.
      */
-    public style() {
+    public style(): void {
 
         if (!this._element) {
             return;
@@ -238,9 +238,9 @@ export class Item<Model extends ModelAttributes = any> {
      * This function prepare loaded/loading status and return root element.
      * @returns {HTMLElement}
      */
-    public loadImage() {
+    public loadImage(): void {
 
-        let img = this.document.createElement('img');
+        const img = this.document.createElement('img');
         img.setAttribute('src', this.model.thumbnailSrc);
 
         this._image.style.backgroundImage = 'url(' + this.model.thumbnailSrc + ')';
@@ -255,7 +255,7 @@ export class Item<Model extends ModelAttributes = any> {
         });
     }
 
-    public toggleSelect() {
+    public toggleSelect(): void {
         if (this._selected) {
             this.unselect();
         } else {
@@ -263,12 +263,12 @@ export class Item<Model extends ModelAttributes = any> {
         }
     }
 
-    public select() {
+    public select(): void {
         this._selected = true;
         this._element.classList.add('selected');
     }
 
-    public unselect() {
+    public unselect(): void {
         this._selected = false;
         this._element.classList.remove('selected');
     }
@@ -276,7 +276,7 @@ export class Item<Model extends ModelAttributes = any> {
     private getLinkElement(): HTMLElement {
 
         if (this.model.link) {
-            let link = this.document.createElement('a');
+            const link = this.document.createElement('a');
             link.setAttribute('href', this.model.link);
             link.classList.add('link');
             if (this.model.linkTarget) {
@@ -289,7 +289,7 @@ export class Item<Model extends ModelAttributes = any> {
         return null;
     }
 
-    public remove() {
+    public remove(): void {
         if (this._element.parentNode) {
             this._element.parentNode.removeChild(this._element);
         }

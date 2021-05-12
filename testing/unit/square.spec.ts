@@ -26,7 +26,7 @@ describe('Square Gallery', () => {
             photoSwipeOptions: null,
         };
 
-        let gallery = new Square(document.createElement('div'), {itemsPerRow: 123, gap: 4});
+        const gallery = new Square(document.createElement('div'), {itemsPerRow: 123, gap: 4});
         expect(gallery.getOptions()).toEqual(result);
 
     });
@@ -34,7 +34,7 @@ describe('Square Gallery', () => {
     test('should add items before creation and not render them', () => {
 
         const images = [imageModel, imageModel, imageModel, imageModel, imageModel, imageModel];
-        let gallery = new Square(document.createElement('div'), {itemsPerRow: 123});
+        const gallery = new Square(document.createElement('div'), {itemsPerRow: 123});
         gallery.addItems(images);
 
         expect(gallery.collection.length).toEqual(6);

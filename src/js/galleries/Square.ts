@@ -6,7 +6,7 @@ export interface SquareGalleryOptions extends GalleryOptions {
     itemsPerRow: number;
 }
 
-export class Square<Model extends ModelAttributes = any> extends AbstractRowGallery {
+export class Square<Model extends ModelAttributes = ModelAttributes> extends AbstractRowGallery<Model> {
 
     /**
      * Options after having been defaulted
@@ -28,14 +28,14 @@ export class Square<Model extends ModelAttributes = any> extends AbstractRowGall
     /**
      * Compute sides with 1:1 ratio
      */
-    public static organizeItems(gallery: Square, items: Item[], firstRowIndex: number = 0, toRow: number = null): void {
+    public static organizeItems(gallery: Square, items: Item[], firstRowIndex = 0, toRow: number = null): void {
 
-        let sideSize = gallery.getItemSideSize();
+        const sideSize = gallery.getItemSideSize();
         let lastIndex = toRow ? gallery.options.itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
         lastIndex = lastIndex > items.length ? items.length : lastIndex;
 
         for (let i = 0; i < lastIndex; i++) {
-            let item = items[i];
+            const item = items[i];
             item.width = Math.floor(sideSize);
             item.height = Math.floor(sideSize);
             item.last = i % gallery.options.itemsPerRow === gallery.options.itemsPerRow - 1;
@@ -44,7 +44,7 @@ export class Square<Model extends ModelAttributes = any> extends AbstractRowGall
         }
     }
 
-    protected getEstimatedColumnsPerRow() {
+    protected getEstimatedColumnsPerRow(): number {
         return this.options.itemsPerRow;
     }
 

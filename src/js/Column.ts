@@ -1,4 +1,4 @@
-import { Item } from './Item';
+import {Item} from './Item';
 
 export declare interface ColumnOptions {
     width: number;
@@ -14,7 +14,7 @@ export class Column {
     public constructor(private readonly document: Document, private options: ColumnOptions) {
     }
 
-    public init() {
+    public init(): HTMLElement {
         this._elementRef = this.document.createElement('div');
         this._elementRef.classList.add('column');
         this._elementRef.style.marginRight = this.options.gap + 'px';
@@ -22,7 +22,7 @@ export class Column {
         return this._elementRef;
     }
 
-    public addItem(item: Item) {
+    public addItem(item: Item): void {
         this.collection.push(item);
     }
 

@@ -1,8 +1,8 @@
-import { debounce, defaults, pick } from 'lodash-es';
+import {debounce, defaults, pick} from 'lodash-es';
 import PhotoSwipe from 'photoswipe';
 import PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
-import { Item, ItemOptions } from '../Item';
-import { getIcon } from '../Utility';
+import {Item, ItemOptions} from '../Item';
+import {getIcon} from '../Utility';
 
 export interface SizedModel {
 
@@ -85,7 +85,7 @@ export interface PhotoSwipeOptions {
     spacing?: number;
     allowPanToNext?: boolean;
     maxSpreadZoom?: number;
-    getDoubleTapZoom?: (isMouseClick?: boolean, item?: any) => number;
+    getDoubleTapZoom?: (isMouseClick?: boolean, item?: PhotoswipeItem) => number;
     pinchToClose?: boolean;
     closeOnScroll?: boolean;
     closeOnVerticalDrag?: boolean;
@@ -120,7 +120,7 @@ export interface PhotoswipeItem {
     title?: string;
 }
 
-export abstract class AbstractGallery<Model extends ModelAttributes = any> {
+export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttributes> {
 
     /**
      * Default options
@@ -288,7 +288,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
         // Resize debounce
         const resizeDebounceDuration = 500;
-        const startResize = debounce(() => this.startResize(), resizeDebounceDuration, {leading: true, trailing: false});
+        const startResize = debounce(() => this.startResize(), resizeDebounceDuration, {
+            leading: true,
+            trailing: false,
+        });
         const endResize = debounce(() => this.endResize(), resizeDebounceDuration, {leading: false, trailing: true});
         iframe.contentWindow.addEventListener('resize', () => {
             endResize();
@@ -318,7 +321,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         }
 
         // Display newly added images if it's the first addition or if all images are already shown
-        let display = this.collection.length === this.visibleCollection.length;
+        const display = this.collection.length === this.visibleCollection.length;
 
         // Complete collection
         models.forEach((model: Model) => {
@@ -349,7 +352,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     /**
      * Unselect all selected elements
      */
-    public unselectAllItems() {
+    public unselectAllItems(): void {
         this.visibleCollection.forEach((item) => item.unselect());
     }
 
@@ -363,7 +366,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * @param name
      * @param callback
      */
-    public addEventListener(name: string, callback: (ev) => void) {
+    public addEventListener(name: string, callback: (ev) => void): void {
         this.elementRef.addEventListener(name, callback);
 
         if (name === 'pagination' && this.bodyElementRef) {
@@ -375,7 +378,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * Public api for empty function
      * Emits a pagination event
      */
-    public clear() {
+    public clear(): void {
         this.empty();
         this.requestItems();
     }
@@ -391,7 +394,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * Override current collection
      * @param {Item[]} items
      */
-    public setItems(items: Model[]) {
+    public setItems(items: Model[]): void {
         this.empty();
         this.addItems(items);
     }
@@ -405,7 +408,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * If gallery already has items on initialisation, set first page visible, load second page and query for more
      * items if needed If not, just query for items
      */
-    protected initItems() {
+    protected initItems(): void {
 
         if (!this.collection.length) {
             this.requestItems();
@@ -463,7 +466,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * available to be added immediately to DOM when user scrolls.
      *
      */
-    protected requestItems() {
+    protected requestItems(): void {
         const estimatedPerRow = this.getEstimatedColumnsPerRow();
 
         // +1 because we have to get more than that is used under onPageAdd().
@@ -477,7 +480,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * If not returns the estimated number of rows to fill the rest of the vertical space in the screen
      * @returns {number}
      */
-    protected getRowsPerPage() {
+    protected getRowsPerPage(): number {
         if (this.options.rowsPerPage > 0) {
             return this.options.rowsPerPage;
         }
@@ -517,7 +520,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
 
     }
 
-    protected updateNextButtonVisibility() {
+    protected updateNextButtonVisibility(): void {
         if (this.visibleCollection.length === this.collection.length) {
             this.nextButton.style.display = 'none';
         } else {
@@ -530,10 +533,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * from viewport. This activates the scroll before adding items to dom. This prevents the scroll to fire new resize
      * event and recompute all gallery twice on start.
      */
-    protected extendToFreeViewport() {
+    protected extendToFreeViewport(): void {
 
         if (this.options.rowsPerPage) {
-            return this.options.rowsPerPage;
+            return;
         }
 
         this.elementRef.style.minHeight = (this.getGalleryVisibleHeight() + 10) + 'px';
@@ -542,19 +545,19 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     /**
      * Space between the top of the gallery wrapper (parent of gallery root elementRef) and the bottom of the window
      */
-    protected getGalleryVisibleHeight() {
+    protected getGalleryVisibleHeight(): number {
         return this.document.defaultView.innerHeight - this.elementRef.offsetTop;
     }
 
-    protected startResize() {
+    protected startResize(): void {
         this.bodyElementRef.classList.add('resizing');
     }
 
-    protected endResize() {
+    protected endResize(): void {
         this.bodyElementRef.classList.remove('resizing');
     }
 
-    protected openPhotoSwipe(item: Item) {
+    protected openPhotoSwipe(item: Item): void {
 
         if (this.options.lightbox && !this.photoswipeElementRef) {
             console.error('Lightbox option is set to true, but no PhotoSwipe reference is given');
@@ -587,7 +590,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
      * @param item
      * @returns {PhotoswipeItem}
      */
-    protected getPhotoswipeItem(item): PhotoswipeItem {
+    protected getPhotoswipeItem(item: Item): PhotoswipeItem {
         return {
             src: item.model.enlargedSrc,
             w: item.model.enlargedWidth,
@@ -596,7 +599,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
         };
     }
 
-    protected dispatchEvent(name: string, data: any) {
+    protected dispatchEvent(name: string, data: unknown): void {
         const event = new CustomEvent(name, {detail: data});
         this.elementRef.dispatchEvent(event);
     }
@@ -604,7 +607,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
     /**
      * Effectively empty gallery, and should prepare container to receive new items
      */
-    protected empty() {
+    protected empty(): void {
         this.bodyElementRef.innerHTML = '';
         this._visibleCollection = [];
         this.photoswipeCollection = [];
@@ -625,18 +628,24 @@ export abstract class AbstractGallery<Model extends ModelAttributes = any> {
             wrapper = element;
         }
 
-        const startScroll = debounce(() => this.elementRef.classList.add('scrolling'), 300, {leading: true, trailing: false});
-        const endScroll = debounce(() => this.elementRef.classList.remove('scrolling'), 300, {leading: false, trailing: true});
+        const startScroll = debounce(() => this.elementRef.classList.add('scrolling'), 300, {
+            leading: true,
+            trailing: false,
+        });
+        const endScroll = debounce(() => this.elementRef.classList.remove('scrolling'), 300, {
+            leading: false,
+            trailing: true,
+        });
 
         scrollable.addEventListener('scroll', () => {
             startScroll();
             endScroll();
-            let endOfGalleryAt = this.elementRef.offsetTop + this.elementRef.offsetHeight + this.options.infiniteScrollOffset;
+            const endOfGalleryAt = this.elementRef.offsetTop + this.elementRef.offsetHeight + this.options.infiniteScrollOffset;
 
             // Avoid to expand gallery if we are scrolling up
-            let current_scroll_top = wrapper.scrollTop - (wrapper.clientTop || 0);
-            let wrapperHeight = wrapper.clientHeight;
-            let scroll_delta = current_scroll_top - this.old_scroll_top;
+            const current_scroll_top = wrapper.scrollTop - (wrapper.clientTop || 0);
+            const wrapperHeight = wrapper.clientHeight;
+            const scroll_delta = current_scroll_top - this.old_scroll_top;
             this.old_scroll_top = current_scroll_top;
 
             // "enableMoreLoading" is a setting coming from the BE bloking / enabling dynamic loading of thumbnail

@@ -28,7 +28,7 @@ describe('Natural Gallery', () => {
             photoSwipeOptions: null,
         };
 
-        let gallery = new Natural(document.createElement('div'), {rowHeight: 123, gap: 4});
+        const gallery = new Natural(document.createElement('div'), {rowHeight: 123, gap: 4});
         expect(gallery.getOptions()).toEqual(result);
 
     });
@@ -36,7 +36,7 @@ describe('Natural Gallery', () => {
     test('should add items before creation and not render them', () => {
 
         const images = [imageModel, imageModel, imageModel, imageModel, imageModel, imageModel];
-        let gallery = new Natural(document.createElement('div'), {rowHeight: 123});
+        const gallery = new Natural(document.createElement('div'), {rowHeight: 123});
         gallery.addItems(images);
 
         expect(gallery.collection.length).toEqual(6);
@@ -85,7 +85,7 @@ describe('Natural Gallery', () => {
         ];
 
         const container = {getBoundingClientRect: () => ({width:999})} as HTMLElement;
-        let gallery = new Natural(container, {rowHeight: 400});
+        const gallery = new Natural(container, {rowHeight: 400});
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0, 999);
 
@@ -126,7 +126,7 @@ describe('Natural Gallery', () => {
         ];
 
         const container = {getBoundingClientRect: () => ({width:999})} as HTMLElement;
-        let gallery = new Natural(container, {rowHeight: 400, gap: 0});
+        const gallery = new Natural(container, {rowHeight: 400, gap: 0});
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0, 999);
 
@@ -171,7 +171,7 @@ describe('Natural Gallery', () => {
         ];
 
         const container = {getBoundingClientRect: () => ({width:999})} as HTMLElement;
-        let gallery = new Natural(container, {rowHeight: 400, gap: 20});
+        const gallery = new Natural(container, {rowHeight: 400, gap: 20});
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0, 999);
 

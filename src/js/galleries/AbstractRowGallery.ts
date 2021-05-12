@@ -1,6 +1,6 @@
-import { AbstractGallery } from './AbstractGallery';
+import {AbstractGallery, ModelAttributes} from './AbstractGallery';
 
-export abstract class AbstractRowGallery extends AbstractGallery {
+export abstract class AbstractRowGallery<Model extends ModelAttributes = ModelAttributes> extends AbstractGallery<Model> {
 
     protected onScroll(): void {
         this.addRows(1);
@@ -16,7 +16,7 @@ export abstract class AbstractRowGallery extends AbstractGallery {
      */
     protected addRows(rows: number): void {
 
-        let nbVisibleImages = this.visibleCollection.length;
+        const nbVisibleImages = this.visibleCollection.length;
 
         // Next row to add (first invisible row)
         const nextRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row + 1 : 0;
@@ -32,7 +32,7 @@ export abstract class AbstractRowGallery extends AbstractGallery {
         this.updateNextButtonVisibility();
     }
 
-    protected endResize() {
+    protected endResize(): void {
 
         super.endResize();
 

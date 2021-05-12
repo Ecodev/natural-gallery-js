@@ -5,9 +5,9 @@ pass=true
 files=$(git diff --cached --name-only --diff-filter=ACMR | grep -E 'app\/.*\.ts$')
 if [ "$files" != "" ]; then
 
-    # Run TSLint validation before commit
+    # Run ESLint validation before commit
     for file in ${files}; do
-        ./node_modules/.bin/tslint ${file}
+        ./node_modules/.bin/eslint ${file}
         if [ $? -ne 0 ]; then
             pass=false
         fi

@@ -8,7 +8,7 @@ export interface NaturalGalleryOptions extends GalleryOptions {
     ratioLimit?: RatioLimits;
 }
 
-export class Natural<Model extends ModelAttributes = any> extends AbstractRowGallery {
+export class Natural<Model extends ModelAttributes = ModelAttributes> extends AbstractRowGallery<Model> {
 
     /**
      * Options after having been defaulted
@@ -29,7 +29,7 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRowGal
 
     public static organizeItems(gallery: Natural,
                                 items: Item[],
-                                fromRow: number = 0,
+                                fromRow = 0,
                                 toRow: number = null,
                                 currentRow: number = null): void {
 
@@ -41,8 +41,8 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRowGal
 
         for (let chunkSize = 1; chunkSize <= items.length; chunkSize++) {
 
-            let chunk = items.slice(0, chunkSize);
-            let rowWidth = this.getRowWidth(chunk.map(c => c.model), options.rowHeight, options.gap, options.ratioLimit);
+            const chunk = items.slice(0, chunkSize);
+            const rowWidth = this.getRowWidth(chunk.map(c => c.model), options.rowHeight, options.gap, options.ratioLimit);
 
             if (rowWidth >= gallery.width) {
                 // if end of row
@@ -77,16 +77,16 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRowGal
                                ratioLimits: RatioLimits): void {
 
         const chunkModels = chunk.map(c => c.model);
-        let rowHeight = containerWidth ? this.getRowHeight(chunkModels, containerWidth, margin, ratioLimits) : maxRowHeight;
-        let rowWidth = this.getRowWidth(chunkModels, rowHeight, margin, ratioLimits);
+        const rowHeight = containerWidth ? this.getRowHeight(chunkModels, containerWidth, margin, ratioLimits) : maxRowHeight;
+        const rowWidth = this.getRowWidth(chunkModels, rowHeight, margin, ratioLimits);
 
         // Overflowed pixels
         const apportion = (rowWidth - containerWidth) / chunk.length;
-        let excess = containerWidth ? apportion : 0;
+        const excess = containerWidth ? apportion : 0;
         let decimals = 0;
 
         for (let i = 0; i < chunk.length; i++) {
-            let item = chunk[i];
+            const item = chunk[i];
             let width = getImageRatio(item.model, ratioLimits) * rowHeight - excess;
             decimals += width - Math.floor(width);
             width = Math.floor(width);
@@ -128,7 +128,7 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRowGal
         Natural.organizeItems(this, items, fromRow, toRow);
     }
 
-    protected endResize() {
+    protected endResize(): void {
         super.endResize();
         this.completeLastRow();
         this.flushBufferedItems();
@@ -150,7 +150,7 @@ export class Natural<Model extends ModelAttributes = any> extends AbstractRowGal
         return Math.ceil(this.getGalleryVisibleHeight() / (this.options.rowHeight + this.options.gap)) + 1;
     }
 
-    private completeLastRow() {
+    private completeLastRow(): void {
 
         if (!this.visibleCollection.length) {
             return;

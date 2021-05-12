@@ -8,7 +8,7 @@ export interface MasonryGalleryOptions extends GalleryOptions {
     ratioLimit?: RatioLimits;
 }
 
-export class Masonry<Model extends ModelAttributes = any> extends AbstractGallery {
+export class Masonry<Model extends ModelAttributes = ModelAttributes> extends AbstractGallery<Model> {
 
     /**
      * Options after having been defaulted
@@ -36,12 +36,12 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
     /**
      * Compute sides with 1:1 ratio
      */
-    public static organizeItems(gallery: Masonry, items: Item[], fromIndex: number = 0, toIndex: number = null): void {
+    public static organizeItems(gallery: Masonry, items: Item[], fromIndex = 0, toIndex: number = null): void {
 
-        let itemsPerRow = gallery.getEstimatedColumnsPerRow();
+        const itemsPerRow = gallery.getEstimatedColumnsPerRow();
 
         // Compute columnWidth of pictures
-        let columnWidth = gallery.getColumnWidth();
+        const columnWidth = gallery.getColumnWidth();
 
         let lastIndex = toIndex ? itemsPerRow * (toIndex - fromIndex + 1) : items.length;
         lastIndex = lastIndex > items.length ? items.length : lastIndex;
@@ -57,7 +57,7 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
         }
     }
 
-    public init() {
+    public init(): void {
         super.init();
 
         /**
@@ -117,19 +117,19 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
     /**
      * Use current gallery height as reference. To fill free space it add images until the gallery height changes, then are one more row
      */
-    protected addUntilFill() {
+    protected addUntilFill(): void {
         do {
             this.addItemsToDom(1);
         } while (this.viewPortIsNotFilled() && this.visibleCollection.length < this.collection.length);
     }
 
-    protected addItemToDOM(item: Item<Model>, destination: HTMLElement = null): void {
+    protected addItemToDOM(item: Item<Model>): void {
         const shortestColumn = this.getShortestColumn();
         shortestColumn.addItem(item);
         super.addItemToDOM(item, shortestColumn.elementRef);
     }
 
-    protected endResize() {
+    protected endResize(): void {
 
         super.endResize();
 
@@ -143,7 +143,7 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
         this.addUntilFill();
     }
 
-    protected addColumns() {
+    protected addColumns(): void {
         this.bodyElementRef.innerHTML = '';
         this.columns = [];
         const columnWidth = this.getColumnWidth();
@@ -154,7 +154,7 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
         }
     }
 
-    protected empty() {
+    protected empty(): void {
         super.empty();
         this.addColumns();
     }
@@ -168,7 +168,7 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
 
     private addItemsToDom(nbItems: number) {
 
-        let nbVisibleImages = this.visibleCollection.length;
+        const nbVisibleImages = this.visibleCollection.length;
 
         // Next row to add (first invisible row)
         const firstIndex = this.visibleCollection.length ? nbVisibleImages : 0;
@@ -178,7 +178,7 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
         this.organizeItems(this.collection.slice(nbVisibleImages), firstIndex, lastWantedIndex);
 
         for (let i = nbVisibleImages; i < this.collection.length; i++) {
-            let item = this.collection[i];
+            const item = this.collection[i];
             if (i <= lastWantedIndex) {
                 this.addItemToDOM(item);
             } else {
@@ -198,7 +198,7 @@ export class Masonry<Model extends ModelAttributes = any> extends AbstractGaller
         return Math.floor((this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow);
     }
 
-    private getShortestColumn() {
+    private getShortestColumn(): Column {
         return this.columns.reduce((shortestColumn, column) => {
             if (!shortestColumn) {
                 return column;

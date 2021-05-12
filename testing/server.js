@@ -18,7 +18,7 @@ const images = data.results.map(function(i) {
 });
 
 let port = 4444;
-const app = express()
+express()
     .use(middleware(compiler, {serverSideRender: true}))
     .use((req, res) => {
         res.send(`<!DOCTYPE html><html>
