@@ -3,7 +3,6 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const nodeExternals = require('webpack-node-externals');
 
 const dest = process.env.DOCS ? 'docs/assets/natural-gallery-js' : 'dist';
 
@@ -15,6 +14,7 @@ const client = {
         library: "NaturalGallery",
         filename: 'natural-gallery.js',
         libraryTarget: 'umd',
+        globalObject: 'this', // Use 'this', instead of default 'self', because the same code will run on both browsers and Node.js
         umdNamedDefine: true
     },
     resolveLoader: {modules: [path.join(__dirname, 'node_modules')]},
@@ -83,14 +83,4 @@ const client = {
     },
 };
 
-// Copy original config and change stuff dedicated for server
-const serverConfig = {
-    target: 'node',
-    output: {
-        filename: 'natural-gallery-server.js',
-    },
-    externals: [nodeExternals()]
-};
-const server = Object.assign({}, client, serverConfig);
-
-module.exports = [client, server]
+module.exports = client;
