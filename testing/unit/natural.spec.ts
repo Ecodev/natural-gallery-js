@@ -1,9 +1,10 @@
-import { Natural, NaturalGalleryOptions } from '../../src';
+import {Natural, NaturalGalleryOptions} from '../../src';
 import {ModelAttributes} from '../../src/js/galleries/AbstractGallery';
+import * as domino from 'domino';
 
 const getSize = ({width, height, row}) => ({width, height, row});
 
-const imageModel = {
+const imageModel: ModelAttributes = {
     'thumbnailSrc': 'thumbnailSrc',
     'enlargedSrc': 'enlargedSrc',
     'enlargedWidth': 1980,
@@ -27,6 +28,9 @@ describe('Natural Gallery', () => {
             activable: false,
             infiniteScrollOffset: 0,
             photoSwipeOptions: null,
+            ssr: {
+                galleryWidth: 480,
+            },
         };
 
         const gallery = new Natural(document.createElement('div'), {rowHeight: 123, gap: 4});
@@ -87,7 +91,7 @@ describe('Natural Gallery', () => {
             },
         ];
 
-        const container = {getBoundingClientRect: () => ({width:999})} as HTMLElement;
+        const container = {getBoundingClientRect: () => ({width: 999})} as HTMLElement;
         const gallery = new Natural(container, {rowHeight: 400});
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0, 999);
@@ -133,7 +137,7 @@ describe('Natural Gallery', () => {
             },
         ];
 
-        const container = {getBoundingClientRect: () => ({width:999})} as HTMLElement;
+        const container = {getBoundingClientRect: () => ({width: 999})} as HTMLElement;
         const gallery = new Natural(container, {rowHeight: 400, gap: 0});
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0, 999);
@@ -150,7 +154,7 @@ describe('Natural Gallery', () => {
 
     });
 
-    test('should organize items that overflow first line with gap', () => {
+    test('should organize items that overflow first line with gap Angular', () => {
 
         const images: ModelAttributes[] = [
             {
@@ -183,7 +187,7 @@ describe('Natural Gallery', () => {
             },
         ];
 
-        const container = {getBoundingClientRect: () => ({width:999})} as HTMLElement;
+        const container = {getBoundingClientRect: () => ({width: 999})} as HTMLElement;
         const gallery = new Natural(container, {rowHeight: 400, gap: 20});
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0, 999);
@@ -194,6 +198,59 @@ describe('Natural Gallery', () => {
             {width: 385, height: 232, row: 0},
             {width: 266, height: 400, row: 1},
             {width: 267, height: 400, row: 1},
+        ];
+
+        expect(gallery.collection.map(getSize)).toEqual(result);
+
+    });
+
+    test('should be compatible with Angular SSR', () => {
+
+        const images: ModelAttributes[] = [
+            {
+                thumbnailSrc: 'foo.jpg',
+                'enlargedWidth': 6000,
+                'enlargedHeight': 4000,
+            },
+            {
+                thumbnailSrc: 'bar.jpg',
+                'enlargedWidth': 3648,
+                'enlargedHeight': 5472,
+            },
+            {
+                thumbnailSrc: 'foo 2.jpg',
+                'title': '2',
+                'enlargedWidth': 5472,
+                'enlargedHeight': 3648,
+            },
+            {
+                thumbnailSrc: 'foo 3.jpg',
+                'title': '3',
+                'enlargedWidth': 3456,
+                'enlargedHeight': 5184,
+            },
+            {
+                thumbnailSrc: 'foo 4.jpg',
+                'title': '4',
+                'enlargedWidth': 3264,
+                'enlargedHeight': 4894,
+            },
+        ];
+
+        const window = domino.createWindow('<h1>Hello world</h1>', 'http://example.com');
+        const document = window.document;
+        const container = document.createElement('div');
+
+        const gallery = new Natural(container, {rowHeight: 400, gap: 20, selectable: true});
+        gallery.addItems(images);
+        gallery.organizeItems(gallery.collection, 0, 999);
+
+        const result = [
+            {width: 480, height: 320, row: 0},
+            {width: 146, height: 201, row: 1},
+            {width: 314, height: 201, row: 1},
+            {width: 229, height: 339, row: 2},
+            {width: 231, height: 339, row: 2},
         ];
 
         expect(gallery.collection.map(getSize)).toEqual(result);

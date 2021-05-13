@@ -1,6 +1,7 @@
 import {Masonry, MasonryGalleryOptions} from '../../src';
+import {ModelAttributes} from '../../src/js/galleries/AbstractGallery';
 
-const imageModel = {
+const imageModel: ModelAttributes = {
     'thumbnailSrc': 'thumbnailSrc',
     'enlargedSrc': 'enlargedSrc',
     'enlargedWidth': 1980,
@@ -24,6 +25,9 @@ describe('Masonry Gallery', () => {
             activable: false,
             infiniteScrollOffset: 0,
             photoSwipeOptions: null,
+            ssr: {
+                galleryWidth: 480,
+            },
         };
         const gallery = new Masonry(document.createElement('div'), {columnWidth: 123, gap: 4});
         expect(gallery.getOptions()).toEqual(result);

@@ -1,4 +1,5 @@
 import {getIcon, getImageRatio} from '../../src/js/Utility';
+import * as domino from 'domino';
 
 describe('Utility', () => {
     test('should limit image ratio', () => {
@@ -15,6 +16,14 @@ describe('Utility', () => {
     });
 
     test('should get svg', () => {
+        const svg = getIcon(document, 'my-name');
+        expect(svg.outerHTML).toBe('<svg viewBox="0 0 100 100"><use xlink:href="#my-name"></use></svg>');
+    });
+
+    test('should get svg with Angular SSR', () => {
+        const window = domino.createWindow('<h1>Hello world</h1>', 'http://example.com');
+        const document = window.document;
+
         const svg = getIcon(document, 'my-name');
         expect(svg.outerHTML).toBe('<svg viewBox="0 0 100 100"><use xlink:href="#my-name"></use></svg>');
     });

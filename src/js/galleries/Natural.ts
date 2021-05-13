@@ -1,7 +1,7 @@
-import { Item } from '../Item';
-import { getImageRatio, RatioLimits } from '../Utility';
-import { GalleryOptions, ModelAttributes, SizedModel } from './AbstractGallery';
-import { AbstractRowGallery } from './AbstractRowGallery';
+import {Item} from '../Item';
+import {getImageRatio, RatioLimits} from '../Utility';
+import {GalleryOptions, ModelAttributes, SizedModel} from './AbstractGallery';
+import {AbstractRowGallery} from './AbstractRowGallery';
 
 export interface NaturalGalleryOptions extends GalleryOptions {
     rowHeight: number;
@@ -166,7 +166,7 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
         const collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
         this.organizeItems(collectionFromLastVisibleRow, collectionFromLastVisibleRow[0].row, collectionFromLastVisibleRow[0].row);
         const itemsToAdd = collectionFromLastVisibleRow.slice(visibleItemsInLastRow)
-                                                       .filter(i => i.row <= collectionFromLastVisibleRow[0].row);
+            .filter(i => i.row <= collectionFromLastVisibleRow[0].row);
 
         itemsToAdd.forEach(i => this.addItemToDOM(i));
     }

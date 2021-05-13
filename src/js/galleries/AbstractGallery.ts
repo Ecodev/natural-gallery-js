@@ -74,6 +74,12 @@ export interface GalleryOptions extends ItemOptions {
     minRowsAtStart?: number;
     infiniteScrollOffset?: number;
     photoSwipeOptions?: PhotoSwipeOptions;
+    ssr?: {
+        /**
+         * In SSR mode, if the gallery width cannot be computed, it will fallback to this value
+         */
+        galleryWidth: number
+    }
 }
 
 export interface PhotoSwipeOptions {
@@ -135,6 +141,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         activable: false,
         infiniteScrollOffset: 0,
         photoSwipeOptions: null,
+        ssr: {
+            galleryWidth: 480,
+        },
     };
 
     protected photoswipeDefaultOptions: PhotoSwipeOptions = {
@@ -250,7 +259,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
 
         // elementRef.clientWidth rounds ceil, we need round floor to grant computing fits in the available space
         // elementRef.getBoundingClientRect().width doesn't round, so we can round floor.
-        return Math.floor(this.elementRef.getBoundingClientRect().width);
+        return Math.floor(this.elementRef.getBoundingClientRect?.().width ?? this.options.ssr.galleryWidth);
     }
 
     get collectionLength(): number {

@@ -1,6 +1,7 @@
-import { Square, SquareGalleryOptions } from '../../src';
+import {Square, SquareGalleryOptions} from '../../src';
+import {ModelAttributes} from '../../src/js/galleries/AbstractGallery';
 
-const imageModel = {
+const imageModel: ModelAttributes = {
     'thumbnailSrc': 'thumbnailSrc',
     'enlargedSrc': 'enlargedSrc',
     'enlargedWidth': 1980,
@@ -24,6 +25,9 @@ describe('Square Gallery', () => {
             activable: false,
             infiniteScrollOffset: 0,
             photoSwipeOptions: null,
+            ssr: {
+                galleryWidth: 480,
+            },
         };
 
         const gallery = new Square(document.createElement('div'), {itemsPerRow: 123, gap: 4});
