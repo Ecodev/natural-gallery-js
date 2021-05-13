@@ -14,8 +14,7 @@
     "homepage": "https://github.com/Ecodev/natural-gallery-js#readme",
     "main": "./natural-gallery.js",
     "browser": "./natural-gallery.js",
-    "types": "./natural-gallery.d.ts",
-    "typings": "./natural-gallery.d.ts",
+    "typings": "./index.d.ts",
     "scripts": {
         "dev": "concurrently --kill-others \"webpack --watch\" \"DOCS=1 webpack --watch\" \"yarn run dev-docs\"",
         "dev-docs": "cd docs; bundle install; bundle exec jekyll serve --livereload",
