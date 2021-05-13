@@ -4,6 +4,14 @@ import PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 import {Item, ItemOptions} from '../Item';
 import {getIcon} from '../Utility';
 
+type CustomEventName =
+    | 'activate'
+    | 'item-added-to-dom'
+    | 'item-displayed'
+    | 'pagination'
+    | 'select'
+    | 'zoom';
+
 /**
  * Augment the global namespace with our custom events
  * See: https://github.com/Microsoft/TypeScript/issues/28357
@@ -11,6 +19,10 @@ import {getIcon} from '../Utility';
 declare global {
     interface HTMLElementEventMap {
         activate: CustomEvent;
+        'item-added-to-dom': CustomEvent;
+        'item-displayed': CustomEvent;
+        pagination: CustomEvent;
+        select: CustomEvent;
         zoom: CustomEvent;
     }
 }
@@ -356,7 +368,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * @param name
      * @param callback
      */
-    public addEventListener(name: string, callback: EventListener): void {
+    public addEventListener(name: CustomEventName, callback: (evt: CustomEvent) => void): void {
         this.elementRef.addEventListener(name, callback);
 
         if (name === 'pagination' && this.bodyElementRef) {
@@ -604,7 +616,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         };
     }
 
-    protected dispatchEvent(name: string, data: unknown): void {
+    protected dispatchEvent(name: CustomEventName, data: unknown): void {
         const event = new CustomEvent(name, {detail: data});
         this.elementRef.dispatchEvent(event);
     }
