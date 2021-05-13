@@ -788,14 +788,6 @@
   dependencies:
     "@types/node" "*"
 
-"@typescript-eslint/eslint-plugin-tslint@^4.23.0":
-  version "4.23.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin-tslint/-/eslint-plugin-tslint-4.23.0.tgz#02f5763e7b445f30f287c19c0727aab0a8aae3c3"
-  integrity sha512-+gKwo0/mHjZY8DKwBrn72zDRMKfiYmgacoxjkFA2nsAAXPBBnePeMsyZgeaignbdMPjII6uf+COXKcn4gSHHgw==
-  dependencies:
-    "@typescript-eslint/experimental-utils" "4.23.0"
-    lodash "^4.17.15"
-
 "@typescript-eslint/eslint-plugin@^4.23.0":
   version "4.23.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-4.23.0.tgz#29d3c9c81f6200b1fd6d8454cfb007ba176cde80"

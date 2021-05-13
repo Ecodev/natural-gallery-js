@@ -54,7 +54,6 @@
         "@types/photoswipe": "^4.1.1",
         "@types/puppeteer": "^5.4.3",
         "@typescript-eslint/eslint-plugin": "^4.23.0",
-        "@typescript-eslint/eslint-plugin-tslint": "^4.23.0",
         "@typescript-eslint/parser": "^4.23.0",
         "autoprefixer": "^10.2.5",
         "concurrently": "^6.1.0",
