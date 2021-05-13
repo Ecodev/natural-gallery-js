@@ -3,9 +3,9 @@ module.exports = {
     projects: [
         {
             displayName: 'E2E',
-            preset: "jest-puppeteer",
+            preset: 'jest-puppeteer',
             globals: {
-                PATH: "http://localhost:4444"
+                PATH: 'http://localhost:4444'
             },
             testMatch: ['<rootDir>/testing/e2e/**/*.spec.js'],
         },
@@ -15,9 +15,9 @@ module.exports = {
             testMatch: ['<rootDir>/testing/unit/**/*.spec.ts'],
             testEnvironment: 'jsdom',
             moduleNameMapper: {
-                "^.+\\.(css|scss)$": "<rootDir>/testing/mocks/styleMock.js",
-                "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/testing/mocks/fileMocks.js",
-                "^lodash-es$": "lodash"
+                '^.+\\.(css|scss)$': '<rootDir>/testing/mocks/styleMock.js',
+                '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$': '<rootDir>/testing/mocks/fileMocks.js',
+                '^lodash-es$': 'lodash'
             },
         },
     ]

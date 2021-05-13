@@ -12,7 +12,9 @@ module.exports = {
         'eslint:recommended',
     ],
     rules: {
-        'semi': 'error',
+        semi: 'error',
+        'quote-props': ['error', 'as-needed'],
+        quotes: ['error', 'single'],
         // For SSR compatibility
         'no-restricted-globals': [
             'error',

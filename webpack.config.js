@@ -8,10 +8,10 @@ const dest = process.env.DOCS ? 'docs/assets/natural-gallery-js' : 'dist';
 
 const client = {
     mode: 'production',
-    devtool: "source-map",
+    devtool: 'source-map',
     output: {
         path: path.join(__dirname, dest),
-        library: "NaturalGallery",
+        library: 'NaturalGallery',
         filename: 'natural-gallery.js',
         libraryTarget: 'umd',
         globalObject: 'this', // Use 'this', instead of default 'self', because the same code will run on both browsers and Node.js
@@ -19,10 +19,10 @@ const client = {
     },
     resolveLoader: {modules: [path.join(__dirname, 'node_modules')]},
     resolve: {
-        extensions: [".ts", ".js"],
+        extensions: ['.ts', '.js'],
     },
     externals: {
-        'photoswipe': {
+        photoswipe: {
             commonjs: 'photoswipe',
             commonjs2: 'photoswipe',
             amd: 'photoswipe',
@@ -57,11 +57,11 @@ const client = {
         rules: [
             {
                 test: /\.ts?$/,
-                loader: "ts-loader"
+                loader: 'ts-loader'
             }, {
-                enforce: "pre",
+                enforce: 'pre',
                 test: /\.js$/,
-                loader: "source-map-loader"
+                loader: 'source-map-loader'
             },
             {
                 test: /\.scss$/,

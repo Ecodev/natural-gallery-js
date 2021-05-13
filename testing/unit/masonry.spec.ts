@@ -2,12 +2,12 @@ import {Masonry, MasonryGalleryOptions} from '../../src';
 import {ModelAttributes} from '../../src/js/galleries/AbstractGallery';
 
 const imageModel: ModelAttributes = {
-    'thumbnailSrc': 'thumbnailSrc',
-    'enlargedSrc': 'enlargedSrc',
-    'enlargedWidth': 1980,
-    'enlargedHeight': 1080,
-    'title': 'title 1',
-    'color': 'color',
+    thumbnailSrc: 'thumbnailSrc',
+    enlargedSrc: 'enlargedSrc',
+    enlargedWidth: 1980,
+    enlargedHeight: 1080,
+    title: 'title 1',
+    color: 'color',
 };
 
 describe('Masonry Gallery', () => {

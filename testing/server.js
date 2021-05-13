@@ -12,7 +12,7 @@ const images = data.results.map(function(i) {
         enlargedSrc: i.urls.regular,
         enlargedWidth: i.width,
         enlargedHeight: i.height,
-        title: (i.description ? i.description : i.user.name).replace("'", ''),
+        title: (i.description ? i.description : i.user.name).replace('\'', ''),
         color: i.color
     };
 });

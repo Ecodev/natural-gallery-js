@@ -5,12 +5,12 @@ import * as domino from 'domino';
 const getSize = ({width, height, row}) => ({width, height, row});
 
 const imageModel: ModelAttributes = {
-    'thumbnailSrc': 'thumbnailSrc',
-    'enlargedSrc': 'enlargedSrc',
-    'enlargedWidth': 1980,
-    'enlargedHeight': 1080,
-    'title': 'title 1',
-    'color': 'color',
+    thumbnailSrc: 'thumbnailSrc',
+    enlargedSrc: 'enlargedSrc',
+    enlargedWidth: 1980,
+    enlargedHeight: 1080,
+    title: 'title 1',
+    color: 'color',
 };
 
 describe('Natural Gallery', () => {
@@ -52,17 +52,17 @@ describe('Natural Gallery', () => {
 
         const images = [
             {
-                'enlargedWidth': 6000,
-                'enlargedHeight': 4000,
+                enlargedWidth: 6000,
+                enlargedHeight: 4000,
             },
             {
-                'enlargedWidth': 3648,
-                'enlargedHeight': 5472,
+                enlargedWidth: 3648,
+                enlargedHeight: 5472,
             },
             {
-                'title': '2',
-                'enlargedWidth': 5472,
-                'enlargedHeight': 3648,
+                title: '2',
+                enlargedWidth: 5472,
+                enlargedHeight: 3648,
             },
         ];
 
@@ -81,13 +81,13 @@ describe('Natural Gallery', () => {
         const images: ModelAttributes[] = [
             {
                 thumbnailSrc: 'foo.jpg',
-                'enlargedWidth': 6000,
-                'enlargedHeight': 4000,
+                enlargedWidth: 6000,
+                enlargedHeight: 4000,
             },
             {
                 thumbnailSrc: 'bar.jpg',
-                'enlargedWidth': 3648,
-                'enlargedHeight': 5472,
+                enlargedWidth: 3648,
+                enlargedHeight: 5472,
             },
         ];
 
@@ -109,31 +109,31 @@ describe('Natural Gallery', () => {
         const images: ModelAttributes[] = [
             {
                 thumbnailSrc: 'foo.jpg',
-                'enlargedWidth': 6000,
-                'enlargedHeight': 4000,
+                enlargedWidth: 6000,
+                enlargedHeight: 4000,
             },
             {
                 thumbnailSrc: 'bar.jpg',
-                'enlargedWidth': 3648,
-                'enlargedHeight': 5472,
+                enlargedWidth: 3648,
+                enlargedHeight: 5472,
             },
             {
                 thumbnailSrc: 'foo 2.jpg',
-                'title': '2',
-                'enlargedWidth': 5472,
-                'enlargedHeight': 3648,
+                title: '2',
+                enlargedWidth: 5472,
+                enlargedHeight: 3648,
             },
             {
                 thumbnailSrc: 'foo 3.jpg',
-                'title': '3',
-                'enlargedWidth': 3456,
-                'enlargedHeight': 5184,
+                title: '3',
+                enlargedWidth: 3456,
+                enlargedHeight: 5184,
             },
             {
                 thumbnailSrc: 'foo 4.jpg',
-                'title': '4',
-                'enlargedWidth': 3264,
-                'enlargedHeight': 4894,
+                title: '4',
+                enlargedWidth: 3264,
+                enlargedHeight: 4894,
             },
         ];
 
@@ -159,31 +159,31 @@ describe('Natural Gallery', () => {
         const images: ModelAttributes[] = [
             {
                 thumbnailSrc: 'foo.jpg',
-                'enlargedWidth': 6000,
-                'enlargedHeight': 4000,
+                enlargedWidth: 6000,
+                enlargedHeight: 4000,
             },
             {
                 thumbnailSrc: 'bar.jpg',
-                'enlargedWidth': 3648,
-                'enlargedHeight': 5472,
+                enlargedWidth: 3648,
+                enlargedHeight: 5472,
             },
             {
                 thumbnailSrc: 'foo 2.jpg',
-                'title': '2',
-                'enlargedWidth': 5472,
-                'enlargedHeight': 3648,
+                title: '2',
+                enlargedWidth: 5472,
+                enlargedHeight: 3648,
             },
             {
                 thumbnailSrc: 'foo 3.jpg',
-                'title': '3',
-                'enlargedWidth': 3456,
-                'enlargedHeight': 5184,
+                title: '3',
+                enlargedWidth: 3456,
+                enlargedHeight: 5184,
             },
             {
                 thumbnailSrc: 'foo 4.jpg',
-                'title': '4',
-                'enlargedWidth': 3264,
-                'enlargedHeight': 4894,
+                title: '4',
+                enlargedWidth: 3264,
+                enlargedHeight: 4894,
             },
         ];
 
@@ -209,31 +209,31 @@ describe('Natural Gallery', () => {
         const images: ModelAttributes[] = [
             {
                 thumbnailSrc: 'foo.jpg',
-                'enlargedWidth': 6000,
-                'enlargedHeight': 4000,
+                enlargedWidth: 6000,
+                enlargedHeight: 4000,
             },
             {
                 thumbnailSrc: 'bar.jpg',
-                'enlargedWidth': 3648,
-                'enlargedHeight': 5472,
+                enlargedWidth: 3648,
+                enlargedHeight: 5472,
             },
             {
                 thumbnailSrc: 'foo 2.jpg',
-                'title': '2',
-                'enlargedWidth': 5472,
-                'enlargedHeight': 3648,
+                title: '2',
+                enlargedWidth: 5472,
+                enlargedHeight: 3648,
             },
             {
                 thumbnailSrc: 'foo 3.jpg',
-                'title': '3',
-                'enlargedWidth': 3456,
-                'enlargedHeight': 5184,
+                title: '3',
+                enlargedWidth: 3456,
+                enlargedHeight: 5184,
             },
             {
                 thumbnailSrc: 'foo 4.jpg',
-                'title': '4',
-                'enlargedWidth': 3264,
-                'enlargedHeight': 4894,
+                title: '4',
+                enlargedWidth: 3264,
+                enlargedHeight: 4894,
             },
         ];
 
