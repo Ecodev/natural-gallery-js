@@ -13,7 +13,7 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
     /**
      * Options after having been defaulted
      */
-    protected options: NaturalGalleryOptions;
+    protected options!: NaturalGalleryOptions & Required<GalleryOptions>;
 
     constructor(protected elementRef: HTMLElement,
                 options: NaturalGalleryOptions,
@@ -30,8 +30,8 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
     public static organizeItems(gallery: Natural,
                                 items: Item[],
                                 fromRow = 0,
-                                toRow: number = null,
-                                currentRow: number = null): void {
+                                toRow: number | null = null,
+                                currentRow: number | null = null): void {
 
         if (!currentRow) {
             currentRow = fromRow ? fromRow : 0;
@@ -70,18 +70,18 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
      * Items are updated
      */
     public static computeSizes(chunk: Item[],
-                               containerWidth: number,
+                               containerWidth: number | null,
                                margin: number,
                                row: number,
-                               maxRowHeight: number = null,
-                               ratioLimits: RatioLimits): void {
+                               maxRowHeight: number | null = null,
+                               ratioLimits?: RatioLimits): void {
 
         const chunkModels = chunk.map(c => c.model);
-        const rowHeight = containerWidth ? this.getRowHeight(chunkModels, containerWidth, margin, ratioLimits) : maxRowHeight;
+        const rowHeight = containerWidth ? this.getRowHeight(chunkModels, containerWidth, margin, ratioLimits) : (maxRowHeight ?? 0);
         const rowWidth = this.getRowWidth(chunkModels, rowHeight, margin, ratioLimits);
 
         // Overflowed pixels
-        const apportion = (rowWidth - containerWidth) / chunk.length;
+        const apportion = (rowWidth - (containerWidth ?? 0)) / chunk.length;
         const excess = containerWidth ? apportion : 0;
         let decimals = 0;
 
@@ -104,18 +104,18 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
         }
     }
 
-    public static getRowWidth(models: SizedModel[], maxRowHeight: number, margin: number, ratioLimits: RatioLimits): number {
+    public static getRowWidth(models: SizedModel[], maxRowHeight: number, margin: number, ratioLimits?: RatioLimits): number {
         return margin * (models.length - 1) + this.getRatios(models, ratioLimits) * maxRowHeight;
     }
 
-    public static getRowHeight(models: SizedModel[], containerWidth: number, margin: number, ratioLimits: RatioLimits): number {
+    public static getRowHeight(models: SizedModel[], containerWidth: number, margin: number, ratioLimits?: RatioLimits): number {
         return containerWidth / this.getRatios(models, ratioLimits) - margin * (models.length - 1);
     }
 
     /**
      * Return the ratio format of models as if they where a single image
      */
-    public static getRatios(models: SizedModel[], ratioLimits: RatioLimits): number {
+    public static getRatios(models: SizedModel[], ratioLimits?: RatioLimits): number {
         return models.reduce((total, model) => total + getImageRatio(model, ratioLimits), 0);
     }
 

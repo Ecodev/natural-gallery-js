@@ -7,19 +7,15 @@ export declare interface ColumnOptions {
 
 export class Column {
 
-    private collection: Item[] = [];
+    private readonly collection: Item[] = [];
 
-    private _elementRef: HTMLElement;
+    private readonly _elementRef: HTMLElement;
 
-    public constructor(private readonly document: Document, private options: ColumnOptions) {
-    }
-
-    public init(): HTMLElement {
-        this._elementRef = this.document.createElement('div');
+    public constructor(document: Document, private options: ColumnOptions) {
+        this._elementRef = document.createElement('div');
         this._elementRef.classList.add('column');
         this._elementRef.style.marginRight = this.options.gap + 'px';
         this._elementRef.style.width = this.options.width + 'px';
-        return this._elementRef;
     }
 
     public addItem(item: Item): void {

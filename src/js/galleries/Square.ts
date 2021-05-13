@@ -1,6 +1,6 @@
-import { Item } from '../Item';
-import { GalleryOptions, ModelAttributes } from './AbstractGallery';
-import { AbstractRowGallery } from './AbstractRowGallery';
+import {Item} from '../Item';
+import {GalleryOptions, ModelAttributes} from './AbstractGallery';
+import {AbstractRowGallery} from './AbstractRowGallery';
 
 export interface SquareGalleryOptions extends GalleryOptions {
     itemsPerRow: number;
@@ -11,7 +11,7 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
     /**
      * Options after having been defaulted
      */
-    protected options: SquareGalleryOptions;
+    protected options!: SquareGalleryOptions & Required<GalleryOptions>;
 
     constructor(protected elementRef: HTMLElement,
                 options: SquareGalleryOptions,
@@ -28,7 +28,7 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
     /**
      * Compute sides with 1:1 ratio
      */
-    public static organizeItems(gallery: Square, items: Item[], firstRowIndex = 0, toRow: number = null): void {
+    public static organizeItems(gallery: Square, items: Item[], firstRowIndex = 0, toRow: number | null = null): void {
 
         const sideSize = gallery.getItemSideSize();
         let lastIndex = toRow ? gallery.options.itemsPerRow * (toRow - firstRowIndex + 1) : items.length;

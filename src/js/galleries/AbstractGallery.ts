@@ -1,8 +1,19 @@
 import {debounce, defaults, pick} from 'lodash-es';
-import PhotoSwipe from 'photoswipe';
+import PhotoSwipe, {Options} from 'photoswipe';
 import PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 import {Item, ItemOptions} from '../Item';
 import {getIcon} from '../Utility';
+
+/**
+ * Augment the global namespace with our custom events
+ * See: https://github.com/Microsoft/TypeScript/issues/28357
+ */
+declare global {
+    interface HTMLElementEventMap {
+        activate: CustomEvent;
+        zoom: CustomEvent;
+    }
+}
 
 export interface SizedModel {
 
@@ -73,7 +84,7 @@ export interface GalleryOptions extends ItemOptions {
     rowsPerPage?: number;
     minRowsAtStart?: number;
     infiniteScrollOffset?: number;
-    photoSwipeOptions?: PhotoSwipeOptions;
+    photoSwipeOptions?: PhotoSwipeOptions | null;
     ssr?: {
         /**
          * In SSR mode, if the gallery width cannot be computed, it will fallback to this value
@@ -82,37 +93,7 @@ export interface GalleryOptions extends ItemOptions {
     }
 }
 
-export interface PhotoSwipeOptions {
-    getThumbBoundsFn?: (index?: number) => void;
-    showHideOpacity?: boolean;
-    showAnimationDuration?: number;
-    hideAnimationDuration?: number;
-    bgOpacity?: number;
-    spacing?: number;
-    allowPanToNext?: boolean;
-    maxSpreadZoom?: number;
-    getDoubleTapZoom?: (isMouseClick?: boolean, item?: PhotoswipeItem) => number;
-    pinchToClose?: boolean;
-    closeOnScroll?: boolean;
-    closeOnVerticalDrag?: boolean;
-    mouseUsed?: boolean;
-    escKey?: boolean;
-    arrowKeys?: boolean;
-    history?: boolean;
-    galleryUID?: number;
-    galleryPIDs?: boolean;
-    errorMsg?: string;
-    preload?: [number, number];
-    mainClass?: string;
-    getNumItemsFn?: () => number;
-    focus?: boolean;
-    modal?: boolean;
-    verticalDragRange?: number;
-    mainScrollEndFriction?: number;
-    panEndFriction?: number;
-    isClickableElement?: (el) => boolean;
-    scaleMode?: string;
-}
+type PhotoSwipeOptions = Options;
 
 export interface InnerPhotoSwipeOptions extends PhotoSwipeOptions {
     index: number;
@@ -120,7 +101,7 @@ export interface InnerPhotoSwipeOptions extends PhotoSwipeOptions {
 }
 
 export interface PhotoswipeItem {
-    src: string;
+    src?: string;
     w: number;
     h: number;
     title?: string;
@@ -131,7 +112,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     /**
      * Default options
      */
-    protected options: GalleryOptions = {
+    protected options: Required<GalleryOptions> = {
         gap: 3,
         rowsPerPage: 0,
         showLabels: 'hover',
@@ -155,12 +136,12 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * Images wrapper container
      * If setted, serves as mark for "initialized status" of the gallery
      */
-    protected bodyElementRef: HTMLElement;
+    protected bodyElementRef: HTMLElement | null = null;
 
     /**
      * Items for which container has been added to dom, but image has not been queries yet
      */
-    protected scrollBufferedItems = [];
+    protected scrollBufferedItems: Item<Model>[] = [];
 
     /**
      * Debounce function
@@ -190,7 +171,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     /**
      * Reference to next button element
      */
-    private nextButton: HTMLElement;
+    private nextButton: HTMLElement | null = null;
     protected readonly document: Document;
 
     /**
@@ -302,7 +283,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
             trailing: false,
         });
         const endResize = debounce(() => this.endResize(), resizeDebounceDuration, {leading: false, trailing: true});
-        iframe.contentWindow.addEventListener('resize', () => {
+        iframe.contentWindow?.addEventListener('resize', () => {
             endResize();
             startResize();
         });
@@ -375,7 +356,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * @param name
      * @param callback
      */
-    public addEventListener(name: string, callback: (ev) => void): void {
+    public addEventListener(name: string, callback: EventListener): void {
         this.elementRef.addEventListener(name, callback);
 
         if (name === 'pagination' && this.bodyElementRef) {
@@ -503,7 +484,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * @param {Item} item
      * @param destination
      */
-    protected addItemToDOM(item: Item<Model>, destination: HTMLElement = this.bodyElementRef): void {
+    protected addItemToDOM(item: Item<Model>, destination: HTMLElement | null = this.bodyElementRef): void {
+        if (!destination) {
+            throw new Error('Gallery not initialized');
+        }
+
         this.visibleCollection.push(item);
 
         destination.appendChild(item.init());
@@ -530,6 +515,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     }
 
     protected updateNextButtonVisibility(): void {
+        if (!this.nextButton) {
+            return;
+        }
+
         if (this.visibleCollection.length === this.collection.length) {
             this.nextButton.style.display = 'none';
         } else {
@@ -555,20 +544,27 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * Space between the top of the gallery wrapper (parent of gallery root elementRef) and the bottom of the window
      */
     protected getGalleryVisibleHeight(): number {
-        return this.document.defaultView.innerHeight - this.elementRef.offsetTop;
+        if (this.document.defaultView) {
+            return this.document.defaultView.innerHeight - this.elementRef.offsetTop;
+        }
+
+        return 0;
     }
 
     protected startResize(): void {
-        this.bodyElementRef.classList.add('resizing');
+        this.bodyElementRef?.classList.add('resizing');
     }
 
     protected endResize(): void {
-        this.bodyElementRef.classList.remove('resizing');
+        this.bodyElementRef?.classList.remove('resizing');
     }
 
     protected openPhotoSwipe(item: Item): void {
+        if (!this.options.lightbox) {
+            return;
+        }
 
-        if (this.options.lightbox && !this.photoswipeElementRef) {
+        if (!this.photoswipeElementRef) {
             console.error('Lightbox option is set to true, but no PhotoSwipe reference is given');
             return;
         }
@@ -583,7 +579,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         photoswipe.init();
 
         // Loading one more page when going to next image
-        photoswipe.listen('beforeChange', (delta) => {
+        photoswipe.listen('beforeChange', (delta: number | null) => {
             // Positive delta means next slide.
             // If we go next slide, and current index is out of visible collection bound, load more items
             if (delta === 1 && photoswipe.getCurrentIndex() === this.visibleCollection.length) {
@@ -617,7 +613,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * Effectively empty gallery, and should prepare container to receive new items
      */
     protected empty(): void {
-        this.bodyElementRef.innerHTML = '';
+        if (this.bodyElementRef) {
+            this.bodyElementRef.innerHTML = '';
+        }
+
         this._visibleCollection = [];
         this.photoswipeCollection = [];
         this._collection = [];
@@ -630,12 +629,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     private bindScroll(element: HTMLElement | Document) {
 
         const scrollable = element;
-        let wrapper = null;
-        if (element instanceof Document) {
-            wrapper = element.documentElement;
-        } else {
-            wrapper = element;
-        }
+        const wrapper: HTMLElement = element instanceof Document ? element.documentElement : element;
 
         const startScroll = debounce(() => this.elementRef.classList.add('scrolling'), 300, {
             leading: true,

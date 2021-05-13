@@ -1,7 +1,7 @@
-import { Column } from '../Column';
-import { Item } from '../Item';
-import { getImageRatio, RatioLimits } from '../Utility';
-import { AbstractGallery, GalleryOptions, ModelAttributes } from './AbstractGallery';
+import {Column} from '../Column';
+import {Item} from '../Item';
+import {getImageRatio, RatioLimits} from '../Utility';
+import {AbstractGallery, GalleryOptions, ModelAttributes} from './AbstractGallery';
 
 export interface MasonryGalleryOptions extends GalleryOptions {
     columnWidth: number;
@@ -13,12 +13,12 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     /**
      * Options after having been defaulted
      */
-    protected options: MasonryGalleryOptions;
+    protected options!: Required<MasonryGalleryOptions>;
 
     /**
      * Regroup the list of columns
      */
-    protected columns: Column[];
+    protected columns: Column[] = [];
 
     constructor(protected elementRef: HTMLElement,
                 options: MasonryGalleryOptions,
@@ -36,7 +36,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     /**
      * Compute sides with 1:1 ratio
      */
-    public static organizeItems(gallery: Masonry, items: Item[], fromIndex = 0, toIndex: number = null): void {
+    public static organizeItems(gallery: Masonry, items: Item[], fromIndex = 0, toIndex: number | null = null): void {
 
         const itemsPerRow = gallery.getEstimatedColumnsPerRow();
 
@@ -144,13 +144,17 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     }
 
     protected addColumns(): void {
+        if (!this.bodyElementRef) {
+            throw new Error('Gallery not initialized');
+        }
+
         this.bodyElementRef.innerHTML = '';
         this.columns = [];
         const columnWidth = this.getColumnWidth();
         for (let i = 0; i < this.getEstimatedColumnsPerRow(); i++) {
             const columnRef = new Column(this.document, {width: columnWidth, gap: this.options.gap});
             this.columns.push(columnRef);
-            this.bodyElementRef.appendChild(columnRef.init());
+            this.bodyElementRef.appendChild(columnRef.elementRef);
         }
     }
 

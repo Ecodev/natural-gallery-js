@@ -1,8 +1,11 @@
 import {Natural, NaturalGalleryOptions} from '../../src';
 import {ModelAttributes} from '../../src/js/galleries/AbstractGallery';
 import * as domino from 'domino';
+import {Item} from '../../src/js/Item';
 
-const getSize = ({width, height, row}) => ({width, height, row});
+export function getSize({width, height, row}: Item): Pick<Item, 'width' | 'height' | 'row'> {
+    return {width, height, row};
+}
 
 const imageModel: ModelAttributes = {
     thumbnailSrc: 'thumbnailSrc',

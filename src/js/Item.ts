@@ -1,5 +1,5 @@
-import { ModelAttributes } from './galleries/AbstractGallery';
-import { getIcon } from './Utility';
+import {ModelAttributes} from './galleries/AbstractGallery';
+import {getIcon} from './Utility';
 
 export declare interface ItemOptions {
     lightbox?: boolean;
@@ -25,18 +25,18 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
     /**
      * Actual row index in the list
      */
-    private _row: number;
+    private _row!: number;
 
     /**
      * If is actually the last element of a row
      */
-    private _last: boolean;
+    private _last!: boolean;
 
     /**
      * Computed size (real used size)
      */
-    private _width: number;
-    private _height: number;
+    private _width!: number;
+    private _height!: number;
 
     /**
      * Wherever item is selected or not
@@ -48,17 +48,17 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
     /**
      * Item root element reference (figure)
      */
-    private _element: HTMLElement;
+    private _element!: HTMLElement;
 
     /**
      * Image container reference (child div, containing the image)
      */
-    private _image: HTMLElement;
+    private _image!: HTMLElement;
 
     /**
      * Reference to the select button
      */
-    private _selectBtn: HTMLElement;
+    private _selectBtn!: HTMLElement;
 
     /**
      *
@@ -78,7 +78,7 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
      * @param {string} term
      * @returns {ItemTitle}
      */
-    private getTitleDetails(term: string): string {
+    private getTitleDetails(term: string|undefined): string {
         return term ? term.replace(/<(?!\s*br\s*\/?)[^>]+>/gi, '') : '';
     }
 
@@ -87,30 +87,31 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
      * Also apply border-radius at this level because it never changed threw time
      */
     public init(): HTMLElement {
-        let label = null;
+        let showLabel = false;
+        let label: HTMLElement | null = null;
 
         // Test if label should be added to dom
         const showLabelValues = ['always', 'hover'];
-        if (this.title && showLabelValues.indexOf(this.options.showLabels) > -1) {
-            label = true;
+        if (this.title && this.options.showLabels && showLabelValues.includes(this.options.showLabels)) {
+            showLabel = true;
         }
 
         const element = this.document.createElement('div') as HTMLElement;
-        let image = this.document.createElement('div') as HTMLElement;
+        let image: HTMLElement = this.document.createElement('div');
         const link = this.getLinkElement();
-        let zoomable: HTMLElement = null;
+        let zoomable: HTMLElement | null = null;
 
         // Activation is listened on label/button or on whole image if lightbox is off.
         // If label is not a button, it becomes a button
-        let activable: HTMLElement = null;
+        let activable: HTMLElement | null = null;
 
-        if (this.options.lightbox && label && link) {
+        if (this.options.lightbox && showLabel && link) {
             label = link;
             label.classList.add('button');
             zoomable = image;
             activable = link;
 
-        } else if (this.options.lightbox && label && !link) {
+        } else if (this.options.lightbox && showLabel && !link) {
             label = this.document.createElement('div');
 
             if (this.options.activable) {
@@ -121,7 +122,7 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
                 zoomable = element;
             }
 
-        } else if (this.options.lightbox && !label) {
+        } else if (this.options.lightbox && !showLabel) {
             // Actually, lightbox has priority on the link that is ignored...
             zoomable = element;
 
@@ -130,20 +131,21 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
             // In the doubt, for now it's not allowed
             // activable = element;
 
-        } else if (!this.options.lightbox && label && link) {
-            image = this.getLinkElement();
+        } else if (!this.options.lightbox && showLabel && link) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            image = this.getLinkElement()!;
             label = link;
             label.classList.add('button');
             activable = element;
 
-        } else if (!this.options.lightbox && label && !link) {
+        } else if (!this.options.lightbox && showLabel && !link) {
             label = this.document.createElement('div');
             if (this.options.activable) {
                 activable = element;
                 label.classList.add('button');
             }
 
-        } else if (!this.options.lightbox && !label && link) {
+        } else if (!this.options.lightbox && !showLabel && link) {
             image = link;
             activable = link;
         }
@@ -273,7 +275,7 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
         this._element.classList.remove('selected');
     }
 
-    private getLinkElement(): HTMLElement {
+    private getLinkElement(): HTMLElement | null {
 
         if (this.model.link) {
             const link = this.document.createElement('a');
