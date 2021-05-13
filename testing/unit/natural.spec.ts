@@ -1,4 +1,5 @@
 import { Natural, NaturalGalleryOptions } from '../../src';
+import {ModelAttributes} from '../../src/js/galleries/AbstractGallery';
 
 const getSize = ({width, height, row}) => ({width, height, row});
 
@@ -73,12 +74,14 @@ describe('Natural Gallery', () => {
 
     test('should organize items that dont fill the line', () => {
 
-        const images = [
+        const images: ModelAttributes[] = [
             {
+                thumbnailSrc: 'foo.jpg',
                 'enlargedWidth': 6000,
                 'enlargedHeight': 4000,
             },
             {
+                thumbnailSrc: 'bar.jpg',
                 'enlargedWidth': 3648,
                 'enlargedHeight': 5472,
             },
@@ -99,26 +102,31 @@ describe('Natural Gallery', () => {
 
     test('should organize items that overflow first line with no gap', () => {
 
-        const images = [
+        const images: ModelAttributes[] = [
             {
+                thumbnailSrc: 'foo.jpg',
                 'enlargedWidth': 6000,
                 'enlargedHeight': 4000,
             },
             {
+                thumbnailSrc: 'bar.jpg',
                 'enlargedWidth': 3648,
                 'enlargedHeight': 5472,
             },
             {
+                thumbnailSrc: 'foo 2.jpg',
                 'title': '2',
                 'enlargedWidth': 5472,
                 'enlargedHeight': 3648,
             },
             {
+                thumbnailSrc: 'foo 3.jpg',
                 'title': '3',
                 'enlargedWidth': 3456,
                 'enlargedHeight': 5184,
             },
             {
+                thumbnailSrc: 'foo 4.jpg',
                 'title': '4',
                 'enlargedWidth': 3264,
                 'enlargedHeight': 4894,
@@ -144,26 +152,31 @@ describe('Natural Gallery', () => {
 
     test('should organize items that overflow first line with gap', () => {
 
-        const images = [
+        const images: ModelAttributes[] = [
             {
+                thumbnailSrc: 'foo.jpg',
                 'enlargedWidth': 6000,
                 'enlargedHeight': 4000,
             },
             {
+                thumbnailSrc: 'bar.jpg',
                 'enlargedWidth': 3648,
                 'enlargedHeight': 5472,
             },
             {
+                thumbnailSrc: 'foo 2.jpg',
                 'title': '2',
                 'enlargedWidth': 5472,
                 'enlargedHeight': 3648,
             },
             {
+                thumbnailSrc: 'foo 3.jpg',
                 'title': '3',
                 'enlargedWidth': 3456,
                 'enlargedHeight': 5184,
             },
             {
+                thumbnailSrc: 'foo 4.jpg',
                 'title': '4',
                 'enlargedWidth': 3264,
                 'enlargedHeight': 4894,
