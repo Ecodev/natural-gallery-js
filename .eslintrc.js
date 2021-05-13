@@ -13,6 +13,7 @@ module.exports = {
     ],
     rules: {
         'semi': 'error',
+        // For SSR compatibility
         'no-restricted-globals': [
             'error',
             'document',

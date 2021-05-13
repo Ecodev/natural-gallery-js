@@ -74,7 +74,7 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
     }
 
     /**
-     * Cleans html, and returns only the texte from all eventual tags
+     * Cleans html, and returns only the text from all eventual tags
      * @param {string} term
      * @returns {ItemTitle}
      */
