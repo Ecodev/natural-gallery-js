@@ -13,10 +13,10 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
      */
     protected options!: SquareGalleryOptions & Required<GalleryOptions>;
 
-    constructor(protected elementRef: HTMLElement,
+    constructor(elementRef: HTMLElement,
                 options: SquareGalleryOptions,
-                protected photoswipeElementRef?: HTMLElement,
-                protected scrollElementRef?: HTMLElement) {
+                photoswipeElementRef?: HTMLElement | null,
+                scrollElementRef?: HTMLElement | null) {
 
         super(elementRef, options, photoswipeElementRef, scrollElementRef);
 
@@ -28,7 +28,7 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
     /**
      * Compute sides with 1:1 ratio
      */
-    public static organizeItems(gallery: Square, items: Item[], firstRowIndex = 0, toRow: number | null = null): void {
+    public static organizeItems<T extends ModelAttributes>(gallery: Square<T>, items: Item<T>[], firstRowIndex = 0, toRow: number | null = null): void {
 
         const sideSize = gallery.getItemSideSize();
         let lastIndex = toRow ? gallery.options.itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
@@ -60,7 +60,7 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
         return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
     }
 
-    public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
+    public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
         Square.organizeItems(this, items, fromRow, toRow);
     }
 

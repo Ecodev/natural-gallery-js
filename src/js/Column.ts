@@ -1,13 +1,14 @@
 import {Item} from './Item';
+import {ModelAttributes} from './galleries/AbstractGallery';
 
 export declare interface ColumnOptions {
     width: number;
     gap: number;
 }
 
-export class Column {
+export class Column<Model extends ModelAttributes> {
 
-    private readonly collection: Item[] = [];
+    private readonly collection: Item<Model>[] = [];
 
     private readonly _elementRef: HTMLElement;
 
@@ -18,7 +19,7 @@ export class Column {
         this._elementRef.style.width = this.options.width + 'px';
     }
 
-    public addItem(item: Item): void {
+    public addItem(item: Item<Model>): void {
         this.collection.push(item);
     }
 

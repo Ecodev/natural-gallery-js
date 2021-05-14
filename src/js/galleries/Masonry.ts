@@ -18,12 +18,12 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     /**
      * Regroup the list of columns
      */
-    protected columns: Column[] = [];
+    protected columns: Column<Model>[] = [];
 
-    constructor(protected elementRef: HTMLElement,
+    constructor(elementRef: HTMLElement,
                 options: MasonryGalleryOptions,
-                protected photoswipeElementRef?: HTMLElement,
-                protected scrollElementRef?: HTMLElement) {
+                photoswipeElementRef?: HTMLElement | null,
+                scrollElementRef?: HTMLElement | null) {
 
         super(elementRef, options, photoswipeElementRef, scrollElementRef);
 
@@ -36,7 +36,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     /**
      * Compute sides with 1:1 ratio
      */
-    public static organizeItems(gallery: Masonry, items: Item[], fromIndex = 0, toIndex: number | null = null): void {
+    public static organizeItems<T extends ModelAttributes>(gallery: Masonry<T>, items: Item<T>[], fromIndex = 0, toIndex: number | null = null): void {
 
         const itemsPerRow = gallery.getEstimatedColumnsPerRow();
 
@@ -79,7 +79,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
     }
 
-    public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
+    public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
         Masonry.organizeItems(this, items, fromRow, toRow);
     }
 
@@ -152,7 +152,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         this.columns = [];
         const columnWidth = this.getColumnWidth();
         for (let i = 0; i < this.getEstimatedColumnsPerRow(); i++) {
-            const columnRef = new Column(this.document, {width: columnWidth, gap: this.options.gap});
+            const columnRef = new Column<Model>(this.document, {width: columnWidth, gap: this.options.gap});
             this.columns.push(columnRef);
             this.bodyElementRef.appendChild(columnRef.elementRef);
         }
@@ -202,7 +202,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         return Math.floor((this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow);
     }
 
-    private getShortestColumn(): Column {
+    private getShortestColumn(): Column<Model> {
         return this.columns.reduce((shortestColumn, column) => {
             if (!shortestColumn) {
                 return column;

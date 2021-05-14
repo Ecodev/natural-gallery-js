@@ -15,10 +15,10 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
      */
     protected options!: NaturalGalleryOptions & Required<GalleryOptions>;
 
-    constructor(protected elementRef: HTMLElement,
+    constructor(elementRef: HTMLElement,
                 options: NaturalGalleryOptions,
-                protected photoswipeElementRef?: HTMLElement,
-                protected scrollElementRef?: HTMLElement) {
+                photoswipeElementRef?: HTMLElement | null,
+                scrollElementRef?: HTMLElement | null) {
 
         super(elementRef, options, photoswipeElementRef, scrollElementRef);
 
@@ -27,11 +27,13 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
         }
     }
 
-    public static organizeItems(gallery: Natural,
-                                items: Item[],
-                                fromRow = 0,
-                                toRow: number | null = null,
-                                currentRow: number | null = null): void {
+    public static organizeItems<T extends ModelAttributes>(
+        gallery: Natural<T>,
+        items: Item<T>[],
+        fromRow = 0,
+        toRow: number | null = null,
+        currentRow: number | null = null,
+    ): void {
 
         if (!currentRow) {
             currentRow = fromRow ? fromRow : 0;
@@ -69,12 +71,12 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
      * Compute sizes for given images to fit in given row width
      * Items are updated
      */
-    public static computeSizes(chunk: Item[],
-                               containerWidth: number | null,
-                               margin: number,
-                               row: number,
-                               maxRowHeight: number | null = null,
-                               ratioLimits?: RatioLimits): void {
+    public static computeSizes<T extends ModelAttributes>(chunk: Item<T>[],
+                                                          containerWidth: number | null,
+                                                          margin: number,
+                                                          row: number,
+                                                          maxRowHeight: number | null = null,
+                                                          ratioLimits?: RatioLimits): void {
 
         const chunkModels = chunk.map(c => c.model);
         const rowHeight = containerWidth ? this.getRowHeight(chunkModels, containerWidth, margin, ratioLimits) : (maxRowHeight ?? 0);
@@ -124,7 +126,7 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
         super.addRows(rows);
     }
 
-    public organizeItems(items: Item[], fromRow?: number, toRow?: number): void {
+    public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
         Natural.organizeItems(this, items, fromRow, toRow);
     }
 

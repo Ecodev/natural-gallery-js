@@ -1,16 +1,20 @@
 import {debounce, defaults, pick} from 'lodash-es';
 import PhotoSwipe, {Options} from 'photoswipe';
 import PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
-import {Item, ItemOptions} from '../Item';
+import {Item, ItemActivateEventDetail, ItemOptions} from '../Item';
 import {getIcon} from '../Utility';
 
-type CustomEventName =
-    | 'activate'
-    | 'item-added-to-dom'
-    | 'item-displayed'
-    | 'pagination'
-    | 'select'
-    | 'zoom';
+/**
+ * A map of all possible event and the structure of their details
+ */
+export interface CustomEventDetailMap<T> {
+    'activate': { model: T, clickEvent: MouseEvent },
+    'item-added-to-dom': T,
+    'item-displayed': T,
+    'pagination': { offset: number, limit: number },
+    'select': T[],
+    'zoom': { item: T, photoswipe: PhotoSwipe<Options> },
+}
 
 /**
  * Augment the global namespace with our custom events
@@ -119,7 +123,7 @@ export interface PhotoswipeItem {
     title?: string;
 }
 
-export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttributes> {
+export abstract class AbstractGallery<Model extends ModelAttributes> {
 
     /**
      * Default options
@@ -195,8 +199,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      */
     constructor(protected elementRef: HTMLElement,
                 options: GalleryOptions,
-                protected photoswipeElementRef?: HTMLElement,
-                protected scrollElementRef?: HTMLElement) {
+                protected photoswipeElementRef?: HTMLElement | null,
+                protected scrollElementRef?: HTMLElement | null) {
         this.document = this.elementRef.ownerDocument;
         this.options = defaults(options, this.options);
 
@@ -368,7 +372,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * @param name
      * @param callback
      */
-    public addEventListener(name: CustomEventName, callback: (evt: CustomEvent) => void): void {
+    public addEventListener<K extends keyof CustomEventDetailMap<Model>>(name: K, callback: (evt: CustomEvent<CustomEventDetailMap<Model>[K]>) => void): void;
+    public addEventListener(name: keyof CustomEventDetailMap<Model>, callback: (evt: CustomEvent<CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>]>) => void): void {
         this.elementRef.addEventListener(name, callback);
 
         if (name === 'pagination' && this.bodyElementRef) {
@@ -404,7 +409,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     /**
      *
      */
-    public abstract organizeItems(items: Item[], fromRow?: number, toRow?: number): void;
+    public abstract organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void;
 
     /**
      * If gallery already has items on initialisation, set first page visible, load second page and query for more
@@ -515,12 +520,12 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         });
 
         // When activate (if activate event is given in options)
-        item.element.addEventListener('activate', (ev: CustomEvent) => {
+        item.element.addEventListener('activate', (ev: CustomEvent<ItemActivateEventDetail<Model>>) => {
             this.dispatchEvent('activate', {model: ev.detail.item.model, clickEvent: ev.detail.clickEvent});
         });
 
         // When open zoom (photoswipe)
-        item.element.addEventListener('zoom', (ev: CustomEvent) => {
+        item.element.addEventListener('zoom', (ev: CustomEvent<Item<Model>>) => {
             this.openPhotoSwipe(ev.detail);
         });
 
@@ -571,7 +576,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         this.bodyElementRef?.classList.remove('resizing');
     }
 
-    protected openPhotoSwipe(item: Item): void {
+    protected openPhotoSwipe(item: Item<Model>): void {
         if (!this.options.lightbox) {
             return;
         }
@@ -607,7 +612,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * @param item
      * @returns {PhotoswipeItem}
      */
-    protected getPhotoswipeItem(item: Item): PhotoswipeItem {
+    protected getPhotoswipeItem(item: Item<Model>): PhotoswipeItem {
         return {
             src: item.model.enlargedSrc,
             w: item.model.enlargedWidth,
@@ -616,7 +621,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         };
     }
 
-    protected dispatchEvent(name: CustomEventName, data: unknown): void {
+    protected dispatchEvent<K extends keyof CustomEventDetailMap<Model>>(name: K, data: CustomEventDetailMap<Model>[K]): void;
+    protected dispatchEvent(name: keyof CustomEventDetailMap<Model>, data: CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>]): void {
         const event = new CustomEvent(name, {detail: data});
         this.elementRef.dispatchEvent(event);
     }

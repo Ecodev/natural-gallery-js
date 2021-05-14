@@ -3,7 +3,7 @@ import {ModelAttributes} from '../../src/js/galleries/AbstractGallery';
 import * as domino from 'domino';
 import {Item} from '../../src/js/Item';
 
-export function getSize({width, height, row}: Item): Pick<Item, 'width' | 'height' | 'row'> {
+export function getSize<T extends ModelAttributes>({width, height, row}: Item<T>): Pick<Item<T>, 'width' | 'height' | 'row'> {
     return {width, height, row};
 }
 

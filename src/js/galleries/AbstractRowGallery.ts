@@ -1,6 +1,6 @@
 import {AbstractGallery, ModelAttributes} from './AbstractGallery';
 
-export abstract class AbstractRowGallery<Model extends ModelAttributes = ModelAttributes> extends AbstractGallery<Model> {
+export abstract class AbstractRowGallery<Model extends ModelAttributes> extends AbstractGallery<Model> {
 
     protected onScroll(): void {
         this.addRows(1);

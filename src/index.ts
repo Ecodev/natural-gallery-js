@@ -1,6 +1,9 @@
 import './styles/natural-gallery.scss';
 
-export {ModelAttributes} from './js/galleries/AbstractGallery';
+export {
+    ModelAttributes,
+    CustomEventDetailMap,
+} from './js/galleries/AbstractGallery';
 
 export {
     Natural,

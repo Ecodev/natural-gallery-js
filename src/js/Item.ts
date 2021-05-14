@@ -15,7 +15,12 @@ export interface ItemTitle {
     linkTarget: '_blank' | '_self' | '_parent' | '_top';
 }
 
-export class Item<Model extends ModelAttributes = ModelAttributes> {
+export type ItemActivateEventDetail<Model extends ModelAttributes> = {
+    clickEvent: MouseEvent;
+    item: Item<Model>
+};
+
+export class Item<Model extends ModelAttributes> {
 
     /**
      * Cleaned title, used for label / button
@@ -78,7 +83,7 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
      * @param {string} term
      * @returns {ItemTitle}
      */
-    private getTitleDetails(term: string|undefined): string {
+    private getTitleDetails(term: string | undefined): string {
         return term ? term.replace(/<(?!\s*br\s*\/?)[^>]+>/gi, '') : '';
     }
 
@@ -154,7 +159,7 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
             zoomable.classList.add('zoomable');
 
             zoomable.addEventListener('click', () => {
-                const event = new CustomEvent('zoom', {detail: this});
+                const event = new CustomEvent<Item<Model>>('zoom', {detail: this});
                 this._element.dispatchEvent(event);
             });
         }
@@ -162,11 +167,11 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
         if (activable) {
             activable.classList.add('activable');
             activable.addEventListener('click', (ev) => {
-                const data = {
+                const data: ItemActivateEventDetail<Model> = {
                     item: this,
                     clickEvent: ev,
                 };
-                const activableEvent = new CustomEvent('activate', {detail: data});
+                const activableEvent = new CustomEvent<ItemActivateEventDetail<Model>>('activate', {detail: data});
                 this._element.dispatchEvent(activableEvent);
             });
         }
@@ -204,7 +209,7 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
             this._selectBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.toggleSelect();
-                const event = new CustomEvent('select', {detail: this});
+                const event = new CustomEvent<Item<Model>>('select', {detail: this});
                 this._element.dispatchEvent(event);
             });
             this._element.appendChild(this._selectBtn);
