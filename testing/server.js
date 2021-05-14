@@ -1,19 +1,21 @@
 // From https://itnext.io/testing-your-javascript-in-a-browser-with-jest-puppeteer-express-and-webpack-c998a37ef887
+import express from 'express';
+import webpack from 'webpack';
+import middleware from 'webpack-dev-middleware';
+import config from '../webpack.config.js';
+import {readFile} from 'fs/promises';
 
-const express = require('express');
-const webpack = require('webpack');
-const middleware = require('webpack-dev-middleware');
-const config = require('../webpack.config.js');
 const compiler = webpack(config);
-const data = require('../docs/assets/images.json');
-const images = data.results.map(function(i) {
+
+const data = JSON.parse(await readFile('docs/assets/images.json', 'utf-8'));
+const images = data.results.map(function (i) {
     return {
         thumbnailSrc: i.urls.small,
         enlargedSrc: i.urls.regular,
         enlargedWidth: i.width,
         enlargedHeight: i.height,
         title: (i.description ? i.description : i.user.name).replace('\'', ''),
-        color: i.color
+        color: i.color,
     };
 });
 

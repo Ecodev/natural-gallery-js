@@ -12,9 +12,14 @@
         "url": "https://github.com/Ecodev/natural-gallery-js/issues"
     },
     "homepage": "https://github.com/Ecodev/natural-gallery-js#readme",
-    "main": "./natural-gallery.js",
+    "type": "module",
+    "exports": "./natural-gallery-esm.js",
+    "es2015": "./natural-gallery-esm.js",
     "browser": "./natural-gallery.js",
     "typings": "./index.d.ts",
+    "engines": {
+        "node": "^14.13.1 || >=16.0.0"
+    },
     "scripts": {
         "dev": "concurrently --kill-others \"webpack --watch\" \"DOCS=1 webpack --watch\" \"yarn run dev-docs\"",
         "dev-docs": "cd docs; bundle install; bundle exec jekyll serve --livereload",

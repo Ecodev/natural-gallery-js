@@ -1,21 +1,27 @@
-const webpack = require('webpack');
-const path = require('path');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
+import webpack from 'webpack';
+import path from 'path';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import CopyPlugin from 'copy-webpack-plugin';
+import TerserPlugin from 'terser-webpack-plugin';
+import {fileURLToPath} from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const dest = process.env.DOCS ? 'docs/assets/natural-gallery-js' : 'dist';
 
-const client = {
+const browser = {
     mode: 'production',
     devtool: 'source-map',
     output: {
         path: path.join(__dirname, dest),
-        library: 'NaturalGallery',
+        library: {
+            name: 'NaturalGallery',
+            type: 'umd',
+            umdNamedDefine: true,
+        },
         filename: 'natural-gallery.js',
-        libraryTarget: 'umd',
         globalObject: 'this', // Use 'this', instead of default 'self', because the same code will run on both browsers and Node.js
-        umdNamedDefine: true
     },
     resolveLoader: {modules: [path.join(__dirname, 'node_modules')]},
     resolve: {
@@ -26,13 +32,13 @@ const client = {
             commonjs: 'photoswipe',
             commonjs2: 'photoswipe',
             amd: 'photoswipe',
-            root: 'PhotoSwipe'
+            root: 'PhotoSwipe',
         },
         'photoswipe/dist/photoswipe-ui-default': {
             commonjs: 'photoswipe/dist/photoswipe-ui-default',
             commonjs2: 'photoswipe/dist/photoswipe-ui-default',
             amd: 'photoswipe/dist/photoswipe-ui-default',
-            root: 'PhotoSwipeUI_Default'
+            root: 'PhotoSwipeUI_Default',
         },
     },
     optimization: {
@@ -51,17 +57,17 @@ const client = {
                     to: 'themes',
                 },
             ],
-        })
+        }),
     ],
     module: {
         rules: [
             {
                 test: /\.ts?$/,
-                loader: 'ts-loader'
+                loader: 'ts-loader',
             }, {
                 enforce: 'pre',
                 test: /\.js$/,
-                loader: 'source-map-loader'
+                loader: 'source-map-loader',
             },
             {
                 test: /\.scss$/,
@@ -69,18 +75,39 @@ const client = {
                     MiniCssExtractPlugin.loader,
                     {
                         loader: 'css-loader',
-                        options: {sourceMap: true}
+                        options: {sourceMap: true},
                     }, {
                         loader: 'postcss-loader',
-                        options: {sourceMap: true}
+                        options: {sourceMap: true},
                     }, {
                         loader: 'sass-loader',
-                        options: {sourceMap: true}
-                    }
-                ]
-            }
-        ]
+                        options: {sourceMap: true},
+                    },
+                ],
+            },
+        ],
     },
 };
 
-module.exports = client;
+// Our ESM build is the same as the browser build, with only a few adjustments
+const esm = {
+    ...browser,
+    target: 'node',
+    output: {
+        path: path.join(__dirname, dest),
+        library: {
+            type: 'module',
+        },
+        filename: 'natural-gallery-esm.js',
+    },
+    experiments: {
+        outputModule: true,
+    },
+
+    // Include Photoswipe into our ESM build. This is not ideal, but it is a temporary
+    // workaround until Photoswipe 5 is released with native ESM support
+    // see: https://github.com/dimsemenov/PhotoSwipe/issues/1749
+    externals: {},
+};
+
+export default [browser, esm];

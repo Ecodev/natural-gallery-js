@@ -11,6 +11,7 @@
         "sourceMap": true,
         "esModuleInterop": true,
         "moduleResolution": "node",
+        "module": "ES2020",
         "typeRoots": [
             "./node_modules/@types"
         ],
