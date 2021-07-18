@@ -17,6 +17,8 @@ module.exports = {
         quotes: ['error', 'single'],
         // For SSR compatibility
         'no-restricted-globals': [
+            'atob',
+            'bota',
             'error',
             'document',
             'event',
