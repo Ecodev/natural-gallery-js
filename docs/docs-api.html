@@ -148,13 +148,13 @@ gallery.addEventListener(eventName, function(ev) {
                 </tr>
                 <tr>
                     <td>item-added-to-dom</td>
-                    <td>Emitted when the item has been added to DOM but image is still not displayed</td>
+                    <td>Emitted when the item has been added to DOM as empty rectangle, but image has not been lazy loaded yet</td>
                     <td>{% highlight javascript %}model{% endhighlight %}</td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>item-displayed</td>
-                    <td>Emitted when the item image is displayed</td>
+                    <td>Emitted when the image has lazy loaded and is visible</td>
                     <td>{% highlight javascript %}model{% endhighlight %}</td>
                     <td></td>
                 </tr>
