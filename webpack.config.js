@@ -99,6 +99,7 @@ const esm = {
             type: 'module',
         },
         filename: 'natural-gallery-esm.js',
+        chunkFormat: 'module',
     },
     experiments: {
         outputModule: true,
