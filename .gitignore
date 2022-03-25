@@ -1,12 +1,12 @@
 *.log
-.idea
+/.idea/
 .DS_store
-node_modules
-cache/*
-dist/*
+/node_modules/
+/dist/
 
 # Jekyll
 _site
 .sass-cache
 .jekyll-metadata
-docs/vendor
+/docs/vendor
+/docs/.jekyll-cache/
