@@ -1,12 +1,12 @@
-import {debounce, defaults, pick} from 'lodash-es';
+import { debounce, defaults, pick } from 'lodash-es';
 
 // @ts-ignore
 import PhotoSwipeLightbox from "photoswipe/lightbox";
 import PhotoSwipe from "photoswipe";
 import "photoswipe/dist/photoswipe.css";
 
-import {Item, ItemActivateEventDetail, ItemOptions} from '../Item';
-import {getIcon} from '../Utility';
+import { Item, ItemActivateEventDetail, ItemOptions } from '../Item';
+import { getIcon } from '../Utility';
 
 /**
  * A map of all possible event and the structure of their details
@@ -186,8 +186,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * @param scrollElementRef
      */
     constructor(protected elementRef: HTMLElement,
-                options: GalleryOptions,
-                protected scrollElementRef?: HTMLElement | null) {
+        options: GalleryOptions,
+        protected scrollElementRef?: HTMLElement | null) {
         this.document = this.elementRef.ownerDocument;
         this.options = defaults(options, this.options);
 
@@ -203,11 +203,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             this.scrollBufferedItems = [];
 
             if (this.requiredItems) {
-                this.dispatchEvent('pagination', {offset: this.collection.length, limit: this.requiredItems});
+                this.dispatchEvent('pagination', { offset: this.collection.length, limit: this.requiredItems });
                 this.requiredItems = 0;
             }
 
-        }, 500, {leading: false, trailing: true});
+        }, 500, { leading: false, trailing: true });
 
     }
 
@@ -282,7 +282,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             leading: true,
             trailing: false,
         });
-        const endResize = debounce(() => this.endResize(), resizeDebounceDuration, {leading: false, trailing: true});
+        const endResize = debounce(() => this.endResize(), resizeDebounceDuration, { leading: false, trailing: true });
         iframe.contentWindow?.addEventListener('resize', () => {
             endResize();
             startResize();
@@ -299,6 +299,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
         if (this.options.lightbox) {
             this.psLightbox = new PhotoSwipeLightbox({
+                ...this.options.photoSwipeOptions,
                 gallery: ".natural-gallery-body",
                 children: "div a.image",
                 pswpModule: PhotoSwipe,
@@ -468,7 +469,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         // +1 because we have to get more than that is used under onPageAdd().
         // Without +1 all items are always added to DOM and gallery will loop load until end of collection
         const limit = estimatedPerRow * this.getRowsPerPage() + 1;
-        this.dispatchEvent('pagination', {offset: this.collection.length, limit: limit});
+        this.dispatchEvent('pagination', { offset: this.collection.length, limit: limit });
     }
 
     /**
@@ -510,7 +511,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
         // When activate (if activate event is given in options)
         item.element.addEventListener('activate', (ev: CustomEvent<ItemActivateEventDetail<Model>>) => {
-            this.dispatchEvent('activate', {model: ev.detail.item.model, clickEvent: ev.detail.clickEvent});
+            this.dispatchEvent('activate', { model: ev.detail.item.model, clickEvent: ev.detail.clickEvent });
         });
 
     }
@@ -563,7 +564,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
     protected dispatchEvent<K extends keyof CustomEventDetailMap<Model>>(name: K, data: CustomEventDetailMap<Model>[K]): void;
     protected dispatchEvent(name: keyof CustomEventDetailMap<Model>, data: CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>]): void {
-        const event = new CustomEvent(name, {detail: data});
+        const event = new CustomEvent(name, { detail: data });
         this.elementRef.dispatchEvent(event);
     }
 
