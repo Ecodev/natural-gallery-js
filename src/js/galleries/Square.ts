@@ -15,10 +15,9 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
 
     constructor(elementRef: HTMLElement,
                 options: SquareGalleryOptions,
-                photoswipeElementRef?: HTMLElement | null,
                 scrollElementRef?: HTMLElement | null) {
 
-        super(elementRef, options, photoswipeElementRef, scrollElementRef);
+        super(elementRef, options, scrollElementRef);
 
         if (!options.itemsPerRow || options.itemsPerRow <= 0) {
             throw new Error('Option.itemsPerRow must be positive');

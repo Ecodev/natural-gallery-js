@@ -102,7 +102,7 @@ export class Item<Model extends ModelAttributes> {
         }
 
         const element = this.document.createElement('div') as HTMLElement;
-        let image: HTMLElement = this.document.createElement('div');
+        let image: HTMLElement = this.document.createElement('a');
         const link = this.getLinkElement();
         let zoomable: HTMLElement | null = null;
 
@@ -179,6 +179,12 @@ export class Item<Model extends ModelAttributes> {
         image.style.backgroundSize = this.model.backgroundSize || 'cover';
         image.style.backgroundPosition = this.model.backgroundPosition || 'center';
 
+        image.setAttribute('data-pswp-width', "" + this.model.enlargedWidth);
+        image.setAttribute('data-pswp-height', "" + this.model.enlargedHeight);
+
+        if (this.model.enlargedSrc)
+            image.setAttribute('data-pswp-src', this.model.enlargedSrc);
+
         image.classList.add('image');
         element.classList.add('figure');
         element.appendChild(image);
@@ -250,7 +256,7 @@ export class Item<Model extends ModelAttributes> {
         const img = this.document.createElement('img');
         img.setAttribute('src', this.model.thumbnailSrc);
 
-        this._image.style.backgroundImage = 'url(' + this.model.thumbnailSrc + ')';
+        this._image.appendChild(img);
 
         img.addEventListener('load', () => {
             this._element.classList.add('loaded');

@@ -1,6 +1,10 @@
 import {debounce, defaults, pick} from 'lodash-es';
-import PhotoSwipe, {Options} from 'photoswipe';
-import PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
+
+// @ts-ignore
+import PhotoSwipeLightbox from "photoswipe/lightbox";
+import PhotoSwipe from "photoswipe";
+import "photoswipe/dist/photoswipe.css";
+
 import {Item, ItemActivateEventDetail, ItemOptions} from '../Item';
 import {getIcon} from '../Utility';
 
@@ -13,7 +17,6 @@ export interface CustomEventDetailMap<T> {
     'item-displayed': T,
     'pagination': { offset: number, limit: number },
     'select': T[],
-    'zoom': { item: T, photoswipe: PhotoSwipe<Options> },
 }
 
 /**
@@ -27,7 +30,6 @@ declare global {
         'item-displayed': CustomEvent;
         pagination: CustomEvent;
         select: CustomEvent;
-        zoom: CustomEvent;
     }
 }
 
@@ -100,27 +102,13 @@ export interface GalleryOptions extends ItemOptions {
     rowsPerPage?: number;
     minRowsAtStart?: number;
     infiniteScrollOffset?: number;
-    photoSwipeOptions?: PhotoSwipeOptions | null;
+    photoSwipeOptions?: any;
     ssr?: {
         /**
          * In SSR mode, if the gallery width cannot be computed, it will fallback to this value
          */
         galleryWidth: number
     }
-}
-
-type PhotoSwipeOptions = Options;
-
-export interface InnerPhotoSwipeOptions extends PhotoSwipeOptions {
-    index: number;
-    loop: boolean;
-}
-
-export interface PhotoswipeItem {
-    src?: string;
-    w: number;
-    h: number;
-    title?: string;
 }
 
 export abstract class AbstractGallery<Model extends ModelAttributes> {
@@ -141,11 +129,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         ssr: {
             galleryWidth: 480,
         },
-    };
-
-    protected photoswipeDefaultOptions: PhotoSwipeOptions = {
-        bgOpacity: 0.85,
-        showHideOpacity: false,
     };
 
     /**
@@ -179,34 +162,35 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     private old_scroll_top = 0;
 
     /**
-     * Photoswipe images container
-     * @type {Array}
-     */
-    private photoswipeCollection: PhotoswipeItem[] = [];
-
-    /**
      * Reference to next button element
      */
     private nextButton: HTMLElement | null = null;
     protected readonly document: Document;
 
     /**
+     * PhotoSwipe Lightbox object
+     */
+    private psLightbox: any = null;
+
+    /**
+     * PhotoSwipe Lightbox getter
+     */
+    get photoswipe(): any {
+        return this.psLightbox
+    }
+
+    /**
      *
      * @param elementRef
      * @param options
-     * @param photoswipeElementRef
      * @param scrollElementRef
      */
     constructor(protected elementRef: HTMLElement,
                 options: GalleryOptions,
-                protected photoswipeElementRef?: HTMLElement | null,
                 protected scrollElementRef?: HTMLElement | null) {
         this.document = this.elementRef.ownerDocument;
         this.options = defaults(options, this.options);
 
-        if (this.options.lightbox && !this.photoswipeElementRef) {
-            console.error('Lightbox option is set to true, but no PhotoSwipe reference is given');
-        }
 
         // After having finished to add items to dom, show images inside containers and emit updated pagination
         this.flushBufferedItems = debounce(() => {
@@ -312,6 +296,15 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         }
 
         this.initItems();
+
+        if (this.options.lightbox) {
+            this.psLightbox = new PhotoSwipeLightbox({
+                gallery: ".natural-gallery-body",
+                children: "div a.image",
+                pswpModule: PhotoSwipe,
+            });
+            this.psLightbox.init();
+        }
     }
 
     /**
@@ -334,10 +327,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             const itemOptions = pick(this.options, ['lightbox', 'selectable', 'activable', 'gap', 'showLabels']);
             const item = new Item<Model>(this.document, itemOptions, model);
             this._collection.push(item);
-
-            if (this.photoswipeElementRef) {
-                this.photoswipeCollection.push(this.getPhotoswipeItem(item));
-            }
         });
 
         // If display and ready to display ( = if gallery has been initialized)
@@ -524,11 +513,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             this.dispatchEvent('activate', {model: ev.detail.item.model, clickEvent: ev.detail.clickEvent});
         });
 
-        // When open zoom (photoswipe)
-        item.element.addEventListener('zoom', (ev: CustomEvent<Item<Model>>) => {
-            this.openPhotoSwipe(ev.detail);
-        });
-
     }
 
     protected updateNextButtonVisibility(): void {
@@ -576,50 +560,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         this.bodyElementRef?.classList.remove('resizing');
     }
 
-    protected openPhotoSwipe(item: Item<Model>): void {
-        if (!this.options.lightbox) {
-            return;
-        }
-
-        if (!this.photoswipeElementRef) {
-            console.error('Lightbox option is set to true, but no PhotoSwipe reference is given');
-            return;
-        }
-
-        let pswpOptions: InnerPhotoSwipeOptions = {
-            index: this.collection.findIndex(i => i === item),
-            loop: false,
-        };
-        pswpOptions = Object.assign({}, this.photoswipeDefaultOptions, this.options.photoSwipeOptions, pswpOptions);
-
-        const photoswipe = new PhotoSwipe(this.photoswipeElementRef, PhotoSwipeUI_Default, this.photoswipeCollection, pswpOptions);
-        photoswipe.init();
-
-        // Loading one more page when going to next image
-        photoswipe.listen('beforeChange', (delta: number | null) => {
-            // Positive delta means next slide.
-            // If we go next slide, and current index is out of visible collection bound, load more items
-            if (delta === 1 && photoswipe.getCurrentIndex() === this.visibleCollection.length) {
-                this.onPageAdd();
-            }
-        });
-
-        this.dispatchEvent('zoom', {item: item.model, photoswipe: photoswipe});
-    }
-
-    /**
-     * Format an Item into a PhotoswipeItem that has different attributes
-     * @param item
-     * @returns {PhotoswipeItem}
-     */
-    protected getPhotoswipeItem(item: Item<Model>): PhotoswipeItem {
-        return {
-            src: item.model.enlargedSrc,
-            w: item.model.enlargedWidth,
-            h: item.model.enlargedHeight,
-            title: item.title,
-        };
-    }
 
     protected dispatchEvent<K extends keyof CustomEventDetailMap<Model>>(name: K, data: CustomEventDetailMap<Model>[K]): void;
     protected dispatchEvent(name: keyof CustomEventDetailMap<Model>, data: CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>]): void {
@@ -636,7 +576,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         }
 
         this._visibleCollection = [];
-        this.photoswipeCollection = [];
         this._collection = [];
     }
 

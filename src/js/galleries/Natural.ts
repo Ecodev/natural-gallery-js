@@ -17,10 +17,9 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
     constructor(elementRef: HTMLElement,
                 options: NaturalGalleryOptions,
-                photoswipeElementRef?: HTMLElement | null,
                 scrollElementRef?: HTMLElement | null) {
 
-        super(elementRef, options, photoswipeElementRef, scrollElementRef);
+        super(elementRef, options, scrollElementRef);
 
         if (!options.rowHeight || options.rowHeight <= 0) {
             throw new Error('Option.rowHeight must be positive');

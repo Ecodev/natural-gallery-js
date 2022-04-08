@@ -22,10 +22,9 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
     constructor(elementRef: HTMLElement,
                 options: MasonryGalleryOptions,
-                photoswipeElementRef?: HTMLElement | null,
                 scrollElementRef?: HTMLElement | null) {
 
-        super(elementRef, options, photoswipeElementRef, scrollElementRef);
+        super(elementRef, options, scrollElementRef);
 
         if (!options.columnWidth || options.columnWidth <= 0) {
             throw new Error('Option.columnWidth must be positive');
