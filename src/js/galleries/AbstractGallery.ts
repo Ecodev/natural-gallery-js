@@ -170,7 +170,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     /**
      * PhotoSwipe Lightbox object
      */
-    private psLightbox: any = null;
+    protected psLightbox: any = null;
 
     /**
      * PhotoSwipe Lightbox getter
@@ -297,15 +297,20 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
         this.initItems();
 
-        if (this.options.lightbox) {
-            this.psLightbox = new PhotoSwipeLightbox({
-                ...this.options.photoSwipeOptions,
-                gallery: ".natural-gallery-body",
-                children: "div a.image",
-                pswpModule: PhotoSwipe,
-            });
-            this.psLightbox.init();
-        }
+        if (this.options.lightbox) this.photoswipeInit()
+    }
+
+    /**
+     * Initializes PhotoSwipe
+     */
+    protected photoswipeInit() {
+        this.psLightbox = new PhotoSwipeLightbox({
+            ...this.options.photoSwipeOptions,
+            gallery: ".natural-gallery-body",
+            children: "div a.image",
+            pswpModule: PhotoSwipe,
+        });
+        this.psLightbox.init();
     }
 
     /**

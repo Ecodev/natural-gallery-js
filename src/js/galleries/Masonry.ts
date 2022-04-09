@@ -1,7 +1,12 @@
-import {Column} from '../Column';
-import {Item} from '../Item';
-import {getImageRatio, RatioLimits} from '../Utility';
-import {AbstractGallery, GalleryOptions, ModelAttributes} from './AbstractGallery';
+// @ts-ignore
+import PhotoSwipeLightbox from "photoswipe/lightbox";
+import PhotoSwipe from "photoswipe";
+
+import { Column } from '../Column';
+import { Item } from '../Item';
+import { getImageRatio, RatioLimits } from '../Utility';
+import { AbstractGallery, GalleryOptions, ModelAttributes } from './AbstractGallery';
+
 
 export interface MasonryGalleryOptions extends GalleryOptions {
     columnWidth: number;
@@ -21,8 +26,8 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     protected columns: Column<Model>[] = [];
 
     constructor(elementRef: HTMLElement,
-                options: MasonryGalleryOptions,
-                scrollElementRef?: HTMLElement | null) {
+        options: MasonryGalleryOptions,
+        scrollElementRef?: HTMLElement | null) {
 
         super(elementRef, options, scrollElementRef);
 
@@ -78,6 +83,53 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
     }
 
+    /**
+     * https://photoswipe.com/data-sources/#separate-dom-and-data
+     * we are not able to infer which picture goes after which from DOM (in masonry mode)
+     * (children selector option would select all images in first column first, then second, and so on)
+     * so, to keep proper image order, we have to create and keep array with all photoswipe items manually
+     */
+    private photoswipeItems: any[] = []
+
+    protected photoswipeInit() {
+        this.psLightbox = new PhotoSwipeLightbox({
+            ...this.options.photoSwipeOptions,
+            pswpModule: PhotoSwipe,
+        });
+
+        this.psLightbox.addFilter('thumbEl', (thumbEl: any, data: any, _index: number): any => {
+            return data.elementReference || thumbEl
+        });
+
+        this.psLightbox.addFilter('numItems', (_numItems: any) => {
+            return this.photoswipeItems.length;
+        });
+
+        this.psLightbox.addFilter('itemData', (_itemData: any, index: number) => {
+            return this.photoswipeItems[index];
+        });
+
+        this.psLightbox.init();
+    }
+
+
+    public addItemToPhotoswipeCollection(item: Item<Model>) {
+        let photoswipeId = this.photoswipeItems.length
+
+        this.photoswipeItems.push({
+            id: photoswipeId,
+            src: item.model.enlargedSrc,
+            width: item.model.enlargedWidth,
+            height: item.model.enlargedHeight,
+            msrc: item.model.thumbnailSrc,
+            elementReference: item.element,
+        })
+
+        item.element.addEventListener('zoom', (_ev: any) => {
+            this.psLightbox.loadAndOpen(photoswipeId)
+        });
+    }
+
     public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
         Masonry.organizeItems(this, items, fromRow, toRow);
     }
@@ -126,6 +178,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         const shortestColumn = this.getShortestColumn();
         shortestColumn.addItem(item);
         super.addItemToDOM(item, shortestColumn.elementRef);
+        this.addItemToPhotoswipeCollection(item)
     }
 
     protected endResize(): void {
@@ -151,7 +204,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         this.columns = [];
         const columnWidth = this.getColumnWidth();
         for (let i = 0; i < this.getEstimatedColumnsPerRow(); i++) {
-            const columnRef = new Column<Model>(this.document, {width: columnWidth, gap: this.options.gap});
+            const columnRef = new Column<Model>(this.document, { width: columnWidth, gap: this.options.gap });
             this.columns.push(columnRef);
             this.bodyElementRef.appendChild(columnRef.elementRef);
         }
@@ -160,6 +213,8 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     protected empty(): void {
         super.empty();
         this.addColumns();
+
+        this.photoswipeItems = []
     }
 
     /**
