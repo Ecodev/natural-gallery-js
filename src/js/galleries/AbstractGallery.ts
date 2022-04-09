@@ -306,11 +306,38 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     protected photoswipeInit() {
         this.psLightbox = new PhotoSwipeLightbox({
             ...this.options.photoSwipeOptions,
-            gallery: ".natural-gallery-body",
-            children: "div a.image",
             pswpModule: PhotoSwipe,
         });
+
+        this.psLightbox.addFilter('thumbEl', (thumbEl: any, data: any, _index: number): any => {
+            return data.elementReference || thumbEl
+        });
+
+        this.psLightbox.addFilter('numItems', (_numItems: any) => {
+            return this.collection.length;
+        });
+
+        this.psLightbox.addFilter('itemData', (_itemData: any, index: number) => {
+            let item = this.collection[index];
+            return {
+                id: index,
+                src: item.model.enlargedSrc,
+                width: item.model.enlargedWidth,
+                height: item.model.enlargedHeight,
+                msrc: item.model.thumbnailSrc,
+                elementReference: item.element,
+            }
+        })
+
         this.psLightbox.init();
+    }
+
+    public addItemToPhotoswipeCollection(item: Item<Model>) {
+        let photoswipeId = this.visibleCollection.length - 1
+
+        item.element.addEventListener('zoom', (_ev: any) => {
+            this.psLightbox.loadAndOpen(photoswipeId)
+        });
     }
 
     /**
@@ -519,6 +546,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             this.dispatchEvent('activate', { model: ev.detail.item.model, clickEvent: ev.detail.clickEvent });
         });
 
+        if (this.options.lightbox)
+            this.addItemToPhotoswipeCollection(item)
     }
 
     protected updateNextButtonVisibility(): void {

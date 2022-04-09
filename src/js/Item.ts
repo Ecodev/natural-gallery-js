@@ -1,5 +1,5 @@
-import {ModelAttributes} from './galleries/AbstractGallery';
-import {getIcon} from './Utility';
+import { ModelAttributes } from './galleries/AbstractGallery';
+import { getIcon } from './Utility';
 
 export declare interface ItemOptions {
     lightbox?: boolean;
@@ -159,7 +159,7 @@ export class Item<Model extends ModelAttributes> {
             zoomable.classList.add('zoomable');
 
             zoomable.addEventListener('click', () => {
-                const event = new CustomEvent<Item<Model>>('zoom', {detail: this});
+                const event = new CustomEvent<Item<Model>>('zoom', { detail: this });
                 this._element.dispatchEvent(event);
             });
         }
@@ -171,19 +171,13 @@ export class Item<Model extends ModelAttributes> {
                     item: this,
                     clickEvent: ev,
                 };
-                const activableEvent = new CustomEvent<ItemActivateEventDetail<Model>>('activate', {detail: data});
+                const activableEvent = new CustomEvent<ItemActivateEventDetail<Model>>('activate', { detail: data });
                 this._element.dispatchEvent(activableEvent);
             });
         }
 
         image.style.backgroundSize = this.model.backgroundSize || 'cover';
         image.style.backgroundPosition = this.model.backgroundPosition || 'center';
-
-        image.setAttribute('data-pswp-width', "" + this.model.enlargedWidth);
-        image.setAttribute('data-pswp-height', "" + this.model.enlargedHeight);
-
-        if (this.model.enlargedSrc)
-            image.setAttribute('data-pswp-src', this.model.enlargedSrc);
 
         image.classList.add('image');
         element.classList.add('figure');
@@ -215,7 +209,7 @@ export class Item<Model extends ModelAttributes> {
             this._selectBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.toggleSelect();
-                const event = new CustomEvent<Item<Model>>('select', {detail: this});
+                const event = new CustomEvent<Item<Model>>('select', { detail: this });
                 this._element.dispatchEvent(event);
             });
             this._element.appendChild(this._selectBtn);

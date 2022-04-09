@@ -1,7 +1,7 @@
-import {Item} from '../Item';
-import {getImageRatio, RatioLimits} from '../Utility';
-import {GalleryOptions, ModelAttributes, SizedModel} from './AbstractGallery';
-import {AbstractRowGallery} from './AbstractRowGallery';
+import { Item } from '../Item';
+import { getImageRatio, RatioLimits } from '../Utility';
+import { GalleryOptions, ModelAttributes, SizedModel } from './AbstractGallery';
+import { AbstractRowGallery } from './AbstractRowGallery';
 
 export interface NaturalGalleryOptions extends GalleryOptions {
     rowHeight: number;
@@ -16,8 +16,8 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
     protected options!: NaturalGalleryOptions & Required<GalleryOptions>;
 
     constructor(elementRef: HTMLElement,
-                options: NaturalGalleryOptions,
-                scrollElementRef?: HTMLElement | null) {
+        options: NaturalGalleryOptions,
+        scrollElementRef?: HTMLElement | null) {
 
         super(elementRef, options, scrollElementRef);
 
@@ -71,11 +71,11 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
      * Items are updated
      */
     public static computeSizes<T extends ModelAttributes>(chunk: Item<T>[],
-                                                          containerWidth: number | null,
-                                                          margin: number,
-                                                          row: number,
-                                                          maxRowHeight: number | null = null,
-                                                          ratioLimits?: RatioLimits): void {
+        containerWidth: number | null,
+        margin: number,
+        row: number,
+        maxRowHeight: number | null = null,
+        ratioLimits?: RatioLimits): void {
 
         const chunkModels = chunk.map(c => c.model);
         const rowHeight = containerWidth ? this.getRowHeight(chunkModels, containerWidth, margin, ratioLimits) : (maxRowHeight ?? 0);
