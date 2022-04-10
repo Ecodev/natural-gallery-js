@@ -23,12 +23,13 @@
     "scripts": {
         "dev": "concurrently --kill-others \"webpack --watch\" \"DOCS=1 webpack --watch\" \"yarn run dev-docs\"",
         "dev-docs": "cd docs; bundle install; bundle exec jekyll serve --livereload",
+        "build": "webpack",
         "build-lib": "webpack; DOCS=1 webpack",
-        "build-lib-win": "webpack",
         "release": "yarn build-lib; cd dist; yarn publish --access public",
         "test": "jest --runInBand --detectOpenHandles",
         "llink": "cd dist && (yarn unlink ; yarn link)",
         "serve": "node testing/server.js",
+        "lint-fix": "eslint . --fix",
         "lint": "eslint ."
     },
     "keywords": [

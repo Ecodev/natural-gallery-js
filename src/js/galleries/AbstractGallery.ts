@@ -1,9 +1,9 @@
 import { debounce, defaults, pick } from 'lodash-es';
 
 // @ts-ignore
-import PhotoSwipeLightbox from "photoswipe/lightbox";
-import PhotoSwipe from "photoswipe";
-import "photoswipe/dist/photoswipe.css";
+import PhotoSwipeLightbox from 'photoswipe/lightbox';
+import PhotoSwipe from 'photoswipe';
+import 'photoswipe/dist/photoswipe.css';
 
 import { Item, ItemActivateEventDetail, ItemOptions } from '../Item';
 import { getIcon } from '../Utility';
@@ -210,7 +210,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * Get PhotoSwipe Lightbox 
      */
     get photoSwipe(): any {
-        return this.psLightbox
+        return this.psLightbox;
     }
 
     /**
@@ -340,7 +340,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
         this.initItems();
 
-        if (this.options.lightbox) this.photoSwipeInit()
+        if (this.options.lightbox) this.photoSwipeInit();
     }
 
     /**
@@ -353,7 +353,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         });
 
         this.psLightbox.addFilter('thumbEl', (thumbEl: HTMLElement, data: PhotoSwipeItemData, _index: number): HTMLElement => {
-            return data.element || thumbEl
+            return data.element || thumbEl;
         });
 
         this.psLightbox.addFilter('numItems', (_numItems: number): number => {
@@ -361,7 +361,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         });
 
         this.psLightbox.addFilter('itemData', (_itemData: Record<string, never>, index: number): PhotoSwipeItemData => {
-            let item = this.collection[index];
+            const item = this.collection[index];
             return {
                 id: index,
                 src: item.model.enlargedSrc,
@@ -369,13 +369,13 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
                 height: item.model.enlargedHeight,
                 msrc: item.model.thumbnailSrc,
                 element: item.element,
-            }
-        })
+            };
+        });
 
         this.psLightbox.init();
 
         // Loading one more page when going to next image
-        this.psLightbox.on('change', (delta: number | null) => {
+        this.psLightbox.on('change', () => {
             // Positive delta means next slide.
             // If we go next slide, and current index is out of visible collection bound, load more items
             if (this.psLightbox.pswp.currIndex > (this.visibleCollection.length - 1)) {
@@ -386,10 +386,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     }
 
     public addItemToPhotoSwipeCollection(item: Item<Model>) {
-        let photoSwipeId = this.visibleCollection.length - 1
+        const photoSwipeId = this.visibleCollection.length - 1;
 
         item.element.addEventListener('zoom', () => {
-            this.psLightbox.loadAndOpen(photoSwipeId)
+            this.psLightbox.loadAndOpen(photoSwipeId);
         });
     }
 
@@ -600,7 +600,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         });
 
         if (this.options.lightbox)
-            this.addItemToPhotoSwipeCollection(item)
+            this.addItemToPhotoSwipeCollection(item);
     }
 
     protected updateNextButtonVisibility(): void {
