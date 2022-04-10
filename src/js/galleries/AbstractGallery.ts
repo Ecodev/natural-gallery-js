@@ -218,7 +218,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      */
     get photoSwipeCurrentItem(): Model | null {
         return this.collection[
-            this.psLightbox?.pswp?.currIndex || 0
+            this.psLightbox?.pswp.currIndex || 0
         ]?.model || null;
     }
 
@@ -373,6 +373,16 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         })
 
         this.psLightbox.init();
+
+        // Loading one more page when going to next image
+        this.psLightbox.on('change', (delta: number | null) => {
+            // Positive delta means next slide.
+            // If we go next slide, and current index is out of visible collection bound, load more items
+            if (this.psLightbox.pswp.currIndex > (this.visibleCollection.length - 1)) {
+                this.onPageAdd();
+            }
+        });
+
     }
 
     public addItemToPhotoSwipeCollection(item: Item<Model>) {
