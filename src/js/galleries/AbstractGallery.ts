@@ -98,6 +98,40 @@ export interface ModelAttributes extends SizedModel {
     backgroundPosition?: string;
 }
 
+export interface PhotoSwipeItemData {
+
+    /**
+     * Photo ID (position in image collection)
+     */
+    id: number;
+
+    /**
+     * Source link for enlarged (photoswipe) image
+     */
+    src?: string;
+
+    /**
+     * Width in pixels of the enlarged version the image
+     */
+    width: number;
+
+    /**
+     * Height in pixels of the enlarged version the image
+     */
+    height: number;
+
+    /**
+     * Source link for thumbnail image
+     * Used as placeholder image (while enlarged version is being loaded)
+     */
+    msrc: string;
+
+    /**
+     * Natural Gallery thumbnail element
+     */
+    element: HTMLElement,
+}
+
 export interface GalleryOptions extends ItemOptions {
     rowsPerPage?: number;
     minRowsAtStart?: number;
@@ -173,10 +207,19 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     protected psLightbox: any = null;
 
     /**
-     * PhotoSwipe Lightbox getter
+     * Get PhotoSwipe Lightbox 
      */
-    get photoswipe(): any {
+    get photoSwipe(): any {
         return this.psLightbox
+    }
+
+    /**
+     * Get currently selected PhotoSwipe image
+     */
+    get photoSwipeCurrentItem(): Model | null {
+        return this.collection[
+            this.psLightbox?.pswp?.currIndex || 0
+        ]?.model || null;
     }
 
     /**
@@ -297,27 +340,27 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
         this.initItems();
 
-        if (this.options.lightbox) this.photoswipeInit()
+        if (this.options.lightbox) this.photoSwipeInit()
     }
 
     /**
      * Initializes PhotoSwipe
      */
-    protected photoswipeInit() {
+    protected photoSwipeInit() {
         this.psLightbox = new PhotoSwipeLightbox({
             ...this.options.photoSwipeOptions,
             pswpModule: PhotoSwipe,
         });
 
-        this.psLightbox.addFilter('thumbEl', (thumbEl: any, data: any, _index: number): any => {
-            return data.elementReference || thumbEl
+        this.psLightbox.addFilter('thumbEl', (thumbEl: HTMLElement, data: PhotoSwipeItemData, _index: number): HTMLElement => {
+            return data.element || thumbEl
         });
 
-        this.psLightbox.addFilter('numItems', (_numItems: any) => {
+        this.psLightbox.addFilter('numItems', (_numItems: number): number => {
             return this.collection.length;
         });
 
-        this.psLightbox.addFilter('itemData', (_itemData: any, index: number) => {
+        this.psLightbox.addFilter('itemData', (_itemData: Record<string, never>, index: number): PhotoSwipeItemData => {
             let item = this.collection[index];
             return {
                 id: index,
@@ -325,18 +368,18 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
                 width: item.model.enlargedWidth,
                 height: item.model.enlargedHeight,
                 msrc: item.model.thumbnailSrc,
-                elementReference: item.element,
+                element: item.element,
             }
         })
 
         this.psLightbox.init();
     }
 
-    public addItemToPhotoswipeCollection(item: Item<Model>) {
-        let photoswipeId = this.visibleCollection.length - 1
+    public addItemToPhotoSwipeCollection(item: Item<Model>) {
+        let photoSwipeId = this.visibleCollection.length - 1
 
-        item.element.addEventListener('zoom', (_ev: any) => {
-            this.psLightbox.loadAndOpen(photoswipeId)
+        item.element.addEventListener('zoom', () => {
+            this.psLightbox.loadAndOpen(photoSwipeId)
         });
     }
 
@@ -547,7 +590,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         });
 
         if (this.options.lightbox)
-            this.addItemToPhotoswipeCollection(item)
+            this.addItemToPhotoSwipeCollection(item)
     }
 
     protected updateNextButtonVisibility(): void {
