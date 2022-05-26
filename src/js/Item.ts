@@ -101,8 +101,8 @@ export class Item<Model extends ModelAttributes> {
             showLabel = true;
         }
 
-        const element = this.document.createElement('div') as HTMLElement;
-        let image: HTMLElement = this.document.createElement('a');
+        const element = this.document.createElement('a') as HTMLElement;
+        let image: HTMLElement = this.document.createElement('img');
         const link = this.getLinkElement();
         let zoomable: HTMLElement | null = null;
 
@@ -247,17 +247,15 @@ export class Item<Model extends ModelAttributes> {
      */
     public loadImage(): void {
 
-        const img = this.document.createElement('img');
-        img.setAttribute('src', this.model.thumbnailSrc);
+        this._image.setAttribute('src', this.model.thumbnailSrc);
+        this._image.setAttribute('alt', this.model.title || "");
 
-        this._image.appendChild(img);
-
-        img.addEventListener('load', () => {
+        this._image.addEventListener('load', () => {
             this._element.classList.add('loaded');
         });
 
         // Detect errored images and hide them smartly
-        img.addEventListener('error', () => {
+        this._image.addEventListener('error', () => {
             this._element.classList.add('errored');
         });
     }
