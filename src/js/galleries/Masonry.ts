@@ -1,6 +1,6 @@
 import { Column } from '../Column';
 import { Item } from '../Item';
-import { getImageRatio, getImageRatioAndIfCropped, RatioLimits } from '../Utility';
+import { getImageRatioAndIfCropped, RatioLimits } from '../Utility';
 import { AbstractGallery, GalleryOptions, ModelAttributes } from './AbstractGallery';
 
 

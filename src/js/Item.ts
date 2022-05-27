@@ -250,7 +250,7 @@ export class Item<Model extends ModelAttributes> {
     public loadImage(): void {
 
         this._image.setAttribute('src', this.model.thumbnailSrc);
-        this._image.setAttribute('alt', this.model.title || "");
+        this._image.setAttribute('alt', this.model.title || '');
 
         this._image.addEventListener('load', () => {
             this._element.classList.add('loaded');

@@ -1,5 +1,6 @@
 import { debounce, defaultsDeep, pick } from 'lodash-es';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import PhotoSwipe from 'photoswipe';
@@ -141,7 +142,9 @@ export interface GalleryOptions extends ItemOptions {
     rowsPerPage?: number;
     minRowsAtStart?: number;
     infiniteScrollOffset?: number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     photoSwipeOptions?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     photoSwipePluginsInitFn?: ((lighbox: any) => void) | null;
     ssr?: {
         /**
@@ -213,11 +216,13 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     /**
      * PhotoSwipe Lightbox object
      */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     protected psLightbox: any = null;
 
     /**
      * Get PhotoSwipe Lightbox 
      */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     get photoSwipe(): any {
         return this.psLightbox;
     }
@@ -361,7 +366,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             pswpModule: PhotoSwipe,
         });
 
-        this.psLightbox.addFilter('numItems', (_numItems: number): number => {
+        this.psLightbox.addFilter('numItems', (): number => {
             return this.visibleCollection.length;
             // return this.collection.length;
         });
