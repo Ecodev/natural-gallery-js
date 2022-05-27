@@ -37,6 +37,7 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
             const item = items[i];
             item.width = Math.floor(sideSize);
             item.height = Math.floor(sideSize);
+            item.cropped = true;
             item.last = i % gallery.options.itemsPerRow === gallery.options.itemsPerRow - 1;
             item.row = Math.floor(i / gallery.options.itemsPerRow) + firstRowIndex;
             item.style();

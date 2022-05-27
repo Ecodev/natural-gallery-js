@@ -78,13 +78,17 @@
         a.figure {
             width: inherit;
             height: inherit;
-            cursor: zoom-in;
+            cursor: default;
 
             img {
                 width: inherit;
                 height: inherit;
                 object-fit: cover;
             }
+        }
+
+        a.figure.zoomable {
+            cursor: zoom-in;
         }
     }
 

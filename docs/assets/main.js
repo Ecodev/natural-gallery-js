@@ -4,14 +4,13 @@ var loadingBar;
 
 window.addEventListener('load', function() {
     var galleryElement = document.getElementById('gallery');
-    var photoswipeElement = document.getElementsByClassName('pswp')[0];
     var scrollableElement = document.getElementById('body');
     var searchElement = document.getElementById('search');
     var suggestions = document.getElementsByClassName('suggestion');
     loadingBar = document.getElementById('loadingBar');
 
     // Create gallery
-    gallery = getGallery(galleryElement, photoswipeElement, scrollableElement);
+    gallery = getGallery(galleryElement, scrollableElement);
     gallery.init();
 
     gallery.addEventListener('pagination', function(ev) {
