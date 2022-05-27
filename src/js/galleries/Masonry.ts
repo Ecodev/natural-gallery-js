@@ -1,6 +1,6 @@
 import { Column } from '../Column';
 import { Item } from '../Item';
-import { getImageRatio, RatioLimits } from '../Utility';
+import { getImageRatio, getImageRatioAndIfCropped, RatioLimits } from '../Utility';
 import { AbstractGallery, GalleryOptions, ModelAttributes } from './AbstractGallery';
 
 
@@ -30,7 +30,6 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         if (!options.columnWidth || options.columnWidth <= 0) {
             throw new Error('Option.columnWidth must be positive');
         }
-
     }
 
     /**
@@ -48,11 +47,12 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
         for (let i = 0; i < lastIndex; i++) {
             const item = items[i];
-            const ratio = getImageRatio(item.model, gallery.options.ratioLimit);
+            const { ratio, cropped } = getImageRatioAndIfCropped(item.model, gallery.options.ratioLimit);
 
             item.last = true;
             item.width = Math.floor(columnWidth);
             item.height = item.width / ratio;
+            item.cropped = cropped;
             item.style(); // todo : externalise to split dom manipulation and logic computing
         }
     }

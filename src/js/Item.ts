@@ -43,6 +43,8 @@ export class Item<Model extends ModelAttributes> {
     private _width!: number;
     private _height!: number;
 
+    private _cropped = true;
+
     /**
      * Wherever item is selected or not
      * @type {boolean}
@@ -330,6 +332,14 @@ export class Item<Model extends ModelAttributes> {
 
     set width(value: number) {
         this._width = value;
+    }
+
+    get cropped(): boolean {
+        return this._cropped;
+    }
+
+    set cropped(value: boolean) {
+        this._cropped = value;
     }
 
     get enlargedWidth(): number {

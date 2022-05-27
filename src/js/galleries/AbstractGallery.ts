@@ -113,12 +113,12 @@ export interface PhotoSwipeItemData {
     /**
      * Width in pixels of the enlarged version the image
      */
-    width: number;
+    w: number;
 
     /**
      * Height in pixels of the enlarged version the image
      */
-    height: number;
+    h: number;
 
     /**
      * Source link for thumbnail image
@@ -130,6 +130,11 @@ export interface PhotoSwipeItemData {
      * Natural Gallery thumbnail element
      */
     element: HTMLElement,
+
+    /**
+     * required for proper animation of cropped thumbnails
+     */
+    thumbCropped: boolean,
 }
 
 export interface GalleryOptions extends ItemOptions {
@@ -352,10 +357,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             pswpModule: PhotoSwipe,
         });
 
-        this.psLightbox.addFilter('thumbEl', (thumbEl: HTMLElement, data: PhotoSwipeItemData, _index: number): HTMLElement => {
-            return data.element || thumbEl;
-        });
-
         this.psLightbox.addFilter('numItems', (_numItems: number): number => {
             return this.collection.length;
         });
@@ -365,10 +366,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             return {
                 id: index,
                 src: item.model.enlargedSrc,
-                width: item.model.enlargedWidth,
-                height: item.model.enlargedHeight,
+                w: item.model.enlargedWidth,
+                h: item.model.enlargedHeight,
                 msrc: item.model.thumbnailSrc,
                 element: item.element,
+                thumbCropped: item.cropped,
             };
         });
 

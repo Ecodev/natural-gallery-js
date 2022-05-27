@@ -1,5 +1,5 @@
 import { Item } from '../Item';
-import { getImageRatio, RatioLimits } from '../Utility';
+import { getImageRatio, getImageRatioAndIfCropped, RatioLimits } from '../Utility';
 import { GalleryOptions, ModelAttributes, SizedModel } from './AbstractGallery';
 import { AbstractRowGallery } from './AbstractRowGallery';
 
@@ -88,7 +88,8 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
         for (let i = 0; i < chunk.length; i++) {
             const item = chunk[i];
-            let width = getImageRatio(item.model, ratioLimits) * rowHeight - excess;
+            const { ratio, cropped } = getImageRatioAndIfCropped(item.model, ratioLimits);
+            let width = ratio * rowHeight - excess;
             decimals += width - Math.floor(width);
             width = Math.floor(width);
 
@@ -99,6 +100,7 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
             item.width = width;
             item.height = Math.floor(rowHeight);
+            item.cropped = cropped;
             item.row = row;
             item.last = i === chunk.length - 1;
             item.style();

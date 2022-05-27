@@ -49,9 +49,6 @@
     "dependencies": {
         "lodash-es": "^4.17.21"
     },
-    "peerDependencies": {
-        "photoswipe": "^5.2.4"
-    },
     "devDependencies": {
         "@types/expect-puppeteer": "^4.4.7",
         "@types/jest": "^27.4.1",
@@ -77,7 +74,7 @@
         "jest-puppeteer": "^6.1.0",
         "mini-css-extract-plugin": "^2.6.0",
         "node-sass": "^7.0.1",
-        "photoswipe": "^5.2.4",
+        "photoswipe": "^5.2.7",
         "postcss": "^8.4.12",
         "postcss-loader": "^6.2.1",
         "puppeteer": "^13.5.1",
