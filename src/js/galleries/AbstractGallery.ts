@@ -1,4 +1,4 @@
-import { debounce, defaults, pick } from 'lodash-es';
+import { debounce, defaultsDeep, pick } from 'lodash-es';
 
 // @ts-ignore
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
@@ -142,6 +142,7 @@ export interface GalleryOptions extends ItemOptions {
     minRowsAtStart?: number;
     infiniteScrollOffset?: number;
     photoSwipeOptions?: any;
+    photoSwipePluginsInitFn?: ((lighbox: any) => void) | null;
     ssr?: {
         /**
          * In SSR mode, if the gallery width cannot be computed, it will fallback to this value
@@ -164,7 +165,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         selectable: false,
         activable: false,
         infiniteScrollOffset: 0,
-        photoSwipeOptions: null,
+        photoSwipeOptions: {
+            loop: false,
+        },
+        photoSwipePluginsInitFn: null,
         ssr: {
             galleryWidth: 480,
         },
@@ -237,7 +241,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         options: GalleryOptions,
         protected scrollElementRef?: HTMLElement | null) {
         this.document = this.elementRef.ownerDocument;
-        this.options = defaults(options, this.options);
+        this.options = defaultsDeep(options, this.options);
 
 
         // After having finished to add items to dom, show images inside containers and emit updated pagination
@@ -358,7 +362,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         });
 
         this.psLightbox.addFilter('numItems', (_numItems: number): number => {
-            return this.collection.length;
+            return this.visibleCollection.length;
+            // return this.collection.length;
         });
 
         this.psLightbox.addFilter('itemData', (_itemData: Record<string, never>, index: number): PhotoSwipeItemData => {
@@ -374,13 +379,16 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             };
         });
 
+        if (this.options.photoSwipePluginsInitFn)
+            this.options.photoSwipePluginsInitFn(this.psLightbox);
+
         this.psLightbox.init();
 
         // Loading one more page when going to next image
         this.psLightbox.on('change', () => {
             // Positive delta means next slide.
             // If we go next slide, and current index is out of visible collection bound, load more items
-            if (this.psLightbox.pswp.currIndex > (this.visibleCollection.length - 1)) {
+            if (this.psLightbox.pswp.currIndex > (this.visibleCollection.length - 10)) {
                 this.onPageAdd();
             }
         });
