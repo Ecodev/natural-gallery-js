@@ -98,45 +98,6 @@ export interface ModelAttributes extends SizedModel {
     backgroundPosition?: string;
 }
 
-export interface PhotoSwipeItemData {
-
-    /**
-     * Photo ID (position in image collection)
-     */
-    id: number;
-
-    /**
-     * Source link for enlarged (photoswipe) image
-     */
-    src?: string;
-
-    /**
-     * Width in pixels of the enlarged version the image
-     */
-    w: number;
-
-    /**
-     * Height in pixels of the enlarged version the image
-     */
-    h: number;
-
-    /**
-     * Source link for thumbnail image
-     * Used as placeholder image (while enlarged version is being loaded)
-     */
-    msrc: string;
-
-    /**
-     * Natural Gallery thumbnail element
-     */
-    element: HTMLElement,
-
-    /**
-     * required for proper animation of cropped thumbnails
-     */
-    thumbCropped: boolean,
-}
-
 export interface GalleryOptions extends ItemOptions {
     rowsPerPage?: number;
     minRowsAtStart?: number;
@@ -366,7 +327,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             // return this.collection.length;
         });
 
-        this.psLightbox.addFilter('itemData', (_itemData: SlideData, index: number): PhotoSwipeItemData => {
+        this.psLightbox.addFilter('itemData', (_itemData: SlideData, index: number): SlideData => {
             const item = this.collection[index];
             return {
                 id: index,
