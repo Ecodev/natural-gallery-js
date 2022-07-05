@@ -1,9 +1,8 @@
 import { debounce, defaultsDeep, pick } from 'lodash-es';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+import PhotoSwipe, { PhotoSwipeOptions, SlideData } from 'photoswipe';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
-import PhotoSwipe from 'photoswipe';
+
 import 'photoswipe/dist/photoswipe.css';
 
 import { Item, ItemActivateEventDetail, ItemOptions } from '../Item';
@@ -142,10 +141,8 @@ export interface GalleryOptions extends ItemOptions {
     rowsPerPage?: number;
     minRowsAtStart?: number;
     infiniteScrollOffset?: number;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    photoSwipeOptions?: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    photoSwipePluginsInitFn?: ((lighbox: any) => void) | null;
+    photoSwipeOptions?: PhotoSwipeOptions;
+    photoSwipePluginsInitFn?: ((lighbox: PhotoSwipeLightbox) => void) | null;
     ssr?: {
         /**
          * In SSR mode, if the gallery width cannot be computed, it will fallback to this value
@@ -216,14 +213,12 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     /**
      * PhotoSwipe Lightbox object
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    protected psLightbox: any = null;
+    protected psLightbox: PhotoSwipeLightbox | null = null;
 
     /**
      * Get PhotoSwipe Lightbox 
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    get photoSwipe(): any {
+    get photoSwipe(): PhotoSwipeLightbox | null {
         return this.psLightbox;
     }
 
@@ -232,7 +227,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      */
     get photoSwipeCurrentItem(): Model | null {
         return this.collection[
-            this.psLightbox?.pswp.currIndex || 0
+            this.psLightbox?.pswp?.currIndex || 0
         ]?.model || null;
     }
 
@@ -371,7 +366,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             // return this.collection.length;
         });
 
-        this.psLightbox.addFilter('itemData', (_itemData: Record<string, never>, index: number): PhotoSwipeItemData => {
+        this.psLightbox.addFilter('itemData', (_itemData: SlideData, index: number): PhotoSwipeItemData => {
             const item = this.collection[index];
             return {
                 id: index,
@@ -393,7 +388,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         this.psLightbox.on('change', () => {
             // Positive delta means next slide.
             // If we go next slide, and current index is out of visible collection bound, load more items
-            if (this.psLightbox.pswp.currIndex > (this.visibleCollection.length - 10)) {
+            if (this.psLightbox?.pswp && (this.psLightbox.pswp.currIndex > (this.visibleCollection.length - 10))) {
                 this.onPageAdd();
             }
         });
@@ -404,7 +399,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         const photoSwipeId = this.visibleCollection.length - 1;
 
         item.element.addEventListener('zoom', () => {
-            this.psLightbox.loadAndOpen(photoSwipeId);
+            this.psLightbox?.loadAndOpen(photoSwipeId);
         });
     }
 
