@@ -24,7 +24,10 @@ describe('Masonry Gallery', () => {
             selectable: false,
             activable: false,
             infiniteScrollOffset: 0,
-            photoSwipeOptions: null,
+            photoSwipeOptions: {
+                loop: false,
+            },
+            photoSwipePluginsInitFn: null,
             ssr: {
                 galleryWidth: 480,
             },
