@@ -1,5 +1,6 @@
 *.log
 /.idea/
+.vscode/
 .DS_store
 /node_modules/
 /dist/

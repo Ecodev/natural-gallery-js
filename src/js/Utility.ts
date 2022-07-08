@@ -1,5 +1,10 @@
 import {SizedModel} from './galleries/AbstractGallery';
 
+interface ImageRatioInfo {
+    ratio: number;
+    cropped: boolean;
+}
+
 export interface RatioLimits {
     min?: number;
     max?: number;
@@ -28,4 +33,21 @@ export function getImageRatio(model: SizedModel, ratioLimits?: RatioLimits): num
     }
 
     return ratio;
+}
+
+export function getImageRatioAndIfCropped(model: SizedModel, ratioLimits?: RatioLimits): ImageRatioInfo {
+    let ratio = Number(model.enlargedWidth) / Number(model.enlargedHeight);
+    let cropped = false;
+
+    if (ratioLimits) {
+        if (ratioLimits.min && ratio < ratioLimits.min) {
+            ratio = ratioLimits.min;
+            cropped = true;
+        } else if (ratioLimits.max && ratio > ratioLimits.max) {
+            ratio = ratioLimits.max;
+            cropped = true;
+        }
+    }
+
+    return { ratio: ratio, cropped: cropped };
 }

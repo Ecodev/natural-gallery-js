@@ -1,9 +1,10 @@
-@import 'figure';
+@import "figure";
 
 .pswp {
     z-index: 9999999;
+
     .pswp__caption__center {
-        text-align: center
+        text-align: center;
     }
 }
 
@@ -29,7 +30,8 @@
     }
 
     &.scrolling {
-        &, & * {
+        &,
+        & * {
             pointer-events: none !important;
         }
     }
@@ -43,7 +45,7 @@
         float: left;
 
         &:last-child {
-            margin-right: 0 !important
+            margin-right: 0 !important;
         }
 
         .figure:last-child {
@@ -60,18 +62,34 @@
         margin: 0;
 
         &.resizing {
-            .figure, .column {
+            .figure,
+            .column {
                 transition: none;
                 opacity: 0;
             }
         }
 
         &::after {
-            content: '';
+            content: "";
             display: block;
             clear: both;
         }
 
+        a.figure {
+            width: inherit;
+            height: inherit;
+            cursor: default;
+
+            img {
+                width: inherit;
+                height: inherit;
+                object-fit: cover;
+            }
+        }
+
+        a.figure.zoomable {
+            cursor: zoom-in;
+        }
     }
 
     /**
@@ -91,7 +109,7 @@
         }
 
         &::after {
-            content: '';
+            content: "";
             display: block;
             clear: both;
         }
@@ -106,10 +124,10 @@
             transform: scale(0, 0);
             opacity: 0.3;
         }
+
         100% {
             transform: scale(1, 1);
             opacity: 0.05;
         }
     }
-
 }

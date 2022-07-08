@@ -1,7 +1,7 @@
-import {Item} from '../Item';
-import {getImageRatio, RatioLimits} from '../Utility';
-import {GalleryOptions, ModelAttributes, SizedModel} from './AbstractGallery';
-import {AbstractRowGallery} from './AbstractRowGallery';
+import { Item } from '../Item';
+import { getImageRatio, getImageRatioAndIfCropped, RatioLimits } from '../Utility';
+import { GalleryOptions, ModelAttributes, SizedModel } from './AbstractGallery';
+import { AbstractRowGallery } from './AbstractRowGallery';
 
 export interface NaturalGalleryOptions extends GalleryOptions {
     rowHeight: number;
@@ -16,11 +16,10 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
     protected options!: NaturalGalleryOptions & Required<GalleryOptions>;
 
     constructor(elementRef: HTMLElement,
-                options: NaturalGalleryOptions,
-                photoswipeElementRef?: HTMLElement | null,
-                scrollElementRef?: HTMLElement | null) {
+        options: NaturalGalleryOptions,
+        scrollElementRef?: HTMLElement | null) {
 
-        super(elementRef, options, photoswipeElementRef, scrollElementRef);
+        super(elementRef, options, scrollElementRef);
 
         if (!options.rowHeight || options.rowHeight <= 0) {
             throw new Error('Option.rowHeight must be positive');
@@ -72,11 +71,11 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
      * Items are updated
      */
     public static computeSizes<T extends ModelAttributes>(chunk: Item<T>[],
-                                                          containerWidth: number | null,
-                                                          margin: number,
-                                                          row: number,
-                                                          maxRowHeight: number | null = null,
-                                                          ratioLimits?: RatioLimits): void {
+        containerWidth: number | null,
+        margin: number,
+        row: number,
+        maxRowHeight: number | null = null,
+        ratioLimits?: RatioLimits): void {
 
         const chunkModels = chunk.map(c => c.model);
         const rowHeight = containerWidth ? this.getRowHeight(chunkModels, containerWidth, margin, ratioLimits) : (maxRowHeight ?? 0);
@@ -89,7 +88,8 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
         for (let i = 0; i < chunk.length; i++) {
             const item = chunk[i];
-            let width = getImageRatio(item.model, ratioLimits) * rowHeight - excess;
+            const { ratio, cropped } = getImageRatioAndIfCropped(item.model, ratioLimits);
+            let width = ratio * rowHeight - excess;
             decimals += width - Math.floor(width);
             width = Math.floor(width);
 
@@ -100,6 +100,7 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
             item.width = width;
             item.height = Math.floor(rowHeight);
+            item.cropped = cropped;
             item.row = row;
             item.last = i === chunk.length - 1;
             item.style();

@@ -2,6 +2,13 @@
 layout: default
 ---
 
+<script type="module">
+    import PhotoSwipeDynamicCaption from 'https://unpkg.com/photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.esm.js';
+    window.PhotoSwipeDynamicCaption = PhotoSwipeDynamicCaption
+</script>
+
+<link rel="stylesheet" href="https://unpkg.com/photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css">
+
 <script>
     var options = {
         rowHeight: 400,
@@ -9,11 +16,20 @@ layout: default
         ratioLimit: {
             min: .5,
             max: 2
+        },
+        photoSwipeOptions: {
+            // padding: { top: 20, bottom: 40, left: 10, right: 10 },
+        },
+        photoSwipePluginsInitFn: (lightbox) => {
+            const captionPlugin = new window.PhotoSwipeDynamicCaption(lightbox, {
+                captionContent: '.title',
+                // type: 'below',
+            });
         }
     };
 
-    function getGallery(galleryElement, photoswipeElement, scrollableElement) {
-        return new NaturalGallery.Natural(galleryElement, options, photoswipeElement, scrollableElement)
+    function getGallery(galleryElement, scrollableElement) {
+        return new NaturalGallery.Natural(galleryElement, options, scrollableElement)
     }
 
 </script>

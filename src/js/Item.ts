@@ -1,5 +1,5 @@
-import {ModelAttributes} from './galleries/AbstractGallery';
-import {getIcon} from './Utility';
+import { ModelAttributes } from './galleries/AbstractGallery';
+import { getIcon } from './Utility';
 
 export declare interface ItemOptions {
     lightbox?: boolean;
@@ -42,6 +42,8 @@ export class Item<Model extends ModelAttributes> {
      */
     private _width!: number;
     private _height!: number;
+
+    private _cropped = true;
 
     /**
      * Wherever item is selected or not
@@ -101,8 +103,8 @@ export class Item<Model extends ModelAttributes> {
             showLabel = true;
         }
 
-        const element = this.document.createElement('div') as HTMLElement;
-        let image: HTMLElement = this.document.createElement('div');
+        const element = this.document.createElement('a') as HTMLElement;
+        let image: HTMLElement = this.document.createElement('img');
         const link = this.getLinkElement();
         let zoomable: HTMLElement | null = null;
 
@@ -159,7 +161,7 @@ export class Item<Model extends ModelAttributes> {
             zoomable.classList.add('zoomable');
 
             zoomable.addEventListener('click', () => {
-                const event = new CustomEvent<Item<Model>>('zoom', {detail: this});
+                const event = new CustomEvent<Item<Model>>('zoom', { detail: this });
                 this._element.dispatchEvent(event);
             });
         }
@@ -171,7 +173,7 @@ export class Item<Model extends ModelAttributes> {
                     item: this,
                     clickEvent: ev,
                 };
-                const activableEvent = new CustomEvent<ItemActivateEventDetail<Model>>('activate', {detail: data});
+                const activableEvent = new CustomEvent<ItemActivateEventDetail<Model>>('activate', { detail: data });
                 this._element.dispatchEvent(activableEvent);
             });
         }
@@ -209,7 +211,7 @@ export class Item<Model extends ModelAttributes> {
             this._selectBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.toggleSelect();
-                const event = new CustomEvent<Item<Model>>('select', {detail: this});
+                const event = new CustomEvent<Item<Model>>('select', { detail: this });
                 this._element.dispatchEvent(event);
             });
             this._element.appendChild(this._selectBtn);
@@ -247,17 +249,15 @@ export class Item<Model extends ModelAttributes> {
      */
     public loadImage(): void {
 
-        const img = this.document.createElement('img');
-        img.setAttribute('src', this.model.thumbnailSrc);
+        this._image.setAttribute('src', this.model.thumbnailSrc);
+        this._image.setAttribute('alt', this.model.title || '');
 
-        this._image.style.backgroundImage = 'url(' + this.model.thumbnailSrc + ')';
-
-        img.addEventListener('load', () => {
+        this._image.addEventListener('load', () => {
             this._element.classList.add('loaded');
         });
 
         // Detect errored images and hide them smartly
-        img.addEventListener('error', () => {
+        this._image.addEventListener('error', () => {
             this._element.classList.add('errored');
         });
     }
@@ -332,6 +332,14 @@ export class Item<Model extends ModelAttributes> {
 
     set width(value: number) {
         this._width = value;
+    }
+
+    get cropped(): boolean {
+        return this._cropped;
+    }
+
+    set cropped(value: boolean) {
+        this._cropped = value;
     }
 
     get enlargedWidth(): number {

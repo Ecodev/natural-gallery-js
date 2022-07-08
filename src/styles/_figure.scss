@@ -42,6 +42,12 @@
             transform: rotate(1deg) scale(1.2);
         }
 
+        &.zoomable:active .image,
+        .image.zoomable:active {
+            transform:scale(1.0);
+            transition: 1s ease-out opacity, 0.1s ease-out transform, .2s ease-out margin;
+        }
+
         .image {
             display: block;
             position: relative;

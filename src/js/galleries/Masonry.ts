@@ -1,7 +1,8 @@
-import {Column} from '../Column';
-import {Item} from '../Item';
-import {getImageRatio, RatioLimits} from '../Utility';
-import {AbstractGallery, GalleryOptions, ModelAttributes} from './AbstractGallery';
+import { Column } from '../Column';
+import { Item } from '../Item';
+import { getImageRatioAndIfCropped, RatioLimits } from '../Utility';
+import { AbstractGallery, GalleryOptions, ModelAttributes } from './AbstractGallery';
+
 
 export interface MasonryGalleryOptions extends GalleryOptions {
     columnWidth: number;
@@ -21,16 +22,14 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     protected columns: Column<Model>[] = [];
 
     constructor(elementRef: HTMLElement,
-                options: MasonryGalleryOptions,
-                photoswipeElementRef?: HTMLElement | null,
-                scrollElementRef?: HTMLElement | null) {
+        options: MasonryGalleryOptions,
+        scrollElementRef?: HTMLElement | null) {
 
-        super(elementRef, options, photoswipeElementRef, scrollElementRef);
+        super(elementRef, options, scrollElementRef);
 
         if (!options.columnWidth || options.columnWidth <= 0) {
             throw new Error('Option.columnWidth must be positive');
         }
-
     }
 
     /**
@@ -48,11 +47,12 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
         for (let i = 0; i < lastIndex; i++) {
             const item = items[i];
-            const ratio = getImageRatio(item.model, gallery.options.ratioLimit);
+            const { ratio, cropped } = getImageRatioAndIfCropped(item.model, gallery.options.ratioLimit);
 
             item.last = true;
             item.width = Math.floor(columnWidth);
             item.height = item.width / ratio;
+            item.cropped = cropped;
             item.style(); // todo : externalise to split dom manipulation and logic computing
         }
     }
@@ -152,7 +152,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         this.columns = [];
         const columnWidth = this.getColumnWidth();
         for (let i = 0; i < this.getEstimatedColumnsPerRow(); i++) {
-            const columnRef = new Column<Model>(this.document, {width: columnWidth, gap: this.options.gap});
+            const columnRef = new Column<Model>(this.document, { width: columnWidth, gap: this.options.gap });
             this.columns.push(columnRef);
             this.bodyElementRef.appendChild(columnRef.elementRef);
         }
