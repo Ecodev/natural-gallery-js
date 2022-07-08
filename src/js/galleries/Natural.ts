@@ -111,7 +111,7 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
     }
 
     public static getRowHeight(models: SizedModel[], containerWidth: number, margin: number, ratioLimits?: RatioLimits): number {
-        return containerWidth / this.getRatios(models, ratioLimits) - margin * (models.length - 1);
+        return (containerWidth - margin * (models.length - 1)) / this.getRatios(models, ratioLimits);
     }
 
     /**

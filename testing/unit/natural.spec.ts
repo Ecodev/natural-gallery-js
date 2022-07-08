@@ -73,7 +73,7 @@ describe('Natural Gallery', () => {
         expect(rowHeight1).toBe(272.72727272727275);
 
         const rowHeight2 = Natural.getRowHeight(images, 1000, 10, {});
-        expect(rowHeight2).toBe(252.72727272727275);
+        expect(rowHeight2).toBe(267.2727272727273);
 
         expect(rowHeight2).toBeLessThan(rowHeight1);
 
@@ -196,9 +196,9 @@ describe('Natural Gallery', () => {
         gallery.organizeItems(gallery.collection, 0, 999);
 
         const result = [
-            {width: 384, height: 232, row: 0},
-            {width: 190, height: 232, row: 0},
-            {width: 385, height: 232, row: 0},
+            {width: 392, height: 261, row: 0},
+            {width: 174, height: 261, row: 0},
+            {width: 393, height: 261, row: 0},
             {width: 266, height: 400, row: 1},
             {width: 267, height: 400, row: 1},
         ];
@@ -250,10 +250,10 @@ describe('Natural Gallery', () => {
 
         const result = [
             {width: 480, height: 320, row: 0},
-            {width: 146, height: 201, row: 1},
-            {width: 314, height: 201, row: 1},
-            {width: 229, height: 339, row: 2},
-            {width: 231, height: 339, row: 2},
+            {width: 141, height: 212, row: 1},
+            {width: 319, height: 212, row: 1},
+            {width: 229, height: 344, row: 2},
+            {width: 231, height: 344, row: 2},
         ];
 
         expect(gallery.collection.map(getSize)).toEqual(result);
