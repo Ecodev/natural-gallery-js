@@ -16,10 +16,10 @@ export abstract class AbstractRowGallery<Model extends ModelAttributes> extends 
      */
     protected addRows(rows: number): void {
 
-        const nbVisibleImages = this.visibleCollection.length;
+        const nbVisibleImages = this.domCollection.length;
 
         // Next row to add (first invisible row)
-        const nextRow = this.visibleCollection.length ? this.visibleCollection[nbVisibleImages - 1].row + 1 : 0;
+        const nextRow = this.domCollection.length ? this.domCollection[nbVisibleImages - 1].row + 1 : 0;
         const lastWantedRow = nextRow + rows - 1;
 
         // Compute size only for elements we're going to add
@@ -36,12 +36,12 @@ export abstract class AbstractRowGallery<Model extends ModelAttributes> extends 
 
         super.endResize();
 
-        if (!this.visibleCollection.length) {
+        if (!this.domCollection.length) {
             return;
         }
 
         // Compute with new width. Rows indexes may have change
-        this.organizeItems(this.visibleCollection);
+        this.organizeItems(this.domCollection);
 
     }
 

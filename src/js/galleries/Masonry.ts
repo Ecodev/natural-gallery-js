@@ -120,7 +120,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     protected addUntilFill(): void {
         do {
             this.addItemsToDom(1);
-        } while (this.viewPortIsNotFilled() && this.visibleCollection.length < this.collection.length);
+        } while (this.viewPortIsNotFilled() && this.domCollection.length < this.collection.length);
     }
 
     protected addItemToDOM(item: Item<Model>): void {
@@ -133,12 +133,12 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
         super.endResize();
 
-        if (!this.visibleCollection.length) {
+        if (!this.domCollection.length) {
             return;
         }
 
         // Compute with new width. Rows indexes may have change
-        this.visibleCollection.length = 0;
+        this.domCollection.length = 0;
         this.addColumns();
         this.addUntilFill();
     }
@@ -172,10 +172,10 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
     private addItemsToDom(nbItems: number) {
 
-        const nbVisibleImages = this.visibleCollection.length;
+        const nbVisibleImages = this.domCollection.length;
 
         // Next row to add (first invisible row)
-        const firstIndex = this.visibleCollection.length ? nbVisibleImages : 0;
+        const firstIndex = this.domCollection.length ? nbVisibleImages : 0;
         const lastWantedIndex = firstIndex + nbItems - 1;
 
         // Compute size only for elements we're going to add

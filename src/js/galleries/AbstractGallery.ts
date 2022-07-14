@@ -239,14 +239,14 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * @type {Item[]}
      * @private
      */
-    protected _visibleCollection: Item<Model>[] = [];
+    protected _domCollection: Item<Model>[] = [];
 
-    get visibleCollection(): Item<Model>[] {
-        return this._visibleCollection;
+    get domCollection(): Item<Model>[] {
+        return this._domCollection;
     }
 
     get selectedItems(): Model[] {
-        return this.visibleCollection.filter((item) => item.selected).map(item => item.model);
+        return this.domCollection.filter((item) => item.selected).map(item => item.model);
     }
 
     get width(): number {
@@ -260,8 +260,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         return this.collection.length;
     }
 
-    get visibleCollectionLength(): number {
-        return this.visibleCollection.length;
+    get domCollectionLength(): number {
+        return this.domCollection.length;
     }
 
     /**
@@ -323,7 +323,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         });
 
         this.psLightbox.addFilter('numItems', (): number => {
-            return this.visibleCollection.length;
+            return this.domCollection.length;
             // return this.collection.length;
         });
 
@@ -349,7 +349,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         this.psLightbox.on('change', () => {
             // Positive delta means next slide.
             // If we go next slide, and current index is out of visible collection bound, load more items
-            if (this.psLightbox?.pswp && (this.psLightbox.pswp.currIndex > (this.visibleCollection.length - 10))) {
+            if (this.psLightbox?.pswp && (this.psLightbox.pswp.currIndex > (this.domCollection.length - 10))) {
                 this.onPageAdd();
             }
         });
@@ -357,7 +357,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     }
 
     public addItemToPhotoSwipeCollection(item: Item<Model>) {
-        const photoSwipeId = this.visibleCollection.length - 1;
+        const photoSwipeId = this.domCollection.length - 1;
 
         item.element.addEventListener('zoom', () => {
             this.psLightbox?.loadAndOpen(photoSwipeId);
@@ -377,7 +377,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         }
 
         // Display newly added images if it's the first addition or if all images are already shown
-        const display = this.collection.length === this.visibleCollection.length;
+        const display = this.collection.length === this.domCollection.length;
 
         // Complete collection
         models.forEach((model: Model) => {
@@ -397,7 +397,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * Ignores buffered items
      */
     public selectVisibleItems(): Model[] {
-        this.visibleCollection.forEach((item) => item.select());
+        this.domCollection.forEach((item) => item.select());
         return this.selectedItems;
     }
 
@@ -405,7 +405,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * Unselect all selected elements
      */
     public unselectAllItems(): void {
-        this.visibleCollection.forEach((item) => item.unselect());
+        this.domCollection.forEach((item) => item.unselect());
     }
 
     /**
@@ -480,7 +480,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         this.scrollBufferedItems = itemsToAdd;
 
         // Prepare second page
-        const bufferedItems = this.collection.slice(this.visibleCollection.length);
+        const bufferedItems = this.collection.slice(this.domCollection.length);
         const missing = bufferedItems.length - pageSize;
         this.requiredItems = Math.min(missing, bufferedItems.length, 0);
 
@@ -544,7 +544,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     }
 
     /**
-     * Add given item to DOM and to visibleCollection
+     * Add given item to DOM and to domCollection
      * @param {Item} item
      * @param destination
      */
@@ -553,7 +553,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             throw new Error('Gallery not initialized');
         }
 
-        this.visibleCollection.push(item);
+        this.domCollection.push(item);
 
         destination.appendChild(item.init());
 
@@ -563,7 +563,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
         // When selected / unselected
         item.element.addEventListener('select', () => {
-            this.dispatchEvent('select', this.visibleCollection.filter(i => i.selected).map(i => i.model));
+            this.dispatchEvent('select', this.domCollection.filter(i => i.selected).map(i => i.model));
         });
 
         // When activate (if activate event is given in options)
@@ -580,7 +580,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             return;
         }
 
-        if (this.visibleCollection.length === this.collection.length) {
+        if (this.domCollection.length === this.collection.length) {
             this.nextButton.style.display = 'none';
         } else {
             this.nextButton.style.display = 'block';
@@ -620,7 +620,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         this.bodyElementRef?.classList.remove('resizing');
     }
 
-
     protected dispatchEvent<K extends keyof CustomEventDetailMap<Model>>(name: K, data: CustomEventDetailMap<Model>[K]): void;
     protected dispatchEvent(name: keyof CustomEventDetailMap<Model>, data: CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>]): void {
         const event = new CustomEvent(name, { detail: data });
@@ -635,7 +634,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             this.bodyElementRef.innerHTML = '';
         }
 
-        this._visibleCollection = [];
+        this._domCollection = [];
         this._collection = [];
     }
 

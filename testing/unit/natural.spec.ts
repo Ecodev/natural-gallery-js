@@ -51,7 +51,7 @@ describe('Natural Gallery', () => {
         gallery.addItems(images);
 
         expect(gallery.collection.length).toEqual(6);
-        expect(gallery.visibleCollection.length).toEqual(0);
+        expect(gallery.domCollection.length).toEqual(0);
     });
 
     test('should return row height', () => {

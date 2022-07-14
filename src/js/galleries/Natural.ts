@@ -155,18 +155,18 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
     private completeLastRow(): void {
 
-        if (!this.visibleCollection.length) {
+        if (!this.domCollection.length) {
             return;
         }
 
         // Get last row number
-        const lastVisibleRow = this.visibleCollection[this.visibleCollection.length - 1].row;
+        const lastVisibleRow = this.domCollection[this.domCollection.length - 1].row;
 
         // Get number of items in that last row
-        const visibleItemsInLastRow = this.visibleCollection.filter(i => i.row === lastVisibleRow).length;
+        const visibleItemsInLastRow = this.domCollection.filter(i => i.row === lastVisibleRow).length;
 
         // Get a list from first item of last row until end of collection
-        const collectionFromLastVisibleRow = this.collection.slice(this.visibleCollection.length - visibleItemsInLastRow);
+        const collectionFromLastVisibleRow = this.collection.slice(this.domCollection.length - visibleItemsInLastRow);
         this.organizeItems(collectionFromLastVisibleRow, collectionFromLastVisibleRow[0].row, collectionFromLastVisibleRow[0].row);
         const itemsToAdd = collectionFromLastVisibleRow.slice(visibleItemsInLastRow)
             .filter(i => i.row <= collectionFromLastVisibleRow[0].row);
