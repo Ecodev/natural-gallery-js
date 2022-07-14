@@ -417,10 +417,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      *
      * @param name
      * @param callback
+     * @param options An object that specifies characteristics about the event listener. The available options are, see addEventListener official documentation
      */
-    public addEventListener<K extends keyof CustomEventDetailMap<Model>>(name: K, callback: (evt: CustomEvent<CustomEventDetailMap<Model>[K]>) => void): void;
-    public addEventListener(name: keyof CustomEventDetailMap<Model>, callback: (evt: CustomEvent<CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>]>) => void): void {
-        this.elementRef.addEventListener(name, callback);
+    public addEventListener<K extends keyof CustomEventDetailMap<Model>>(name: K, callback: (evt: CustomEvent<CustomEventDetailMap<Model>[K]>) => void, options?: boolean | AddEventListenerOptions): void;
+    public addEventListener(name: keyof CustomEventDetailMap<Model>, callback: (evt: CustomEvent<CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>]>) => void, options?: boolean | AddEventListenerOptions): void {
+        this.elementRef.addEventListener(name, callback, options);
 
         if (name === 'pagination' && this.bodyElementRef) {
             this.requestItems();

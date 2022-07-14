@@ -52,7 +52,7 @@ layout: default
                     <td></td>
                 </tr>
                 <tr>
-                    <td>addEventListener(string, fn)</td>
+                    <td>addEventListener(name, callback, options)</td>
                     <td></td>
                     <td>Subscribe to gallery events</td>
                     <td><a href="#events">Docs</a></td>
@@ -109,7 +109,7 @@ var gallery = new NaturalGallery.Natural(elementRef, options);
 gallery.addEventListener(eventName, function(ev) {
     // Access to data provided by gallery in event by calling detail attribute
     var eventData = ev.detail;
-});
+}, {once: false, capture: false, passive: false});
 
 {% endhighlight %}
 
@@ -246,6 +246,14 @@ gallery.addEventListener('zoom', function(ev) {
 });
 {% endhighlight %}
 
+    </div>
+
+    <div class="row">
+        <div class="container-1000px">
+            <h2 id="event-options">Options</h2>
+            <p>An object that specifies characteristics about the event listener</p>
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#parameters" target="_blank">See vanilla documentation</a>
+        </div>
     </div>
 
     <div class="row">
