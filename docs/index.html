@@ -18,14 +18,14 @@ layout: default
             max: 2
         },
         photoSwipeOptions: {
-            // padding: { top: 20, bottom: 40, left: 10, right: 10 },
+            padding: { top: 20, bottom: 40, left: 10, right: 10 },
         },
-        photoSwipePluginsInitFn: (lightbox) => {
-            const captionPlugin = new window.PhotoSwipeDynamicCaption(lightbox, {
-                captionContent: '.title',
-                // type: 'below',
-            });
-        }
+        // photoSwipePluginsInitFn: (lightbox) => {
+        //     const captionPlugin = new window.PhotoSwipeDynamicCaption(lightbox, {
+        //         captionContent: '.title',
+        //         // type: 'below',
+        //     });
+        // }
     };
 
     function getGallery(galleryElement, scrollableElement) {
