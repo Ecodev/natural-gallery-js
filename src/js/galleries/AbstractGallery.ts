@@ -340,8 +340,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             };
         });
 
-        if (this.options.photoSwipePluginsInitFn)
+        if (this.options.photoSwipePluginsInitFn) {
             this.options.photoSwipePluginsInitFn(this.psLightbox);
+        }
 
         this.psLightbox.init();
 
@@ -417,7 +418,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      *
      * @param name
      * @param callback
-     * @param options An object that specifies characteristics about the event listener. The available options are, see addEventListener official documentation
+     * @param options An object that specifies characteristics about the event listener. The available options are, see
+     *     addEventListener official documentation
      */
     public addEventListener<K extends keyof CustomEventDetailMap<Model>>(name: K, callback: (evt: CustomEvent<CustomEventDetailMap<Model>[K]>) => void, options?: boolean | AddEventListenerOptions): void;
     public addEventListener(name: keyof CustomEventDetailMap<Model>, callback: (evt: CustomEvent<CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>]>) => void, options?: boolean | AddEventListenerOptions): void {

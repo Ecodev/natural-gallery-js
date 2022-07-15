@@ -13,6 +13,21 @@ window.addEventListener('load', function() {
     gallery = getGallery(galleryElement, scrollableElement);
     gallery.init();
 
+    gallery.photoSwipe.on('uiRegister', function() {
+        gallery.photoSwipe.pswp.ui.registerElement({
+            name: 'test-button',
+            ariaLabel: 'Toggle zoom',
+            order: 9,
+            isButton: true,
+            html: 'zoom',
+            className: 'ng-custom-button',
+            onClick: (event, el) => {
+                console.log('event :', event, 'element :', el, 'selected model :', gallery.photoSwipeCurrentItem);
+                gallery.photoSwipe.pswp.toggleZoom();
+            }
+        });
+    });
+
     gallery.addEventListener('pagination', function(ev) {
         console.warn('pagination', ev.detail);
         var currentPagination = ev.detail;
