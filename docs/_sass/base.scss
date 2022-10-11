@@ -44,9 +44,8 @@ a.primary {
 
 a.raised {
     color: black;
-    background: rgba(255, 255, 255, .7);
+    background: white;
     &:hover {
-        background: rgba(255, 255, 255, 1);
         color: $primary;
     }
 }
