@@ -393,6 +393,13 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         }
     }
 
+    public setLabelHover(activate: boolean):void {
+        this.options.showLabels = activate ? 'hover' : 'always';
+        this.collection.forEach(item => {
+            item.setLabelHover(activate);
+        });
+    }
+
     /**
      * Select all items visible in the DOM
      * Ignores buffered items
