@@ -17,13 +17,16 @@
         </div>
         <div id="searchZone" class="small-gap layout-column">
             <input type="text" id="search" placeholder="Search for what you like...">
-            <div>
-                Maybe
-                <a class="button raised suggestion" value="cats">🐱 cats</a>
-                ,
-                <a class="button raised suggestion" value="bunny">🐰 bunnies</a>
-                or
-                <a class="button raised suggestion" value="baby animal">🐣 baby animals</a>
+            <div class="toolbar-buttons">
+                <div class="suggestions">
+                    Maybe
+                    <a class="button raised suggestion" value="cats">🐱 cats</a>
+                    ,
+                    <a class="button raised suggestion" value="bunny">🐰 bunnies</a>
+                    or
+                    <a class="button raised suggestion" value="baby animal">🐣 baby animals</a>
+                </div>
+                <a class="button raised toggleLabels" onclick="toggleLabels()">Toggle labels</a>
             </div>
         </div>
         <div id="rateExpired" class="hide">

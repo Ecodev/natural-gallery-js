@@ -75,6 +75,13 @@ window.addEventListener('load', function() {
 
 });
 
+var isHover = true;
+function toggleLabels() {
+    isHover = !isHover;
+    console.log('ask', isHover);
+    gallery.setLabelHover(isHover);
+}
+
 function newSearch(term) {
     lastSearch = term;
     gallery.clear();

@@ -227,19 +227,13 @@ export class Item<Model extends ModelAttributes> {
     }
     
     public setLabelHover(activate: boolean):void {
-        
-        if (!this.label) {
-            return;
-        }
-        
         if (activate) {
             this.options.showLabels = 'hover';
-            this.label.classList.add('hover');
+            this.label?.classList.add('hover');
         } else {
             this.options.showLabels = 'always';
-            this.label.classList.remove('hover');
+            this.label?.classList.remove('hover');
         }
-        
     }
 
     /**
