@@ -1,6 +1,6 @@
 {
     "name": "@ecodev/natural-gallery-js",
-    "version": "9.1.3",
+    "version": "9.1.4",
     "description": "A lazy load, infinite scroll, natural and masonry layout gallery",
     "author": "Samuel Baptista <samuel.baptista@ecodev.ch>",
     "license": "MIT",

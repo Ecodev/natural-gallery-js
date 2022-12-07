@@ -184,7 +184,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     protected psLightbox: PhotoSwipeLightbox | null = null;
 
     /**
-     * Get PhotoSwipe Lightbox 
+     * Get PhotoSwipe Lightbox
      */
     get photoSwipe(): PhotoSwipeLightbox | null {
         return this.psLightbox;
@@ -208,7 +208,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     constructor(protected elementRef: HTMLElement,
         options: GalleryOptions,
         protected scrollElementRef?: HTMLElement | null) {
-        this.document = this.elementRef.ownerDocument; 1;
+        this.document = this.elementRef.ownerDocument;
         this.options = defaultsDeep(options, this.options);
 
 
@@ -408,7 +408,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             // First initialization : collection size is 0
             this.onPageAdd();
         } else if (addToDom && collectionSize > 0 && this.bodyElementRef) {
-            // Gallery collection completion (after first initialization) : collection size > 0 
+            // Gallery collection completion (after first initialization) : collection size > 0
             this.onScroll();
         }
     }
@@ -691,7 +691,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         scrollable.addEventListener('scroll', () => {
             startScroll();
             endScroll();
-            
+
             const endOfGalleryAt = this.elementRef.offsetTop + this.elementRef.offsetHeight + this.options.infiniteScrollOffset;
 
             // Avoid to expand gallery if we are scrolling up
@@ -699,7 +699,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             const wrapperHeight = wrapper.clientHeight;
             const scroll_delta = current_scroll_top - this.old_scroll_top;
             this.old_scroll_top = current_scroll_top;
-            
+
             // "enableMoreLoading" is a setting coming from the BE bloking / enabling dynamic loading of thumbnail
             if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
                 // When scrolling only add a row at once
