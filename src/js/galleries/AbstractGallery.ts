@@ -166,6 +166,13 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     private old_scroll_top = 0;
 
     /**
+     * Stores page index that have been emmited
+     * Keeps a log of pages already asked to prevent to ask them multiple times
+     */
+    private requestedIndexesLog: number[] = [];
+
+
+    /**
      * Reference to next button element
      */
     private nextButton: HTMLElement | null = null;
@@ -215,8 +222,17 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
             this.scrollBufferedItems = [];
 
-            if (this.requiredItems) {
-                this.dispatchEvent('pagination', { offset: this.collection.length, limit: this.requiredItems });
+            if (!this.requiredItems) {
+                return;
+            }
+
+            // Each time a pagination event is emitted, the offset is logged and then verified to be sure to not ask it
+            // twice. That would cause duplicated entries and probably empty buffer with smaller pages. That could
+            // cause infinite loading until the end of the gallery
+            if (this.requestedIndexesLog.indexOf(this.collection.length) < 0) {
+                const offset = this.collection.length;
+                this.dispatchEvent('pagination', { offset, limit: this.requiredItems });
+                this.requestedIndexesLog.push(offset);
                 this.requiredItems = 0;
             }
 
@@ -649,6 +665,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             this.bodyElementRef.innerHTML = '';
         }
 
+        this.requestedIndexesLog.length = 0;
         this._domCollection = [];
         this._collection = [];
     }
@@ -674,6 +691,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         scrollable.addEventListener('scroll', () => {
             startScroll();
             endScroll();
+            
             const endOfGalleryAt = this.elementRef.offsetTop + this.elementRef.offsetHeight + this.options.infiniteScrollOffset;
 
             // Avoid to expand gallery if we are scrolling up
@@ -681,11 +699,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             const wrapperHeight = wrapper.clientHeight;
             const scroll_delta = current_scroll_top - this.old_scroll_top;
             this.old_scroll_top = current_scroll_top;
-
-            const hasBuffer = this.domCollection.length < this.collection.length;
             
             // "enableMoreLoading" is a setting coming from the BE bloking / enabling dynamic loading of thumbnail
-            if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt && hasBuffer) {
+            if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
                 // When scrolling only add a row at once
                 this.onScroll();
             }
