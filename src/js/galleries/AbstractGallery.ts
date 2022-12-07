@@ -682,8 +682,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             const scroll_delta = current_scroll_top - this.old_scroll_top;
             this.old_scroll_top = current_scroll_top;
 
+            const hasBuffer = this.domCollection.length < this.collection.length;
+            
             // "enableMoreLoading" is a setting coming from the BE bloking / enabling dynamic loading of thumbnail
-            if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
+            if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt && hasBuffer) {
                 // When scrolling only add a row at once
                 this.onScroll();
             }
