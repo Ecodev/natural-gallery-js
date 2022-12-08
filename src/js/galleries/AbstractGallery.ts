@@ -208,7 +208,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     constructor(protected elementRef: HTMLElement,
         options: GalleryOptions,
         protected scrollElementRef?: HTMLElement | null) {
-        this.document = this.elementRef.ownerDocument; 1
+        this.document = this.elementRef.ownerDocument; 1;
         this.options = defaultsDeep(options, this.options);
 
 
