@@ -44,7 +44,7 @@
 
         &.zoomable:active .image,
         .image.zoomable:active {
-            transform:scale(1.0);
+            transform: scale(1.0);
             transition: 1s ease-out opacity, 0.1s ease-out transform, .2s ease-out margin;
         }
 
@@ -68,16 +68,49 @@
             top: 0;
             left: 0;
             padding: 10px;
-            width: 48px;
-            height: 48px;
+            width: 36px;
+            height: 36px;
             transition: .2s ease all;
             transform: translateY(calc(-100% - 15px));
             color: rgba(255, 255, 255, 0.9);
             fill: currentColor;
             cursor: pointer;
             background: rgba(0, 0, 0, 0.6);
-            svg {
-                width: 28px;
+            border-bottom-right-radius: 5px;
+
+            .marker {
+                position: relative;
+                width: 18px;
+                height: 18px;
+                border-width: 2px;
+                border-style: solid;
+                box-sizing: border-box;
+                border-radius: 2px;
+
+                &::before, &::after {
+                    content: ' ';
+                    position: absolute;
+                    display: block;
+                    background: transparent;
+                    width: 2px;
+                }
+
+                &::before {
+                    left: 5px;
+                    top: 5px;
+                    height: 7px;
+                    transform: rotateZ(-45deg);
+                    transform-origin: 0 100%;
+                }
+
+                &::after {
+                    left: 4px;
+                    top: 0px;
+                    height: 11px;
+                    transform: rotateZ(45deg);
+                    transform-origin: 100% 100%;
+                }
+
             }
         }
 

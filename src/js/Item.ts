@@ -68,7 +68,7 @@ export class Item<Model extends ModelAttributes> {
     private _selectBtn!: HTMLElement;
 
     /**
-     * Element referering the "button" containing the label 
+     * Element referering the "button" containing the label
      */
     private label: HTMLElement | null = null;
 
@@ -210,8 +210,10 @@ export class Item<Model extends ModelAttributes> {
                 this.select();
             }
             this._selectBtn = this.document.createElement('div');
-            this._selectBtn.appendChild(getIcon(this.document, 'natural-gallery-icon-select'));
             this._selectBtn.classList.add('selectBtn');
+            const marker = this.document.createElement('div');
+            marker.classList.add('marker');
+            this._selectBtn.appendChild(marker);
             this._selectBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.toggleSelect();
@@ -225,7 +227,7 @@ export class Item<Model extends ModelAttributes> {
 
         return element;
     }
-    
+
     public setLabelHover(activate: boolean):void {
         if (activate) {
             this.options.showLabels = 'hover';
