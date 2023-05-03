@@ -10,6 +10,7 @@ jobs:
                   fetch-depth: 0 # Need all tags to get a version number in-between tags
             - uses: actions/setup-node@v3
               with:
+                  node-version: '16'
                   cache: 'yarn'
             - run: yarn --frozen-lockfile
             - run: yarn build-lib
@@ -20,6 +21,7 @@ jobs:
             - uses: actions/checkout@v3
             - uses: actions/setup-node@v3
               with:
+                  node-version: '16'
                   cache: 'yarn'
             - run: yarn --frozen-lockfile
             - run: HEADLESS=1 yarn test
@@ -30,6 +32,7 @@ jobs:
             - uses: actions/checkout@v3
             - uses: actions/setup-node@v3
               with:
+                  node-version: '16'
                   cache: 'yarn'
             - run: yarn --frozen-lockfile
             - run: yarn lint
