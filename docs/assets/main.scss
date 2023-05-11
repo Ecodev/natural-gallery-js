@@ -58,3 +58,10 @@
     top: -5px;
     margin-left: 5px;
 }
+
+.toolbar-buttons {
+    display:flex;
+    .suggestions {
+        flex:1
+    }
+}

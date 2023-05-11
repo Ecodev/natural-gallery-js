@@ -68,6 +68,11 @@ export class Item<Model extends ModelAttributes> {
     private _selectBtn!: HTMLElement;
 
     /**
+     * Element referering the "button" containing the label
+     */
+    private label: HTMLElement | null = null;
+
+    /**
      *
      * @param {ItemOptions} options
      * @param model Contains the source data given for an item (e.g object instance from database with id etc..)
@@ -95,7 +100,6 @@ export class Item<Model extends ModelAttributes> {
      */
     public init(): HTMLElement {
         let showLabel = false;
-        let label: HTMLElement | null = null;
 
         // Test if label should be added to dom
         const showLabelValues = ['always', 'hover'];
@@ -113,17 +117,17 @@ export class Item<Model extends ModelAttributes> {
         let activable: HTMLElement | null = null;
 
         if (this.options.lightbox && showLabel && link) {
-            label = link;
-            label.classList.add('button');
+            this.label = link;
+            this.label.classList.add('button');
             zoomable = image;
             activable = link;
 
         } else if (this.options.lightbox && showLabel && !link) {
-            label = this.document.createElement('div');
+            this.label = this.document.createElement('div');
 
             if (this.options.activable) {
-                activable = label;
-                label.classList.add('button');
+                activable = this.label;
+                this.label.classList.add('button');
                 zoomable = image;
             } else {
                 zoomable = element;
@@ -141,15 +145,15 @@ export class Item<Model extends ModelAttributes> {
         } else if (!this.options.lightbox && showLabel && link) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             image = this.getLinkElement()!;
-            label = link;
-            label.classList.add('button');
+            this.label = link;
+            this.label.classList.add('button');
             activable = element;
 
         } else if (!this.options.lightbox && showLabel && !link) {
-            label = this.document.createElement('div');
+            this.label = this.document.createElement('div');
             if (this.options.activable) {
                 activable = element;
-                label.classList.add('button');
+                this.label.classList.add('button');
             }
 
         } else if (!this.options.lightbox && !showLabel && link) {
@@ -192,13 +196,13 @@ export class Item<Model extends ModelAttributes> {
         this._element = element;
         this._image = image;
 
-        if (label) {
-            label.innerHTML = this.title;
-            label.classList.add('title');
+        if (this.label) {
+            this.label.innerHTML = this.title;
+            this.label.classList.add('title');
             if (this.options.showLabels === 'hover') {
-                label.classList.add('hover');
+                this.label.classList.add('hover');
             }
-            element.appendChild(label);
+            element.appendChild(this.label);
         }
 
         if (this.options.selectable) {
@@ -206,8 +210,10 @@ export class Item<Model extends ModelAttributes> {
                 this.select();
             }
             this._selectBtn = this.document.createElement('div');
-            this._selectBtn.appendChild(getIcon(this.document, 'natural-gallery-icon-select'));
             this._selectBtn.classList.add('selectBtn');
+            const marker = this.document.createElement('div');
+            marker.classList.add('marker');
+            this._selectBtn.appendChild(marker);
             this._selectBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.toggleSelect();
@@ -220,6 +226,16 @@ export class Item<Model extends ModelAttributes> {
         this.style();
 
         return element;
+    }
+
+    public setLabelHover(activate: boolean):void {
+        if (activate) {
+            this.options.showLabels = 'hover';
+            this.label?.classList.add('hover');
+        } else {
+            this.options.showLabels = 'always';
+            this.label?.classList.remove('hover');
+        }
     }
 
     /**

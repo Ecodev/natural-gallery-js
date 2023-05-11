@@ -166,6 +166,13 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     private old_scroll_top = 0;
 
     /**
+     * Stores page index that have been emmited
+     * Keeps a log of pages already asked to prevent to ask them multiple times
+     */
+    private requestedIndexesLog: number[] = [];
+
+
+    /**
      * Reference to next button element
      */
     private nextButton: HTMLElement | null = null;
@@ -177,7 +184,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     protected psLightbox: PhotoSwipeLightbox | null = null;
 
     /**
-     * Get PhotoSwipe Lightbox 
+     * Get PhotoSwipe Lightbox
      */
     get photoSwipe(): PhotoSwipeLightbox | null {
         return this.psLightbox;
@@ -215,8 +222,17 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
             this.scrollBufferedItems = [];
 
-            if (this.requiredItems) {
-                this.dispatchEvent('pagination', { offset: this.collection.length, limit: this.requiredItems });
+            if (!this.requiredItems) {
+                return;
+            }
+
+            // Each time a pagination event is emitted, the offset is logged and then verified to be sure to not ask it
+            // twice. That would cause duplicated entries and probably empty buffer with smaller pages. That could
+            // cause infinite loading until the end of the gallery
+            if (this.requestedIndexesLog.indexOf(this.collection.length) < 0) {
+                const offset = this.collection.length;
+                this.dispatchEvent('pagination', { offset, limit: this.requiredItems });
+                this.requestedIndexesLog.push(offset);
                 this.requiredItems = 0;
             }
 
@@ -378,7 +394,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         }
 
         // Display newly added images if it's the first addition or if all images are already shown
-        const display = this.collection.length === this.domCollection.length;
+        const addToDom = this.collection.length === this.domCollection.length;
+        const collectionSize = this.collection.length;
 
         // Complete collection
         models.forEach((model: Model) => {
@@ -387,10 +404,20 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             this._collection.push(item);
         });
 
-        // If display and ready to display ( = if gallery has been initialized)
-        if (display && this.bodyElementRef) {
+        if (addToDom && collectionSize === 0 && this.bodyElementRef) {
+            // First initialization : collection size is 0
             this.onPageAdd();
+        } else if (addToDom && collectionSize > 0 && this.bodyElementRef) {
+            // Gallery collection completion (after first initialization) : collection size > 0
+            this.onScroll();
         }
+    }
+
+    public setLabelHover(activate: boolean):void {
+        this.options.showLabels = activate ? 'hover' : 'always';
+        this.collection.forEach(item => {
+            item.setLabelHover(activate);
+        });
     }
 
     /**
@@ -462,7 +489,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
     /**
      * If gallery already has items on initialisation, set first page visible, load second page and query for more
-     * items if needed If not, just query for items
+     * items if needed.
+     * If not, just query for items
      */
     protected initItems(): void {
 
@@ -525,7 +553,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     protected requestItems(): void {
         const estimatedPerRow = this.getEstimatedColumnsPerRow();
 
-        // +1 because we have to get more than that is used under onPageAdd().
+        // +1 because we have to get more than what is used under onPageAdd().
         // Without +1 all items are always added to DOM and gallery will loop load until end of collection
         const limit = estimatedPerRow * this.getRowsPerPage() + 1;
         this.dispatchEvent('pagination', { offset: this.collection.length, limit: limit });
@@ -573,8 +601,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             this.dispatchEvent('activate', { model: ev.detail.item.model, clickEvent: ev.detail.clickEvent });
         });
 
-        if (this.options.lightbox)
+        if (this.options.lightbox) {
             this.addItemToPhotoSwipeCollection(item);
+        }
     }
 
     protected updateNextButtonVisibility(): void {
@@ -636,6 +665,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             this.bodyElementRef.innerHTML = '';
         }
 
+        this.requestedIndexesLog.length = 0;
         this._domCollection = [];
         this._collection = [];
     }
@@ -661,6 +691,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         scrollable.addEventListener('scroll', () => {
             startScroll();
             endScroll();
+
             const endOfGalleryAt = this.elementRef.offsetTop + this.elementRef.offsetHeight + this.options.infiniteScrollOffset;
 
             // Avoid to expand gallery if we are scrolling up

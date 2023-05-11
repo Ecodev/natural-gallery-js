@@ -21,8 +21,17 @@
     background-color: rgba(0, 0, 0, 0.1) !important;
 }
 
-.natural-gallery-js .figure.selected .selectBtn {
-    color: orange !important;
+.natural-gallery-js .selectBtn .marker {
+    border-color: orange;
+}
+
+.natural-gallery-js .figure.selected .marker {
+    background: orange;
+}
+
+.natural-gallery-js .figure.selected .marker::before,
+.natural-gallery-js .figure.selected .marker::after {
+    background: black;
 }
 
 .natural-gallery-js .button {

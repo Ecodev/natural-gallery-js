@@ -5,11 +5,12 @@ jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v3
               with:
                   fetch-depth: 0 # Need all tags to get a version number in-between tags
-            - uses: actions/setup-node@v2
+            - uses: actions/setup-node@v3
               with:
+                  node-version: '16'
                   cache: 'yarn'
             - run: yarn --frozen-lockfile
             - run: yarn build-lib
@@ -17,9 +18,10 @@ jobs:
     test:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
               with:
+                  node-version: '16'
                   cache: 'yarn'
             - run: yarn --frozen-lockfile
             - run: HEADLESS=1 yarn test
@@ -27,9 +29,10 @@ jobs:
     lint:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
               with:
+                  node-version: '16'
                   cache: 'yarn'
             - run: yarn --frozen-lockfile
             - run: yarn lint
