@@ -13,12 +13,10 @@
     },
     "homepage": "https://github.com/Ecodev/natural-gallery-js#readme",
     "type": "module",
-    "exports": "./natural-gallery-esm.js",
-    "es2015": "./natural-gallery-esm.js",
-    "browser": "./natural-gallery.js",
-    "typings": "./index.d.ts",
+    "exports": "./natural-gallery.js",
+    "typings": "./natural-gallery.d.ts",
     "engines": {
-        "node": "^14.13.1 || >=16.0.0"
+        "node": ">=16.0.0"
     },
     "scripts": {
         "dev": "concurrently --kill-others \"tsup --watch\" \"DOCS=1 tsup --watch\" \"yarn run dev-docs\"",
