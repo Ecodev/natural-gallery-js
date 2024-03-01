@@ -2,18 +2,17 @@
 layout: default
 ---
 
-<script>
+<script type="module">
     var options = {
         itemsPerRow: 4,
         lightbox: true,
     };
 
-    function getGallery(galleryElement, scrollableElement) {
-        return new NaturalGallery.Square(galleryElement, options, scrollableElement)
-    }
+    import {Square} from './assets/natural-gallery-js/natural-gallery.js';
+    import {setupDemo} from './assets/main.js';
+
+    setupDemo(Square, options);
 
 </script>
-
-<script src="assets/main.js" defer></script>
 
 {%- include gallery.html -%}

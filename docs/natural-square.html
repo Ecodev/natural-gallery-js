@@ -2,7 +2,7 @@
 layout: default
 ---
 
-<script>
+<script type="module">
     var options = {
         rowHeight: 400,
         lightbox: true,
@@ -12,12 +12,11 @@ layout: default
         }
     };
 
-    function getGallery(galleryElement, scrollableElement) {
-        return new NaturalGallery.Natural(galleryElement, options, scrollableElement)
-    }
+    import {Natural} from './assets/natural-gallery-js/natural-gallery.js';
+    import {setupDemo} from './assets/main.js';
+
+    setupDemo(Natural, options);
 
 </script>
-
-<script src="assets/main.js" defer></script>
 
 {%- include gallery.html -%}

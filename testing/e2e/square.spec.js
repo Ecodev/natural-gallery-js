@@ -8,7 +8,9 @@ describe('Square', () => {
 
         // Init gallery and data
         await page.evaluate(() => {
-            var gallery = new NaturalGallery.Square(document.getElementById('root'), {itemsPerRow: 4});
+            // `Square` is provider on `window` by `server.js`
+            // eslint-disable-next-line no-undef
+            var gallery = new Square(document.getElementById('root'), {itemsPerRow: 4});
             gallery.init();
             gallery.addItems(images);
         });

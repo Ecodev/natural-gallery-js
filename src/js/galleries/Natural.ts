@@ -13,7 +13,7 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
     /**
      * Options after having been defaulted
      */
-    protected options!: NaturalGalleryOptions & Required<GalleryOptions>;
+    protected declare options: Required<NaturalGalleryOptions>;
 
     constructor(elementRef: HTMLElement,
         options: NaturalGalleryOptions,

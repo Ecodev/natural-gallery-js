@@ -1,3 +1,4 @@
+export function setupDemo(galleryClass, options){
 var gallery;
 var lastSearch;
 var loadingBar;
@@ -10,7 +11,7 @@ window.addEventListener('load', function() {
     loadingBar = document.getElementById('loadingBar');
 
     // Create gallery
-    gallery = getGallery(galleryElement, scrollableElement);
+    gallery = new galleryClass(galleryElement, options, scrollableElement);
     gallery.init();
 
     gallery.photoSwipe.on('uiRegister', function() {
@@ -151,4 +152,6 @@ function getImages(url, paginationEvent) {
     });
 
     xhr.send(null);
+}
+
 }

@@ -23,7 +23,6 @@ layout: default
 {% highlight html %}
 <link rel="stylesheet" href="assets/natural-gallery-js/natural-gallery.css">
 <link rel="stylesheet" href="assets/natural-gallery-js/themes/natural.css">
-<script src="assets/natural-gallery-js/natural-gallery.js" defer></script>
 {% endhighlight %}
     </div>
 
@@ -45,20 +44,21 @@ layout: default
     <div class="row">
         <div class="container-1000px">
             <h2>3. Code initialisation</h2>
-            <p>In vanilla javascript (ES5) be sure to execute gallery initialization after the page is ready and assets are loaded.</p>
+            <p>In vanilla javascript (ES6) be sure to execute gallery initialization after the page is ready and assets are loaded.</p>
         </div>
 
 {% highlight javascript %}
+import {Natural, Masonry, Square} from './assets/natural-gallery-js/natural-gallery.js';
+
 window.addEventListener('load', function() {
 
     // Get reference of gallery container
     var elementRef = document.getElementById('gallery');
 
     // Init gallery according to wanted format
-    var gallery = new NaturalGallery.Natural(elementRef); // or
-    var gallery = new NaturalGallery.Masonry(elementRef); // or
-    var gallery = new NaturalGallery.Square(elementRef); // or
-    var gallery = new NaturalGallery.ResponsiveSquare(elementRef);
+    var gallery = new Natural(elementRef); // or
+    var gallery = new Masonry(elementRef); // or
+    var gallery = new Square(elementRef);
 
     // Init the gallery
     gallery.init();

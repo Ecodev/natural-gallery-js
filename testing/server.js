@@ -1,11 +1,6 @@
 // From https://itnext.io/testing-your-javascript-in-a-browser-with-jest-puppeteer-express-and-webpack-c998a37ef887
 import express from 'express';
-import webpack from 'webpack';
-import middleware from 'webpack-dev-middleware';
-import config from '../webpack.config.js';
 import {readFile} from 'fs/promises';
-
-const compiler = webpack(config);
 
 const data = JSON.parse(await readFile('docs/assets/images.json', 'utf-8'));
 const images = data.results.map(function (i) {
@@ -19,9 +14,9 @@ const images = data.results.map(function (i) {
     };
 });
 
-let port = 4444;
+const port = 4444;
 express()
-    .use(middleware(compiler, {serverSideRender: true}))
+    .use(express.static('dist/'))
     .use((req, res) => {
         res.send(`<!DOCTYPE html><html>
             <head>
@@ -31,7 +26,12 @@ express()
             </head>
             <body>
               <script>var images = JSON.parse('${JSON.stringify(images)}');</script>
-              <script src="natural-gallery.js"></script>
+              <script type="module">
+                import {Natural, Square, Masonry} from './natural-gallery.js';
+                window.Natural = Natural;
+                window.Square = Square;
+                window.Masonry = Masonry;
+              </script>
               <div id="root" style="background-color:red"></div>
             </body></html>`);
     })

@@ -2,7 +2,7 @@
 layout: default
 ---
 
-<script>
+<script type="module">
     var options = {
         columnWidth: 300,
         gap: 5,
@@ -13,9 +13,10 @@ layout: default
         }
     };
 
-    function getGallery(galleryElement, scrollableElement) {
-        return new NaturalGallery.Masonry(galleryElement, options, scrollableElement)
-    }
+    import {Masonry} from './assets/natural-gallery-js/natural-gallery.js';
+    import {setupDemoExtreme} from "./assets/main-extreme.js";
+
+    setupDemoExtreme(Masonry, options);
 
 </script>
 

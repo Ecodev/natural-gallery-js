@@ -8,7 +8,9 @@ describe('Masonry', () => {
 
         // Init gallery and data
         await page.evaluate(() => {
-            var gallery = new NaturalGallery.Masonry(document.getElementById('root'), {columnWidth: 450});
+            // `Masonry` is provider on `window` by `server.js`
+            // eslint-disable-next-line no-undef
+            var gallery = new Masonry(document.getElementById('root'), {columnWidth: 450});
             gallery.init();
             gallery.addItems(images);
         });

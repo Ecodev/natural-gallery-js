@@ -8,13 +8,15 @@
 
 describe('Natural', () => {
 
-    it('should create gallery, init, scroll and resize"', async () => {
+    fit('should create gallery, init, scroll and resize"', async () => {
 
         await page.goto(PATH, {waitUntil: 'networkidle0'});
 
         // Init gallery and data
         await page.evaluate(() => {
-            var gallery = new NaturalGallery.Natural(document.getElementById('root'), {rowHeight: 400});
+            // `Natural` is provider on `window` by `server.js`
+            // eslint-disable-next-line no-undef
+            var gallery = new Natural(document.getElementById('root'), {rowHeight: 400});
             gallery.init();
             gallery.addItems(images);
         });

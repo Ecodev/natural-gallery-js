@@ -109,7 +109,7 @@ layout: default
 var elementRef = document.getElementById('gallery');
 
 // The gallery accepts a literal as second argument for options
-var gallery = new NaturalGallery.Natural(elementRef, options);
+var gallery = new Natural(elementRef, options);
 
 // Recommended: listen to gallery returned object
 gallery.addEventListener(eventName, function(ev) {
@@ -280,12 +280,13 @@ gallery.addEventListener('zoom', function(ev) {
             <div style="width: 50%;" id="gallery-api-3"></div>
             <div style="width: 50%;" id="gallery-api-4"></div>
         </div>
-        <script>
+        <script type="module">
+            import {Square} from './assets/natural-gallery-js/natural-gallery.js';
             window.addEventListener('load', function() {
                 var photoswipeRef = document.getElementsByClassName('pswp')[0];
 
                 var galleryApi1Ref = document.getElementById('gallery-api-1');
-                var galleryApi1 = new NaturalGallery.Square(galleryApi1Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: false, selectable: true}, photoswipeRef);
+                var galleryApi1 = new Square(galleryApi1Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: false, selectable: true}, photoswipeRef);
                 galleryApi1.init();
                 var imagesZoom1 = {% include sample.json %}.slice(0, 1);
                 imagesZoom1[0].title = 'Image link and no lightbox = whole image click should emit activate event';
@@ -293,7 +294,7 @@ gallery.addEventListener('zoom', function(ev) {
                 galleryApi1.setItems(imagesZoom1);
 
                 var galleryApi2Ref = document.getElementById('gallery-api-2');
-                var galleryApi2 = new NaturalGallery.Square(galleryApi2Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: true, selectable: true}, photoswipeRef);
+                var galleryApi2 = new Square(galleryApi2Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: true, selectable: true}, photoswipeRef);
                 galleryApi2.init();
                 var imagesZoom2 = {% include sample.json %}.slice(0, 1);
                 imagesZoom2[0].title = 'Image link and  lightbox = button click should emit activate, image click should emit zoom';
@@ -301,14 +302,14 @@ gallery.addEventListener('zoom', function(ev) {
                 galleryApi2.setItems(imagesZoom2);
 
                 var galleryApi3Ref = document.getElementById('gallery-api-3');
-                var galleryApi3 = new NaturalGallery.Square(galleryApi3Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: false, activable: true, selectable: true}, photoswipeRef);
+                var galleryApi3 = new Square(galleryApi3Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: false, activable: true, selectable: true}, photoswipeRef);
                 galleryApi3.init();
                 var imagesZoom3 = {% include sample.json %}.slice(0, 1);
                 imagesZoom3[0].title = 'Without image link and no lightbox, but option.activable = true';
                 galleryApi3.setItems(imagesZoom3);
 
                 var galleryApi4Ref = document.getElementById('gallery-api-4');
-                var galleryApi4 = new NaturalGallery.Square(galleryApi4Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: true, activable: true, selectable: true}, photoswipeRef);
+                var galleryApi4 = new Square(galleryApi4Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: true, activable: true, selectable: true}, photoswipeRef);
                 galleryApi4.init();
                 var imagesZoom4 = {% include sample.json %}.slice(0, 1);
                 imagesZoom4[0].title = 'Without image link but with lightbox and option.activable = true';
