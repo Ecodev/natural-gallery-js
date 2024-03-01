@@ -16,7 +16,7 @@
     "exports": "./natural-gallery.js",
     "typings": "./natural-gallery.d.ts",
     "engines": {
-        "node": ">=16.0.0"
+        "node": ">=18.0.0"
     },
     "scripts": {
         "dev": "concurrently --kill-others \"tsup --watch\" \"DOCS=1 tsup --watch\" \"yarn run dev-docs\"",
