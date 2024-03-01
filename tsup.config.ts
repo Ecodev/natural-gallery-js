@@ -13,12 +13,9 @@ export default defineConfig({
     clean: true,
     outDir: outDir,
     format: 'esm',
+    minify: true,
     platform: 'neutral',
     dts: dts,
-    esbuildOptions(options) {
-        options.minify = false;
-        options.platform = 'browser';
-    },
     esbuildPlugins: [
         sassPlugin(),
         copyPlugin.copyPlugin({

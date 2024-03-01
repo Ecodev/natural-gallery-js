@@ -13,7 +13,11 @@
     },
     "homepage": "https://github.com/Ecodev/natural-gallery-js#readme",
     "type": "module",
-    "exports": "./natural-gallery.js",
+    "exports": {
+        ".":"./natural-gallery.js",
+        "./natural-gallery.css":"./natural-gallery.css",
+        "./themes/natural.css":"./themes/natural.css"
+    },
     "typings": "./natural-gallery.d.ts",
     "engines": {
         "node": ">=18.0.0"
