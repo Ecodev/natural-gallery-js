@@ -1,7 +1,7 @@
 // From https://itnext.io/testing-your-javascript-in-a-browser-with-jest-puppeteer-express-and-webpack-c998a37ef887
 import express from 'express';
 import {readFile} from 'fs/promises';
-import  {execSync, execFileSync}  from 'node:child_process';
+import {execSync} from 'node:child_process';
 
 const data = JSON.parse(await readFile('docs/assets/images.json', 'utf-8'));
 const images = data.results.map(function (i) {
