@@ -1,5 +1,4 @@
 import { ModelAttributes } from './galleries/AbstractGallery';
-import { getIcon } from './Utility';
 
 export declare interface ItemOptions {
     lightbox?: boolean;
@@ -165,7 +164,7 @@ export class Item<Model extends ModelAttributes> {
             zoomable.classList.add('zoomable');
 
             zoomable.addEventListener('click', () => {
-                const event = new CustomEvent<Item<Model>>('zoom', { detail: this });
+                const event = new CustomEvent<Item<Model>>('zoom', {detail: this});
                 this._element.dispatchEvent(event);
             });
         }
@@ -177,7 +176,7 @@ export class Item<Model extends ModelAttributes> {
                     item: this,
                     clickEvent: ev,
                 };
-                const activableEvent = new CustomEvent<ItemActivateEventDetail<Model>>('activate', { detail: data });
+                const activableEvent = new CustomEvent<ItemActivateEventDetail<Model>>('activate', {detail: data});
                 this._element.dispatchEvent(activableEvent);
             });
         }
@@ -217,7 +216,7 @@ export class Item<Model extends ModelAttributes> {
             this._selectBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.toggleSelect();
-                const event = new CustomEvent<Item<Model>>('select', { detail: this });
+                const event = new CustomEvent<Item<Model>>('select', {detail: this});
                 this._element.dispatchEvent(event);
             });
             this._element.appendChild(this._selectBtn);
@@ -228,7 +227,7 @@ export class Item<Model extends ModelAttributes> {
         return element;
     }
 
-    public setLabelHover(activate: boolean):void {
+    public setLabelHover(activate: boolean): void {
         if (activate) {
             this.options.showLabels = 'hover';
             this.label?.classList.add('hover');
