@@ -1,20 +1,12 @@
 module.exports = {
     root: true,
     parser: '@typescript-eslint/parser',
-    ignorePatterns: [
-        '/docs/',
-        '/dist/',
-    ],
-    plugins: [
-        '@typescript-eslint',
-    ],
-    extends: [
-        'eslint:recommended',
-    ],
+    ignorePatterns: ['/docs/', '/dist/'],
+    plugins: ['@typescript-eslint'],
+    extends: ['eslint:recommended'],
     rules: {
         semi: 'error',
         'quote-props': ['error', 'as-needed'],
-        quotes: ['error', 'single'],
         // For SSR compatibility
         'no-restricted-globals': [
             'error',
@@ -35,9 +27,7 @@ module.exports = {
     overrides: [
         {
             files: ['*.ts'],
-            extends: [
-                'plugin:@typescript-eslint/recommended',
-            ],
+            extends: ['plugin:@typescript-eslint/recommended'],
         },
         {
             files: ['*.js'],
@@ -58,9 +48,7 @@ module.exports = {
                 images: 'readonly',
             },
             rules: {
-                'no-restricted-globals': [
-                    'off',
-                ],
+                'no-restricted-globals': ['off'],
             },
         },
     ],

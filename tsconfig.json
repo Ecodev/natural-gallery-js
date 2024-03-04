@@ -4,29 +4,16 @@
         "declaration": true,
         "declarationDir": "dist",
         "target": "es6",
-        "lib": [
-            "es2017",
-            "dom"
-        ],
+        "lib": ["es2017", "dom"],
         "sourceMap": true,
         "esModuleInterop": true,
         "moduleResolution": "node",
         "module": "ES2020",
-        "typeRoots": [
-            "./node_modules/@types"
-        ],
+        "typeRoots": ["./node_modules/@types"],
         "paths": {
-            "@ecodev/natural-gallery-js": [
-                "."
-            ]
+            "@ecodev/natural-gallery-js": ["."]
         },
         "strict": true
     },
-    "exclude": [
-        ".idea",
-        "dist",
-        "docs",
-        "node_modules",
-        "testing"
-    ]
+    "exclude": [".idea", "dist", "docs", "node_modules", "testing"]
 }

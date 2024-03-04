@@ -3,7 +3,6 @@ import * as domino from 'domino';
 
 describe('Utility', () => {
     test('should limit image ratio', () => {
-
         const ratios = getImageRatio({enlargedWidth: 6000, enlargedHeight: 4000}, {});
         expect(ratios).toBe(1.5);
 
@@ -12,7 +11,6 @@ describe('Utility', () => {
 
         const ratios3 = getImageRatio({enlargedWidth: 6000, enlargedHeight: 4000}, {max: 1});
         expect(ratios3).toBe(1);
-
     });
 
     test('should get svg', () => {

@@ -3,7 +3,11 @@ import {ModelAttributes} from '../../src/js/galleries/AbstractGallery';
 import * as domino from 'domino';
 import {Item} from '../../src/js/Item';
 
-export function getSize<T extends ModelAttributes>({width, height, row}: Item<T>): Pick<Item<T>, 'width' | 'height' | 'row'> {
+export function getSize<T extends ModelAttributes>({
+    width,
+    height,
+    row,
+}: Item<T>): Pick<Item<T>, 'width' | 'height' | 'row'> {
     return {width, height, row};
 }
 
@@ -17,9 +21,7 @@ const imageModel: ModelAttributes = {
 };
 
 describe('Natural Gallery', () => {
-
     test('options should be completed and overriden', () => {
-
         const result: NaturalGalleryOptions = {
             rowHeight: 123, // new attribute
             gap: 4, // overriden attribute
@@ -41,11 +43,9 @@ describe('Natural Gallery', () => {
 
         const gallery = new Natural(document.createElement('div'), {rowHeight: 123, gap: 4});
         expect(gallery.getOptions()).toEqual(result);
-
     });
 
     test('should add items before creation and not render them', () => {
-
         const images = [imageModel, imageModel, imageModel, imageModel, imageModel, imageModel];
         const gallery = new Natural(document.createElement('div'), {rowHeight: 123});
         gallery.addItems(images);
@@ -55,7 +55,6 @@ describe('Natural Gallery', () => {
     });
 
     test('should return row height', () => {
-
         const images = [
             {
                 enlargedWidth: 6000,
@@ -79,11 +78,9 @@ describe('Natural Gallery', () => {
         expect(rowHeight2).toBe(267.2727272727273);
 
         expect(rowHeight2).toBeLessThan(rowHeight1);
-
     });
 
     test('should organize items that dont fill the line', () => {
-
         const images: ModelAttributes[] = [
             {
                 thumbnailSrc: 'foo.jpg',
@@ -111,7 +108,6 @@ describe('Natural Gallery', () => {
     });
 
     test('should organize items that overflow first line with no gap', () => {
-
         const images: ModelAttributes[] = [
             {
                 thumbnailSrc: 'foo.jpg',
@@ -157,11 +153,9 @@ describe('Natural Gallery', () => {
         ];
 
         expect(gallery.collection.map(getSize)).toEqual(result);
-
     });
 
     test('should organize items that overflow first line with gap Angular', () => {
-
         const images: ModelAttributes[] = [
             {
                 thumbnailSrc: 'foo.jpg',
@@ -207,11 +201,9 @@ describe('Natural Gallery', () => {
         ];
 
         expect(gallery.collection.map(getSize)).toEqual(result);
-
     });
 
     test('should be compatible with Angular SSR', () => {
-
         const images: ModelAttributes[] = [
             {
                 thumbnailSrc: 'foo.jpg',
@@ -260,7 +252,5 @@ describe('Natural Gallery', () => {
         ];
 
         expect(gallery.collection.map(getSize)).toEqual(result);
-
     });
-
 });

@@ -1,5 +1,4 @@
-Natural Gallery JS
-============================
+# Natural Gallery JS
 
 [![Build Status](https://github.com/Ecodev/natural-gallery-js/workflows/main/badge.svg)](https://github.com/Ecodev/natural-gallery-js/actions)
 
@@ -9,13 +8,12 @@ A library that allows you to display images with with natural layouts, infinite 
 
 [![screenshot](https://ecodev.github.io/natural-gallery-js/assets/screenshot.png)](https://ecodev.github.io/natural-gallery-js/)
 
-
 # Documentation
-* [Getting started](https://ecodev.github.io/natural-gallery-js/docs-getting-started.html)
-* [Options](https://ecodev.github.io/natural-gallery-js/docs-options.html)
-* [Api and events](https://ecodev.github.io/natural-gallery-js/docs-api.html)
-* [Theming and customization](https://ecodev.github.io/natural-gallery-js/docs-theming.html)
 
+-   [Getting started](https://ecodev.github.io/natural-gallery-js/docs-getting-started.html)
+-   [Options](https://ecodev.github.io/natural-gallery-js/docs-options.html)
+-   [Api and events](https://ecodev.github.io/natural-gallery-js/docs-api.html)
+-   [Theming and customization](https://ecodev.github.io/natural-gallery-js/docs-theming.html)
 
 # Install with NPM or Yarn
 
@@ -33,11 +31,11 @@ All contributions are welcome, but keep in mind that the gallery will stay simpl
 
 ## Found a bug ?
 
-Create an issue where you report what you observe, what you expect to observe, and the context of usage, as well as your browser and it's version. 
+Create an issue where you report what you observe, what you expect to observe, and the context of usage, as well as your browser and it's version.
 
 ## Want a new feature ?
 
-Consider a pull request, but create an issue before to expose your idea. Maybe the feature you would like to add is already on the pipeline or is intentionally not included for good reasons. 
+Consider a pull request, but create an issue before to expose your idea. Maybe the feature you would like to add is already on the pipeline or is intentionally not included for good reasons.
 
 # Testing
 

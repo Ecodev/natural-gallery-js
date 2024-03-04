@@ -1,22 +1,22 @@
-import { debounce, defaultsDeep, pick } from 'lodash-es';
+import {debounce, defaultsDeep, pick} from 'lodash-es';
 
-import PhotoSwipe, { PhotoSwipeOptions, SlideData } from 'photoswipe';
+import PhotoSwipe, {PhotoSwipeOptions, SlideData} from 'photoswipe';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 
 import 'photoswipe/dist/photoswipe.css';
 
-import { Item, ItemActivateEventDetail, ItemOptions } from '../Item';
-import { getIcon } from '../Utility';
+import {Item, ItemActivateEventDetail, ItemOptions} from '../Item';
+import {getIcon} from '../Utility';
 
 /**
  * A map of all possible event and the structure of their details
  */
 export interface CustomEventDetailMap<T> {
-    'activate': { model: T, clickEvent: MouseEvent },
-    'item-added-to-dom': T,
-    'item-displayed': T,
-    'pagination': { offset: number, limit: number },
-    'select': T[],
+    activate: {model: T; clickEvent: MouseEvent};
+    'item-added-to-dom': T;
+    'item-displayed': T;
+    pagination: {offset: number; limit: number};
+    select: T[];
 }
 
 /**
@@ -34,7 +34,6 @@ declare global {
 }
 
 export interface SizedModel {
-
     /**
      * Height in pixels of the enlarged version the image
      * If photoswipe is used, the size of the photoswipe enlarged image is required
@@ -51,7 +50,6 @@ export interface SizedModel {
 }
 
 export interface ModelAttributes extends SizedModel {
-
     /**
      * Source link for thumbnail image
      */
@@ -108,12 +106,11 @@ export interface GalleryOptions extends ItemOptions {
         /**
          * In SSR mode, if the gallery width cannot be computed, it will fallback to this value
          */
-        galleryWidth: number
-    }
+        galleryWidth: number;
+    };
 }
 
 export abstract class AbstractGallery<Model extends ModelAttributes> {
-
     /**
      * Default options
      */
@@ -171,7 +168,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      */
     private requestedIndexesLog: number[] = [];
 
-
     /**
      * Reference to next button element
      */
@@ -194,9 +190,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * Get currently selected PhotoSwipe image
      */
     get photoSwipeCurrentItem(): Model | null {
-        return this.collection[
-            this.psLightbox?.pswp?.currIndex || 0
-        ]?.model || null;
+        return this.collection[this.psLightbox?.pswp?.currIndex || 0]?.model || null;
     }
 
     /**
@@ -205,39 +199,41 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * @param options
      * @param scrollElementRef
      */
-    constructor(protected elementRef: HTMLElement,
+    constructor(
+        protected elementRef: HTMLElement,
         options: GalleryOptions,
-        protected scrollElementRef?: HTMLElement | null) {
+        protected scrollElementRef?: HTMLElement | null,
+    ) {
         this.document = this.elementRef.ownerDocument;
         this.options = defaultsDeep(options, this.options);
 
-
         // After having finished to add items to dom, show images inside containers and emit updated pagination
-        this.flushBufferedItems = debounce(() => {
+        this.flushBufferedItems = debounce(
+            () => {
+                this.scrollBufferedItems.forEach(i => {
+                    i.loadImage();
+                    this.dispatchEvent('item-displayed', i.model);
+                });
 
-            this.scrollBufferedItems.forEach(i => {
-                i.loadImage();
-                this.dispatchEvent('item-displayed', i.model);
-            });
+                this.scrollBufferedItems = [];
 
-            this.scrollBufferedItems = [];
+                if (!this.requiredItems) {
+                    return;
+                }
 
-            if (!this.requiredItems) {
-                return;
-            }
-
-            // Each time a pagination event is emitted, the offset is logged and then verified to be sure to not ask it
-            // twice. That would cause duplicated entries and probably empty buffer with smaller pages. That could
-            // cause infinite loading until the end of the gallery
-            if (this.requestedIndexesLog.indexOf(this.collection.length) < 0) {
-                const offset = this.collection.length;
-                this.dispatchEvent('pagination', { offset, limit: this.requiredItems });
-                this.requestedIndexesLog.push(offset);
-                this.requiredItems = 0;
-            }
-
-        }, 500, { leading: false, trailing: true });
-
+                // Each time a pagination event is emitted, the offset is logged and then verified to be sure to not ask it
+                // twice. That would cause duplicated entries and probably empty buffer with smaller pages. That could
+                // cause infinite loading until the end of the gallery
+                if (this.requestedIndexesLog.indexOf(this.collection.length) < 0) {
+                    const offset = this.collection.length;
+                    this.dispatchEvent('pagination', {offset, limit: this.requiredItems});
+                    this.requestedIndexesLog.push(offset);
+                    this.requiredItems = 0;
+                }
+            },
+            500,
+            {leading: false, trailing: true},
+        );
     }
 
     /**
@@ -262,11 +258,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     }
 
     get selectedItems(): Model[] {
-        return this.domCollection.filter((item) => item.selected).map(item => item.model);
+        return this.domCollection.filter(item => item.selected).map(item => item.model);
     }
 
     get width(): number {
-
         // elementRef.clientWidth rounds ceil, we need round floor to grant computing fits in the available space
         // elementRef.getBoundingClientRect().width doesn't round, so we can round floor.
         return Math.floor(this.elementRef.getBoundingClientRect?.().width ?? this.options.ssr.galleryWidth);
@@ -284,7 +279,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * Initializes DOM manipulations
      */
     public init(): void {
-
         this.elementRef.classList.add('natural-gallery-js');
 
         // Next button
@@ -292,7 +286,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         this.nextButton.classList.add('natural-gallery-next');
         this.nextButton.appendChild(getIcon(this.document, 'natural-gallery-icon-next'));
         this.nextButton.style.display = 'none';
-        this.nextButton.addEventListener('click', (e) => {
+        this.nextButton.addEventListener('click', e => {
             e.preventDefault();
             this.onPageAdd();
         });
@@ -311,7 +305,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             leading: true,
             trailing: false,
         });
-        const endResize = debounce(() => this.endResize(), resizeDebounceDuration, { leading: false, trailing: true });
+        const endResize = debounce(() => this.endResize(), resizeDebounceDuration, {leading: false, trailing: true});
         iframe.contentWindow?.addEventListener('resize', () => {
             endResize();
             startResize();
@@ -366,11 +360,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         this.psLightbox.on('change', () => {
             // Positive delta means next slide.
             // If we go next slide, and current index is out of visible collection bound, load more items
-            if (this.psLightbox?.pswp && (this.psLightbox.pswp.currIndex > (this.domCollection.length - 10))) {
+            if (this.psLightbox?.pswp && this.psLightbox.pswp.currIndex > this.domCollection.length - 10) {
                 this.onPageAdd();
             }
         });
-
     }
 
     public addItemToPhotoSwipeCollection(item: Item<Model>) {
@@ -387,7 +380,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * @param models list of models
      */
     public addItems(models: Model[]): void {
-
         // Accept only tables
         if (!(models.constructor === Array && models.length)) {
             return;
@@ -413,7 +405,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         }
     }
 
-    public setLabelHover(activate: boolean):void {
+    public setLabelHover(activate: boolean): void {
         this.options.showLabels = activate ? 'hover' : 'always';
         this.collection.forEach(item => {
             item.setLabelHover(activate);
@@ -425,7 +417,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * Ignores buffered items
      */
     public selectVisibleItems(): Model[] {
-        this.domCollection.forEach((item) => item.select());
+        this.domCollection.forEach(item => item.select());
         return this.selectedItems;
     }
 
@@ -433,7 +425,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * Unselect all selected elements
      */
     public unselectAllItems(): void {
-        this.domCollection.forEach((item) => item.unselect());
+        this.domCollection.forEach(item => item.unselect());
     }
 
     /**
@@ -448,8 +440,16 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * @param options An object that specifies characteristics about the event listener. The available options are, see
      *     addEventListener official documentation
      */
-    public addEventListener<K extends keyof CustomEventDetailMap<Model>>(name: K, callback: (evt: CustomEvent<CustomEventDetailMap<Model>[K]>) => void, options?: boolean | AddEventListenerOptions): void;
-    public addEventListener(name: keyof CustomEventDetailMap<Model>, callback: (evt: CustomEvent<CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>]>) => void, options?: boolean | AddEventListenerOptions): void {
+    public addEventListener<K extends keyof CustomEventDetailMap<Model>>(
+        name: K,
+        callback: (evt: CustomEvent<CustomEventDetailMap<Model>[K]>) => void,
+        options?: boolean | AddEventListenerOptions,
+    ): void;
+    public addEventListener(
+        name: keyof CustomEventDetailMap<Model>,
+        callback: (evt: CustomEvent<CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>]>) => void,
+        options?: boolean | AddEventListenerOptions,
+    ): void {
         this.elementRef.addEventListener(name, callback, options);
 
         if (name === 'pagination' && this.bodyElementRef) {
@@ -493,7 +493,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * If not, just query for items
      */
     protected initItems(): void {
-
         if (!this.collection.length) {
             this.requestItems();
             return;
@@ -556,7 +555,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         // +1 because we have to get more than what is used under onPageAdd().
         // Without +1 all items are always added to DOM and gallery will loop load until end of collection
         const limit = estimatedPerRow * this.getRowsPerPage() + 1;
-        this.dispatchEvent('pagination', { offset: this.collection.length, limit: limit });
+        this.dispatchEvent('pagination', {offset: this.collection.length, limit: limit});
     }
 
     /**
@@ -593,12 +592,15 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
         // When selected / unselected
         item.element.addEventListener('select', () => {
-            this.dispatchEvent('select', this.domCollection.filter(i => i.selected).map(i => i.model));
+            this.dispatchEvent(
+                'select',
+                this.domCollection.filter(i => i.selected).map(i => i.model),
+            );
         });
 
         // When activate (if activate event is given in options)
         item.element.addEventListener('activate', (ev: CustomEvent<ItemActivateEventDetail<Model>>) => {
-            this.dispatchEvent('activate', { model: ev.detail.item.model, clickEvent: ev.detail.clickEvent });
+            this.dispatchEvent('activate', {model: ev.detail.item.model, clickEvent: ev.detail.clickEvent});
         });
 
         if (this.options.lightbox) {
@@ -624,12 +626,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * event and recompute all gallery twice on start.
      */
     protected extendToFreeViewport(): void {
-
         if (this.options.rowsPerPage) {
             return;
         }
 
-        this.elementRef.style.minHeight = (this.getGalleryVisibleHeight() + 10) + 'px';
+        this.elementRef.style.minHeight = this.getGalleryVisibleHeight() + 10 + 'px';
     }
 
     /**
@@ -651,9 +652,15 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         this.bodyElementRef?.classList.remove('resizing');
     }
 
-    protected dispatchEvent<K extends keyof CustomEventDetailMap<Model>>(name: K, data: CustomEventDetailMap<Model>[K]): void;
-    protected dispatchEvent(name: keyof CustomEventDetailMap<Model>, data: CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>]): void {
-        const event = new CustomEvent(name, { detail: data });
+    protected dispatchEvent<K extends keyof CustomEventDetailMap<Model>>(
+        name: K,
+        data: CustomEventDetailMap<Model>[K],
+    ): void;
+    protected dispatchEvent(
+        name: keyof CustomEventDetailMap<Model>,
+        data: CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>],
+    ): void {
+        const event = new CustomEvent(name, {detail: data});
         this.elementRef.dispatchEvent(event);
     }
 
@@ -675,7 +682,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * @param {HTMLElement | Document} element
      */
     private bindScroll(element: HTMLElement | Document) {
-
         const scrollable = element;
         const wrapper: HTMLElement = element instanceof Document ? element.documentElement : element;
 
@@ -692,7 +698,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             startScroll();
             endScroll();
 
-            const endOfGalleryAt = this.elementRef.offsetTop + this.elementRef.offsetHeight + this.options.infiniteScrollOffset;
+            const endOfGalleryAt =
+                this.elementRef.offsetTop + this.elementRef.offsetHeight + this.options.infiniteScrollOffset;
 
             // Avoid to expand gallery if we are scrolling up
             const current_scroll_top = wrapper.scrollTop - (wrapper.clientTop || 0);
@@ -707,5 +714,4 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             }
         });
     }
-
 }

@@ -7,9 +7,7 @@
 // https://dev.to/aalises/dealing-with-asynchrony-when-writing-end-to-end-tests-with-puppeteer--jest-n37
 
 describe('Natural', () => {
-
     fit('should create gallery, init, scroll and resize"', async () => {
-
         await page.goto(PATH, {waitUntil: 'networkidle0'});
 
         // Init gallery and data
@@ -38,8 +36,5 @@ describe('Natural', () => {
         await page.waitForTimeout(600); // wait debounce from gallery
         items = await page.$$('#root .natural-gallery-body .figure');
         expect(items.length).toBe(17);
-
     }, 30000);
-
 });
-

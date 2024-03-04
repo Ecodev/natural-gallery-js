@@ -11,9 +11,7 @@ const imageModel: ModelAttributes = {
 };
 
 describe('Square Gallery', () => {
-
     test('Options should be completed and overriden', () => {
-
         const result: SquareGalleryOptions = {
             itemsPerRow: 123, // new attribute
             gap: 4, // overriden attribute
@@ -35,17 +33,14 @@ describe('Square Gallery', () => {
 
         const gallery = new Square(document.createElement('div'), {itemsPerRow: 123, gap: 4});
         expect(gallery.getOptions()).toEqual(result);
-
     });
 
     test('should add items before creation and not render them', () => {
-
         const images = [imageModel, imageModel, imageModel, imageModel, imageModel, imageModel];
         const gallery = new Square(document.createElement('div'), {itemsPerRow: 123});
         gallery.addItems(images);
 
         expect(gallery.collection.length).toEqual(6);
         expect(gallery.domCollection.length).toEqual(0);
-
     });
 });

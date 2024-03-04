@@ -26,5 +26,5 @@ export default defineConfig({
             src: 'src/styles/themes',
             dest: `${outDir}/themes/`,
         }),
-    ]
+    ],
 });

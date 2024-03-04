@@ -1,7 +1,7 @@
-import { Item } from '../Item';
-import { getImageRatio, getImageRatioAndIfCropped, RatioLimits } from '../Utility';
-import { GalleryOptions, ModelAttributes, SizedModel } from './AbstractGallery';
-import { AbstractRowGallery } from './AbstractRowGallery';
+import {Item} from '../Item';
+import {getImageRatio, getImageRatioAndIfCropped, RatioLimits} from '../Utility';
+import {GalleryOptions, ModelAttributes, SizedModel} from './AbstractGallery';
+import {AbstractRowGallery} from './AbstractRowGallery';
 
 export interface NaturalGalleryOptions extends GalleryOptions {
     rowHeight: number;
@@ -9,16 +9,12 @@ export interface NaturalGalleryOptions extends GalleryOptions {
 }
 
 export class Natural<Model extends ModelAttributes = ModelAttributes> extends AbstractRowGallery<Model> {
-
     /**
      * Options after having been defaulted
      */
     protected declare options: Required<NaturalGalleryOptions>;
 
-    constructor(elementRef: HTMLElement,
-        options: NaturalGalleryOptions,
-        scrollElementRef?: HTMLElement | null) {
-
+    constructor(elementRef: HTMLElement, options: NaturalGalleryOptions, scrollElementRef?: HTMLElement | null) {
         super(elementRef, options, scrollElementRef);
 
         if (!options.rowHeight || options.rowHeight <= 0) {
@@ -33,7 +29,6 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
         toRow: number | null = null,
         currentRow: number | null = null,
     ): void {
-
         if (!currentRow) {
             currentRow = fromRow ? fromRow : 0;
         }
@@ -41,9 +36,13 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
         const options = gallery.options;
 
         for (let chunkSize = 1; chunkSize <= items.length; chunkSize++) {
-
             const chunk = items.slice(0, chunkSize);
-            const rowWidth = this.getRowWidth(chunk.map(c => c.model), options.rowHeight, options.gap, options.ratioLimit);
+            const rowWidth = this.getRowWidth(
+                chunk.map(c => c.model),
+                options.rowHeight,
+                options.gap,
+                options.ratioLimit,
+            );
 
             if (rowWidth >= gallery.width) {
                 // if end of row
@@ -70,15 +69,18 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
      * Compute sizes for given images to fit in given row width
      * Items are updated
      */
-    public static computeSizes<T extends ModelAttributes>(chunk: Item<T>[],
+    public static computeSizes<T extends ModelAttributes>(
+        chunk: Item<T>[],
         containerWidth: number | null,
         margin: number,
         row: number,
         maxRowHeight: number | null = null,
-        ratioLimits?: RatioLimits): void {
-
+        ratioLimits?: RatioLimits,
+    ): void {
         const chunkModels = chunk.map(c => c.model);
-        const rowHeight = containerWidth ? this.getRowHeight(chunkModels, containerWidth, margin, ratioLimits) : (maxRowHeight ?? 0);
+        const rowHeight = containerWidth
+            ? this.getRowHeight(chunkModels, containerWidth, margin, ratioLimits)
+            : maxRowHeight ?? 0;
         const rowWidth = this.getRowWidth(chunkModels, rowHeight, margin, ratioLimits);
 
         // Overflowed pixels
@@ -88,12 +90,12 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
         for (let i = 0; i < chunk.length; i++) {
             const item = chunk[i];
-            const { ratio, cropped } = getImageRatioAndIfCropped(item.model, ratioLimits);
+            const {ratio, cropped} = getImageRatioAndIfCropped(item.model, ratioLimits);
             let width = ratio * rowHeight - excess;
             decimals += width - Math.floor(width);
             width = Math.floor(width);
 
-            if (decimals >= 1 || i === chunk.length - 1 && Math.round(decimals) === 1) {
+            if (decimals >= 1 || (i === chunk.length - 1 && Math.round(decimals) === 1)) {
                 width++;
                 decimals--;
             }
@@ -107,11 +109,21 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
         }
     }
 
-    public static getRowWidth(models: SizedModel[], maxRowHeight: number, margin: number, ratioLimits?: RatioLimits): number {
+    public static getRowWidth(
+        models: SizedModel[],
+        maxRowHeight: number,
+        margin: number,
+        ratioLimits?: RatioLimits,
+    ): number {
         return margin * (models.length - 1) + this.getRatios(models, ratioLimits) * maxRowHeight;
     }
 
-    public static getRowHeight(models: SizedModel[], containerWidth: number, margin: number, ratioLimits?: RatioLimits): number {
+    public static getRowHeight(
+        models: SizedModel[],
+        containerWidth: number,
+        margin: number,
+        ratioLimits?: RatioLimits,
+    ): number {
         return (containerWidth - margin * (models.length - 1)) / this.getRatios(models, ratioLimits);
     }
 
@@ -138,7 +150,6 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
     }
 
     protected getEstimatedColumnsPerRow(): number {
-
         let ratio = 1;
 
         // Better prediction using ratio if provided
@@ -154,7 +165,6 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
     }
 
     private completeLastRow(): void {
-
         if (!this.domCollection.length) {
             return;
         }
@@ -167,8 +177,13 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
         // Get a list from first item of last row until end of collection
         const collectionFromLastVisibleRow = this.collection.slice(this.domCollection.length - visibleItemsInLastRow);
-        this.organizeItems(collectionFromLastVisibleRow, collectionFromLastVisibleRow[0].row, collectionFromLastVisibleRow[0].row);
-        const itemsToAdd = collectionFromLastVisibleRow.slice(visibleItemsInLastRow)
+        this.organizeItems(
+            collectionFromLastVisibleRow,
+            collectionFromLastVisibleRow[0].row,
+            collectionFromLastVisibleRow[0].row,
+        );
+        const itemsToAdd = collectionFromLastVisibleRow
+            .slice(visibleItemsInLastRow)
             .filter(i => i.row <= collectionFromLastVisibleRow[0].row);
 
         itemsToAdd.forEach(i => this.addItemToDOM(i));

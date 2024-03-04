@@ -1,4 +1,4 @@
-@import "figure";
+@import 'figure';
 
 .pswp {
     z-index: 9999999;
@@ -70,7 +70,7 @@
         }
 
         &::after {
-            content: "";
+            content: '';
             display: block;
             clear: both;
         }
@@ -109,7 +109,7 @@
         }
 
         &::after {
-            content: "";
+            content: '';
             display: block;
             clear: both;
         }
