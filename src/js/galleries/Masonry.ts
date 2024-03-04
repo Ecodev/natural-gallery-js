@@ -1,8 +1,7 @@
-import { Column } from '../Column';
-import { Item } from '../Item';
-import { getImageRatioAndIfCropped, RatioLimits } from '../Utility';
-import { AbstractGallery, GalleryOptions, ModelAttributes } from './AbstractGallery';
-
+import {Column} from '../Column';
+import {Item} from '../Item';
+import {getImageRatioAndIfCropped, RatioLimits} from '../Utility';
+import {AbstractGallery, GalleryOptions, ModelAttributes} from './AbstractGallery';
 
 export interface MasonryGalleryOptions extends GalleryOptions {
     columnWidth: number;
@@ -10,7 +9,6 @@ export interface MasonryGalleryOptions extends GalleryOptions {
 }
 
 export class Masonry<Model extends ModelAttributes = ModelAttributes> extends AbstractGallery<Model> {
-
     /**
      * Options after having been defaulted
      */
@@ -21,10 +19,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
      */
     protected columns: Column<Model>[] = [];
 
-    constructor(elementRef: HTMLElement,
-        options: MasonryGalleryOptions,
-        scrollElementRef?: HTMLElement | null) {
-
+    constructor(elementRef: HTMLElement, options: MasonryGalleryOptions, scrollElementRef?: HTMLElement | null) {
         super(elementRef, options, scrollElementRef);
 
         if (!options.columnWidth || options.columnWidth <= 0) {
@@ -35,8 +30,12 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     /**
      * Compute sides with 1:1 ratio
      */
-    public static organizeItems<T extends ModelAttributes>(gallery: Masonry<T>, items: Item<T>[], fromIndex = 0, toIndex: number | null = null): void {
-
+    public static organizeItems<T extends ModelAttributes>(
+        gallery: Masonry<T>,
+        items: Item<T>[],
+        fromIndex = 0,
+        toIndex: number | null = null,
+    ): void {
         const itemsPerRow = gallery.getEstimatedColumnsPerRow();
 
         // Compute columnWidth of pictures
@@ -47,7 +46,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
         for (let i = 0; i < lastIndex; i++) {
             const item = items[i];
-            const { ratio, cropped } = getImageRatioAndIfCropped(item.model, gallery.options.ratioLimit);
+            const {ratio, cropped} = getImageRatioAndIfCropped(item.model, gallery.options.ratioLimit);
 
             item.last = true;
             item.width = Math.floor(columnWidth);
@@ -64,7 +63,6 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
          * Setup scroll detection to prevent empty zones due to different heights
          */
         if (!this.options.infiniteScrollOffset) {
-
             let ratio = 0.5; // Portrait format to maximize estimated height
 
             // Better prediction using ratio if provided
@@ -74,9 +72,8 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
             const columnWidth = this.getColumnWidth();
 
-            this.options.infiniteScrollOffset = -1 * columnWidth / ratio;
+            this.options.infiniteScrollOffset = (-1 * columnWidth) / ratio;
         }
-
     }
 
     public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
@@ -101,7 +98,6 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     }
 
     protected getEstimatedRowsPerPage(): number {
-
         let ratio = 1.75; // ~16/9 - landscape format to minimum the height and maximize the prediction of the number of items
 
         // Better prediction using ratio if provided
@@ -130,7 +126,6 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     }
 
     protected endResize(): void {
-
         super.endResize();
 
         if (!this.domCollection.length) {
@@ -152,7 +147,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         this.columns = [];
         const columnWidth = this.getColumnWidth();
         for (let i = 0; i < this.getEstimatedColumnsPerRow(); i++) {
-            const columnRef = new Column<Model>(this.document, { width: columnWidth, gap: this.options.gap });
+            const columnRef = new Column<Model>(this.document, {width: columnWidth, gap: this.options.gap});
             this.columns.push(columnRef);
             this.bodyElementRef.appendChild(columnRef.elementRef);
         }
@@ -167,11 +162,12 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
      * Returns true if at least one columns doesn't overflow on the bottom of the viewport
      */
     private viewPortIsNotFilled(): boolean {
-        return this.columns.some(c => c.elementRef.getBoundingClientRect().bottom < this.document.documentElement.clientHeight);
+        return this.columns.some(
+            c => c.elementRef.getBoundingClientRect().bottom < this.document.documentElement.clientHeight,
+        );
     }
 
     private addItemsToDom(nbItems: number) {
-
         const nbVisibleImages = this.domCollection.length;
 
         // Next row to add (first invisible row)
@@ -211,5 +207,4 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
             return column.height < shortestColumn.height ? column : shortestColumn;
         });
     }
-
 }

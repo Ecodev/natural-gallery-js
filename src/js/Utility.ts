@@ -49,5 +49,5 @@ export function getImageRatioAndIfCropped(model: SizedModel, ratioLimits?: Ratio
         }
     }
 
-    return { ratio: ratio, cropped: cropped };
+    return {ratio: ratio, cropped: cropped};
 }

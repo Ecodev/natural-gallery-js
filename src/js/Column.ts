@@ -7,12 +7,14 @@ export declare interface ColumnOptions {
 }
 
 export class Column<Model extends ModelAttributes> {
-
     private readonly collection: Item<Model>[] = [];
 
     private readonly _elementRef: HTMLElement;
 
-    public constructor(document: Document, private options: ColumnOptions) {
+    public constructor(
+        document: Document,
+        private options: ColumnOptions,
+    ) {
         this._elementRef = document.createElement('div');
         this._elementRef.classList.add('column');
         this._elementRef.style.marginRight = this.options.gap + 'px';
@@ -34,5 +36,4 @@ export class Column<Model extends ModelAttributes> {
     get elementRef(): HTMLElement {
         return this._elementRef;
     }
-
 }

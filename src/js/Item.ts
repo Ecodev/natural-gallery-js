@@ -1,4 +1,4 @@
-import { ModelAttributes } from './galleries/AbstractGallery';
+import {ModelAttributes} from './galleries/AbstractGallery';
 
 export declare interface ItemOptions {
     lightbox?: boolean;
@@ -16,11 +16,10 @@ export interface ItemTitle {
 
 export type ItemActivateEventDetail<Model extends ModelAttributes> = {
     clickEvent: MouseEvent;
-    item: Item<Model>
+    item: Item<Model>;
 };
 
 export class Item<Model extends ModelAttributes> {
-
     /**
      * Cleaned title, used for label / button
      */
@@ -120,7 +119,6 @@ export class Item<Model extends ModelAttributes> {
             this.label.classList.add('button');
             zoomable = image;
             activable = link;
-
         } else if (this.options.lightbox && showLabel && !link) {
             this.label = this.document.createElement('div');
 
@@ -131,7 +129,6 @@ export class Item<Model extends ModelAttributes> {
             } else {
                 zoomable = element;
             }
-
         } else if (this.options.lightbox && !showLabel) {
             // Actually, lightbox has priority on the link that is ignored...
             zoomable = element;
@@ -140,21 +137,18 @@ export class Item<Model extends ModelAttributes> {
             // It's ok if activate event is used for tracking, but not if it's used to do an action.
             // In the doubt, for now it's not allowed
             // activable = element;
-
         } else if (!this.options.lightbox && showLabel && link) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             image = this.getLinkElement()!;
             this.label = link;
             this.label.classList.add('button');
             activable = element;
-
         } else if (!this.options.lightbox && showLabel && !link) {
             this.label = this.document.createElement('div');
             if (this.options.activable) {
                 activable = element;
                 this.label.classList.add('button');
             }
-
         } else if (!this.options.lightbox && !showLabel && link) {
             image = link;
             activable = link;
@@ -171,7 +165,7 @@ export class Item<Model extends ModelAttributes> {
 
         if (activable) {
             activable.classList.add('activable');
-            activable.addEventListener('click', (ev) => {
+            activable.addEventListener('click', ev => {
                 const data: ItemActivateEventDetail<Model> = {
                     item: this,
                     clickEvent: ev,
@@ -213,7 +207,7 @@ export class Item<Model extends ModelAttributes> {
             const marker = this.document.createElement('div');
             marker.classList.add('marker');
             this._selectBtn.appendChild(marker);
-            this._selectBtn.addEventListener('click', (e) => {
+            this._selectBtn.addEventListener('click', e => {
                 e.stopPropagation();
                 this.toggleSelect();
                 const event = new CustomEvent<Item<Model>>('select', {detail: this});
@@ -242,7 +236,6 @@ export class Item<Model extends ModelAttributes> {
      * Does not apply border-radius because is used to restyle data on browser resize, and border-radius don't change.
      */
     public style(): void {
-
         if (!this._element) {
             return;
         }
@@ -263,7 +256,6 @@ export class Item<Model extends ModelAttributes> {
      * @returns {HTMLElement}
      */
     public loadImage(): void {
-
         this._image.setAttribute('src', this.model.thumbnailSrc);
         this._image.setAttribute('alt', this.model.title || '');
 
@@ -296,7 +288,6 @@ export class Item<Model extends ModelAttributes> {
     }
 
     private getLinkElement(): HTMLElement | null {
-
         if (this.model.link) {
             const link = this.document.createElement('a');
             link.setAttribute('href', this.model.link);
@@ -372,5 +363,4 @@ export class Item<Model extends ModelAttributes> {
     get element(): HTMLElement {
         return this._element;
     }
-
 }

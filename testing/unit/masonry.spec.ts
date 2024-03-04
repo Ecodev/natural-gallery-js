@@ -11,9 +11,7 @@ const imageModel: ModelAttributes = {
 };
 
 describe('Masonry Gallery', () => {
-
     test('Options should be completed and overriden', () => {
-
         const result: MasonryGalleryOptions = {
             columnWidth: 123, // new attribute
             gap: 4, // overriden attribute
@@ -34,17 +32,14 @@ describe('Masonry Gallery', () => {
         };
         const gallery = new Masonry(document.createElement('div'), {columnWidth: 123, gap: 4});
         expect(gallery.getOptions()).toEqual(result);
-
     });
 
     test('should add items before creation and not render them', () => {
-
         const images = [imageModel, imageModel, imageModel, imageModel, imageModel, imageModel];
         const gallery = new Masonry(document.createElement('div'), {columnWidth: 123});
         gallery.addItems(images);
 
         expect(gallery.collection.length).toEqual(6);
         expect(gallery.domCollection.length).toEqual(0);
-
     });
 });

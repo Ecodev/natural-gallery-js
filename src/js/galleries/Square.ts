@@ -7,16 +7,12 @@ export interface SquareGalleryOptions extends GalleryOptions {
 }
 
 export class Square<Model extends ModelAttributes = ModelAttributes> extends AbstractRowGallery<Model> {
-
     /**
      * Options after having been defaulted
      */
     protected declare options: Required<SquareGalleryOptions>;
 
-    constructor(elementRef: HTMLElement,
-                options: SquareGalleryOptions,
-                scrollElementRef?: HTMLElement | null) {
-
+    constructor(elementRef: HTMLElement, options: SquareGalleryOptions, scrollElementRef?: HTMLElement | null) {
         super(elementRef, options, scrollElementRef);
 
         if (!options.itemsPerRow || options.itemsPerRow <= 0) {
@@ -27,8 +23,12 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
     /**
      * Compute sides with 1:1 ratio
      */
-    public static organizeItems<T extends ModelAttributes>(gallery: Square<T>, items: Item<T>[], firstRowIndex = 0, toRow: number | null = null): void {
-
+    public static organizeItems<T extends ModelAttributes>(
+        gallery: Square<T>,
+        items: Item<T>[],
+        firstRowIndex = 0,
+        toRow: number | null = null,
+    ): void {
         const sideSize = gallery.getItemSideSize();
         let lastIndex = toRow ? gallery.options.itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
         lastIndex = lastIndex > items.length ? items.length : lastIndex;
@@ -63,5 +63,4 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
     public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
         Square.organizeItems(this, items, fromRow, toRow);
     }
-
 }

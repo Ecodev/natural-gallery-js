@@ -1,7 +1,6 @@
 import {AbstractGallery, ModelAttributes} from './AbstractGallery';
 
 export abstract class AbstractRowGallery<Model extends ModelAttributes> extends AbstractGallery<Model> {
-
     protected onScroll(): void {
         this.addRows(1);
     }
@@ -15,7 +14,6 @@ export abstract class AbstractRowGallery<Model extends ModelAttributes> extends 
      * @param rows
      */
     protected addRows(rows: number): void {
-
         const nbVisibleImages = this.domCollection.length;
 
         // Next row to add (first invisible row)
@@ -33,7 +31,6 @@ export abstract class AbstractRowGallery<Model extends ModelAttributes> extends 
     }
 
     protected endResize(): void {
-
         super.endResize();
 
         if (!this.domCollection.length) {
@@ -42,7 +39,5 @@ export abstract class AbstractRowGallery<Model extends ModelAttributes> extends 
 
         // Compute with new width. Rows indexes may have change
         this.organizeItems(this.domCollection);
-
     }
-
 }

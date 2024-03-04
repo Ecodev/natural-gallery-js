@@ -1,5 +1,4 @@
 .natural-gallery-js {
-
     .figure {
         left: 0;
         position: relative;
@@ -11,22 +10,29 @@
         transition: 1s background-color;
 
         &:hover {
-            .title.hover, .title.hover, .selectBtn {
+            .title.hover,
+            .title.hover,
+            .selectBtn {
                 transform: translateY(0%);
             }
         }
 
-        &.zoomable, .zoomable {
+        &.zoomable,
+        .zoomable {
             cursor: zoom-in;
         }
 
-        &.activable, .activable {
+        &.activable,
+        .activable {
             cursor: pointer;
         }
 
         &.loaded > .image {
             opacity: 1;
-            transition: 1s ease-out opacity, 1s ease-out transform, .2s ease-out margin;
+            transition:
+                1s ease-out opacity,
+                1s ease-out transform,
+                0.2s ease-out margin;
         }
 
         &.selected {
@@ -44,8 +50,11 @@
 
         &.zoomable:active .image,
         .image.zoomable:active {
-            transform: scale(1.0);
-            transition: 1s ease-out opacity, 0.1s ease-out transform, .2s ease-out margin;
+            transform: scale(1);
+            transition:
+                1s ease-out opacity,
+                0.1s ease-out transform,
+                0.2s ease-out margin;
         }
 
         .image {
@@ -59,7 +68,7 @@
             opacity: 0;
             background-repeat: no-repeat;
             background-position: center center;
-            transition: .2s ease all;
+            transition: 0.2s ease all;
         }
 
         .selectBtn {
@@ -70,7 +79,7 @@
             padding: 10px;
             width: 36px;
             height: 36px;
-            transition: .2s ease all;
+            transition: 0.2s ease all;
             transform: translateY(calc(-100% - 15px));
             color: rgba(255, 255, 255, 0.9);
             fill: currentColor;
@@ -87,7 +96,8 @@
                 box-sizing: border-box;
                 border-radius: 2px;
 
-                &::before, &::after {
+                &::before,
+                &::after {
                     content: ' ';
                     position: absolute;
                     display: block;
@@ -110,7 +120,6 @@
                     transform: rotateZ(45deg);
                     transform-origin: 100% 100%;
                 }
-
             }
         }
 
@@ -127,7 +136,7 @@
             line-height: 1.7em;
             font-weight: normal;
             padding: 10px;
-            transition: .2s ease all;
+            transition: 0.2s ease all;
             overflow: hidden;
             white-space: normal;
 

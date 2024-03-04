@@ -1,9 +1,7 @@
 // await jestPuppeteer.debug();
 
 describe('Masonry', () => {
-
     it('should create gallery, init, scroll and resize"', async () => {
-
         await page.goto(PATH, {waitUntil: 'networkidle0'});
 
         // Init gallery and data
@@ -33,8 +31,5 @@ describe('Masonry', () => {
         await page.waitForTimeout(600); // wait debounce from gallery
         items = await page.$$('#root .natural-gallery-body .figure');
         expect(items.length).toBe(15);
-
     }, 30000);
-
 });
-
