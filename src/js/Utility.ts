@@ -51,3 +51,10 @@ export function getImageRatioAndIfCropped(model: SizedModel, ratioLimits?: Ratio
 
     return {ratio: ratio, cropped: cropped};
 }
+
+/**
+ * Cleans HTML, and returns only the plain text and `<br>` from all eventual tags
+ */
+export function sanitizeHtml(term: string | undefined): string {
+    return term ? term.replace(/<(?!\s*br\s*\/?)[^>]*>/gi, '') : '';
+}

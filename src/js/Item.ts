@@ -1,4 +1,5 @@
 import {ModelAttributes} from './galleries/AbstractGallery';
+import {sanitizeHtml} from "./Utility";
 
 export declare interface ItemOptions {
     lightbox?: boolean;
@@ -6,12 +7,6 @@ export declare interface ItemOptions {
     activable?: boolean;
     gap?: number;
     showLabels?: 'hover' | 'never' | 'always';
-}
-
-export interface ItemTitle {
-    title: string;
-    link: string;
-    linkTarget: '_blank' | '_self' | '_parent' | '_top';
 }
 
 export type ItemActivateEventDetail<Model extends ModelAttributes> = {
@@ -72,7 +67,6 @@ export class Item<Model extends ModelAttributes> {
 
     /**
      *
-     * @param {ItemOptions} options
      * @param model Contains the source data given for an item (e.g object instance from database with id etc..)
      */
     public constructor(
@@ -80,16 +74,7 @@ export class Item<Model extends ModelAttributes> {
         private readonly options: ItemOptions,
         public readonly model: Model,
     ) {
-        this.title = this.getTitleDetails(model.title);
-    }
-
-    /**
-     * Cleans html, and returns only the text from all eventual tags
-     * @param {string} term
-     * @returns {ItemTitle}
-     */
-    private getTitleDetails(term: string | undefined): string {
-        return term ? term.replace(/<(?!\s*br\s*\/?)[^>]+>/gi, '') : '';
+        this.title = sanitizeHtml(model.title);
     }
 
     /**
