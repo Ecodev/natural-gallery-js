@@ -28,7 +28,6 @@ describe('Utility', () => {
 });
 
 describe('sanitizeHtml', () => {
-
     test('should not touch plain text and <br>', () => {
         expect(sanitizeHtml('')).toBe('');
         expect(sanitizeHtml(' ')).toBe(' ');

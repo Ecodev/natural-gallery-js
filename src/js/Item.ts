@@ -1,5 +1,5 @@
 import {ModelAttributes} from './galleries/AbstractGallery';
-import {sanitizeHtml} from "./Utility";
+import {sanitizeHtml} from './Utility';
 
 export declare interface ItemOptions {
     lightbox?: boolean;
