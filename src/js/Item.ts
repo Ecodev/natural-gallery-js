@@ -99,6 +99,14 @@ export class Item<Model extends ModelAttributes> {
         // If label is not a button, it becomes a button
         let activable: HTMLElement | null = null;
 
+        // Accessibility: use caption for alt if available
+        const altText = this.model.caption || this.model.title || '';
+        (image as HTMLImageElement).alt = altText;
+
+        // Accessibility: add role and aria-label to image if needed
+        image.setAttribute('role', 'img');
+        image.setAttribute('aria-label', altText);
+
         if (this.options.lightbox && showLabel && link) {
             this.label = link;
             this.label.classList.add('button');
@@ -146,6 +154,14 @@ export class Item<Model extends ModelAttributes> {
                 const event = new CustomEvent<Item<Model>>('zoom', {detail: this});
                 this._element.dispatchEvent(event);
             });
+            // Accessibility: allow keyboard activation
+            zoomable.setAttribute('tabindex', '0');
+            zoomable.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    zoomable.dispatchEvent(new MouseEvent('click'));
+                }
+            });
         }
 
         if (activable) {
@@ -157,6 +173,16 @@ export class Item<Model extends ModelAttributes> {
                 };
                 const activableEvent = new CustomEvent<ItemActivateEventDetail<Model>>('activate', {detail: data});
                 this._element.dispatchEvent(activableEvent);
+            });
+            // Accessibility: allow keyboard activation
+            activable.setAttribute('tabindex', '0');
+            activable.setAttribute('role', 'button');
+            activable.setAttribute('aria-label', this.title);
+            activable.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    activable.dispatchEvent(new MouseEvent('click'));
+                }
             });
         }
 
@@ -189,14 +215,26 @@ export class Item<Model extends ModelAttributes> {
             }
             this._selectBtn = this.document.createElement('div');
             this._selectBtn.classList.add('selectBtn');
+            this._selectBtn.setAttribute('role', 'button');
+            this._selectBtn.setAttribute('tabindex', '0');
+            this._selectBtn.setAttribute('aria-pressed', String(this._selected));
+            this._selectBtn.setAttribute('aria-label', 'Select image');
             const marker = this.document.createElement('div');
             marker.classList.add('marker');
             this._selectBtn.appendChild(marker);
             this._selectBtn.addEventListener('click', e => {
                 e.stopPropagation();
                 this.toggleSelect();
+                this._selectBtn.setAttribute('aria-pressed', String(this._selected));
                 const event = new CustomEvent<Item<Model>>('select', {detail: this});
                 this._element.dispatchEvent(event);
+            });
+            // Keyboard support for select button
+            this._selectBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this._selectBtn.dispatchEvent(new MouseEvent('click'));
+                }
             });
             this._element.appendChild(this._selectBtn);
         }
@@ -242,7 +280,8 @@ export class Item<Model extends ModelAttributes> {
      */
     public loadImage(): void {
         this._image.setAttribute('src', this.model.thumbnailSrc);
-        this._image.setAttribute('alt', this.model.title || '');
+        const altText = this.model.caption || this.model.title || '';
+        this._image.setAttribute('alt', altText);
 
         this._image.addEventListener('load', () => {
             this._element.classList.add('loaded');

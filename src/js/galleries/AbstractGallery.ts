@@ -94,6 +94,11 @@ export interface ModelAttributes extends SizedModel {
      * Background position, default : center
      */
     backgroundPosition?: string;
+
+    /**
+     * Short text describing the image for accessibility and captions
+     */
+    caption?: string;
 }
 
 export interface GalleryOptions extends ItemOptions {
