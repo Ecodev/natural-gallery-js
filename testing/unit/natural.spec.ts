@@ -1,7 +1,7 @@
 import {Natural, NaturalGalleryOptions} from '../../src';
 import {ModelAttributes} from '../../src/js/galleries/AbstractGallery';
-import * as domino from 'domino';
 import {Item} from '../../src/js/Item';
+import * as domino from 'domino';
 
 export function getSize<T extends ModelAttributes>({
     width,
@@ -253,4 +253,32 @@ describe('Natural Gallery', () => {
 
         expect(gallery.collection.map(getSize)).toEqual(result);
     });
+});
+
+test('Item should have accessible attributes', () => {
+    const window = domino.createWindow();
+    const document = window.document;
+    const model = {
+        thumbnailSrc: 'foo.jpg',
+        enlargedWidth: 600,
+        enlargedHeight: 400,
+        title: 'My Image',
+        caption: 'A description for screen readers',
+        link: 'https://example.com',
+    };
+    const item = new Item(document, {lightbox: true, showLabels: 'always'}, model);
+    const el = item.init();
+
+    // Check alt attribute
+    const img = el.querySelector('img');
+    expect(img?.getAttribute('alt')).toBe('A description for screen readers');
+
+    // Check ARIA attributes
+    expect(img?.getAttribute('aria-label')).toBe('A description for screen readers');
+    const selectBtn = el.querySelector('.selectBtn');
+    if (selectBtn) {
+        expect(selectBtn.getAttribute('role')).toBe('button');
+        expect(selectBtn.getAttribute('tabindex')).toBe('0');
+        expect(selectBtn.getAttribute('aria-label')).toBe('Select image');
+    }
 });
