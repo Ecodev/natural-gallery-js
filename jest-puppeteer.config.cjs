@@ -1,3 +1,4 @@
+var process = require('node:process');
 module.exports = {
     server: {
         command: 'yarn serve',

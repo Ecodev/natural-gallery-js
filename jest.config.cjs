@@ -1,6 +1,7 @@
 // https://gist.github.com/wldcordeiro/6dc2eb97a26a52d548ed4aa86f2fc5c0
 
 // Required because of https://github.com/smooth-code/jest-puppeteer/issues/303
+var process = require('node:process');
 process.env.JEST_PUPPETEER_CONFIG = 'jest-puppeteer.config.cjs';
 
 module.exports = {

@@ -17,7 +17,6 @@ export function getIcon(document: Document, name: string): SVGSVGElement {
     const div = document.createElement('div');
     div.innerHTML = '<svg viewBox="0 0 100 100"><use xlink:href="#' + name + '"></use></svg>';
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return div.querySelector('svg')!;
 }
 

@@ -16,7 +16,7 @@ const images = data.results.map(function (i) {
 });
 
 // Rebuild the lib
-console.log(execSync('JEST=1 ./node_modules/.bin/tsup'));
+console.log(execSync('npx cross-env JEST=1 ./node_modules/.bin/tsup'));
 
 const port = 4444;
 express()
