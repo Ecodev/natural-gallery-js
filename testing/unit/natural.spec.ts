@@ -271,10 +271,16 @@ test('Item should have accessible attributes', () => {
 
     // Check alt attribute
     const img = el.querySelector('img');
-    expect(img?.getAttribute('alt')).toBe('A description for screen readers');
+    expect(img?.getAttribute('alt')).toBe('My Image');
 
-    // Check ARIA attributes
-    expect(img?.getAttribute('aria-label')).toBe('A description for screen readers');
+    // Check that aria-label is NOT present on img
+    expect(img?.hasAttribute('aria-label')).toBe(false);
+
+    // Check <figcaption>
+    const figcaption = el.querySelector('figcaption');
+    expect(figcaption?.textContent).toBe('A description for screen readers');
+
+    // Check select button accessibility
     const selectBtn = el.querySelector('.selectBtn');
     if (selectBtn) {
         expect(selectBtn.getAttribute('role')).toBe('button');

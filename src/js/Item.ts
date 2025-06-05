@@ -58,7 +58,7 @@ export class Item<Model extends ModelAttributes> {
     /**
      * Reference to the select button
      */
-    private _selectBtn!: HTMLElement;
+    private _selectBtn!: HTMLButtonElement;
 
     /**
      * Element referering the "button" containing the label
@@ -83,90 +83,67 @@ export class Item<Model extends ModelAttributes> {
      */
     public init(): HTMLElement {
         let showLabel = false;
-
-        // Test if label should be added to dom
         const showLabelValues = ['always', 'hover'];
         if (this.title && this.options.showLabels && showLabelValues.includes(this.options.showLabels)) {
             showLabel = true;
         }
 
-        const element = this.document.createElement('a') as HTMLElement;
-        let image: HTMLElement = this.document.createElement('img');
-        const link = this.getLinkElement();
-        let zoomable: HTMLElement | null = null;
+        // Use <figure> as the root
+        const element = this.document.createElement('figure');
+        element.classList.add('figure');
+        element.setAttribute('role', 'group');
 
-        // Activation is listened on label/button or on whole image if lightbox is off.
-        // If label is not a button, it becomes a button
-        let activable: HTMLElement | null = null;
-
-        // Accessibility: use caption for alt if available
-        const altText = this.model.caption || this.model.title || '';
-        (image as HTMLImageElement).alt = altText;
-
-        // Accessibility: add role and aria-label to image if needed
-        image.setAttribute('role', 'img');
-        image.setAttribute('aria-label', altText);
-
-        if (this.options.lightbox && showLabel && link) {
-            this.label = link;
-            this.label.classList.add('button');
-            zoomable = image;
-            activable = link;
-        } else if (this.options.lightbox && showLabel && !link) {
-            this.label = this.document.createElement('div');
-
-            if (this.options.activable) {
-                activable = this.label;
-                this.label.classList.add('button');
-                zoomable = image;
-            } else {
-                zoomable = element;
-            }
-        } else if (this.options.lightbox && !showLabel) {
-            // Actually, lightbox has priority on the link that is ignored...
-            zoomable = element;
-
-            // May be dangerous to consider image as activation, because opening the lightbox is already an action and we could have two...
-            // It's ok if activate event is used for tracking, but not if it's used to do an action.
-            // In the doubt, for now it's not allowed
-            // activable = element;
-        } else if (!this.options.lightbox && showLabel && link) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            image = this.getLinkElement()!;
-            this.label = link;
-            this.label.classList.add('button');
-            activable = element;
-        } else if (!this.options.lightbox && showLabel && !link) {
-            this.label = this.document.createElement('div');
-            if (this.options.activable) {
-                activable = element;
-                this.label.classList.add('button');
-            }
-        } else if (!this.options.lightbox && !showLabel && link) {
-            image = link;
-            activable = link;
+        // Create <img>
+        const image = this.document.createElement('img');
+        // Accessibility logic for alt/caption
+        const hasTitle = !!this.model.title;
+        const hasCaption = !!this.model.caption;
+        let altText = '';
+        if (hasTitle) {
+            altText = this.model.title ?? '';
         }
 
-        if (zoomable) {
-            zoomable.classList.add('zoomable');
+        image.alt = altText;
+        image.classList.add('image');
+        image.style.backgroundSize = this.model.backgroundSize || 'cover';
+        image.style.backgroundPosition = this.model.backgroundPosition || 'center';
 
-            zoomable.addEventListener('click', () => {
+        // If model.link is present, wrap <img> in <a>
+        let imageContainer: HTMLElement = image;
+        let interactiveTarget: HTMLElement = image; // Default interactive target is the image
+        if (this.model.link) {
+            const link = this.document.createElement('a');
+            link.setAttribute('href', this.model.link);
+            link.classList.add('link');
+            if (this.model.linkTarget) {
+                link.setAttribute('target', this.model.linkTarget);
+            }
+            link.appendChild(image);
+            imageContainer = link;
+            interactiveTarget = link; // If link is present, interactive target is the link
+        }
+
+        // Add zoomable/activable classes and handlers (unchanged)
+        if (this.options.lightbox) {
+            interactiveTarget.classList.add('zoomable');
+            interactiveTarget.tabIndex = 0;
+            interactiveTarget.addEventListener('click', (e) => {
                 const event = new CustomEvent<Item<Model>>('zoom', {detail: this});
                 this._element.dispatchEvent(event);
             });
-            // Accessibility: allow keyboard activation
-            zoomable.setAttribute('tabindex', '0');
-            zoomable.addEventListener('keydown', (e) => {
+            interactiveTarget.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    zoomable.dispatchEvent(new MouseEvent('click'));
+                    interactiveTarget.click();
                 }
             });
         }
-
-        if (activable) {
-            activable.classList.add('activable');
-            activable.addEventListener('click', ev => {
+        if (this.options.activable) {
+            interactiveTarget.classList.add('activable');
+            interactiveTarget.tabIndex = 0;
+            interactiveTarget.setAttribute('role', 'button');
+            interactiveTarget.setAttribute('aria-label', this.title);
+            interactiveTarget.addEventListener('click', (ev) => {
                 const data: ItemActivateEventDetail<Model> = {
                     item: this,
                     clickEvent: ev,
@@ -174,33 +151,27 @@ export class Item<Model extends ModelAttributes> {
                 const activableEvent = new CustomEvent<ItemActivateEventDetail<Model>>('activate', {detail: data});
                 this._element.dispatchEvent(activableEvent);
             });
-            // Accessibility: allow keyboard activation
-            activable.setAttribute('tabindex', '0');
-            activable.setAttribute('role', 'button');
-            activable.setAttribute('aria-label', this.title);
-            activable.addEventListener('keydown', (e) => {
+            interactiveTarget.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    activable.dispatchEvent(new MouseEvent('click'));
+                    interactiveTarget.click();
                 }
             });
         }
 
-        image.style.backgroundSize = this.model.backgroundSize || 'cover';
-        image.style.backgroundPosition = this.model.backgroundPosition || 'center';
+        element.appendChild(imageContainer);
 
-        image.classList.add('image');
-        element.classList.add('figure');
-        element.appendChild(image);
-
-        if (this.model.color) {
-            element.style.backgroundColor = this.model.color + '11';
+        // Only add <figcaption> if BOTH title and caption exist
+        if (hasTitle && hasCaption) {
+            const figcaption = this.document.createElement('figcaption');
+            figcaption.textContent = this.model.caption ?? null;
+            figcaption.classList.add('caption');
+            element.appendChild(figcaption);
         }
 
-        this._element = element;
-        this._image = image;
-
-        if (this.label) {
+        // Add label if needed (unchanged)
+        if (showLabel) {
+            this.label = this.document.createElement('div');
             this.label.innerHTML = this.title;
             this.label.classList.add('title');
             if (this.options.showLabels === 'hover') {
@@ -209,16 +180,16 @@ export class Item<Model extends ModelAttributes> {
             element.appendChild(this.label);
         }
 
+        // Select button (unchanged)
         if (this.options.selectable) {
             if (this.model.selected) {
                 this.select();
             }
-            this._selectBtn = this.document.createElement('div');
+            this._selectBtn = this.document.createElement('button') as HTMLButtonElement;
             this._selectBtn.classList.add('selectBtn');
-            this._selectBtn.setAttribute('role', 'button');
-            this._selectBtn.setAttribute('tabindex', '0');
             this._selectBtn.setAttribute('aria-pressed', String(this._selected));
             this._selectBtn.setAttribute('aria-label', 'Select image');
+            this._selectBtn.type = 'button';
             const marker = this.document.createElement('div');
             marker.classList.add('marker');
             this._selectBtn.appendChild(marker);
@@ -229,15 +200,15 @@ export class Item<Model extends ModelAttributes> {
                 const event = new CustomEvent<Item<Model>>('select', {detail: this});
                 this._element.dispatchEvent(event);
             });
-            // Keyboard support for select button
-            this._selectBtn.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    this._selectBtn.dispatchEvent(new MouseEvent('click'));
-                }
-            });
-            this._element.appendChild(this._selectBtn);
+            element.appendChild(this._selectBtn);
         }
+
+        if (this.model.color) {
+            element.style.backgroundColor = this.model.color + '11';
+        }
+
+        this._element = element;
+        this._image = image;
 
         this.style();
 
@@ -280,7 +251,7 @@ export class Item<Model extends ModelAttributes> {
      */
     public loadImage(): void {
         this._image.setAttribute('src', this.model.thumbnailSrc);
-        const altText = this.model.caption || this.model.title || '';
+        const altText = this.model.title || '';
         this._image.setAttribute('alt', altText);
 
         this._image.addEventListener('load', () => {
