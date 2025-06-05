@@ -352,6 +352,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
                 msrc: item.model.thumbnailSrc,
                 element: item.element,
                 thumbCropped: item.cropped,
+                alt: item.model.caption || '',
             };
         });
 
