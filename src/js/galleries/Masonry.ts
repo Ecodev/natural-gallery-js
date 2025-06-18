@@ -12,7 +12,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     /**
      * Options after having been defaulted
      */
-    protected declare options: Required<MasonryGalleryOptions>;
+    declare protected options: Required<MasonryGalleryOptions>;
 
     /**
      * Regroup the list of columns

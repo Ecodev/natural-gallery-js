@@ -10,7 +10,7 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
     /**
      * Options after having been defaulted
      */
-    protected declare options: Required<SquareGalleryOptions>;
+    declare protected options: Required<SquareGalleryOptions>;
 
     constructor(elementRef: HTMLElement, options: SquareGalleryOptions, scrollElementRef?: HTMLElement | null) {
         super(elementRef, options, scrollElementRef);

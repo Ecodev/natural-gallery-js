@@ -12,7 +12,7 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
     /**
      * Options after having been defaulted
      */
-    protected declare options: Required<NaturalGalleryOptions>;
+    declare protected options: Required<NaturalGalleryOptions>;
 
     constructor(elementRef: HTMLElement, options: NaturalGalleryOptions, scrollElementRef?: HTMLElement | null) {
         super(elementRef, options, scrollElementRef);
@@ -80,7 +80,7 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
         const chunkModels = chunk.map(c => c.model);
         const rowHeight = containerWidth
             ? this.getRowHeight(chunkModels, containerWidth, margin, ratioLimits)
-            : maxRowHeight ?? 0;
+            : (maxRowHeight ?? 0);
         const rowWidth = this.getRowWidth(chunkModels, rowHeight, margin, ratioLimits);
 
         // Overflowed pixels

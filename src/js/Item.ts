@@ -127,11 +127,11 @@ export class Item<Model extends ModelAttributes> {
         if (this.options.lightbox) {
             interactiveTarget.classList.add('zoomable');
             interactiveTarget.tabIndex = 0;
-            interactiveTarget.addEventListener('click', (e) => {
+            interactiveTarget.addEventListener('click', () => {
                 const event = new CustomEvent<Item<Model>>('zoom', {detail: this});
                 this._element.dispatchEvent(event);
             });
-            interactiveTarget.addEventListener('keydown', (e) => {
+            interactiveTarget.addEventListener('keydown', e => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     interactiveTarget.click();
@@ -143,7 +143,7 @@ export class Item<Model extends ModelAttributes> {
             interactiveTarget.tabIndex = 0;
             interactiveTarget.setAttribute('role', 'button');
             interactiveTarget.setAttribute('aria-label', this.title);
-            interactiveTarget.addEventListener('click', (ev) => {
+            interactiveTarget.addEventListener('click', ev => {
                 const data: ItemActivateEventDetail<Model> = {
                     item: this,
                     clickEvent: ev,
@@ -151,7 +151,7 @@ export class Item<Model extends ModelAttributes> {
                 const activableEvent = new CustomEvent<ItemActivateEventDetail<Model>>('activate', {detail: data});
                 this._element.dispatchEvent(activableEvent);
             });
-            interactiveTarget.addEventListener('keydown', (e) => {
+            interactiveTarget.addEventListener('keydown', e => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     interactiveTarget.click();
