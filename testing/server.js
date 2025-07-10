@@ -35,8 +35,7 @@ import {execSync} from 'node:child_process';
                         .replace(/'/g, "\\'")
                         .replace(/<\/script>/gi, '<\\/script>')
                         .replace(/\u2028/g, '\\u2028')
-                        .replace(/\u2029/g, '\\u2029')
-                    }');
+                        .replace(/\u2029/g, '\\u2029')}');
                   </script>
                   <script type="module">
                     import {Natural, Square, Masonry} from './natural-gallery.js';
@@ -44,24 +43,20 @@ import {execSync} from 'node:child_process';
                     window.Square = Square;
                     window.Masonry = Masonry;
                   </script>
-                  <div id="root" class="root-background"></div>
-                  <style>
-                    .root-background { background-color: red; }
-                  </style>
+                  <div id="root" style="background-color:red"></div>
                 </body></html>`);
         });
 
     const server = app.listen(port, () => {
         console.log(`Server started at http://localhost:${port}/`);
     });
-    process.on('SIGTERM', shutdown);
-    process.on('SIGINT', shutdown);
-})();
+
+    function shutdown() {
+        server.close(() => {
+            process.exit(0);
         });
         setTimeout(() => process.exit(1), 2000); // Force exit if not closed
-        // Use FORCE_EXIT_TIMEOUT_MS env variable or default to 2000ms (2 seconds)
-        const forceExitTimeout = parseInt(process.env.FORCE_EXIT_TIMEOUT_MS, 10) || 2000;
-        setTimeout(() => process.exit(1), forceExitTimeout); // Force exit if not closed
+    }
 
     process.on('SIGTERM', shutdown);
     process.on('SIGINT', shutdown);
