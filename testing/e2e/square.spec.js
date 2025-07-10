@@ -1,4 +1,4 @@
-import { launch } from 'puppeteer';
+import {launch} from 'puppeteer';
 
 describe('Square', () => {
     let browser, page;
@@ -7,11 +7,11 @@ describe('Square', () => {
         browser = await launch({
             headless: process.env.HEADLESS !== 'false',
             slowMo: 20,
-            defaultViewport: { width: 960, height: 800 },
+            defaultViewport: {width: 960, height: 800},
             args: ['--window-size=1500,800'],
         });
         page = await browser.newPage();
-        await page.goto('http://localhost:4444', { waitUntil: 'networkidle0' });
+        await page.goto('http://localhost:4444', {waitUntil: 'networkidle0'});
     });
 
     afterAll(async () => {
