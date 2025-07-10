@@ -8,7 +8,8 @@ module.exports = {
     projects: [
         {
             displayName: 'E2E',
-            preset: 'jest-puppeteer',
+
+            testEnvironment: 'node',
             globals: {
                 PATH: 'http://localhost:4444',
             },

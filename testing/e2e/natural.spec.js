@@ -1,18 +1,29 @@
-// https://itnext.io/testing-your-javascript-in-a-browser-with-jest-puppeteer-express-and-webpack-c998a37ef887
-// https://itnext.io/getting-started-using-puppeteer-headless-chrome-for-end-to-end-testing-8487718e4d97
-// https://www.synbioz.com/blog/tech/tests-e2e-avec-jest-et-puppeteer
-// http://dsheiko.com/weblog/end-to-end-testing-with-puppeteer
-// https://medium.com/better-programming/how-to-use-puppeteer-with-jest-typescript-530a139ffe40
-// https://medium.com/touch4it/end-to-end-testing-with-puppeteer-and-jest-ec8198145321
-// https://dev.to/aalises/dealing-with-asynchrony-when-writing-end-to-end-tests-with-puppeteer--jest-n37
+import { launch } from 'puppeteer';
 
 describe('Natural', () => {
-    fit('should create gallery, init, scroll and resize"', async () => {
+    let browser, page;
+
+    beforeAll(async () => {
+        browser = await launch({
+            headless: process.env.HEADLESS !== 'false',
+            slowMo: 20,
+            defaultViewport: { width: 960, height: 800 },
+            args: ['--window-size=1500,800'],
+        });
+        page = await browser.newPage();
+        await page.goto('http://localhost:4444', { waitUntil: 'networkidle0' });
+    });
+
+    afterAll(async () => {
+        await browser.close();
+    });
+
+    it('should create gallery, init, scroll and resize', async () => {
         await page.goto(PATH, {waitUntil: 'networkidle0'});
 
         // Init gallery and data
         await page.evaluate(() => {
-            // `Natural` is provider on `window` by `server.js`
+            // `Natural` is provided on `window` by `server.js`
             // eslint-disable-next-line no-undef
             var gallery = new Natural(document.getElementById('root'), {rowHeight: 400});
             gallery.init();
@@ -32,7 +43,7 @@ describe('Natural', () => {
         expect(items.length).toBe(14);
 
         // Change viewport with to test resize
-        await page.setViewport({width: 1200, height: page.viewport().height});
+        await page.setViewport({width: 1200, height: (await page.viewport()).height});
         await new Promise(resolve => setTimeout(resolve, 600)); // wait debounce from gallery
         items = await page.$$('#root .natural-gallery-body .figure');
         expect(items.length).toBe(17);

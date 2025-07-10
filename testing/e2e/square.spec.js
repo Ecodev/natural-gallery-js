@@ -1,6 +1,23 @@
-// await jestPuppeteer.debug();
+import { launch } from 'puppeteer';
 
 describe('Square', () => {
+    let browser, page;
+
+    beforeAll(async () => {
+        browser = await launch({
+            headless: process.env.HEADLESS !== 'false',
+            slowMo: 20,
+            defaultViewport: { width: 960, height: 800 },
+            args: ['--window-size=1500,800'],
+        });
+        page = await browser.newPage();
+        await page.goto('http://localhost:4444', { waitUntil: 'networkidle0' });
+    });
+
+    afterAll(async () => {
+        await browser.close();
+    });
+
     it('should create gallery, init, scroll and resize"', async () => {
         await page.goto(PATH, {waitUntil: 'networkidle0'});
 

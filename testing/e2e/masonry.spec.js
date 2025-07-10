@@ -1,12 +1,29 @@
-// await jestPuppeteer.debug();
+import { launch } from 'puppeteer';
 
 describe('Masonry', () => {
-    it('should create gallery, init, scroll and resize"', async () => {
+    let browser, page;
+
+    beforeAll(async () => {
+        browser = await launch({
+            headless: process.env.HEADLESS !== 'false',
+            slowMo: 20,
+            defaultViewport: { width: 960, height: 800 },
+            args: ['--window-size=1500,800'],
+        });
+        page = await browser.newPage();
+        await page.goto('http://localhost:4444', { waitUntil: 'networkidle0' });
+    });
+
+    afterAll(async () => {
+        await browser.close();
+    });
+
+    it('should create gallery, init, scroll and resize', async () => {
         await page.goto(PATH, {waitUntil: 'networkidle0'});
 
         // Init gallery and data
         await page.evaluate(() => {
-            // `Masonry` is provider on `window` by `server.js`
+            // `Masonry` is provided on `window` by `server.js`
             // eslint-disable-next-line no-undef
             var gallery = new Masonry(document.getElementById('root'), {columnWidth: 450});
             gallery.init();
@@ -27,7 +44,7 @@ describe('Masonry', () => {
         expect(items.length).toBe(17);
 
         // Change viewport with to test resize
-        await page.setViewport({width: 1160, height: page.viewport().height});
+        await page.setViewport({width: 1160, height: (await page.viewport()).height});
         await new Promise(resolve => setTimeout(resolve, 600)); // wait debounce from gallery
         items = await page.$$('#root .natural-gallery-body .figure');
         expect(items.length).toBe(15);
