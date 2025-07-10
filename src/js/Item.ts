@@ -105,28 +105,22 @@ export class Item<Model extends ModelAttributes> {
 
         image.alt = altText;
         image.classList.add('image');
-        image.style.backgroundSize = this.model.backgroundSize || 'cover';
-        image.style.backgroundPosition = this.model.backgroundPosition || 'center';
 
-        // If model.link is present, wrap <img> in <a>
         let imageContainer: HTMLElement = image;
         let interactiveTarget: HTMLElement = image; // Default interactive target is the image
-        if (this.model.link) {
-            const link = this.document.createElement('a');
-            link.setAttribute('href', this.model.link);
-            link.classList.add('link');
-            if (this.model.linkTarget) {
-                link.setAttribute('target', this.model.linkTarget);
-            }
+        const link = this.getLinkElement();
+        if (link) {
             link.appendChild(image);
             imageContainer = link;
             interactiveTarget = link; // If link is present, interactive target is the link
         }
 
-        // Add zoomable/activable classes and handlers (unchanged)
+        // Add zoomable/activable classes and handlers
         if (this.options.lightbox) {
             interactiveTarget.classList.add('zoomable');
-            interactiveTarget.tabIndex = 0;
+            if (interactiveTarget.tagName.toLowerCase() !== 'a') {
+                interactiveTarget.tabIndex = 0;
+            }
             interactiveTarget.addEventListener('click', () => {
                 const event = new CustomEvent<Item<Model>>('zoom', {detail: this});
                 this._element.dispatchEvent(event);
@@ -140,9 +134,11 @@ export class Item<Model extends ModelAttributes> {
         }
         if (this.options.activable) {
             interactiveTarget.classList.add('activable');
-            interactiveTarget.tabIndex = 0;
-            interactiveTarget.setAttribute('role', 'button');
-            interactiveTarget.setAttribute('aria-label', this.title);
+            if (interactiveTarget.tagName.toLowerCase() !== 'a') {
+                interactiveTarget.tabIndex = 0;
+                interactiveTarget.setAttribute('role', 'button');
+                interactiveTarget.setAttribute('aria-label', this.title);
+            }
             interactiveTarget.addEventListener('click', ev => {
                 const data: ItemActivateEventDetail<Model> = {
                     item: this,
@@ -169,7 +165,7 @@ export class Item<Model extends ModelAttributes> {
             element.appendChild(figcaption);
         }
 
-        // Add label if needed (unchanged)
+        // Add label if needed
         if (showLabel) {
             this.label = this.document.createElement('div');
             this.label.innerHTML = this.title;
@@ -177,10 +173,16 @@ export class Item<Model extends ModelAttributes> {
             if (this.options.showLabels === 'hover') {
                 this.label.classList.add('hover');
             }
-            element.appendChild(this.label);
+            if (link) {
+                // Put label inside the link so the whole area is clickable
+                link.appendChild(this.label);
+            } else {
+                // Otherwise, append to the figure
+                element.appendChild(this.label);
+            }
         }
 
-        // Select button (unchanged)
+        // Select button
         if (this.options.selectable) {
             if (this.model.selected) {
                 this.select();

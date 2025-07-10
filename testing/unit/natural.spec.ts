@@ -288,3 +288,21 @@ test('Item should have accessible attributes', () => {
         expect(selectBtn.getAttribute('aria-label')).toBe('Select image');
     }
 });
+
+test('Item should render label inside link when both title and link are present', () => {
+    const window = domino.createWindow();
+    const document = window.document;
+    const model = {
+        thumbnailSrc: 'foo.jpg',
+        enlargedWidth: 600,
+        enlargedHeight: 400,
+        title: 'My Image',
+        link: 'https://example.com',
+    };
+    const item = new Item(document, {showLabels: 'always'}, model);
+    const el = item.init();
+
+    const link = el.querySelector('a.link');
+    expect(link).not.toBeNull();
+    expect(link?.querySelector('.title')?.textContent).toBe('My Image');
+});

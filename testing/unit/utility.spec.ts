@@ -1,4 +1,4 @@
-import {getIcon, getImageRatio, sanitizeHtml} from '../../src/js/Utility';
+import {getIcon, getImageRatio, sanitizeHtml, getImageRatioAndIfCropped} from '../../src/js/Utility';
 import * as domino from 'domino';
 
 describe('Utility', () => {
@@ -60,5 +60,34 @@ describe('sanitizeHtml', () => {
         >foo</
         div>`),
         ).toBe('foo');
+    });
+
+    test('sanitizeHtml should handle undefined and null', () => {
+        expect(sanitizeHtml(undefined)).toBe('');
+        // @ts-expect-error: Testing sanitizeHtml with null input
+        expect(sanitizeHtml(null)).toBe('');
+    });
+
+    test('sanitizeHtml should keep <br> but remove other tags', () => {
+        expect(sanitizeHtml('foo<br>bar')).toBe('foo<br>bar');
+        expect(sanitizeHtml('foo<br/>bar')).toBe('foo<br/>bar');
+        expect(sanitizeHtml('foo<strong>bar</strong>baz')).toBe('foobarbaz');
+    });
+});
+
+describe('getImageRatioAndIfCropped', () => {
+    it('should return correct ratio and cropped=false when within limits', () => {
+        const result = getImageRatioAndIfCropped({enlargedWidth: 400, enlargedHeight: 200}, {min: 1, max: 3});
+        expect(result).toEqual({ratio: 2, cropped: false});
+    });
+
+    it('should crop to min if ratio is too low', () => {
+        const result = getImageRatioAndIfCropped({enlargedWidth: 100, enlargedHeight: 200}, {min: 1});
+        expect(result).toEqual({ratio: 1, cropped: true});
+    });
+
+    it('should crop to max if ratio is too high', () => {
+        const result = getImageRatioAndIfCropped({enlargedWidth: 400, enlargedHeight: 100}, {max: 2});
+        expect(result).toEqual({ratio: 2, cropped: true});
     });
 });
