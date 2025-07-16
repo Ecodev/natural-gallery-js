@@ -8,7 +8,7 @@ describe('Natural', () => {
             headless: process.env.HEADLESS !== 'false',
             slowMo: 20,
             defaultViewport: {width: 960, height: 800},
-            args: ['--window-size=1500,800', '--no-sandbox', '--disable-setuid-sandbox'],
+            args: ['--window-size=1500,800', '--no-sandbox'],
         });
         page = await browser.newPage();
         await page.goto('http://localhost:4444', {waitUntil: 'networkidle0'});

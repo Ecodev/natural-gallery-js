@@ -1,4 +1,5 @@
 // From https://itnext.io/testing-your-javascript-in-a-browser-with-jest-puppeteer-express-and-webpack-c998a37ef887
+import e from 'express';
 import express from 'express';
 import {readFile} from 'fs/promises';
 import {execSync} from 'node:child_process';
@@ -10,6 +11,7 @@ import {execSync} from 'node:child_process';
             thumbnailSrc: i.urls.small,
             enlargedSrc: i.urls.regular,
             enlargedWidth: i.width,
+            enlargedHeight: i.height,
             title: (i.description ? i.description : i.user.name).replace(/'/g, ''),
             color: i.color,
         };
