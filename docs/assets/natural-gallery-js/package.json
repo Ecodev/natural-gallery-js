@@ -73,7 +73,7 @@
         "puppeteer": "^24.10.0",
         "ts-jest": "^29.3.4",
         "ts-loader": "^9.5.2",
-        "tsup": "^8.5.0",
+        "tsup": "~8.2.0",
         "typescript": "~5.8.3"
     }
 }
