@@ -2,7 +2,7 @@ import {launch} from 'puppeteer';
 
 describe('Masonry', () => {
     let browser, page;
-     jest.setTimeout(10000);
+    jest.setTimeout(10000);
 
     beforeAll(async () => {
         browser = await launch({
