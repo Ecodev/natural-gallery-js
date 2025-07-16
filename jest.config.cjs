@@ -14,8 +14,8 @@ module.exports = {
                 PATH: 'http://localhost:4444',
             },
             testMatch: ['<rootDir>/testing/e2e/**/*.spec.js'],
-            globalSetup: '<rootDir>/testing/globalSetup.js',
-            globalTeardown: '<rootDir>/testing/globalTeardown.js',
+            globalSetup: '<rootDir>/testing/globalSetup.cjs',
+            globalTeardown: '<rootDir>/testing/globalTeardown.cjs',
         },
         {
             displayName: 'UNIT',
