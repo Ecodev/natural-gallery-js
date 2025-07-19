@@ -2,12 +2,12 @@
 ---
 
 @use 'sass:color';
-@use 'theme';
-@use 'base';
-@use 'layout';
-@use 'monokai';
-@use 'menu';
-@use 'typography';
+@use '../_sass/theme';
+@use '../_sass/base';
+@use '../_sass/layout';
+@use '../_sass/monokai';
+@use '../_sass/menu';
+@use '../_sass/typography';
 
 #search {
     flex: 1;
@@ -24,7 +24,7 @@
     position: relative;
     flex: none;
     height: 6px;
-    background: color.adjust(theme.$accent,  $lightness: 20%);
+    background: color.adjust(theme.$accent,  $lightness: -20%);
 
     &::after {
         display: block;

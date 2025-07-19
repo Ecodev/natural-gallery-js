@@ -40,8 +40,6 @@ export class Item<Model extends ModelAttributes> {
 
     /**
      * Wherever item is selected or not
-     * @type {boolean}
-     * @private
      */
     private _selected = false;
 
@@ -61,13 +59,13 @@ export class Item<Model extends ModelAttributes> {
     private _selectBtn!: HTMLButtonElement;
 
     /**
-     * Element referering the "button" containing the label
+     * Element referring the "button" containing the label
      */
     private label: HTMLElement | null = null;
 
     /**
      *
-     * @param model Contains the source data given for an item (e.g object instance from database with id etc..)
+     * @param model Contains the source data given for an item (e.g. object instance from database with id etc...)
      */
     public constructor(
         private readonly document: Document,
