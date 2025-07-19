@@ -1,7 +1,13 @@
 ---
 ---
 
-@import 'theme', 'typography', 'base', 'layout', 'monokai', 'menu';
+@use 'sass:color';
+@use 'theme';
+@use 'base';
+@use 'layout';
+@use 'monokai';
+@use 'menu';
+@use 'typography';
 
 #search {
     flex: 1;
@@ -18,7 +24,7 @@
     position: relative;
     flex: none;
     height: 6px;
-    background: darken($accent, 20%);
+    background: color.adjust(theme.$accent,  $lightness: 20%);
 
     &::after {
         display: block;
@@ -30,10 +36,10 @@
         bottom: 0;
         opacity: 0;
         transition: opacity 1s ease-in;
-        background: $primary;
-        background: -moz-linear-gradient(left, $primary 50%, $accent 150%); /* FF3.6-15 */
-        background: -webkit-linear-gradient(left, $primary 50%, $accent 150%); /* Chrome10-25,Safari5.1-6 */
-        background: linear-gradient(to right, $primary 50%, $accent 150%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        background: theme.$primary;
+        background: -moz-linear-gradient(left, theme.$primary 50%, theme.$accent 150%); /* FF3.6-15 */
+        background: -webkit-linear-gradient(left, theme.$primary 50%, theme.$accent 150%); /* Chrome10-25,Safari5.1-6 */
+        background: linear-gradient(to right, theme.$primary 50%, theme.$accent 150%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     }
 
     &.loading::after {
@@ -43,7 +49,7 @@
 }
 
 .natural-gallery-js {
-    margin-bottom: $gap;
+    margin-bottom: theme.$gap;
     .figure {
         border-radius: 10px;
     }
