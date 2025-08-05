@@ -1,3 +1,17 @@
+// CSS Custom Properties (--ngjs variables) used in this file:
+// --ngjs-figure-radius: Border radius for figure elements (default: $defaultBorderRadius)
+// --ngjs-link-radius: Border radius for link buttons/anchors (default: 4px)
+// --ngjs-focus-outline: Focus outline style (default: 1px solid orange)
+// --ngjs-marker-border-color: Border color for selection marker (default: currentColor)
+// --ngjs-marker-check-color: Background color for marker check (default: transparent)
+// --ngjs-selected-marker-color: Color for selected marker (default: orange)
+// --ngjs-selected-marker-check: Color for selected marker check (default: black)
+// --ngjs-link-bg: Background color for non-link titles (default: rgb(0, 0, 0, 0.7))
+// --ngjs-link-color: Text color for non-link titles (default: white)
+// --ngjs-link-hover-bg: Background color for link hover state (default: rgb(0, 0, 0))
+// --ngjs-link-hover-color: Text color for link hover state (default: white)
+
+
 @use 'figure';
 
 .pswp {
@@ -17,6 +31,9 @@
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+        font-family: inherit;
+        font-size: inherit;
+        line-height: inherit;
     }
 
     iframe {
@@ -61,6 +78,10 @@
         padding: 0;
         margin: 0;
 
+        .figure {
+            background-color: var(--ngjs-figure-bg, rgba(0, 137, 224, 0.1));
+        }
+
         &.resizing {
             .figure,
             .column {
@@ -75,21 +96,6 @@
             clear: both;
         }
 
-        a.figure {
-            width: inherit;
-            height: inherit;
-            cursor: default;
-
-            img {
-                width: inherit;
-                height: inherit;
-                object-fit: cover;
-            }
-        }
-
-        a.figure.zoomable {
-            cursor: zoom-in;
-        }
     }
 
     /**
@@ -106,6 +112,12 @@
             cursor: pointer;
             font-size: 16px;
             height: inherit;
+            color: var(--ngjs-next-color, rgb(0, 137, 224));
+            fill: currentColor;
+        }
+
+        &:hover {
+            background-color: var(--ngjs-next-hover-bg, rgba(0, 0, 0, 0.2));
         }
 
         &::after {

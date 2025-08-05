@@ -1,21 +1,46 @@
-import {debounce, defaultsDeep, pick} from 'lodash-es';
-
+import {debounce, pick} from 'es-toolkit';
+import {defaultsDeep} from 'es-toolkit/compat';
 import PhotoSwipe, {PhotoSwipeOptions, SlideData} from 'photoswipe';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
-
 import 'photoswipe/dist/photoswipe.css';
+import {Item, ItemActivateEventDetail, ItemOptions, LabelVisibility} from '../Item';
+import {getNextIcon} from '../Utility';
 
-import {Item, ItemActivateEventDetail, ItemOptions} from '../Item';
-import {getIcon} from '../Utility';
+
+export type ObjectFit =
+    | 'fill'
+    | 'contain'
+    | 'cover'
+    | 'none'
+    | 'scale-down'
+    | 'inherit'
+    | 'initial'
+    | 'unset';
+
+export type ObjectPosition =
+    | 'center'
+    | 'top'
+    | 'bottom'
+    | 'left'
+    | 'right'
+    | 'top left'
+    | 'top right'
+    | 'top center'
+    | 'bottom left'
+    | 'bottom right'
+    | 'bottom center'
+    | 'center left'
+    | 'center right'
+    | string;
 
 /**
  * A map of all possible event and the structure of their details
  */
 export interface CustomEventDetailMap<T> {
-    activate: {model: T; clickEvent: MouseEvent};
+    activate: { model: T; event: MouseEvent | KeyboardEvent };
     'item-added-to-dom': T;
     'item-displayed': T;
-    pagination: {offset: number; limit: number};
+    pagination: { offset: number; limit: number };
     select: T[];
 }
 
@@ -88,17 +113,17 @@ export interface ModelAttributes extends SizedModel {
     /**
      * Background size, default : cover
      */
-    backgroundSize?: string;
+    objectFit?: ObjectFit;
 
     /**
      * Background position, default : center
      */
-    backgroundPosition?: string;
+    objectPosition?: ObjectPosition;
 
     /**
-     * Short text describing the image for accessibility and captions
+     * Short text describing specifically the image
      */
-    caption?: string;
+    alt?: string;
 }
 
 export interface GalleryOptions extends ItemOptions {
@@ -122,7 +147,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     protected options: Required<GalleryOptions> = {
         gap: 3,
         rowsPerPage: 0,
-        showLabels: 'hover',
+        labelVisibility: LabelVisibility.HOVER,
         lightbox: false,
         minRowsAtStart: 2,
         selectable: false,
@@ -139,7 +164,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
     /**
      * Images wrapper container
-     * If setted, serves as mark for "initialized status" of the gallery
+     * If set, serves as mark for "initialized status" of the gallery
      */
     protected bodyElementRef: HTMLElement | null = null;
 
@@ -168,7 +193,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     private old_scroll_top = 0;
 
     /**
-     * Stores page index that have been emmited
+     * Stores page index that have been emitted
      * Keeps a log of pages already asked to prevent to ask them multiple times
      */
     private requestedIndexesLog: number[] = [];
@@ -213,32 +238,27 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         this.options = defaultsDeep(options, this.options);
 
         // After having finished to add items to dom, show images inside containers and emit updated pagination
-        this.flushBufferedItems = debounce(
-            () => {
-                this.scrollBufferedItems.forEach(i => {
-                    i.loadImage();
-                    this.dispatchEvent('item-displayed', i.model);
-                });
+        this.flushBufferedItems = debounce(() => {
+            this.scrollBufferedItems.forEach(i => {
+                this.dispatchEvent('item-displayed', i.model);
+            });
 
-                this.scrollBufferedItems = [];
+            this.scrollBufferedItems = [];
 
-                if (!this.requiredItems) {
-                    return;
-                }
+            if (!this.requiredItems) {
+                return;
+            }
 
-                // Each time a pagination event is emitted, the offset is logged and then verified to be sure to not ask it
-                // twice. That would cause duplicated entries and probably empty buffer with smaller pages. That could
-                // cause infinite loading until the end of the gallery
-                if (this.requestedIndexesLog.indexOf(this.collection.length) < 0) {
-                    const offset = this.collection.length;
-                    this.dispatchEvent('pagination', {offset, limit: this.requiredItems});
-                    this.requestedIndexesLog.push(offset);
-                    this.requiredItems = 0;
-                }
-            },
-            500,
-            {leading: false, trailing: true},
-        );
+            // Each time a pagination event is emitted, the offset is logged and then verified to be sure to not ask it
+            // twice. That would cause duplicated entries and probably empty buffer with smaller pages. That could
+            // cause infinite loading until the end of the gallery
+            if (this.requestedIndexesLog.indexOf(this.collection.length) < 0) {
+                const offset = this.collection.length;
+                this.dispatchEvent('pagination', {offset, limit: this.requiredItems});
+                this.requestedIndexesLog.push(offset);
+                this.requiredItems = 0;
+            }
+        }, 500);
     }
 
     /**
@@ -289,7 +309,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         // Next button
         this.nextButton = this.document.createElement('div');
         this.nextButton.classList.add('natural-gallery-next');
-        this.nextButton.appendChild(getIcon(this.document, 'natural-gallery-icon-next'));
+        this.nextButton.appendChild(getNextIcon(this.document));
         this.nextButton.style.display = 'none';
         this.nextButton.addEventListener('click', e => {
             e.preventDefault();
@@ -306,11 +326,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
         // Resize debounce
         const resizeDebounceDuration = 500;
-        const startResize = debounce(() => this.startResize(), resizeDebounceDuration, {
-            leading: true,
-            trailing: false,
-        });
-        const endResize = debounce(() => this.endResize(), resizeDebounceDuration, {leading: false, trailing: true});
+        const startResize = debounce(() => this.startResize(), resizeDebounceDuration, {edges: ['leading']});
+        const endResize = debounce(() => this.endResize(), resizeDebounceDuration);
         iframe.contentWindow?.addEventListener('resize', () => {
             endResize();
             startResize();
@@ -325,7 +342,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
         this.initItems();
 
-        if (this.options.lightbox) this.photoSwipeInit();
+        if (this.options.lightbox) {
+            this.photoSwipeInit();
+        }
     }
 
     /**
@@ -350,9 +369,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
                 w: item.model.enlargedWidth,
                 h: item.model.enlargedHeight,
                 msrc: item.model.thumbnailSrc,
-                element: item.element,
+                element: item.rootElement,
                 thumbCropped: item.cropped,
-                alt: item.model.caption || '',
+                alt: item.sanitizedTitle,
             };
         });
 
@@ -370,12 +389,17 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
                 this.onPageAdd();
             }
         });
+
+        // With accessibility :focus usage, figures tend to stay sticky on focused state. This returns to wanted behavior
+        this.psLightbox.on('destroy', () => {
+            (this.document.activeElement as HTMLElement)?.blur();
+        });
     }
 
     public addItemToPhotoSwipeCollection(item: Item<Model>) {
         const photoSwipeId = this.domCollection.length - 1;
 
-        item.element.addEventListener('zoom', () => {
+        item.rootElement.addEventListener('zoom', () => {
             this.psLightbox?.loadAndOpen(photoSwipeId);
         });
     }
@@ -397,7 +421,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
         // Complete collection
         models.forEach((model: Model) => {
-            const itemOptions = pick(this.options, ['lightbox', 'selectable', 'activable', 'gap', 'showLabels']);
+            const itemOptions = pick(this.options, ['lightbox', 'selectable', 'activable', 'gap', 'labelVisibility']);
             const item = new Item<Model>(this.document, itemOptions, model);
             this._collection.push(item);
         });
@@ -412,7 +436,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     }
 
     public setLabelHover(activate: boolean): void {
-        this.options.showLabels = activate ? 'hover' : 'always';
+        this.options.labelVisibility = activate ? LabelVisibility.HOVER : LabelVisibility.ALWAYS;
         this.collection.forEach(item => {
             item.setLabelHover(activate);
         });
@@ -597,7 +621,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         this.dispatchEvent('item-added-to-dom', item.model);
 
         // When selected / unselected
-        item.element.addEventListener('select', () => {
+        item.rootElement.addEventListener('select', () => {
             this.dispatchEvent(
                 'select',
                 this.domCollection.filter(i => i.selected).map(i => i.model),
@@ -605,8 +629,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         });
 
         // When activate (if activate event is given in options)
-        item.element.addEventListener('activate', (ev: CustomEvent<ItemActivateEventDetail<Model>>) => {
-            this.dispatchEvent('activate', {model: ev.detail.item.model, clickEvent: ev.detail.clickEvent});
+        item.rootElement.addEventListener('activate', (ev: CustomEvent<ItemActivateEventDetail<Model>>) => {
+            this.dispatchEvent('activate', {model: ev.detail.item.model, event: ev.detail.event});
         });
 
         if (this.options.lightbox) {
@@ -691,14 +715,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         const scrollable = element;
         const wrapper: HTMLElement = element instanceof Document ? element.documentElement : element;
 
-        const startScroll = debounce(() => this.elementRef.classList.add('scrolling'), 300, {
-            leading: true,
-            trailing: false,
-        });
-        const endScroll = debounce(() => this.elementRef.classList.remove('scrolling'), 300, {
-            leading: false,
-            trailing: true,
-        });
+        const startScroll = debounce(() => this.elementRef.classList.add('scrolling'), 300, {edges: ['leading']});
+        const endScroll = debounce(() => this.elementRef.classList.remove('scrolling'), 300);
 
         scrollable.addEventListener('scroll', () => {
             startScroll();

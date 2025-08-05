@@ -1,20 +1,46 @@
-.natural-gallery-js {
-    .figure {
-        left: 0;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        float: left;
-        overflow: hidden;
-        margin: 0;
-        transition: 1s background-color;
+$defaultBorderRadius: 8px;
 
+.natural-gallery-js {
+    .root {
+
+        transform: scale(1) translateY(0);
+        transform-origin: top center;
+        opacity: 1;
+
+        &:is(a) {
+            border: none;
+        }
+
+        &,
+        .figure,
+        img {
+            border-radius: var(--ngjs-figure-radius, $defaultBorderRadius);
+            overflow: hidden;
+        }
+
+        &, .figure {
+            left: 0;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            float: left;
+            margin: 0;
+            transition: 1s background-color;
+            border: none;
+            background: none;
+        }
+
+        &:focus-within,
+        &:focus,
         &:hover {
             .title.hover,
-            .title.hover,
-            .selectBtn {
+            .select-btn {
                 transform: translateY(0%);
             }
+        }
+
+        &:focus, *:focus {
+            outline: var(--ngjs-focus-outline, 1px solid orange);
         }
 
         &.zoomable,
@@ -27,34 +53,15 @@
             cursor: pointer;
         }
 
-        &.loaded > .image {
+        &.loaded .image {
             opacity: 1;
-            transition:
-                1s ease-out opacity,
-                1s ease-out transform,
-                0.2s ease-out margin;
         }
 
-        &.selected {
-            .selectBtn {
-                transform: translateY(0%);
-                top: 0;
-                left: 0;
-            }
-        }
-
-        &.zoomable:hover .image,
-        .image.zoomable:hover {
+        .image.zoomable:hover,
+        .image.zoomable:focus,
+        &.zoomable:focus .image,
+        &.zoomable:hover .image {
             transform: rotate(1deg) scale(1.2);
-        }
-
-        &.zoomable:active .image,
-        .image.zoomable:active {
-            transform: scale(1);
-            transition:
-                1s ease-out opacity,
-                0.1s ease-out transform,
-                0.2s ease-out margin;
         }
 
         .image {
@@ -63,15 +70,21 @@
             margin: 0;
             width: auto;
             height: auto;
-            flex: 1;
             z-index: 100;
             opacity: 0;
-            background-repeat: no-repeat;
-            background-position: center center;
-            transition: 0.2s ease all;
+            transition: 1s ease-out all;
+            min-height: 0;
         }
 
-        .selectBtn {
+        .select-btn:focus,
+        &.selected .select-btn {
+
+            transform: translateY(0%);
+            top: 0;
+            left: 0;
+        }
+
+        .select-btn {
             position: absolute;
             z-index: 991;
             top: 0;
@@ -85,7 +98,9 @@
             fill: currentColor;
             cursor: pointer;
             background: rgba(0, 0, 0, 0.6);
+            border-top-left-radius: var(--ngjs-figure-radius, $defaultBorderRadius);
             border-bottom-right-radius: 5px;
+            border: none;
 
             .marker {
                 position: relative;
@@ -93,6 +108,7 @@
                 height: 18px;
                 border-width: 2px;
                 border-style: solid;
+                border-color: var(--ngjs-marker-border-color, currentColor);
                 box-sizing: border-box;
                 border-radius: 2px;
 
@@ -101,7 +117,7 @@
                     content: ' ';
                     position: absolute;
                     display: block;
-                    background: transparent;
+                    background: var(--ngjs-marker-check-color, transparent);
                     width: 2px;
                 }
 
@@ -123,43 +139,72 @@
             }
         }
 
+        &.selected {
+            .select-btn {
+                color: var(--ngjs-selected-marker-color, orange);
+
+                .marker {
+                    background: currentColor;
+
+                    &::before,
+                    &::after {
+                        background: var(--ngjs-selected-marker-check, black);
+                    }
+                }
+            }
+        }
+
         .title {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
             z-index: 1100;
-            background: rgba(0, 0, 0, 0.6);
             text-align: center;
             color: white;
             font-size: 14px;
-            line-height: 1.7em;
+            line-height: 1.4em;
             font-weight: normal;
-            padding: 10px;
             transition: 0.2s ease all;
             overflow: hidden;
             white-space: normal;
 
+            &, button, a {
+                padding: 8px 8px;
+            }
+
+            &:not(.link),
+            &.link button,
+            &.link a, {
+                background: var(--ngjs-link-bg, rgb(0, 0, 0, 0.7));
+                color: var(--ngjs-link-color, white);
+            }
+
+            &:not(.link) {
+                border-radius: 0 0 var(--ngjs-figure-radius, $defaultBorderRadius) var(--ngjs-figure-radius, $defaultBorderRadius);
+            }
+
+            &.link {
+                button, a {
+                    display: block;
+                    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 2px 5px rgba(0, 0, 0, 0.5);
+                    border-radius: var(--ngjs-link-radius, 4px);
+                    border: none;
+                    text-decoration: none;
+                    cursor: pointer;
+
+                    &:hover {
+                        background: var(--ngjs-link-hover-bg, rgb(0, 0, 0));
+                        color: var(--ngjs-link-hover-color, white);
+                    }
+                }
+            }
+
             // Status : Mouse out
             &.hover {
-                padding: 10px;
                 // + the margin of &[href]
                 transform: translateY(calc(100% + 12px));
             }
-        }
-
-        .link {
-            border: none;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .button {
-            display: block;
-            margin: 10px;
-            padding: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-            border-radius: 4px;
         }
     }
 }
