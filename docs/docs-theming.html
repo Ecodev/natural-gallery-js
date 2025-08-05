@@ -1,28 +1,29 @@
 ---
 layout: default
 ---
-
-{% include icons.html %}
-
 <div class="padding-v markdown">
 
     <div class="row">
         <div class="container-1000px">
             {% include brand.html %}
             <h1 id="option-style-customisation">Theming and customisation</h1>
-
-            <p>As you should've seen in
-                <a href="docs-getting-started.html" class="raised" style="position:relative;top:5px">
-                    {%- include icons/start.svg -%}
-                    Getting started
-                </a> there are two stylesheet files :</p>
-            <ul>
-                <li>natural-gallery.css: is used for layout purposes and should not be changed if don't know what you're doing.</li>
-                <li>themes/natural.css: is used only for colored elements. Feel free to copy this file in your project and edit with your colors.</li>
-            </ul>
-            <p>Be careful, if the gallery is updated and the css selectors change in this file, you'll need to update it manually.</p>
+            <p>Customize colors by overriding the CSS custom properties in your own stylesheet. For example:</p>
         </div>
-
+{% highlight css %}
+:root {
+    --ngjs-figure-radius: 4px;                          /* Border radius for figure elements */
+    --ngjs-focus-outline: 1px solid orange;              /* Focus outline style */
+    --ngjs-marker-border-color: currentColor;           /* Border color for selection marker */
+    --ngjs-marker-check-color: transparent;             /* Background color for marker check */
+    --ngjs-selected-marker-color: orange;               /* Col or for selected marker */
+    --ngjs-selected-marker-check: black;                /* Color for selected marker check */
+    --ngjs-link-bg: rgb(0, 0, 0, 0.7);                  /* Background color for non-link titles */
+    --ngjs-link-color: white;                           /* Text color for non-link titles */
+    --ngjs-link-radius: 4px;                            /* Border radius for link buttons/anchors */
+    --ngjs-link-hover-bg: rgb(0, 0, 0);                 /* Background color for link hover state */
+    --ngjs-link-hover-color: white;                     /* Text color for link hover state */
+}
+{% endhighlight %}
     </div>
 
     <div class="row">

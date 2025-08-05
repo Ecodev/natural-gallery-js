@@ -1,9 +1,6 @@
 ---
 layout: default
 ---
-
-{% include icons.html %}
-
 <div class="padding-v markdown">
 
     <div class="row">
@@ -137,7 +134,7 @@ gallery.addEventListener(eventName, function(ev) {
                 <tr>
                     <td>activate</td>
                     <td>Emitted when an item has been clicked</td>
-                    <td>{% highlight javascript %}{model: Object, clickEvent: MouseEvent}{% endhighlight %}</td>
+                    <td>{% highlight javascript %}{model: Object, event: KeyboardEvent | MouseEvent}{% endhighlight %}</td>
                     <td><a href="#activable">Docs</a></td>
                 </tr>
                 <tr>
@@ -217,10 +214,10 @@ gallery.addEventListener('pagination', function(ev) {
 
 {% highlight javascript %}
 gallery.addEventListener('activate', function(ev) {
-    console.log(ev.detail); // {model: Object, clickEvent: MouseEvent}
+    console.log(ev.detail); // {model: Object, event: MouseEvent | KeyboardEvent}
 
     // Prevents to redirect to destination page in case clicked element is an <a href />
-    ev.detail.clickEvent.preventDefault();
+    ev.detail.event.preventDefault();
 });
 {% endhighlight %}
     </div>
@@ -282,60 +279,57 @@ gallery.addEventListener('zoom', function(ev) {
         </div>
         <script type="module">
             import {Square} from './assets/natural-gallery-js/natural-gallery.js';
+            const defaultOptions = {gap:20, itemsPerRow: 1, labelVisibility: 'always' }
             window.addEventListener('load', function() {
                 var photoswipeRef = document.getElementsByClassName('pswp')[0];
 
                 var galleryApi1Ref = document.getElementById('gallery-api-1');
-                var galleryApi1 = new Square(galleryApi1Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: false, selectable: true}, photoswipeRef);
+                var galleryApi1 = new Square(galleryApi1Ref, {...defaultOptions, lightbox: false, selectable: true, activable: false}, photoswipeRef);
                 galleryApi1.init();
-                var imagesZoom1 = {% include sample.json %}.slice(0, 1);
-                imagesZoom1[0].title = 'Image link and no lightbox = whole image click should emit activate event';
+                var imagesZoom1 = {% include single-image.json %};
+                imagesZoom1[0].title = 'Link + no lightbox + not activable = all figure is a link';
                 imagesZoom1[0].link = '#demo-events';
                 galleryApi1.setItems(imagesZoom1);
 
                 var galleryApi2Ref = document.getElementById('gallery-api-2');
-                var galleryApi2 = new Square(galleryApi2Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: true, selectable: true}, photoswipeRef);
+                var galleryApi2 = new Square(galleryApi2Ref, {...defaultOptions, lightbox: true, selectable: true, activable: false}, photoswipeRef);
                 galleryApi2.init();
-                var imagesZoom2 = {% include sample.json %}.slice(0, 1);
-                imagesZoom2[0].title = 'Image link and  lightbox = button click should emit activate, image click should emit zoom';
+                var imagesZoom2 = {% include single-image.json %};
+                imagesZoom2[0].title = 'Link + lightbox + selectable + not activable = caption is link, image is lightbox';
                 imagesZoom2[0].link = '#demo-events';
                 galleryApi2.setItems(imagesZoom2);
 
                 var galleryApi3Ref = document.getElementById('gallery-api-3');
-                var galleryApi3 = new Square(galleryApi3Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: false, activable: true, selectable: true}, photoswipeRef);
+                var galleryApi3 = new Square(galleryApi3Ref, {...defaultOptions, lightbox: false, selectable: true, activable: true }, photoswipeRef);
                 galleryApi3.init();
-                var imagesZoom3 = {% include sample.json %}.slice(0, 1);
-                imagesZoom3[0].title = 'Without image link and no lightbox, but option.activable = true';
+                var imagesZoom3 = {% include single-image.json %};
+                imagesZoom3[0].title = 'No link + no lightbox + activable = a click on whole element emit activate event';
                 galleryApi3.setItems(imagesZoom3);
 
                 var galleryApi4Ref = document.getElementById('gallery-api-4');
-                var galleryApi4 = new Square(galleryApi4Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: true, activable: true, selectable: true}, photoswipeRef);
+                var galleryApi4 = new Square(galleryApi4Ref, {...defaultOptions, lightbox: true, selectable: true, activable: true}, photoswipeRef);
                 galleryApi4.init();
-                var imagesZoom4 = {% include sample.json %}.slice(0, 1);
-                imagesZoom4[0].title = 'Without image link but with lightbox and option.activable = true';
+                var imagesZoom4 = {% include single-image.json %};
+                imagesZoom4[0].title = 'No link + lightbox + activable = image opens lightbox and button emits activate event';
                 galleryApi4.setItems(imagesZoom4);
 
                 galleryApi1.addEventListener('pagination', function(ev) {console.log('pagination', ev.detail)});
-
-                galleryApi1.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.clickEvent.preventDefault()});
+                galleryApi1.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.event.preventDefault()});
                 galleryApi1.addEventListener('zoom', function(ev) {console.log('zoom', ev.detail)});
                 galleryApi1.addEventListener('select', function(ev) {console.log('select', ev.detail)});
 
-                galleryApi2.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.clickEvent.preventDefault()});
+                galleryApi2.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.event.preventDefault()});
                 galleryApi2.addEventListener('zoom', function(ev) {console.log('zoom', ev.detail)});
                 galleryApi2.addEventListener('select', function(ev) {console.log('select', ev.detail)});
 
-                galleryApi3.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.clickEvent.preventDefault()});
+                galleryApi3.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.event.preventDefault()});
                 galleryApi3.addEventListener('zoom', function(ev) {console.log('zoom', ev.detail)});
                 galleryApi3.addEventListener('select', function(ev) {console.log('select', ev.detail)});
 
-                galleryApi4.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.clickEvent.preventDefault()});
+                galleryApi4.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.event.preventDefault()});
                 galleryApi4.addEventListener('zoom', function(ev) {console.log('zoom', ev.detail)});
                 galleryApi4.addEventListener('select', function(ev) {console.log('select', ev.detail)});
             });
         </script>
-
     </div>
-
-
 </div>

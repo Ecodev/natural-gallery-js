@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="assets/natural-gallery-js/natural-gallery.css">
+
+
+        <script type="module">
+            import {Natural, Square, Masonry} from './assets/natural-gallery-js/natural-gallery.js';
+            window.Natural = Natural;
+            window.Square = Square;
+            window.Masonry = Masonry;
+
+            import PhotoSwipeDynamicCaption from 'https://unpkg.com/photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.esm.js';
+            window.PhotoSwipeDynamicCaption = PhotoSwipeDynamicCaption;
+            window.images = {{ site.data.images | jsonify }}.results.map((i)=> {
+                return {
+                    thumbnailSrc: i.urls.small,
+                    enlargedSrc: i.urls.regular,
+                    enlargedWidth: i.width,
+                    enlargedHeight: i.height,
+                    title: (i.description || i.user.name || '').replace(/'/g, ''),
+                    color: i.color || '#000000'
+                };
+            });
+        </script>
+
+        <link rel="stylesheet" href="https://unpkg.com/photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css">
+        <title>E2E tests</title>
+    </head>
+
+    <body>{{ content }}</body>
+</html>

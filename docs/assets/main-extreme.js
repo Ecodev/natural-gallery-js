@@ -1,30 +1,28 @@
 export function setupDemoExtreme(galleryClass, options) {
-    var gallery;
+    let gallery;
 
     window.addEventListener('load', function () {
-        var galleryElement = document.getElementById("gallery");
-        var scrollableElement = document.getElementById('body');
-        loadingBar = document.getElementById('loadingBar');
+        let galleryElement = document.getElementById("gallery");
+        let scrollableElement = document.getElementById('body');
 
         // Create gallery
-        gallery = getGallery(galleryElement, scrollableElement);
+        gallery = new galleryClass(galleryElement, options, scrollableElement);
         getImages();
         gallery.init();
     });
 
     function getImages() {
 
-        var xhr = new XMLHttpRequest();
+        let xhr = new XMLHttpRequest();
         xhr.open('GET', 'assets/images.json');
-
         xhr.addEventListener('readystatechange', function () {
 
             if (xhr.readyState === 4 && xhr.status === 200) {
 
-                var items = JSON.parse(xhr.responseText).results.map(function (i, index) {
+                let items = JSON.parse(xhr.responseText).results.map(function (i, index) {
 
-                    var width = i.width;
-                    var height = i.height;
+                    let width = i.width;
+                    let height = i.height;
 
                     // Fake images sizes
                     // each 5th image are vertically thin
