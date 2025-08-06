@@ -24,7 +24,21 @@ jobs:
                   node-version: '18'
                   cache: 'yarn'
             - run: yarn --frozen-lockfile
-            - run: yarn playwright install --with-deps
+            - name: Install Playwright Browsers
+              run: yarn playwright install --with-deps
+            - name: Setup Ruby for Jekyll
+              uses: ruby/setup-ruby@v1
+              with:
+                  ruby-version: '3.0'
+                  bundler-cache: true
+                  working-directory: docs
+            - name: Start Jekyll server
+              run: |
+                  cd docs
+                  bundle exec jekyll serve --detach --port 4000
+            - name: Wait for server to be ready
+              run: |
+                  timeout 30 bash -c 'until curl -f http://localhost:4000/test; do sleep 1; done'
             - run: HEADLESS=1 yarn test
 
     lint:
