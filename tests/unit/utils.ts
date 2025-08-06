@@ -8,4 +8,3 @@ export function click(): MouseEvent {
         cancelable: true,
     });
 }
-

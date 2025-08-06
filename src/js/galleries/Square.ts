@@ -44,6 +44,10 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
         }
     }
 
+    public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
+        Square.organizeItems(this, items, fromRow, toRow);
+    }
+
     protected getEstimatedColumnsPerRow(): number {
         return this.options.itemsPerRow;
     }
@@ -58,9 +62,5 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
     protected getItemSideSize(): number {
         const itemsPerRow = this.getEstimatedColumnsPerRow();
         return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
-    }
-
-    public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
-        Square.organizeItems(this, items, fromRow, toRow);
     }
 }

@@ -3,7 +3,7 @@ import {afterEach, beforeEach, describe, expect, it} from '@jest/globals';
 import {ModelAttributes} from '../../src';
 import {click, key} from './utils';
 
-type EventVariant = { click: boolean, enter: boolean, space: boolean };
+type EventVariant = {click: boolean; enter: boolean; space: boolean};
 
 // ES for Enter and Space keys
 const NO_EVENT: EventVariant = {click: false, enter: false, space: false};
@@ -11,38 +11,40 @@ const CLICK: EventVariant = {click: true, enter: false, space: false};
 const ALL_EVENTS: EventVariant = {click: true, enter: true, space: true};
 
 type SemanticItem = {
-    item: Item,
-    root: HTMLElement,
-    image: HTMLElement,
-    caption: HTMLElement | null,
-    link: HTMLElement | HTMLButtonElement | null,
-    select: HTMLElement | null,
+    item: Item;
+    root: HTMLElement;
+    image: HTMLElement;
+    caption: HTMLElement | null;
+    link: HTMLElement | HTMLButtonElement | null;
+    select: HTMLElement | null;
 };
 
 type ItemExpectation = {
-    warn: number,
-    select: EventVariant | null,
-    root: ElementExpectation,
-    image: ElementExpectation,
-    caption: ElementExpectation | null,
-    link: ElementExpectation | null,
-}
+    warn: number;
+    select: EventVariant | null;
+    root: ElementExpectation;
+    image: ElementExpectation;
+    caption: ElementExpectation | null;
+    link: ElementExpectation | null;
+};
 
 type ElementExpectation = {
-    tag?: string,
-    href?: string | null,
-    linkTarget?: string | null
-    text?: string,
-    alt?: string | null,
-    ariaLabel: string | null,
-    tabindex: string | null,
-    zoom: EventVariant,
-    activate: EventVariant
+    tag?: string;
+    href?: string | null;
+    linkTarget?: string | null;
+    text?: string;
+    alt?: string | null;
+    ariaLabel: string | null;
+    tabindex: string | null;
+    zoom: EventVariant;
+    activate: EventVariant;
+};
 
-}
-
-function createItem(document: Document, model: Partial<ModelAttributes> = {}, options: Partial<ItemOptions> = {}): SemanticItem {
-
+function createItem(
+    document: Document,
+    model: Partial<ModelAttributes> = {},
+    options: Partial<ItemOptions> = {},
+): SemanticItem {
     const defaultModel = {
         thumbnailSrc: 'image.jpg',
         enlargedWidth: 600,
@@ -98,7 +100,6 @@ function testItem(item: SemanticItem, expected: ItemExpectation, warnSpy: jest.S
 }
 
 function testHTMLElement(root: HTMLElement, expected: ElementExpectation, target?: HTMLElement | null): void {
-
     expect(target).toBeDefined();
 
     if (expected.tag !== undefined) {
@@ -126,7 +127,13 @@ function testHTMLElement(root: HTMLElement, expected: ElementExpectation, target
     expectEvent(root, key(' '), target!, 'activate', expected.activate.space);
 }
 
-function expectEvent(root: HTMLElement, triggerEvent: Event, eventTarget: HTMLElement, outputEvent: string, expected: boolean): void {
+function expectEvent(
+    root: HTMLElement,
+    triggerEvent: Event,
+    eventTarget: HTMLElement,
+    outputEvent: string,
+    expected: boolean,
+): void {
     const eventSpy = jest.fn();
     root.addEventListener(outputEvent, eventSpy);
     eventTarget.dispatchEvent(triggerEvent);
@@ -150,19 +157,38 @@ describe('Item', () => {
 
     it('should setup link target', () => {
         const item = createItem(mockDocument, {title: 'My title', link: 'https://example.com', linkTarget: '_blank'});
-        testItem(item, {
-            warn: 0,
-            select: null,
-            root: {tag: 'A', ariaLabel: null, alt: null, tabindex: null, href: 'https://example.com', linkTarget: '_blank', zoom: NO_EVENT, activate: NO_EVENT},
-            image: {ariaLabel: null, alt: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-            caption: null,
-            link: null,
-        }, consoleWarnSpy);
+        testItem(
+            item,
+            {
+                warn: 0,
+                select: null,
+                root: {
+                    tag: 'A',
+                    ariaLabel: null,
+                    alt: null,
+                    tabindex: null,
+                    href: 'https://example.com',
+                    linkTarget: '_blank',
+                    zoom: NO_EVENT,
+                    activate: NO_EVENT,
+                },
+                image: {
+                    ariaLabel: null,
+                    alt: 'My title',
+                    tabindex: null,
+                    href: null,
+                    zoom: NO_EVENT,
+                    activate: NO_EVENT,
+                },
+                caption: null,
+                link: null,
+            },
+            consoleWarnSpy,
+        );
     });
 
     it('should have hoverable link', () => {
-        const item = createItem(mockDocument, {title: 'My title'},
-            {labelVisibility: LabelVisibility.HOVER});
+        const item = createItem(mockDocument, {title: 'My title'}, {labelVisibility: LabelVisibility.HOVER});
         expect(item.caption?.classList.contains('hover')).toBe(true);
 
         item.item.setLabelHover(false);
@@ -172,8 +198,7 @@ describe('Item', () => {
     });
 
     it('should remove item from DOM', () => {
-        const item = createItem(mockDocument, {title: 'My title'},
-            {labelVisibility: LabelVisibility.HOVER});
+        const item = createItem(mockDocument, {title: 'My title'}, {labelVisibility: LabelVisibility.HOVER});
 
         mockDocument.body.appendChild(item.root);
         expect(item.root.parentNode).toBe(mockDocument.body);
@@ -185,7 +210,6 @@ describe('Item', () => {
         const item = createItem(mockDocument, {title: 'My title', color: '#ffffff'});
         expect(item.root.style.backgroundColor).toEqual('rgba(255, 255, 255, 0.067)');
     });
-
 
     it('should initialize item unchecked', () => {
         const item = createItem(mockDocument, {title: 'My title'}, {selectable: true});
@@ -206,177 +230,465 @@ describe('Item', () => {
         expect(item.select?.getAttribute('aria-checked')).toBe('false');
     });
 
-
     const testWithSelectable = (selectable: boolean, events: EventVariant | null) => {
         const suffix = selectable ? ', selectable' : '';
 
         it('should render image with alt and no interaction' + suffix, () => {
             const item = createItem(mockDocument, {title: 'My title'}, {selectable});
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: null, alt: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                caption: null,
-                link: null,
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: null,
+                        alt: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    caption: null,
+                    link: null,
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render caption + no interaction' + suffix, () => {
-            const item = createItem(mockDocument, {title: 'My title'}, {labelVisibility: LabelVisibility.ALWAYS, selectable});
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: null, alt: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: null,
-            }, consoleWarnSpy);
+            const item = createItem(
+                mockDocument,
+                {title: 'My title'},
+                {labelVisibility: LabelVisibility.ALWAYS, selectable},
+            );
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {ariaLabel: null, alt: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: null,
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render caption + meaningful alt + no interaction' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title', alt: 'My alt'},
-                {labelVisibility: LabelVisibility.ALWAYS, selectable});
+                {labelVisibility: LabelVisibility.ALWAYS, selectable},
+            );
 
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: null, alt: 'My alt', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: null,
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: null,
+                        alt: 'My alt',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: null,
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render caption + no identical alt + no interaction' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title', alt: 'My title'},
-                {labelVisibility: LabelVisibility.ALWAYS, selectable});
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: null, alt: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: null,
-            }, consoleWarnSpy);
+                {labelVisibility: LabelVisibility.ALWAYS, selectable},
+            );
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {ariaLabel: null, alt: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: null,
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should zoom' + suffix, () => {
             const item = createItem(mockDocument, {title: 'My title'}, {selectable, lightbox: true});
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: 'zoom', tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                image: {ariaLabel: null, alt: 'My title', tabindex: null, href: null, zoom: CLICK, activate: NO_EVENT},
-                caption: null,
-                link: null,
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: 'zoom',
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: null,
+                        alt: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: CLICK,
+                        activate: NO_EVENT,
+                    },
+                    caption: null,
+                    link: null,
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render caption + zoom' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title'},
-                {labelVisibility: LabelVisibility.ALWAYS, selectable, lightbox: true});
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: 'zoom', tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                image: {ariaLabel: null, alt: null, tabindex: null, href: null, zoom: CLICK, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: CLICK, activate: NO_EVENT},
-                link: null,
-            }, consoleWarnSpy);
+                {labelVisibility: LabelVisibility.ALWAYS, selectable, lightbox: true},
+            );
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: 'zoom',
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    image: {ariaLabel: null, alt: null, tabindex: null, href: null, zoom: CLICK, activate: NO_EVENT},
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: CLICK,
+                        activate: NO_EVENT,
+                    },
+                    link: null,
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render caption + zoom + meaningful alt' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title', alt: 'My alt'},
                 {labelVisibility: LabelVisibility.ALWAYS, selectable, lightbox: true},
             );
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: 'zoom', tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                image: {ariaLabel: null, alt: 'My alt', tabindex: null, href: null, zoom: CLICK, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: CLICK, activate: NO_EVENT},
-                link: null,
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: 'zoom',
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: null,
+                        alt: 'My alt',
+                        tabindex: null,
+                        href: null,
+                        zoom: CLICK,
+                        activate: NO_EVENT,
+                    },
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: CLICK,
+                        activate: NO_EVENT,
+                    },
+                    link: null,
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render caption + zoom + ignore identical alt' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title', alt: 'My title'},
-                {labelVisibility: LabelVisibility.ALWAYS, selectable, lightbox: true});
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: 'zoom', tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                image: {ariaLabel: null, alt: null, tabindex: null, href: null, zoom: CLICK, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: CLICK, activate: NO_EVENT},
-                link: null,
-            }, consoleWarnSpy);
+                {labelVisibility: LabelVisibility.ALWAYS, selectable, lightbox: true},
+            );
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: 'zoom',
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    image: {ariaLabel: null, alt: null, tabindex: null, href: null, zoom: CLICK, activate: NO_EVENT},
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: CLICK,
+                        activate: NO_EVENT,
+                    },
+                    link: null,
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render ignored link + zoom + alt' + suffix, () => {
             // Specific case, link is ignored
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {alt: 'My alt', link: 'https://example.com'},
                 {labelVisibility: LabelVisibility.ALWAYS, selectable, lightbox: true},
             );
-            testItem(item, {
-                warn: 1,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: 'zoom', tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                image: {ariaLabel: null, alt: 'My alt', tabindex: null, href: null, zoom: CLICK, activate: NO_EVENT},
-                caption: null,
-                link: null,
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 1,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: 'zoom',
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: null,
+                        alt: 'My alt',
+                        tabindex: null,
+                        href: null,
+                        zoom: CLICK,
+                        activate: NO_EVENT,
+                    },
+                    caption: null,
+                    link: null,
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render link + caption + zoom' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title', link: 'https://example.com'},
                 {labelVisibility: LabelVisibility.ALWAYS, selectable, lightbox: true},
             );
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: 'zoom', alt: null, tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: {ariaLabel: null, text: 'My title', tabindex: null, href: 'https://example.com', zoom: NO_EVENT, activate: NO_EVENT},
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: 'zoom',
+                        alt: null,
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: 'https://example.com',
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render link + caption + zoom + meaningful alt' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title', alt: 'My alt', link: 'https://example.com'},
                 {labelVisibility: LabelVisibility.ALWAYS, selectable, lightbox: true},
             );
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: 'zoom', alt: 'My alt', tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: {ariaLabel: null, text: 'My title', tabindex: null, href: 'https://example.com', zoom: NO_EVENT, activate: NO_EVENT},
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: 'zoom',
+                        alt: 'My alt',
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: 'https://example.com',
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render link + caption + zoom + ignore identical alt' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title', alt: 'My title', link: 'https://example.com'},
                 {labelVisibility: LabelVisibility.ALWAYS, selectable, lightbox: true},
             );
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: 'zoom', alt: null, tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: {ariaLabel: null, text: 'My title', tabindex: null, href: 'https://example.com', zoom: NO_EVENT, activate: NO_EVENT},
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: 'zoom',
+                        alt: null,
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: 'https://example.com',
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                },
+                consoleWarnSpy,
+            );
         });
 
         /**
@@ -394,173 +706,474 @@ describe('Item', () => {
 
         it('should render image with alt and activable' + suffix, () => {
             const item = createItem(mockDocument, {title: 'My title'}, {selectable, activable: true});
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'BUTTON', ariaLabel: 'activate item', tabindex: '0', href: null, zoom: NO_EVENT, activate: ALL_EVENTS},
-                image: {ariaLabel: null, alt: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: CLICK},
-                caption: null,
-                link: null,
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'BUTTON',
+                        ariaLabel: 'activate item',
+                        tabindex: '0',
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: ALL_EVENTS,
+                    },
+                    image: {
+                        ariaLabel: null,
+                        alt: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: CLICK,
+                    },
+                    caption: null,
+                    link: null,
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render caption + activable' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title'},
-                {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true});
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: null, alt: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: {...activeLink, tag: 'BUTTON'},
-            }, consoleWarnSpy);
+                {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true},
+            );
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {ariaLabel: null, alt: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: {...activeLink, tag: 'BUTTON'},
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render caption + meaningful alt + activable' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title', alt: 'My alt'},
-                {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true});
+                {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true},
+            );
 
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: null, alt: 'My alt', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: {...activeLink, tag: 'BUTTON'},
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: null,
+                        alt: 'My alt',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: {...activeLink, tag: 'BUTTON'},
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render caption + no identical alt + activable' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title', alt: 'My title'},
-                {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true});
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: null, alt: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: {...activeLink, tag: 'BUTTON'},
-            }, consoleWarnSpy);
+                {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true},
+            );
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {ariaLabel: null, alt: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: {...activeLink, tag: 'BUTTON'},
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should zoom, activable' + suffix, () => {
             const item = createItem(mockDocument, {title: 'My title'}, {selectable, activable: true, lightbox: true});
-            testItem(item, {
-                warn: 1,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: 'zoom', tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                image: {ariaLabel: null, alt: 'My title', tabindex: null, href: null, zoom: CLICK, activate: NO_EVENT},
-                caption: null,
-                link: null,
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 1,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: 'zoom',
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: null,
+                        alt: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: CLICK,
+                        activate: NO_EVENT,
+                    },
+                    caption: null,
+                    link: null,
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render caption + zoom, activable' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title'},
-                {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true, lightbox: true});
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: 'zoom', alt: null, tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: {...activeLink, tag: 'BUTTON'},
-            }, consoleWarnSpy);
+                {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true, lightbox: true},
+            );
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: 'zoom',
+                        alt: null,
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: {...activeLink, tag: 'BUTTON'},
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render caption + zoom + meaningful alt, activable' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title', alt: 'My alt'},
                 {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true, lightbox: true},
             );
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: 'zoom', alt: 'My alt', tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: {...activeLink, tag: 'BUTTON'},
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: 'zoom',
+                        alt: 'My alt',
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: {...activeLink, tag: 'BUTTON'},
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render caption + zoom + ignore identical alt, activable' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title', alt: 'My title'},
-                {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true, lightbox: true});
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: 'zoom', alt: null, tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: {...activeLink, tag: 'BUTTON'},
-            }, consoleWarnSpy);
+                {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true, lightbox: true},
+            );
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: 'zoom',
+                        alt: null,
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: {...activeLink, tag: 'BUTTON'},
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render ignored link + zoom + alt, activable' + suffix, () => {
             // Specific case, link is ignored
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {alt: 'My alt', link: 'https://example.com'},
                 {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true, lightbox: true},
             );
-            testItem(item, {
-                warn: 1,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: 'zoom', tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                image: {ariaLabel: null, alt: 'My alt', tabindex: null, href: null, zoom: CLICK, activate: NO_EVENT},
-                caption: null,
-                link: null,
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 1,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: 'zoom',
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: null,
+                        alt: 'My alt',
+                        tabindex: null,
+                        href: null,
+                        zoom: CLICK,
+                        activate: NO_EVENT,
+                    },
+                    caption: null,
+                    link: null,
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render link + caption + zoom, activable' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title', link: 'https://example.com'},
                 {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true, lightbox: true},
             );
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: 'zoom', alt: null, tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: {ariaLabel: null, text: 'My title', tabindex: null, href: 'https://example.com', zoom: NO_EVENT, activate: NO_EVENT},
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: 'zoom',
+                        alt: null,
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: 'https://example.com',
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render link + caption + zoom + meaningful alt, activable' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title', alt: 'My alt', link: 'https://example.com'},
                 {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true, lightbox: true},
             );
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: 'zoom', alt: 'My alt', tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: {ariaLabel: null, text: 'My title', tabindex: null, href: 'https://example.com', zoom: NO_EVENT, activate: NO_EVENT},
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: 'zoom',
+                        alt: 'My alt',
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: 'https://example.com',
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                },
+                consoleWarnSpy,
+            );
         });
 
         it('should render link + caption + zoom + ignore identical alt, activable' + suffix, () => {
-            const item = createItem(mockDocument,
+            const item = createItem(
+                mockDocument,
                 {title: 'My title', alt: 'My title', link: 'https://example.com'},
                 {labelVisibility: LabelVisibility.ALWAYS, selectable, activable: true, lightbox: true},
             );
-            testItem(item, {
-                warn: 0,
-                select: events,
-                root: {tag: 'FIGURE', ariaLabel: null, tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                image: {ariaLabel: 'zoom', alt: null, tabindex: '0', href: null, zoom: ALL_EVENTS, activate: NO_EVENT},
-                caption: {ariaLabel: null, text: 'My title', tabindex: null, href: null, zoom: NO_EVENT, activate: NO_EVENT},
-                link: {ariaLabel: null, text: 'My title', tabindex: null, href: 'https://example.com', zoom: NO_EVENT, activate: NO_EVENT},
-            }, consoleWarnSpy);
+            testItem(
+                item,
+                {
+                    warn: 0,
+                    select: events,
+                    root: {
+                        tag: 'FIGURE',
+                        ariaLabel: null,
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    image: {
+                        ariaLabel: 'zoom',
+                        alt: null,
+                        tabindex: '0',
+                        href: null,
+                        zoom: ALL_EVENTS,
+                        activate: NO_EVENT,
+                    },
+                    caption: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: null,
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                    link: {
+                        ariaLabel: null,
+                        text: 'My title',
+                        tabindex: null,
+                        href: 'https://example.com',
+                        zoom: NO_EVENT,
+                        activate: NO_EVENT,
+                    },
+                },
+                consoleWarnSpy,
+            );
         });
     };
 

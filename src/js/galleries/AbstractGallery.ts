@@ -6,16 +6,7 @@ import 'photoswipe/dist/photoswipe.css';
 import {Item, ItemActivateEventDetail, ItemOptions, LabelVisibility} from '../Item';
 import {getNextIcon} from '../Utility';
 
-
-export type ObjectFit =
-    | 'fill'
-    | 'contain'
-    | 'cover'
-    | 'none'
-    | 'scale-down'
-    | 'inherit'
-    | 'initial'
-    | 'unset';
+export type ObjectFit = 'fill' | 'contain' | 'cover' | 'none' | 'scale-down' | 'inherit' | 'initial' | 'unset';
 
 export type ObjectPosition =
     | 'center'
@@ -37,10 +28,10 @@ export type ObjectPosition =
  * A map of all possible event and the structure of their details
  */
 export interface CustomEventDetailMap<T> {
-    activate: { model: T; event: MouseEvent | KeyboardEvent };
+    activate: {model: T; event: MouseEvent | KeyboardEvent};
     'item-added-to-dom': T;
     'item-displayed': T;
-    pagination: { offset: number; limit: number };
+    pagination: {offset: number; limit: number};
     select: T[];
 }
 
@@ -185,43 +176,25 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * Number of items to query on buffer flushing
      */
     protected requiredItems = 0;
-
+    protected readonly document: Document;
+    /**
+     * PhotoSwipe Lightbox object
+     */
+    protected psLightbox: PhotoSwipeLightbox | null = null;
     /**
      * Used to test the scroll direction
      * Avoid to load more images when scrolling up
      */
     private old_scroll_top = 0;
-
     /**
      * Stores page index that have been emitted
      * Keeps a log of pages already asked to prevent to ask them multiple times
      */
     private requestedIndexesLog: number[] = [];
-
     /**
      * Reference to next button element
      */
     private nextButton: HTMLElement | null = null;
-    protected readonly document: Document;
-
-    /**
-     * PhotoSwipe Lightbox object
-     */
-    protected psLightbox: PhotoSwipeLightbox | null = null;
-
-    /**
-     * Get PhotoSwipe Lightbox
-     */
-    get photoSwipe(): PhotoSwipeLightbox | null {
-        return this.psLightbox;
-    }
-
-    /**
-     * Get currently selected PhotoSwipe image
-     */
-    get photoSwipeCurrentItem(): Model | null {
-        return this.collection[this.psLightbox?.pswp?.currIndex || 0]?.model || null;
-    }
 
     /**
      *
@@ -259,6 +232,20 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
                 this.requiredItems = 0;
             }
         }, 500);
+    }
+
+    /**
+     * Get PhotoSwipe Lightbox
+     */
+    get photoSwipe(): PhotoSwipeLightbox | null {
+        return this.psLightbox;
+    }
+
+    /**
+     * Get currently selected PhotoSwipe image
+     */
+    get photoSwipeCurrentItem(): Model | null {
+        return this.collection[this.psLightbox?.pswp?.currIndex || 0]?.model || null;
     }
 
     /**
@@ -347,55 +334,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         }
     }
 
-    /**
-     * Initializes PhotoSwipe
-     */
-    protected photoSwipeInit() {
-        this.psLightbox = new PhotoSwipeLightbox({
-            ...this.options.photoSwipeOptions,
-            pswpModule: PhotoSwipe,
-        });
-
-        this.psLightbox.addFilter('numItems', (): number => {
-            return this.domCollection.length;
-            // return this.collection.length;
-        });
-
-        this.psLightbox.addFilter('itemData', (_itemData: SlideData, index: number): SlideData => {
-            const item = this.collection[index];
-            return {
-                id: index,
-                src: item.model.enlargedSrc,
-                w: item.model.enlargedWidth,
-                h: item.model.enlargedHeight,
-                msrc: item.model.thumbnailSrc,
-                element: item.rootElement,
-                thumbCropped: item.cropped,
-                alt: item.sanitizedTitle,
-            };
-        });
-
-        if (this.options.photoSwipePluginsInitFn) {
-            this.options.photoSwipePluginsInitFn(this.psLightbox);
-        }
-
-        this.psLightbox.init();
-
-        // Loading one more page when going to next image
-        this.psLightbox.on('change', () => {
-            // Positive delta means next slide.
-            // If we go next slide, and current index is out of visible collection bound, load more items
-            if (this.psLightbox?.pswp && this.psLightbox.pswp.currIndex > this.domCollection.length - 10) {
-                this.onPageAdd();
-            }
-        });
-
-        // With accessibility :focus usage, figures tend to stay sticky on focused state. This returns to wanted behavior
-        this.psLightbox.on('destroy', () => {
-            (this.document.activeElement as HTMLElement)?.blur();
-        });
-    }
-
     public addItemToPhotoSwipeCollection(item: Item<Model>) {
         const photoSwipeId = this.domCollection.length - 1;
 
@@ -475,6 +413,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         callback: (evt: CustomEvent<CustomEventDetailMap<Model>[K]>) => void,
         options?: boolean | AddEventListenerOptions,
     ): void;
+
     public addEventListener(
         name: keyof CustomEventDetailMap<Model>,
         callback: (evt: CustomEvent<CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>]>) => void,
@@ -516,6 +455,55 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      *
      */
     public abstract organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void;
+
+    /**
+     * Initializes PhotoSwipe
+     */
+    protected photoSwipeInit() {
+        this.psLightbox = new PhotoSwipeLightbox({
+            ...this.options.photoSwipeOptions,
+            pswpModule: PhotoSwipe,
+        });
+
+        this.psLightbox.addFilter('numItems', (): number => {
+            return this.domCollection.length;
+            // return this.collection.length;
+        });
+
+        this.psLightbox.addFilter('itemData', (_itemData: SlideData, index: number): SlideData => {
+            const item = this.collection[index];
+            return {
+                id: index,
+                src: item.model.enlargedSrc,
+                w: item.model.enlargedWidth,
+                h: item.model.enlargedHeight,
+                msrc: item.model.thumbnailSrc,
+                element: item.rootElement,
+                thumbCropped: item.cropped,
+                alt: item.sanitizedTitle,
+            };
+        });
+
+        if (this.options.photoSwipePluginsInitFn) {
+            this.options.photoSwipePluginsInitFn(this.psLightbox);
+        }
+
+        this.psLightbox.init();
+
+        // Loading one more page when going to next image
+        this.psLightbox.on('change', () => {
+            // Positive delta means next slide.
+            // If we go next slide, and current index is out of visible collection bound, load more items
+            if (this.psLightbox?.pswp && this.psLightbox.pswp.currIndex > this.domCollection.length - 10) {
+                this.onPageAdd();
+            }
+        });
+
+        // With accessibility :focus usage, figures tend to stay sticky on focused state. This returns to wanted behavior
+        this.psLightbox.on('destroy', () => {
+            (this.document.activeElement as HTMLElement)?.blur();
+        });
+    }
 
     /**
      * If gallery already has items on initialisation, set first page visible, load second page and query for more

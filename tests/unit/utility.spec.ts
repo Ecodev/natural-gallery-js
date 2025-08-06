@@ -16,9 +16,9 @@ describe('Utility', () => {
 
     it('should get svg', () => {
         const svg = getNextIcon(document);
-        expect(svg.outerHTML)
-            .toBe(
-                '<svg viewBox="0 0 100 100"><polygon points="88.126,24.216 50.036,62.306 11.947,24.216 0.355,35.809 50.036,85.49 99.718,35.809"></polygon></svg>');
+        expect(svg.outerHTML).toBe(
+            '<svg viewBox="0 0 100 100"><polygon points="88.126,24.216 50.036,62.306 11.947,24.216 0.355,35.809 50.036,85.49 99.718,35.809"></polygon></svg>',
+        );
     });
 
     it('should get svg with Angular SSR', () => {
@@ -26,9 +26,9 @@ describe('Utility', () => {
         const document = window.document;
 
         const svg = getNextIcon(document);
-        expect(svg.outerHTML)
-            .toBe(
-                '<svg viewBox="0 0 100 100"><polygon points="88.126,24.216 50.036,62.306 11.947,24.216 0.355,35.809 50.036,85.49 99.718,35.809"></polygon></svg>');
+        expect(svg.outerHTML).toBe(
+            '<svg viewBox="0 0 100 100"><polygon points="88.126,24.216 50.036,62.306 11.947,24.216 0.355,35.809 50.036,85.49 99.718,35.809"></polygon></svg>',
+        );
     });
 });
 
@@ -56,7 +56,7 @@ describe('sanitizeHtml', () => {
         expect(sanitizeHtml('<STRONG>foo<STRONG> <strong>bar</strong> <em>baz</em>')).toBe('foo bar baz');
         expect(sanitizeHtml('<strong>one</strong> > two > three')).toBe('one > two > three');
         expect(sanitizeHtml('<scrip<script>is removed</script>t>alert(123)</script>')).toBe('is removedt>alert(123)'); // Broken but safe
-                                                                                                                       // HTML
+        // HTML
         expect(sanitizeHtml('<!<!--- comment --->>')).toBe('>'); // Broken but safe HTML
         expect(sanitizeHtml('a<>b')).toBe('ab');
         expect(sanitizeHtml('a</>b')).toBe('ab');

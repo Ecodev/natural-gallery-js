@@ -24,6 +24,7 @@ jobs:
                   node-version: '18'
                   cache: 'yarn'
             - run: yarn --frozen-lockfile
+            - run: yarn playwright install --with-deps
             - run: HEADLESS=1 yarn test
 
     lint:

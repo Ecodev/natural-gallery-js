@@ -8,7 +8,6 @@ export enum LabelVisibility {
 }
 
 export declare interface ItemOptions {
-
     /**
      * Enables ability to zoom images in photoswipe
      */
@@ -38,40 +37,10 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
      * Cleaned title, used for label / button
      */
     public readonly sanitizedTitle: string;
-
-    /**
-     * Actual row index in the list
-     */
-    private _row!: number;
-
-    /**
-     * If is actually the last element of a row
-     */
-    private _last!: boolean;
-
-    /**
-     * Computed size (real used size)
-     */
-    private _width!: number;
-    private _height!: number;
-
-    private _cropped = true;
-
-    /**
-     * Wherever item is selected or not
-     */
-    private _selected = false;
-
-    /**
-     * Item root element reference (figure)
-     */
-    private _rootElement!: HTMLElement;
-
     /**
      * Reference to the select button
      */
     private _checkbox!: HTMLButtonElement;
-
     /**
      * Element referring the "button" containing the label
      */
@@ -87,6 +56,96 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
         public readonly model: Model,
     ) {
         this.sanitizedTitle = sanitizeHtml(model.title);
+    }
+
+    /**
+     * Actual row index in the list
+     */
+    private _row!: number;
+
+    get row(): number {
+        return this._row;
+    }
+
+    set row(value: number) {
+        this._row = value;
+    }
+
+    /**
+     * If is actually the last element of a row
+     */
+    private _last!: boolean;
+
+    get last(): boolean {
+        return this._last;
+    }
+
+    set last(value: boolean) {
+        this._last = value;
+    }
+
+    /**
+     * Computed size (real used size)
+     */
+    private _width!: number;
+
+    get width(): number {
+        return this._width;
+    }
+
+    set width(value: number) {
+        this._width = value;
+    }
+
+    private _height!: number;
+
+    get height(): number {
+        return this._height;
+    }
+
+    set height(value: number) {
+        this._height = value;
+    }
+
+    private _cropped = true;
+
+    /* istanbul ignore next */
+    get cropped(): boolean {
+        return this._cropped;
+    }
+
+    set cropped(value: boolean) {
+        this._cropped = value;
+    }
+
+    /**
+     * Wherever item is selected or not
+     */
+    private _selected = false;
+
+    /* istanbul ignore next */
+    get selected(): boolean {
+        return this._selected;
+    }
+
+    /**
+     * Item root element reference (figure)
+     */
+    private _rootElement!: HTMLElement;
+
+    /* istanbul ignore next */
+    get rootElement(): HTMLElement {
+        return this._rootElement;
+    }
+
+    /* istanbul ignore next */
+    get enlargedWidth(): number {
+        return this.model.enlargedWidth;
+    }
+
+    /* istanbul ignore next */
+    get enlargedHeight(): number {
+        return this.model.enlargedHeight;
     }
 
     /**
@@ -131,7 +190,9 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
             root = figure;
             zoomableElement = figure;
             figure.appendChild(image);
-            console.warn('Link or activation are ignored when lightbox is true and there is no caption because there is no element to support it');
+            console.warn(
+                'Link or activation are ignored when lightbox is true and there is no caption because there is no element to support it',
+            );
         } else if (this.options.lightbox && !caption && !link) {
             root = figure;
             zoomableElement = figure;
@@ -218,6 +279,10 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
         this.updateAriaSelectedStatus();
     }
 
+    public remove(): void {
+        this._rootElement.parentNode?.removeChild(this._rootElement);
+    }
+
     private updateAriaSelectedStatus(): void {
         this._checkbox.setAttribute('aria-checked', String(this._selected));
         this._checkbox.setAttribute('aria-label', this._selected ? 'Unselect' : 'Select');
@@ -244,10 +309,6 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
         return null;
     }
 
-    public remove(): void {
-        this._rootElement.parentNode?.removeChild(this._rootElement);
-    }
-
     /**
      * Label is visible if options mention hover or always
      * @private
@@ -256,7 +317,11 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
         let showLabel = false;
 
         const showLabelValues = [LabelVisibility.ALWAYS, LabelVisibility.HOVER];
-        if (this.sanitizedTitle && this.options.labelVisibility && showLabelValues.includes(this.options.labelVisibility)) {
+        if (
+            this.sanitizedTitle &&
+            this.options.labelVisibility &&
+            showLabelValues.includes(this.options.labelVisibility)
+        ) {
             showLabel = true;
         }
 
@@ -353,7 +418,6 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
     }
 
     private handleActivation(element: HTMLElement): void {
-
         element.setAttribute('aria-label', 'activate item');
         const activate = (ev: MouseEvent | KeyboardEvent) => {
             const data: ItemActivateEventDetail<Model> = {item: this, event: ev};
@@ -391,66 +455,5 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
                 }
             });
         }
-    }
-
-    get last(): boolean {
-        return this._last;
-    }
-
-    set last(value: boolean) {
-        this._last = value;
-    }
-
-    get row(): number {
-        return this._row;
-    }
-
-    set row(value: number) {
-        this._row = value;
-    }
-
-    get height(): number {
-        return this._height;
-    }
-
-    set height(value: number) {
-        this._height = value;
-    }
-
-    get width(): number {
-        return this._width;
-    }
-
-    set width(value: number) {
-        this._width = value;
-    }
-
-    /* istanbul ignore next */
-    get cropped(): boolean {
-        return this._cropped;
-    }
-
-    set cropped(value: boolean) {
-        this._cropped = value;
-    }
-
-    /* istanbul ignore next */
-    get enlargedWidth(): number {
-        return this.model.enlargedWidth;
-    }
-
-    /* istanbul ignore next */
-    get enlargedHeight(): number {
-        return this.model.enlargedHeight;
-    }
-
-    /* istanbul ignore next */
-    get selected(): boolean {
-        return this._selected;
-    }
-
-    /* istanbul ignore next */
-    get rootElement(): HTMLElement {
-        return this._rootElement;
     }
 }

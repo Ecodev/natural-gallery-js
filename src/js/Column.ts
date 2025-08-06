@@ -21,10 +21,6 @@ export class Column<Model extends ModelAttributes> {
         this._elementRef.style.width = this.options.width + 'px';
     }
 
-    public addItem(item: Item<Model>): void {
-        this.collection.push(item);
-    }
-
     get height(): number {
         return this._elementRef.offsetHeight;
     }
@@ -35,5 +31,9 @@ export class Column<Model extends ModelAttributes> {
 
     get elementRef(): HTMLElement {
         return this._elementRef;
+    }
+
+    public addItem(item: Item<Model>): void {
+        this.collection.push(item);
     }
 }

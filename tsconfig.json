@@ -15,7 +15,5 @@
         },
         "strict": true
     },
-    "exclude": [".idea", "dist", "docs", "node_modules",
-        "tests"
-    ]
+    "exclude": [".idea", "dist", "docs", "node_modules", "tests"]
 }

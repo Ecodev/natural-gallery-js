@@ -249,5 +249,4 @@ describe('Natural Gallery', () => {
 
         expect(gallery.collection.map(getSize)).toEqual(result);
     });
-
 });
