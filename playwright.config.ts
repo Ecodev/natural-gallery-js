@@ -5,7 +5,7 @@ const viewport = {width: 960, height: 800};
 const config: PlaywrightTestConfig = {
     testDir: './tests/e2e',
     outputDir: './tests/logs/',
-    fullyParallel: false,
+    fullyParallel: true,
     workers: 1,
     use: {
         baseURL: 'http://localhost:4000',
