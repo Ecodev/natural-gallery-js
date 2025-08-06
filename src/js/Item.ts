@@ -33,7 +33,7 @@ export type ItemActivateEventDetail<Model extends ModelAttributes> = {
     item: Item<Model>;
 };
 
-export class Item<Model extends ModelAttributes> {
+export class Item<Model extends ModelAttributes = ModelAttributes> {
     /**
      * Cleaned title, used for label / button
      */
@@ -131,14 +131,11 @@ export class Item<Model extends ModelAttributes> {
             root = figure;
             zoomableElement = figure;
             figure.appendChild(image);
-            console.warn('Link is ignored when lightbox is true and there is no caption because there is no element to support it');
+            console.warn('Link or activation are ignored when lightbox is true and there is no caption because there is no element to support it');
         } else if (this.options.lightbox && !caption && !link) {
             root = figure;
             zoomableElement = figure;
             figure.appendChild(image);
-            if (this.options.activable) {
-                console.warn('Activable setting is ignored when there is no caption because there is no element to support the event handler');
-            }
         } else if (!this.options.lightbox && caption && link) {
             root = figure;
             figure.appendChild(image);
@@ -222,8 +219,8 @@ export class Item<Model extends ModelAttributes> {
     }
 
     private updateAriaSelectedStatus(): void {
-        this._checkbox.setAttribute('aria-pressed', String(this._selected));
-        this._checkbox.setAttribute('aria-label', this._selected ? 'Unselect image' : 'Select image');
+        this._checkbox.setAttribute('aria-checked', String(this._selected));
+        this._checkbox.setAttribute('aria-label', this._selected ? 'Unselect' : 'Select');
     }
 
     private getEmptyLinkOrButton(): HTMLElement | HTMLButtonElement | null {
@@ -238,7 +235,7 @@ export class Item<Model extends ModelAttributes> {
             return link;
         } else if (this.options.activable) {
             const button = this.document.createElement('button');
-            button.setAttribute('tab-index', '0');
+            button.setAttribute('tabindex', '0');
             this.handleActivation(button);
 
             return button;
@@ -248,9 +245,7 @@ export class Item<Model extends ModelAttributes> {
     }
 
     public remove(): void {
-        if (this._rootElement.parentNode) {
-            this._rootElement.parentNode.removeChild(this._rootElement);
-        }
+        this._rootElement.parentNode?.removeChild(this._rootElement);
     }
 
     /**
@@ -322,10 +317,6 @@ export class Item<Model extends ModelAttributes> {
             return null;
         }
 
-        if (this.model.selected) {
-            this.select();
-        }
-
         const checkbox = this.document.createElement('button') as HTMLButtonElement;
         checkbox.tabIndex = 0;
         checkbox.classList.add('select-btn');
@@ -351,6 +342,12 @@ export class Item<Model extends ModelAttributes> {
         });
         this._checkbox = checkbox;
         this.updateAriaSelectedStatus();
+
+        if (this.model.selected) {
+            this.select();
+        } else {
+            this.unselect();
+        }
 
         return checkbox;
     }
@@ -428,6 +425,7 @@ export class Item<Model extends ModelAttributes> {
         this._width = value;
     }
 
+    /* istanbul ignore next */
     get cropped(): boolean {
         return this._cropped;
     }
@@ -436,18 +434,22 @@ export class Item<Model extends ModelAttributes> {
         this._cropped = value;
     }
 
+    /* istanbul ignore next */
     get enlargedWidth(): number {
         return this.model.enlargedWidth;
     }
 
+    /* istanbul ignore next */
     get enlargedHeight(): number {
         return this.model.enlargedHeight;
     }
 
+    /* istanbul ignore next */
     get selected(): boolean {
         return this._selected;
     }
 
+    /* istanbul ignore next */
     get rootElement(): HTMLElement {
         return this._rootElement;
     }

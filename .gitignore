@@ -4,6 +4,8 @@
 .DS_store
 /node_modules/
 /dist/
+/tests/logs/*
+!**/.gitkeep
 
 # Jekyll
 _site

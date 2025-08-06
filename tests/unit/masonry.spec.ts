@@ -1,5 +1,7 @@
 import {Masonry, MasonryGalleryOptions} from '../../src';
 import {ModelAttributes} from '../../src/js/galleries/AbstractGallery';
+import {LabelVisibility} from '../../src/js/Item';
+import {describe, expect, it} from '@jest/globals';
 
 const imageModel: ModelAttributes = {
     thumbnailSrc: 'thumbnailSrc',
@@ -11,12 +13,12 @@ const imageModel: ModelAttributes = {
 };
 
 describe('Masonry Gallery', () => {
-    test('Options should be completed and overriden', () => {
+    it('Options should be completed and overriden', () => {
         const result: MasonryGalleryOptions = {
             columnWidth: 123, // new attribute
             gap: 4, // overriden attribute
             rowsPerPage: 0,
-            showLabels: 'hover',
+            labelVisibility: LabelVisibility.HOVER,
             lightbox: false,
             minRowsAtStart: 2,
             selectable: false,
@@ -34,7 +36,7 @@ describe('Masonry Gallery', () => {
         expect(gallery.getOptions()).toEqual(result);
     });
 
-    test('should add items before creation and not render them', () => {
+    it('should add items before creation and not render them', () => {
         const images = [imageModel, imageModel, imageModel, imageModel, imageModel, imageModel];
         const gallery = new Masonry(document.createElement('div'), {columnWidth: 123});
         gallery.addItems(images);
