@@ -3,27 +3,6 @@ import {countItems} from './setup-test';
 
 test.describe('Square', () => {
     test.beforeEach(async ({page}) => {
-        const importDebug = await page.evaluate(async () => {
-            try {
-                console.log("Tentative d'import...");
-                const module = await import('/assets/natural-gallery-js/natural-gallery.js');
-                console.log('Import réussi:', module);
-                return {
-                    success: true,
-                    hasSquare: !!module.Square,
-                    moduleKeys: Object.keys(module),
-                };
-            } catch (error) {
-                console.log("Erreur d'import:", error);
-                return {
-                    success: false,
-                    error: error.message,
-                    stack: error.stack,
-                };
-            }
-        });
-        console.log('Import debug:', importDebug);
-
         await page.evaluate(() => {
             const gallery = new window.Square(document.getElementById('gallery'), {itemsPerRow: 4});
             gallery.init();

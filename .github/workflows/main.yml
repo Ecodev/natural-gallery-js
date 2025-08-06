@@ -13,7 +13,7 @@ jobs:
                   node-version: '18'
                   cache: 'yarn'
             - run: yarn --frozen-lockfile
-            - run: yarn build-lib
+            - run: yarn build
 
     test:
         runs-on: ubuntu-latest
@@ -37,15 +37,10 @@ jobs:
 
             - name: Start Jekyll and run tests
               run: |
+                  yarn build 
                   (cd docs && bundle exec jekyll serve --detach --port 4000) &
                   sleep 10
-                  
-                  echo "=== DEBUG FILE ACCESS ==="
-                  ls -la docs/assets/natural-gallery-js/ || echo "Directory not found"
-                  curl -f http://localhost:4000/assets/natural-gallery-js/natural-gallery.js -I || echo "File not accessible via HTTP"
-                  echo "=========================="
-                  
-                  HEADLESS=1 yarn test
+                  yarn test
 
     lint:
         runs-on: ubuntu-latest

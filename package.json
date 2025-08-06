@@ -24,9 +24,8 @@
     "scripts": {
         "dev": "concurrently --kill-others \"tsup --watch src/\" \"cross-env DOCS=1 tsup --watch src/\" \"yarn run dev-docs\"",
         "dev-docs": "cd docs && bundle install && bundle exec jekyll serve --livereload",
-        "build": "tsup",
-        "build-lib": "tsup && cross-env DOCS=1 tsup",
-        "release": "yarn build-lib; cd dist; yarn publish --access public",
+        "build": "tsup && cross-env DOCS=1 tsup",
+        "release": "tsup; cd dist; yarn publish --access public",
         "unit": "jest --runInBand --detectOpenHandles",
         "e2e": "playwright test",
         "test": "yarn unit && yarn e2e",
