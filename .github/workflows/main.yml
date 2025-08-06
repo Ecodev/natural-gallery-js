@@ -25,7 +25,7 @@ jobs:
                   cache: 'yarn'
             - run: yarn --frozen-lockfile
             - name: Install Playwright Browsers
-              run: yarn playwright install --with-deps
+              run: yarn playwright install chromium --with-deps
             - name: Setup Ruby for Jekyll
               uses: ruby/setup-ruby@v1
               with:
