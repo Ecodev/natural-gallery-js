@@ -24,22 +24,28 @@ jobs:
                   node-version: '18'
                   cache: 'yarn'
             - run: yarn --frozen-lockfile
-            - name: Install Playwright Browsers
+
+            - name: Install Playwright
               run: yarn playwright install chromium --with-deps
-            - name: Setup Ruby for Jekyll
+
+            - name: Setup Ruby
               uses: ruby/setup-ruby@v1
               with:
-                  ruby-version: '3.0'
+                  ruby-version: '3.4.5'
                   bundler-cache: true
                   working-directory: docs
-            - name: Start Jekyll server
+
+            - name: Start Jekyll and run tests
               run: |
-                  cd docs
-                  bundle exec jekyll serve --detach --port 4000
-            - name: Wait for server to be ready
-              run: |
-                  timeout 30 bash -c 'until curl -f http://localhost:4000/test; do sleep 1; done'
-            - run: HEADLESS=1 yarn test
+                  (cd docs && bundle exec jekyll serve --detach --port 4000) &
+                  sleep 10
+                  
+                  echo "=== DEBUG FILE ACCESS ==="
+                  ls -la docs/assets/natural-gallery-js/ || echo "Directory not found"
+                  curl -f http://localhost:4000/assets/natural-gallery-js/natural-gallery.js -I || echo "File not accessible via HTTP"
+                  echo "=========================="
+                  
+                  HEADLESS=1 yarn test
 
     lint:
         runs-on: ubuntu-latest

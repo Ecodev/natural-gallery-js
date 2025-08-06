@@ -13,10 +13,10 @@ const imageModel: ModelAttributes = {
 };
 
 describe('Square Gallery', () => {
-    it('Options should be completed and overriden', () => {
+    it('Options should be completed and override', () => {
         const result: SquareGalleryOptions = {
             itemsPerRow: 123, // new attribute
-            gap: 4, // overriden attribute
+            gap: 4, // overridden attribute
             rowsPerPage: 0,
             labelVisibility: LabelVisibility.HOVER,
             lightbox: false,

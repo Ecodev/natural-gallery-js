@@ -28,7 +28,6 @@
         "build-lib": "tsup && cross-env DOCS=1 tsup",
         "release": "yarn build-lib; cd dist; yarn publish --access public",
         "unit": "jest --runInBand --detectOpenHandles",
-        "unit-dev": "jest --runInBand --detectOpenHandles --watch",
         "e2e": "playwright test",
         "test": "yarn unit && yarn e2e",
         "lint-fix": "eslint . --fix",
