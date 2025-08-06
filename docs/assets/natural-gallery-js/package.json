@@ -22,8 +22,7 @@
         "node": ">=18.0.0"
     },
     "scripts": {
-        "dev": "concurrently --kill-others \"cross-env DOCS=1 tsup --watch src/\" \"yarn run dev-docs\"",
-        "dev-all": "concurrently --kill-others \"tsup --watch src/\" \"cross-env DOCS=1 tsup --watch src/\" \"yarn run dev-docs\"",
+        "dev": "concurrently --kill-others \"tsup --watch src/\" \"cross-env DOCS=1 tsup --watch src/\" \"yarn run dev-docs\"",
         "dev-docs": "cd docs && bundle install && bundle exec jekyll serve --livereload",
         "build": "tsup",
         "build-lib": "tsup && cross-env DOCS=1 tsup",
