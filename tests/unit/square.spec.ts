@@ -1,6 +1,6 @@
 import {Square, SquareGalleryOptions} from '../../src';
-import {ModelAttributes} from '../../src/js/galleries/AbstractGallery';
-import {LabelVisibility} from '../../src/js/Item';
+import {ModelAttributes} from '../../src';
+import {LabelVisibility} from '../../src';
 import {describe, expect, it} from '@jest/globals';
 
 const imageModel: ModelAttributes = {

@@ -17,8 +17,8 @@ export class Column<Model extends ModelAttributes> {
     ) {
         this._elementRef = document.createElement('div');
         this._elementRef.classList.add('column');
-        this._elementRef.style.marginRight = this.options.gap + 'px';
         this._elementRef.style.width = this.options.width + 'px';
+        this._elementRef.style.gap = this.options.gap + 'px';
     }
 
     get height(): number {

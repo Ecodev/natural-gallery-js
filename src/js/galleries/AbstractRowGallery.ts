@@ -1,6 +1,12 @@
 import {AbstractGallery, ModelAttributes} from './AbstractGallery';
 
 export abstract class AbstractRowGallery<Model extends ModelAttributes> extends AbstractGallery<Model> {
+    public override init(): void {
+        super.init();
+
+        this.bodyElementRef!.style.rowGap = this.options.gap + 'px';
+    }
+
     protected onScroll(): void {
         this.addRows(1);
     }

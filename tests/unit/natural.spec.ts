@@ -1,5 +1,5 @@
 import {Natural, NaturalGalleryOptions} from '../../src';
-import {ModelAttributes} from '../../src/js/galleries/AbstractGallery';
+import {ModelAttributes} from '../../src';
 import {Item, LabelVisibility} from '../../src/js/Item';
 import * as domino from 'domino';
 import {describe, expect, it} from '@jest/globals';

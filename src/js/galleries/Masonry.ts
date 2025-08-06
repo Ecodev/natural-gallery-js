@@ -48,7 +48,6 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
             const item = items[i];
             const {ratio, cropped} = getImageRatioAndIfCropped(item.model, gallery.options.ratioLimit);
 
-            item.last = true;
             item.width = Math.floor(columnWidth);
             item.height = item.width / ratio;
             item.cropped = cropped;
@@ -91,6 +90,10 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
     protected onPageAdd(): void {
         this.addUntilFill();
+    }
+
+    protected getFormatName(): string {
+        return 'format-masonry';
     }
 
     protected getEstimatedColumnsPerRow(): number {

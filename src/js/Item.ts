@@ -72,19 +72,6 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
     }
 
     /**
-     * If is actually the last element of a row
-     */
-    private _last!: boolean;
-
-    get last(): boolean {
-        return this._last;
-    }
-
-    set last(value: boolean) {
-        this._last = value;
-    }
-
-    /**
      * Computed size (real used size)
      */
     private _width!: number;
@@ -250,13 +237,6 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
 
         this._rootElement.style.width = String(this.width + 'px');
         this._rootElement.style.height = String(this.height + 'px');
-        this._rootElement.style.marginBottom = String(this.options.gap + 'px');
-
-        if (this.last) {
-            this._rootElement.style.marginRight = '0';
-        } else {
-            this._rootElement.style.marginRight = String(this.options.gap + 'px');
-        }
     }
 
     public toggleSelect(): void {

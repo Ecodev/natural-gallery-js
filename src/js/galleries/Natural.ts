@@ -104,7 +104,6 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
             item.height = Math.floor(rowHeight);
             item.cropped = cropped;
             item.row = row;
-            item.last = i === chunk.length - 1;
             item.style();
         }
     }
@@ -141,6 +140,10 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
     public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
         Natural.organizeItems(this, items, fromRow, toRow);
+    }
+
+    protected getFormatName(): string {
+        return 'format-natural';
     }
 
     protected endResize(): void {

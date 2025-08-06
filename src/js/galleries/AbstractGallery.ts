@@ -292,6 +292,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      */
     public init(): void {
         this.elementRef.classList.add('natural-gallery-js');
+        this.elementRef.classList.add(this.getFormatName());
 
         // Next button
         this.nextButton = this.document.createElement('div');
@@ -550,6 +551,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * AbstractRowGallery + Masonry
      */
     protected abstract onPageAdd(): void;
+
+    protected abstract getFormatName(): string;
 
     /**
      * Return number of rows to show per page to fill the empty space until the bottom of the screen

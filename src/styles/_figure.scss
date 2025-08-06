@@ -39,8 +39,8 @@ $defaultBorderRadius: 8px;
             }
         }
 
-        &:focus,
-        *:focus {
+        &:focus-visible,
+        *:focus-visible {
             outline: var(--ngjs-focus-outline, 1px solid orange);
         }
 

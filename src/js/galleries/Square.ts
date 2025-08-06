@@ -38,7 +38,6 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
             item.width = Math.floor(sideSize);
             item.height = Math.floor(sideSize);
             item.cropped = true;
-            item.last = i % gallery.options.itemsPerRow === gallery.options.itemsPerRow - 1;
             item.row = Math.floor(i / gallery.options.itemsPerRow) + firstRowIndex;
             item.style();
         }
@@ -62,5 +61,9 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
     protected getItemSideSize(): number {
         const itemsPerRow = this.getEstimatedColumnsPerRow();
         return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
+    }
+
+    protected getFormatName(): string {
+        return 'format-square';
     }
 }
