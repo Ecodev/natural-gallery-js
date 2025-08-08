@@ -1,12 +1,8 @@
 import {ModelAttributes, Natural, NaturalGalleryOptions} from '../../src';
-import {Item, LabelVisibility} from '../../src/js/Item';
+import {LabelVisibility} from '../../src/js/Item';
 import * as domino from 'domino';
 import {describe, expect, it} from '@jest/globals';
-import {getContainerElement, getImages, setViewport} from './utils';
-
-function getSize<T extends ModelAttributes>({width, height, row}: Item<T>): Pick<Item<T>, 'width' | 'height' | 'row'> {
-    return {width, height, row};
-}
+import {getContainerElement, getImages, getSize, setViewport} from './utils';
 
 describe('Natural Gallery', () => {
     it('should initialize DOM', () => {
@@ -53,14 +49,30 @@ describe('Natural Gallery', () => {
             photoSwipeOptions: {
                 loop: false,
             },
+            ratioLimit: {
+                min: 0.6,
+                max: 0.8,
+            },
             photoSwipePluginsInitFn: null,
             ssr: {
                 galleryWidth: 480,
             },
         };
 
-        const gallery = new Natural(document.createElement('div'), {rowHeight: 123, gap: 4});
+        const gallery = new Natural(document.createElement('div'), {
+            rowHeight: 123,
+            gap: 4,
+            ratioLimit: {
+                min: 0.6,
+                max: 0.8,
+            },
+        });
         expect(gallery.getOptions()).toEqual(result);
+    });
+
+    it('should error with invalid column size', () => {
+        const container = getContainerElement();
+        expect(() => new Natural(container, {rowHeight: -300})).toThrow('Option.rowHeight must be positive');
     });
 
     it('should add items, render and empty', () => {

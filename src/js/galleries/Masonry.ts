@@ -134,10 +134,6 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     }
 
     protected addColumns(): void {
-        if (!this.bodyElementRef) {
-            throw new Error('Gallery not initialized');
-        }
-
         this.bodyElementRef.innerHTML = '';
         this.columns = [];
         const columnWidth = this.getColumnWidth();

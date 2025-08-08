@@ -1,4 +1,6 @@
 import {ModelAttributes} from '../../src';
+import {describe, it} from '@jest/globals';
+import {Item} from '../../src/js/Item';
 
 /* eslint-disable no-restricted-globals */
 
@@ -11,6 +13,14 @@ export function click(): MouseEvent {
         bubbles: true,
         cancelable: true,
     });
+}
+
+export function getSize<T extends ModelAttributes>({
+    width,
+    height,
+    row,
+}: Item<T>): Pick<Item<T>, 'width' | 'height' | 'row'> {
+    return {width, height, row};
 }
 
 export function setViewport(width = 1024, height = 768): void {

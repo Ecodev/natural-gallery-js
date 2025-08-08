@@ -51,7 +51,7 @@ describe('Masonry Gallery', () => {
         expect(container.querySelectorAll('.figure').length).toBe(0);
     });
 
-    it('should error with invalid row size', () => {
+    it('should error with invalid column size', () => {
         const container = getContainerElement();
         expect(() => new Masonry(container, {columnWidth: -123})).toThrow('Option.columnWidth must be positive');
     });
