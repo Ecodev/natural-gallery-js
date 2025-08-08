@@ -2,15 +2,7 @@ import {Square, SquareGalleryOptions} from '../../src';
 import {ModelAttributes} from '../../src';
 import {LabelVisibility} from '../../src';
 import {describe, expect, it} from '@jest/globals';
-
-const imageModel: ModelAttributes = {
-    thumbnailSrc: 'thumbnailSrc',
-    enlargedSrc: 'enlargedSrc',
-    enlargedWidth: 1980,
-    enlargedHeight: 1080,
-    title: 'title 1',
-    color: 'color',
-};
+import {getContainerElement, getImages} from './utils';
 
 describe('Square Gallery', () => {
     it('Options should be completed and override', () => {
@@ -33,16 +25,20 @@ describe('Square Gallery', () => {
             },
         };
 
-        const gallery = new Square(document.createElement('div'), {itemsPerRow: 123, gap: 4});
+        const gallery = new Square(getContainerElement(), {itemsPerRow: 123, gap: 4});
         expect(gallery.getOptions()).toEqual(result);
     });
 
     it('should add items before creation and not render them', () => {
-        const images = [imageModel, imageModel, imageModel, imageModel, imageModel, imageModel];
-        const gallery = new Square(document.createElement('div'), {itemsPerRow: 123});
-        gallery.addItems(images);
+        const images = getImages(6);
+        const gallery = new Square(getContainerElement(), {itemsPerRow: 3});
 
+        gallery.addItems(images);
         expect(gallery.collection.length).toEqual(6);
         expect(gallery.domCollection.length).toEqual(0);
+
+        gallery.init();
+        expect(gallery.collection.length).toEqual(6);
+        expect(gallery.domCollection.length).toEqual(6);
     });
 });

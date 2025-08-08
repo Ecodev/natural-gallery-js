@@ -21,6 +21,7 @@ export abstract class AbstractRowGallery<Model extends ModelAttributes> extends 
      */
     protected addRows(rows: number): void {
         const nbVisibleImages = this.domCollection.length;
+        // console.log('nbVisibleImages', nbVisibleImages);
 
         // Next row to add (first invisible row)
         const nextRow = this.domCollection.length ? this.domCollection[nbVisibleImages - 1].row + 1 : 0;
@@ -29,7 +30,9 @@ export abstract class AbstractRowGallery<Model extends ModelAttributes> extends 
         // Compute size only for elements we're going to add
         const bufferedItems = this.collection.slice(nbVisibleImages);
         this.organizeItems(bufferedItems, nextRow, lastWantedRow);
+        // console.log('bufferedItems', nextRow, lastWantedRow);
         const itemsToAdd = bufferedItems.filter(i => i.row <= lastWantedRow);
+        // console.log('itemsToAdd', itemsToAdd.length);
         itemsToAdd.forEach(i => this.addItemToDOM(i));
 
         this.flushBufferedItems();
@@ -43,7 +46,7 @@ export abstract class AbstractRowGallery<Model extends ModelAttributes> extends 
             return;
         }
 
-        // Compute with new width. Rows indexes may have change
+        // Compute with new width. Rows indexes may have changed
         this.organizeItems(this.domCollection);
     }
 }

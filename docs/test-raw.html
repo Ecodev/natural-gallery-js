@@ -1,0 +1,46 @@
+---
+layout: test
+---
+
+<style>
+    html, body {margin:0;padding:0;}
+</style>
+
+<div id="gallery"></div>
+<script type="module">
+    import {Natural} from './assets/natural-gallery-js/natural-gallery.js';
+
+    let gallery
+    const options = {
+        rowHeight: 300,
+        labelVisibility: 'always',
+        lightbox: true,
+        // activable: true,
+        // selectable: true,
+        // rowsPerPage: 2,
+        ratioLimit: {
+            min: .5,
+            max: 2
+        },
+    };
+
+    const images = {{ site.data.images | jsonify }}.results.map((i)=> {
+        return {
+            thumbnailSrc: i.urls.small,
+            enlargedSrc: i.urls.regular,
+            enlargedWidth: 1920,
+            enlargedHeight: 1080,
+            title: (i.description || i.user.name || '').replace(/'/g, ''),
+            color: i.color || '#000000'
+        }
+    });
+
+    let galleryElement = document.getElementById('gallery');
+    let scrollableElement = document.getElementById('body');
+    gallery = new Natural(galleryElement, options, scrollableElement);
+    gallery.init();
+    gallery.addItems(images);
+
+</script>
+
+

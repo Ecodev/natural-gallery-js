@@ -16,7 +16,6 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
     constructor(elementRef: HTMLElement, options: NaturalGalleryOptions, scrollElementRef?: HTMLElement | null) {
         super(elementRef, options, scrollElementRef);
-
         if (!options.rowHeight || options.rowHeight <= 0) {
             throw new Error('Option.rowHeight must be positive');
         }
@@ -127,7 +126,7 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
     }
 
     /**
-     * Return the ratio format of models as if they where a single image
+     * Return the ratio format of models as if they were a single image
      */
     public static getRatios(models: SizedModel[], ratioLimits?: RatioLimits): number {
         return models.reduce((total, model) => total + getImageRatio(model, ratioLimits), 0);

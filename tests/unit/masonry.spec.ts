@@ -1,16 +1,6 @@
-import {Masonry, MasonryGalleryOptions} from '../../src';
-import {ModelAttributes} from '../../src';
-import {LabelVisibility} from '../../src';
+import {LabelVisibility, Masonry, MasonryGalleryOptions, Natural} from '../../src';
 import {describe, expect, it} from '@jest/globals';
-
-const imageModel: ModelAttributes = {
-    thumbnailSrc: 'thumbnailSrc',
-    enlargedSrc: 'enlargedSrc',
-    enlargedWidth: 1980,
-    enlargedHeight: 1080,
-    title: 'title 1',
-    color: 'color',
-};
+import {getContainerElement, getImages, setViewport} from './utils';
 
 describe('Masonry Gallery', () => {
     it('Options should be completed and overriden', () => {
@@ -37,11 +27,87 @@ describe('Masonry Gallery', () => {
     });
 
     it('should add items before creation and not render them', () => {
-        const images = [imageModel, imageModel, imageModel, imageModel, imageModel, imageModel];
-        const gallery = new Masonry(document.createElement('div'), {columnWidth: 123});
-        gallery.addItems(images);
+        const images = getImages(6);
+        const gallery = new Masonry(getContainerElement(), {columnWidth: 123});
 
+        gallery.addItems(images);
         expect(gallery.collection.length).toEqual(6);
         expect(gallery.domCollection.length).toEqual(0);
+    });
+
+    it('should add items before init, and render then', () => {
+        const images = getImages(6);
+        const container = getContainerElement(999);
+        const gallery = new Masonry(container, {columnWidth: 123});
+
+        gallery.addItems(images);
+        expect(gallery.collectionLength).toEqual(6);
+        expect(container.querySelectorAll('.figure').length).toBe(0);
+        expect(gallery.domCollectionLength).toEqual(0);
+
+        gallery.init();
+        expect(gallery.collectionLength).toEqual(6);
+        expect(container.querySelectorAll('.figure').length).toBe(6);
+        expect(gallery.domCollectionLength).toEqual(6);
+    });
+
+    it('should render items when adding them after init', () => {
+        const images = getImages(6);
+        const container = getContainerElement(999);
+        const gallery = new Masonry(container, {columnWidth: 123});
+
+        gallery.init();
+        expect(gallery.collectionLength).toEqual(0);
+        expect(container.querySelectorAll('.figure').length).toBe(0);
+        expect(gallery.domCollectionLength).toEqual(0);
+
+        gallery.addItems(images);
+        expect(gallery.collectionLength).toEqual(6);
+        expect(container.querySelectorAll('.figure').length).toBe(6);
+        expect(gallery.domCollectionLength).toEqual(6);
+    });
+
+    it('should empty collection', () => {
+        const images = getImages(6);
+        const container = getContainerElement(999);
+        const gallery = new Masonry(container, {columnWidth: 123});
+        gallery.init();
+        gallery.addItems(images);
+
+        expect(gallery.collectionLength).toEqual(6);
+        expect(gallery.domCollectionLength).toEqual(6);
+        expect(container.querySelectorAll('.figure').length).toBe(6);
+
+        gallery.clear();
+        expect(gallery.collectionLength).toEqual(0);
+        expect(gallery.domCollectionLength).toEqual(0);
+        expect(container.querySelectorAll('.figure').length).toBe(0);
+    });
+
+    it('should resize', async () => {
+        const container = getContainerElement();
+
+        const collection = getImages(60);
+        const gallery = new Masonry(container, {columnWidth: 600});
+        gallery.init();
+
+        gallery.addItems(collection);
+        expect(gallery.domCollectionLength).toEqual(60);
+        expect(container.querySelectorAll('.figure').length).toBe(60);
+
+        const iframe = container.querySelector('iframe');
+        expect(iframe).toBeDefined();
+
+        Object.defineProperty(container, 'getBoundingClientRect', {
+            value: () => ({width: 200}),
+        });
+        setViewport(200);
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+        iframe?.contentWindow?.dispatchEvent(new Event('resize'));
+        (gallery as any).endResize();
+
+        expect(gallery.domCollectionLength).toEqual(60);
+        expect(container.querySelectorAll('figcaption').length).toBe(60);
     });
 });

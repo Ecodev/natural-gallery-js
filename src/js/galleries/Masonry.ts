@@ -119,7 +119,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     protected addUntilFill(): void {
         do {
             this.addItemsToDom(1);
-        } while (this.viewPortIsNotFilled() && this.domCollection.length < this.collection.length);
+        } while (this.viewportIsNotFilled() && this.domCollection.length < this.collection.length);
     }
 
     protected addItemToDOM(item: Item<Model>): void {
@@ -164,7 +164,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     /**
      * Returns true if at least one columns doesn't overflow on the bottom of the viewport
      */
-    private viewPortIsNotFilled(): boolean {
+    private viewportIsNotFilled(): boolean {
         return this.columns.some(
             c => c.elementRef.getBoundingClientRect().bottom < this.document.documentElement.clientHeight,
         );

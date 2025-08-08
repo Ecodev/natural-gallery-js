@@ -385,7 +385,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * Select all items visible in the DOM
      * Ignores buffered items
      */
-    public selectVisibleItems(): Model[] {
+    public selectDomCollection(): Model[] {
+        if (!this.options.selectable) {
+            throw Error('Gallery is not selectable');
+        }
+
         this.domCollection.forEach(item => item.select());
         return this.selectedItems;
     }
@@ -611,7 +615,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         this.requiredItems++;
         this.dispatchEvent('item-added-to-dom', item.model);
 
-        // When selected / unselected
+        // When selected / unselectedd
         item.rootElement.addEventListener('select', () => {
             this.dispatchEvent(
                 'select',
