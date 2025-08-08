@@ -1,6 +1,8 @@
 import {AbstractGallery, GalleryOptions, ModelAttributes} from './AbstractGallery';
 
-export abstract class AbstractRowGallery<Model extends ModelAttributes> extends AbstractGallery<Model> {
+export abstract class AbstractRowGallery<
+    Model extends ModelAttributes = ModelAttributes,
+> extends AbstractGallery<Model> {
     protected constructor(
         protected elementRef: HTMLElement,
         options: GalleryOptions,

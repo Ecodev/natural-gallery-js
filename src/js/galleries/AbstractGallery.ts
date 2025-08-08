@@ -131,7 +131,7 @@ export interface GalleryOptions extends ItemOptions {
     };
 }
 
-export abstract class AbstractGallery<Model extends ModelAttributes> {
+export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttributes> {
     /**
      * Default options
      */
@@ -321,14 +321,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         // elementRef.clientWidth rounds ceil, we need round floor to grant computing fits in the available space
         // elementRef.getBoundingClientRect().width doesn't round, so we can round floor.
         return Math.floor(this.elementRef.getBoundingClientRect?.().width ?? this.options.ssr.galleryWidth);
-    }
-
-    get collectionLength(): number {
-        return this.collection.length;
-    }
-
-    get domCollectionLength(): number {
-        return this.domCollection.length;
     }
 
     public addItemToPhotoSwipeCollection(item: Item<Model>) {
@@ -691,5 +683,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
                 this.onScroll();
             }
         });
+    }
+
+    get rootElement(): HTMLElement {
+        return this.elementRef;
     }
 }

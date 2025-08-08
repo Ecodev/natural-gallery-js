@@ -1,5 +1,4 @@
 import {ModelAttributes} from '../../src';
-import {describe, it} from '@jest/globals';
 import {Item} from '../../src/js/Item';
 
 /* eslint-disable no-restricted-globals */
@@ -21,6 +20,11 @@ export function getSize<T extends ModelAttributes>({
     row,
 }: Item<T>): Pick<Item<T>, 'width' | 'height' | 'row'> {
     return {width, height, row};
+}
+
+export function scrollTo(value: number): void {
+    Object.defineProperty(document.documentElement, 'scrollTop', {value: value, writable: true, configurable: true});
+    document.dispatchEvent(new Event('scroll'));
 }
 
 export function setViewport(width = 1024, height = 768): void {

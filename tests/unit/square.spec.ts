@@ -1,46 +1,27 @@
-import {LabelVisibility, ModelAttributes, Natural, Square, SquareGalleryOptions} from '../../src';
+import {ModelAttributes, Square} from '../../src';
 import {describe, expect, it} from '@jest/globals';
-import {getContainerElement, getImages, getSize} from './utils';
+import {getContainerElement, getSize} from './utils';
+import {getBaseExpectedOptions, testGallery} from './abstract-gallery';
 
 describe('Square Gallery', () => {
-    it('Options should be completed and override', () => {
-        const result: SquareGalleryOptions = {
-            itemsPerRow: 5, // new attribute
-            gap: 4, // overridden attribute
-            rowsPerPage: 0,
-            labelVisibility: LabelVisibility.HOVER,
-            lightbox: false,
-            minRowsAtStart: 2,
-            selectable: false,
-            activable: false,
-            infiniteScrollOffset: 0,
-            photoSwipeOptions: {
-                loop: false,
+    testGallery(
+        Square,
+        {itemsPerRow: 4, gap: 4},
+        {
+            maxItemsInDom: 16,
+            itemsAfterScroll: 20,
+            itemsInFirstPage: 16,
+            itemsInSecondPage: 24,
+            options: {
+                ...getBaseExpectedOptions(),
+                itemsPerRow: 4,
             },
-            photoSwipePluginsInitFn: null,
-            ssr: {
-                galleryWidth: 480,
-            },
-        };
-
-        const gallery = new Square(getContainerElement(), {itemsPerRow: 5, gap: 4});
-        expect(gallery.getOptions()).toEqual(result);
-    });
+        },
+    );
 
     it('should error with invalid column size', () => {
         const container = getContainerElement();
         expect(() => new Square(container, {itemsPerRow: -5})).toThrow('Option.itemsPerRow must be positive');
-    });
-
-    it('should render items', () => {
-        const images = getImages(6);
-        const container = getContainerElement();
-        const gallery = new Square(container, {itemsPerRow: 3});
-
-        gallery.addItems(images);
-        expect(gallery.collection.length).toEqual(6);
-        expect(gallery.domCollection.length).toEqual(6);
-        expect(container.querySelectorAll('.figure')?.length).toEqual(6);
     });
 
     it('should organize items that dont fill the line', () => {

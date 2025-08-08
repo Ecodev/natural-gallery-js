@@ -127,7 +127,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
             return;
         }
 
-        // Compute with new width. Rows indexes may have change
+        // Compute with new width. Rows indexes may have changed
         this.domCollection.length = 0;
         this.addColumns();
         this.addUntilFill();
@@ -150,7 +150,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     }
 
     /**
-     * Returns true if at least one columns doesn't overflow on the bottom of the viewport
+     * Returns true if at least one column doesn't overflow on the bottom of the viewport
      */
     private viewportIsNotFilled(): boolean {
         return this.columns.some(
