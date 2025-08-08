@@ -28,7 +28,7 @@ export type ObjectPosition =
  * A map of all possible event and the structure of their details
  */
 export interface CustomEventDetailMap<T> {
-    activate: {model: T; event: MouseEvent | KeyboardEvent};
+    activate: {item: T; event: MouseEvent | KeyboardEvent};
     'item-added-to-dom': T;
     'item-displayed': T;
     pagination: {offset: number; limit: number};
@@ -211,8 +211,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
 
         // After having finished to add items to dom, show images inside containers and emit updated pagination
         this.flushBufferedItems = debounce(() => {
-            this.scrollBufferedItems.forEach(i => {
-                this.dispatchEvent('item-displayed', i.model);
+            this.scrollBufferedItems.forEach(item => {
+                this.dispatchEvent('item-displayed', item);
             });
 
             this.scrollBufferedItems = [];
@@ -567,19 +567,19 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
 
         this.scrollBufferedItems.push(item);
         this.requiredItems++;
-        this.dispatchEvent('item-added-to-dom', item.model);
+        this.dispatchEvent('item-added-to-dom', item);
 
-        // When selected / unselectedd
+        // When selected / unselected
         item.rootElement.addEventListener('select', () => {
             this.dispatchEvent(
                 'select',
-                this.domCollection.filter(i => i.selected).map(i => i.model),
+                this.domCollection.filter(i => i.selected),
             );
         });
 
         // When activate (if activate event is given in options)
         item.rootElement.addEventListener('activate', (ev: CustomEvent<ItemActivateEventDetail<Model>>) => {
-            this.dispatchEvent('activate', {model: ev.detail.item.model, event: ev.detail.event});
+            this.dispatchEvent('activate', {item, event: ev.detail.event});
         });
 
         if (this.options.lightbox) {
@@ -627,13 +627,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         this.bodyElementRef?.classList.remove('resizing');
     }
 
-    protected dispatchEvent<K extends keyof CustomEventDetailMap<Model>>(
+    protected dispatchEvent<K extends keyof CustomEventDetailMap<Item<Model>>>(
         name: K,
-        data: CustomEventDetailMap<Model>[K],
-    ): void;
-    protected dispatchEvent(
-        name: keyof CustomEventDetailMap<Model>,
-        data: CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>],
+        data: CustomEventDetailMap<Item<Model>>[K],
     ): void {
         try {
             const event = new CustomEvent(name, {detail: data});
@@ -687,5 +683,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
 
     get rootElement(): HTMLElement {
         return this.elementRef;
+    }
+
+    get bodyElement(): HTMLElement {
+        return this.bodyElementRef;
     }
 }

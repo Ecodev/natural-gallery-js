@@ -12,7 +12,7 @@ const CLICK: EventVariant = {click: true, enter: false, space: false};
 const ALL_EVENTS: EventVariant = {click: true, enter: true, space: true};
 
 type SemanticItem = {
-    item: Item;
+    item: Item<ModelAttributes>;
     root: HTMLElement;
     image: HTMLElement;
     caption: HTMLElement | null;

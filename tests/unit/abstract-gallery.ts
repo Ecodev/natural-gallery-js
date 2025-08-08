@@ -186,7 +186,6 @@ export function testGallery<
         expect(() => item.toggleSelect()).toThrow('Gallery is not selectable');
     });
 
-    // todo return item instead of item.model (breaking)
     it('should emit select', () => {
         const gallery = new galleryClass(container, {...options, selectable: true});
         gallery.addItems(getImages(5));
@@ -196,12 +195,12 @@ export function testGallery<
         const item = gallery.collection[0];
         item.toggleSelect();
         expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith(expect.objectContaining({detail: [item.model]}));
+        expect(spy).toHaveBeenCalledWith(expect.objectContaining({detail: [item]}));
 
         const item2 = gallery.collection[1];
         item2.toggleSelect();
         expect(spy).toHaveBeenCalledTimes(2);
-        expect(spy).toHaveBeenCalledWith(expect.objectContaining({detail: [item.model, item2.model]}));
+        expect(spy).toHaveBeenCalledWith(expect.objectContaining({detail: [item, item2]}));
     });
 
     it('should emit activate', () => {
@@ -213,9 +212,7 @@ export function testGallery<
         const item = gallery.collection[0];
         (item.rootElement.querySelector('.activation') as HTMLButtonElement)?.click();
         expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith(
-            expect.objectContaining({detail: expect.objectContaining({model: item.model})}),
-        );
+        expect(spy).toHaveBeenCalledWith(expect.objectContaining({detail: expect.objectContaining({item})}));
     });
 
     it('should init with page size', () => {
@@ -242,7 +239,10 @@ export function testGallery<
 
         await new Promise(resolve => setTimeout(resolve, 100));
         iframe?.contentWindow?.dispatchEvent(new Event('resize'));
+        (gallery as unknown as {startResize: () => void}).startResize();
+        expect(gallery.bodyElement.classList.contains('resizing')).toBe(true);
         (gallery as unknown as {endResize: () => void}).endResize();
+        expect(gallery.bodyElement.classList.contains('resizing')).toBe(false);
 
         expectItemsCount(gallery, 50, expected.maxItemsInDom);
         expect(container.querySelectorAll('figcaption').length).toBe(expected.maxItemsInDom || 50);

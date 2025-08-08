@@ -69,13 +69,13 @@ layout: default
                 <tr>
                     <td>domCollection.length</td>
                     <td>number</td>
-                    <td>Size of collection visible in the DOM</td>
+                    <td>Size of the collection in the DOM</td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td>selectVisibleItems()</td>
+                    <td>selectDomCollection()</td>
                     <td>void</td>
-                    <td>Select all items visible in the DOM</td>
+                    <td>Select all items in the DOM</td>
                     <td></td>
                 </tr>
                 <tr>
@@ -134,31 +134,31 @@ gallery.addEventListener(eventName, function(ev) {
                 <tr>
                     <td>activate</td>
                     <td>Emitted when an item has been clicked</td>
-                    <td>{% highlight javascript %}{model: Object, event: KeyboardEvent | MouseEvent}{% endhighlight %}</td>
+                    <td>{% highlight javascript %}{item: Item, event: KeyboardEvent | MouseEvent}{% endhighlight %}</td>
                     <td><a href="#activable">Docs</a></td>
                 </tr>
                 <tr>
                     <td>select</td>
-                    <td>Emitted when an item is (un)selected. Contains the list of selected models</td>
-                    <td>{% highlight javascript %}model[]{% endhighlight %}</td>
+                    <td>Emitted when an item is (un)selected. Contains the list of selected items</td>
+                    <td>{% highlight javascript %}item[]{% endhighlight %}</td>
                     <td><a href="#select">Docs</a></td>
                 </tr>
                 <tr>
                     <td>zoom</td>
                     <td>Notifies the item and PhotoSwipe object when it's opened.</td>
-                    <td>{% highlight javascript %}{item: Object, photoswipe: PhotoSwipeObject}{% endhighlight %}</td>
+                    <td>{% highlight javascript %}{item: Item, photoswipe: PhotoSwipeObject}{% endhighlight %}</td>
                     <td><a href="#zoom">Docs </a></td>
                 </tr>
                 <tr>
                     <td>item-added-to-dom</td>
                     <td>Emitted when the item has been added to DOM as empty rectangle, but image has not been lazy loaded yet</td>
-                    <td>{% highlight javascript %}model{% endhighlight %}</td>
+                    <td>{% highlight javascript %}item{% endhighlight %}</td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>item-displayed</td>
                     <td>Emitted when the image has lazy loaded and is visible</td>
-                    <td>{% highlight javascript %}model{% endhighlight %}</td>
+                    <td>{% highlight javascript %}item{% endhighlight %}</td>
                     <td></td>
                 </tr>
             </table>
@@ -214,7 +214,7 @@ gallery.addEventListener('pagination', function(ev) {
 
 {% highlight javascript %}
 gallery.addEventListener('activate', function(ev) {
-    console.log(ev.detail); // {model: Object, event: MouseEvent | KeyboardEvent}
+    console.log(ev.detail); // {item: Item, event: MouseEvent | KeyboardEvent}
 
     // Prevents to redirect to destination page in case clicked element is an <a href />
     ev.detail.event.preventDefault();
@@ -226,12 +226,12 @@ gallery.addEventListener('activate', function(ev) {
         <div class="container-1000px">
             <h3 id="select">select</h3>
             <p>Emits a notification with an array that contains the list of the currently selected items.</p>
-            <p>Items in the list are the same as those provided as input.</p>
+            <p>Item is the elements root reference. Use "item.model" to access your own data, given on addItem(models[]); </p>
         </div>
 
 {% highlight javascript %}
 gallery.addEventListener('select', function(ev) {
-    console.log(ev.detail); // [Model1, Model2, Model3]
+    console.log(ev.detail); // [Item1, Item2, Item3]
 });
 {% endhighlight %}
 

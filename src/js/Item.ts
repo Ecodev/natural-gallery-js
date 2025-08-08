@@ -32,7 +32,7 @@ export type ItemActivateEventDetail<Model extends ModelAttributes> = {
     item: Item<Model>;
 };
 
-export class Item<Model extends ModelAttributes = ModelAttributes> {
+export class Item<Model extends ModelAttributes> {
     /**
      * Cleaned title, used for label / button
      */
