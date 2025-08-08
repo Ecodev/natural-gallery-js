@@ -10,18 +10,16 @@ function getSize<T extends ModelAttributes>({width, height, row}: Item<T>): Pick
 
 describe('Natural Gallery', () => {
     it('should initialize DOM', () => {
-        const element = document.createElement('div');
-        const gallery = new Natural(element, {rowHeight: 123, gap: 4});
-        expect(element.querySelector('.natural-gallery-body')).toBe(null);
-        gallery.init();
+        const container = document.createElement('div');
+        const gallery = new Natural(container, {rowHeight: 123, gap: 4});
 
         const expectedElement = document.createElement('div');
         expectedElement.className = 'natural-gallery-body';
         expectedElement.style.rowGap = '4px';
-        expect(element.querySelector('.natural-gallery-body')).toEqual(expectedElement);
+        expect(container.querySelector('.natural-gallery-body')).toEqual(expectedElement);
 
         expect(gallery.collectionLength).toBe(0);
-        expect(element.querySelectorAll('.figure').length).toBe(0);
+        expect(container.querySelectorAll('.figure').length).toBe(0);
         expect(gallery.domCollectionLength).toBe(0);
     });
 
@@ -49,39 +47,10 @@ describe('Natural Gallery', () => {
         expect(gallery.getOptions()).toEqual(result);
     });
 
-    it('should add items before init, and render then', () => {
+    it('should add items, render and empty', () => {
         const images = getImages(6);
         const container = document.createElement('div');
         const gallery = new Natural(container, {rowHeight: 123});
-
-        gallery.addItems(images);
-        expect(gallery.collectionLength).toEqual(6);
-        expect(container.querySelectorAll('.figure').length).toBe(0);
-        expect(gallery.domCollectionLength).toEqual(0);
-
-        gallery.init();
-        expect(gallery.collectionLength).toEqual(6);
-        expect(container.querySelectorAll('.figure').length).toBe(6);
-        expect(gallery.domCollectionLength).toEqual(6);
-    });
-
-    it('should add items after init', () => {
-        const images = getImages(6);
-        const container = document.createElement('div');
-        const gallery = new Natural(container, {rowHeight: 123});
-        gallery.init();
-
-        gallery.addItems(images);
-        expect(gallery.collectionLength).toEqual(6);
-        expect(container.querySelectorAll('.figure').length).toBe(6);
-        expect(gallery.domCollectionLength).toEqual(6);
-    });
-
-    it('should empty collection', () => {
-        const images = getImages(6);
-        const container = document.createElement('div');
-        const gallery = new Natural(container, {rowHeight: 123});
-        gallery.init();
 
         gallery.addItems(images);
         expect(gallery.collectionLength).toEqual(6);
@@ -94,48 +63,54 @@ describe('Natural Gallery', () => {
         expect(container.querySelectorAll('.figure').length).toBe(0);
     });
 
+    it('should complete collection and DOM', () => {
+        const container = getContainerElement();
+        const gallery = new Natural(container, {rowHeight: 300});
+
+        gallery.addItems(getImages(1));
+        expect(gallery.collectionLength).toEqual(1);
+        expect(gallery.domCollectionLength).toEqual(1);
+        expect(container.querySelectorAll('.figure').length).toBe(1);
+
+        gallery.addItems(getImages(2));
+        expect(gallery.collectionLength).toEqual(3);
+        expect(gallery.domCollectionLength).toEqual(3);
+        expect(container.querySelectorAll('.figure').length).toBe(3);
+    });
+
+    it('should complete collection but not DOM', () => {
+        const container = getContainerElement();
+        const gallery = new Natural(container, {rowHeight: 300});
+
+        gallery.addItems(getImages(10));
+        expect(gallery.collectionLength).toEqual(10);
+        expect(gallery.domCollectionLength).toEqual(8);
+        expect(container.querySelectorAll('.figure').length).toBe(8);
+
+        gallery.addItems(getImages(10));
+        expect(gallery.collectionLength).toEqual(20);
+        expect(gallery.domCollectionLength).toEqual(8);
+        expect(container.querySelectorAll('.figure').length).toBe(8);
+    });
+
     it('should replace existing list', () => {
         const collection1 = getImages(6);
         const collection2 = getImages(4);
         const container = document.createElement('div');
         const gallery = new Natural(container, {rowHeight: 123});
-        gallery.init();
 
         gallery.addItems(collection1);
         expect(gallery.collectionLength).toEqual(6);
-        expect(container.querySelectorAll('.figure').length).toBe(6);
         expect(gallery.domCollectionLength).toEqual(6);
+        expect(container.querySelectorAll('.figure').length).toBe(6);
 
         gallery.setItems(collection2);
         expect(gallery.collectionLength).toEqual(4);
-        expect(container.querySelectorAll('.figure').length).toBe(4);
         expect(gallery.domCollectionLength).toEqual(4);
+        expect(container.querySelectorAll('.figure').length).toBe(4);
     });
 
-    it('should not notify pagination before gallery init', () => {
-        const container = getContainerElement();
-        const gallery = new Natural(container, {rowHeight: 300, labelVisibility: LabelVisibility.HOVER});
-
-        const spy = jest.fn();
-        gallery.addEventListener('pagination', spy); // does not emit on the moment before init()
-        expect(spy).toHaveBeenCalledTimes(0);
-
-        gallery.init();
-        expect(spy).toHaveBeenCalledTimes(1);
-    });
-
-    it('should notify pagination only after gallery initialization', () => {
-        const container = getContainerElement();
-        const gallery = new Natural(container, {rowHeight: 300, labelVisibility: LabelVisibility.HOVER});
-        gallery.init();
-
-        const spy = jest.fn();
-        gallery.addEventListener('pagination', spy); // emit on the moment if after init()
-
-        expect(spy).toHaveBeenCalledTimes(1);
-    });
-
-    it('should load some items and buffer the others, and load more on scroll', async () => {
+    it('should load some items, buffer the others and add more to dom on scroll', async () => {
         const paginationSpy = jest.fn();
         const displayedSpy = jest.fn();
         const container = getContainerElement();
@@ -144,36 +119,35 @@ describe('Natural Gallery', () => {
 
         const collection = getImages(50);
         const gallery = new Natural(container, {rowHeight: 300});
-        gallery.init();
 
         gallery.addItems(collection);
         expect(gallery.collectionLength).toEqual(50);
         expect(gallery.domCollectionLength).toEqual(8);
         expect(container.querySelectorAll('.figure').length).toBe(8);
 
+        Object.defineProperty(container, 'offsetHeight', {value: 1200, writable: true, configurable: true});
         Object.defineProperty(document.documentElement, 'scrollTop', {value: 100, writable: true, configurable: true});
+        document.dispatchEvent(new Event('scroll'));
+
+        expect(gallery.collectionLength).toEqual(50);
+        expect(gallery.domCollectionLength).toEqual(8);
+        expect(container.querySelectorAll('.figure').length).toBe(8);
+
+        Object.defineProperty(document.documentElement, 'scrollTop', {value: 500, writable: true, configurable: true});
         document.dispatchEvent(new Event('scroll'));
 
         expect(gallery.collectionLength).toEqual(50);
         expect(gallery.domCollectionLength).toEqual(10);
         expect(container.querySelectorAll('.figure').length).toBe(10);
 
-        Object.defineProperty(document.documentElement, 'scrollTop', {value: 200, writable: true, configurable: true});
-        document.dispatchEvent(new Event('scroll'));
-
-        expect(gallery.collectionLength).toEqual(50);
-        expect(gallery.domCollectionLength).toEqual(12);
-        expect(container.querySelectorAll('.figure').length).toBe(12);
-
         await new Promise(resolve => setTimeout(resolve, 600));
         expect(paginationSpy).toHaveBeenCalledTimes(2);
-        expect(displayedSpy).toHaveBeenCalledTimes(12);
+        expect(displayedSpy).toHaveBeenCalledTimes(10);
     });
 
     it('should throw exception when selecting not selectable gallery', () => {
         const container = getContainerElement();
         const gallery = new Natural(container, {rowHeight: 300});
-        gallery.init();
 
         gallery.addItems(getImages(1));
         expect(() => gallery.selectDomCollection()).toThrow('Gallery is not selectable');
@@ -184,7 +158,7 @@ describe('Natural Gallery', () => {
 
         const collection = getImages(20);
         const gallery = new Natural(container, {rowHeight: 300, selectable: true});
-        gallery.init();
+
         gallery.addItems(collection);
 
         const selected = gallery.selectDomCollection();
@@ -204,7 +178,7 @@ describe('Natural Gallery', () => {
 
         const collection = getImages(20);
         const gallery = new Natural(container, {rowHeight: 300, labelVisibility: LabelVisibility.HOVER});
-        gallery.init();
+
         gallery.addItems(collection);
 
         expect(container.querySelectorAll('figcaption.hover').length).toBe(8);
@@ -212,6 +186,63 @@ describe('Natural Gallery', () => {
 
         gallery.setLabelHover(false);
         expect(container.querySelectorAll('figcaption.hover').length).toBe(0);
+
+        gallery.setLabelHover(true);
+        expect(container.querySelectorAll('figcaption.hover').length).toBe(8);
+    });
+
+    it('should emit pagination on the moment of listening start', () => {
+        const container = getContainerElement();
+        const gallery = new Natural(container, {rowHeight: 300});
+
+        const spy = jest.fn();
+        gallery.addEventListener('pagination', spy);
+        expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should error if selection on non selectable gallery', () => {
+        const container = getContainerElement();
+        const gallery = new Natural(container, {rowHeight: 300, selectable: false});
+        gallery.addItems(getImages(5));
+
+        const spy = jest.fn();
+        gallery.addEventListener('select', spy);
+        const item = gallery.collection[0];
+        expect(() => item.toggleSelect()).toThrow('Gallery is not selectable');
+    });
+
+    // todo return item instead of item.model (breaking)
+    it('should emit select', () => {
+        const container = getContainerElement();
+        const gallery = new Natural(container, {rowHeight: 300, selectable: true});
+        gallery.addItems(getImages(5));
+
+        const spy = jest.fn();
+        gallery.addEventListener('select', spy);
+        const item = gallery.collection[0];
+        item.toggleSelect();
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(expect.objectContaining({detail: [item.model]}));
+
+        const item2 = gallery.collection[1];
+        item2.toggleSelect();
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy).toHaveBeenCalledWith(expect.objectContaining({detail: [item.model, item2.model]}));
+    });
+
+    it('should emit activate', () => {
+        const container = getContainerElement();
+        const gallery = new Natural(container, {rowHeight: 300, activable: true});
+        gallery.addItems(getImages(5));
+
+        const spy = jest.fn();
+        gallery.addEventListener('activate', spy);
+        const item = gallery.collection[0];
+        (item.rootElement.querySelector('.activation') as HTMLButtonElement)?.click();
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(
+            expect.objectContaining({detail: expect.objectContaining({model: item.model})}),
+        );
     });
 
     it('should init with page size', () => {
@@ -219,7 +250,6 @@ describe('Natural Gallery', () => {
 
         const collection = getImages(40);
         const gallery = new Natural(container, {rowHeight: 200, rowsPerPage: 4});
-        gallery.init();
         gallery.addItems(collection);
 
         expect(gallery.domCollectionLength).toEqual(12);
@@ -234,7 +264,6 @@ describe('Natural Gallery', () => {
         const container = getContainerElement();
         const collection = getImages(60);
         const gallery = new Natural(container, {rowHeight: 300});
-        gallery.init();
 
         gallery.addItems(collection);
         expect(gallery.domCollectionLength).toEqual(8);
@@ -248,10 +277,31 @@ describe('Natural Gallery', () => {
 
         await new Promise(resolve => setTimeout(resolve, 100));
         iframe?.contentWindow?.dispatchEvent(new Event('resize'));
-        (gallery as any).endResize();
+        (gallery as unknown as {endResize: () => void}).endResize();
 
         expect(gallery.domCollectionLength).toEqual(8);
         expect(container.querySelectorAll('figcaption').length).toBe(8);
+    });
+
+    it('should not reorganize empty collection on resize', async () => {
+        const container = getContainerElement();
+        const gallery = new Natural(container, {rowHeight: 300});
+
+        expect(gallery.domCollectionLength).toEqual(0);
+        expect(container.querySelectorAll('.figure').length).toBe(0);
+
+        const iframe = container.querySelector('iframe');
+        expect(iframe).toBeDefined();
+
+        Object.defineProperty(container, 'getBoundingClientRect', {value: () => ({width: 200})});
+        setViewport(200);
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+        iframe?.contentWindow?.dispatchEvent(new Event('resize'));
+        (gallery as unknown as {endResize: () => void}).endResize();
+
+        expect(gallery.domCollectionLength).toEqual(0);
+        expect(container.querySelectorAll('figcaption').length).toBe(0);
     });
 
     it('should return row height', () => {
@@ -296,7 +346,7 @@ describe('Natural Gallery', () => {
 
         const container = getContainerElement(999);
         const gallery = new Natural(container, {rowHeight: 400});
-        gallery.init();
+
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0);
 
@@ -342,7 +392,7 @@ describe('Natural Gallery', () => {
 
         const container = getContainerElement(999);
         const gallery = new Natural(container, {rowHeight: 400, gap: 0});
-        gallery.init();
+
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0);
 
@@ -391,7 +441,7 @@ describe('Natural Gallery', () => {
 
         const container = getContainerElement(999);
         const gallery = new Natural(container, {rowHeight: 400, gap: 20});
-        gallery.init();
+
         gallery.addItems(images);
         gallery.organizeItems(gallery.collection, 0);
 

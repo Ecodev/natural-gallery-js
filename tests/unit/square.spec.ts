@@ -1,6 +1,4 @@
-import {Square, SquareGalleryOptions} from '../../src';
-import {ModelAttributes} from '../../src';
-import {LabelVisibility} from '../../src';
+import {LabelVisibility, Square, SquareGalleryOptions} from '../../src';
 import {describe, expect, it} from '@jest/globals';
 import {getContainerElement, getImages} from './utils';
 
@@ -29,16 +27,14 @@ describe('Square Gallery', () => {
         expect(gallery.getOptions()).toEqual(result);
     });
 
-    it('should add items before creation and not render them', () => {
+    it('should render items', () => {
         const images = getImages(6);
-        const gallery = new Square(getContainerElement(), {itemsPerRow: 3});
+        const container = getContainerElement();
+        const gallery = new Square(container, {itemsPerRow: 3});
 
         gallery.addItems(images);
         expect(gallery.collection.length).toEqual(6);
-        expect(gallery.domCollection.length).toEqual(0);
-
-        gallery.init();
-        expect(gallery.collection.length).toEqual(6);
         expect(gallery.domCollection.length).toEqual(6);
+        expect(container.querySelectorAll('.figure')?.length).toEqual(6);
     });
 });

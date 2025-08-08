@@ -8,7 +8,6 @@ export function setupDemoExtreme(galleryClass, options) {
         // Create gallery
         gallery = new galleryClass(galleryElement, options, scrollableElement);
         getImages();
-        gallery.init();
     });
 
     function getImages() {

@@ -239,6 +239,11 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
         this._rootElement.style.height = String(this.height + 'px');
     }
 
+    private emitSelectEvent(): void {
+        const event = new CustomEvent<Item<Model>>('select', {detail: this});
+        this._rootElement.dispatchEvent(event);
+    }
+
     public toggleSelect(): void {
         if (this._selected) {
             this.unselect();
@@ -247,16 +252,26 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
         }
     }
 
+    private throwNotSelectableError(): void {
+        if (!this.options.selectable) {
+            throw Error('Gallery is not selectable');
+        }
+    }
+
     public select(): void {
+        this.throwNotSelectableError();
         this._selected = true;
         this._rootElement.classList.add('selected');
         this.updateAriaSelectedStatus();
+        this.emitSelectEvent();
     }
 
     public unselect(): void {
+        this.throwNotSelectableError();
         this._selected = false;
         this._rootElement.classList.remove('selected');
         this.updateAriaSelectedStatus();
+        this.emitSelectEvent();
     }
 
     public remove(): void {
@@ -280,6 +295,7 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
             return link;
         } else if (this.options.activable) {
             const button = this.document.createElement('button');
+            button.classList.add('activation');
             button.setAttribute('tabindex', '0');
             this.handleActivation(button);
 
@@ -375,8 +391,6 @@ export class Item<Model extends ModelAttributes = ModelAttributes> {
             e.stopPropagation();
             e.preventDefault();
             this.toggleSelect();
-            const event = new CustomEvent<Item<Model>>('select', {detail: this});
-            this._rootElement.dispatchEvent(event);
         };
 
         checkbox.addEventListener('click', handleCheckboxAction);

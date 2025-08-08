@@ -12,7 +12,7 @@ export function setupDemo(galleryClass, options) {
 
         // Create gallery
         gallery = new galleryClass(galleryElement, options, scrollableElement);
-        gallery.init();
+       
 
         if (options.lightbox) {
             gallery.photoSwipe.on('uiRegister', function() {

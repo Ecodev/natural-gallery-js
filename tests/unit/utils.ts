@@ -1,5 +1,7 @@
 import {ModelAttributes} from '../../src';
 
+/* eslint-disable no-restricted-globals */
+
 export function key(eventValue: string): KeyboardEvent {
     return new KeyboardEvent('keydown', {key: eventValue});
 }
@@ -43,6 +45,7 @@ export function getContainerElement(width: number | null = null): HTMLElement {
         writable: true,
         configurable: true,
     });
+    Object.defineProperty(container, 'offsetHeight', {value: 0, writable: true, configurable: true});
     return container;
 }
 

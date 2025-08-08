@@ -55,7 +55,6 @@ layout: default
                 window.addEventListener('load', function() {
                     var galleryRef = document.getElementById('gallery-border-radius');
                     var galleryRadius = new Square(galleryRef, {gap:20, itemsPerRow:4, rowsPerPage:1, showLabels: 'never'});
-                    galleryRadius.init();
                     galleryRadius.setItems({% include sample.json %});
                 });
             </script>
@@ -103,21 +102,18 @@ layout: default
 
                 var galleryZoom1Ref = document.getElementById('gallery-zoom-1');
                 var galleryZoom1 = new Natural(galleryZoom1Ref, {gap:20, rowHeight: 400, showLabels: 'always', lightbox: true}, photoswipeRef);
-                galleryZoom1.init();
                 var imagesZoom1 = {% include sample.json %}.slice(1, 2);
                 imagesZoom1[0].title = 'No interactions, whole surface is hoverable/zoomable';
                 galleryZoom1.setItems(imagesZoom1);
 
                 var galleryZoom2Ref = document.getElementById('gallery-zoom-2');
                 var galleryZoom2 = new Natural(galleryZoom2Ref, {gap:20, rowHeight: 400, showLabels: 'always', lightbox: true, activable: true}, photoswipeRef);
-                galleryZoom2.init();
                 var imagesZoom2 = {% include sample.json %}.slice(1, 2);
                 imagesZoom2[0].title = 'With link or activable option, the button has different interaction, and only image is hoverable';
                 galleryZoom2.setItems(imagesZoom2);
 
                 var galleryZoom3Ref = document.getElementById('gallery-zoom-3');
                 var galleryZoom3 = new Natural(galleryZoom3Ref, {gap:20, rowHeight: 400, showLabels: 'always', lightbox: true, activable: true}, photoswipeRef);
-                galleryZoom3.init();
                 var imagesZoom3 = {% include sample.json %}.slice(1, 2);
                 imagesZoom3[0].title = 'Custom hover for zoom effect (only on image)';
                 galleryZoom3.setItems(imagesZoom3);

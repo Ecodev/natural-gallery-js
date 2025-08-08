@@ -35,10 +35,7 @@ layout: test
         }
     });
 
-    let galleryElement = document.getElementById('gallery');
-    let scrollableElement = document.getElementById('body');
-    gallery = new Natural(galleryElement, options, scrollableElement);
-    gallery.init();
+    gallery = new Natural(document.getElementById('gallery'), options, document.getElementById('body'));
     gallery.addItems(images);
 
 </script>

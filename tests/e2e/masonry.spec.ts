@@ -8,7 +8,7 @@ test.describe('Masonry', () => {
         await setup.setup(browser);
         await setup.page.evaluate(() => {
             const gallery = new window.Masonry(document.getElementById('gallery'), {columnWidth: 450});
-            gallery.init();
+
             gallery.addItems(window.images);
         });
     });

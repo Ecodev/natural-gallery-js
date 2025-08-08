@@ -8,7 +8,7 @@ test.describe('Square', () => {
         await setup.setup(browser);
         await setup.page.evaluate(() => {
             const gallery = new window.Square(document.getElementById('gallery'), {itemsPerRow: 4});
-            gallery.init();
+
             gallery.addItems(window.images);
         });
     });

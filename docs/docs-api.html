@@ -285,7 +285,6 @@ gallery.addEventListener('zoom', function(ev) {
 
                 var galleryApi1Ref = document.getElementById('gallery-api-1');
                 var galleryApi1 = new Square(galleryApi1Ref, {...defaultOptions, lightbox: false, selectable: true, activable: false}, photoswipeRef);
-                galleryApi1.init();
                 var imagesZoom1 = {% include single-image.json %};
                 imagesZoom1[0].title = 'Link + no lightbox + not activable = all figure is a link';
                 imagesZoom1[0].link = '#demo-events';
@@ -293,7 +292,6 @@ gallery.addEventListener('zoom', function(ev) {
 
                 var galleryApi2Ref = document.getElementById('gallery-api-2');
                 var galleryApi2 = new Square(galleryApi2Ref, {...defaultOptions, lightbox: true, selectable: true, activable: false}, photoswipeRef);
-                galleryApi2.init();
                 var imagesZoom2 = {% include single-image.json %};
                 imagesZoom2[0].title = 'Link + lightbox + selectable + not activable = caption is link, image is lightbox';
                 imagesZoom2[0].link = '#demo-events';
@@ -301,14 +299,12 @@ gallery.addEventListener('zoom', function(ev) {
 
                 var galleryApi3Ref = document.getElementById('gallery-api-3');
                 var galleryApi3 = new Square(galleryApi3Ref, {...defaultOptions, lightbox: false, selectable: true, activable: true }, photoswipeRef);
-                galleryApi3.init();
                 var imagesZoom3 = {% include single-image.json %};
                 imagesZoom3[0].title = 'No link + no lightbox + activable = a click on whole element emit activate event';
                 galleryApi3.setItems(imagesZoom3);
 
                 var galleryApi4Ref = document.getElementById('gallery-api-4');
                 var galleryApi4 = new Square(galleryApi4Ref, {...defaultOptions, lightbox: true, selectable: true, activable: true}, photoswipeRef);
-                galleryApi4.init();
                 var imagesZoom4 = {% include single-image.json %};
                 imagesZoom4[0].title = 'No link + lightbox + activable = image opens lightbox and button emits activate event';
                 galleryApi4.setItems(imagesZoom4);

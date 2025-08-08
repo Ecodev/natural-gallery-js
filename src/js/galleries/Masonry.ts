@@ -25,6 +25,23 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         if (!options.columnWidth || options.columnWidth <= 0) {
             throw new Error('Option.columnWidth must be positive');
         }
+
+        this.addColumns();
+
+        /**
+         * Setup scroll detection to prevent empty zones due to different heights
+         */
+        if (!this.options.infiniteScrollOffset) {
+            let ratio = 0.5; // Portrait format to maximize estimated height
+
+            // Better prediction using ratio if provided
+            if (this.options.ratioLimit && this.options.ratioLimit.min) {
+                ratio = this.options.ratioLimit.min;
+            }
+
+            const columnWidth = this.getColumnWidth();
+            this.options.infiniteScrollOffset = (-1 * columnWidth) / ratio;
+        }
     }
 
     /**
@@ -55,33 +72,8 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         }
     }
 
-    public init(): void {
-        super.init();
-
-        /**
-         * Setup scroll detection to prevent empty zones due to different heights
-         */
-        if (!this.options.infiniteScrollOffset) {
-            let ratio = 0.5; // Portrait format to maximize estimated height
-
-            // Better prediction using ratio if provided
-            if (this.options.ratioLimit && this.options.ratioLimit.min) {
-                ratio = this.options.ratioLimit.min;
-            }
-
-            const columnWidth = this.getColumnWidth();
-
-            this.options.infiniteScrollOffset = (-1 * columnWidth) / ratio;
-        }
-    }
-
     public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
         Masonry.organizeItems(this, items, fromRow, toRow);
-    }
-
-    protected initItems(): void {
-        this.addColumns();
-        super.initItems();
     }
 
     protected onScroll(): void {

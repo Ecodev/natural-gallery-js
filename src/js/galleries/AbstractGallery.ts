@@ -155,9 +155,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
 
     /**
      * Images wrapper container
-     * If set, serves as mark for "initialized status" of the gallery
      */
-    protected bodyElementRef: HTMLElement | null = null;
+    protected bodyElementRef: HTMLElement;
 
     /**
      * Items for which container has been added to dom, but image has not been queries yet
@@ -194,7 +193,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     /**
      * Reference to next button element
      */
-    private nextButton: HTMLElement | null = null;
+    private nextButton: HTMLElement;
 
     /**
      *
@@ -232,6 +231,49 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
                 this.requiredItems = 0;
             }
         }, 500);
+
+        this.elementRef.classList.add('natural-gallery-js');
+        this.elementRef.classList.add(this.getFormatName());
+
+        // Next button
+        this.nextButton = this.document.createElement('div');
+        this.nextButton.classList.add('natural-gallery-next');
+        this.nextButton.appendChild(getNextIcon(this.document));
+        this.nextButton.style.display = 'none';
+        this.nextButton.addEventListener('click', e => {
+            e.preventDefault();
+            this.onPageAdd();
+        });
+
+        this.bodyElementRef = this.document.createElement('div');
+        this.bodyElementRef.classList.add('natural-gallery-body');
+        this.extendToFreeViewport();
+
+        // Iframe
+        const iframe = this.document.createElement('iframe');
+        this.elementRef.appendChild(iframe);
+
+        // Resize debounce
+        const resizeDebounceDuration = 500;
+        const startResize = debounce(() => this.startResize(), resizeDebounceDuration, {edges: ['leading']});
+        const endResize = debounce(() => this.endResize(), resizeDebounceDuration);
+        iframe.contentWindow?.addEventListener('resize', () => {
+            endResize();
+            startResize();
+        });
+
+        this.elementRef.appendChild(this.bodyElementRef);
+        this.elementRef.appendChild(this.nextButton);
+
+        if (!this.options.rowsPerPage) {
+            this.bindScroll(this.scrollElementRef || this.document);
+        }
+
+        this.requestItems();
+
+        if (this.options.lightbox) {
+            this.photoSwipeInit();
+        }
     }
 
     /**
@@ -287,54 +329,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         return this.domCollection.length;
     }
 
-    /**
-     * Initializes DOM manipulations
-     */
-    public init(): void {
-        this.elementRef.classList.add('natural-gallery-js');
-        this.elementRef.classList.add(this.getFormatName());
-
-        // Next button
-        this.nextButton = this.document.createElement('div');
-        this.nextButton.classList.add('natural-gallery-next');
-        this.nextButton.appendChild(getNextIcon(this.document));
-        this.nextButton.style.display = 'none';
-        this.nextButton.addEventListener('click', e => {
-            e.preventDefault();
-            this.onPageAdd();
-        });
-
-        this.bodyElementRef = this.document.createElement('div');
-        this.bodyElementRef.classList.add('natural-gallery-body');
-        this.extendToFreeViewport();
-
-        // Iframe
-        const iframe = this.document.createElement('iframe');
-        this.elementRef.appendChild(iframe);
-
-        // Resize debounce
-        const resizeDebounceDuration = 500;
-        const startResize = debounce(() => this.startResize(), resizeDebounceDuration, {edges: ['leading']});
-        const endResize = debounce(() => this.endResize(), resizeDebounceDuration);
-        iframe.contentWindow?.addEventListener('resize', () => {
-            endResize();
-            startResize();
-        });
-
-        this.elementRef.appendChild(this.bodyElementRef);
-        this.elementRef.appendChild(this.nextButton);
-
-        if (!this.options.rowsPerPage) {
-            this.bindScroll(this.scrollElementRef || this.document);
-        }
-
-        this.initItems();
-
-        if (this.options.lightbox) {
-            this.photoSwipeInit();
-        }
-    }
-
     public addItemToPhotoSwipeCollection(item: Item<Model>) {
         const photoSwipeId = this.domCollection.length - 1;
 
@@ -365,11 +359,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             this._collection.push(item);
         });
 
-        if (addToDom && collectionSize === 0 && this.bodyElementRef) {
-            // First initialization : collection size is 0
+        if (addToDom && collectionSize === 0) {
+            // First addition : collection size is 0
             this.onPageAdd();
-        } else if (addToDom && collectionSize > 0 && this.bodyElementRef) {
-            // Gallery collection completion (after first initialization) : collection size > 0
+        } else if (addToDom && collectionSize > 0) {
+            // Gallery collection completion (after first addition) : collection size > 0
             this.onScroll();
         }
     }
@@ -426,7 +420,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     ): void {
         this.elementRef.addEventListener(name, callback, options);
 
-        if (name === 'pagination' && this.bodyElementRef) {
+        if (name === 'pagination') {
             this.requestItems();
         }
     }
@@ -511,37 +505,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     }
 
     /**
-     * If gallery already has items on initialisation, set first page visible, load second page and query for more
-     * items if needed.
-     * If not, just query for items
-     */
-    protected initItems(): void {
-        if (!this.collection.length) {
-            this.requestItems();
-            return;
-        }
-
-        const rowsPerPage = this.getEstimatedRowsPerPage();
-        const itemsPerRow = this.getEstimatedColumnsPerRow();
-        const pageSize = rowsPerPage * itemsPerRow;
-
-        // Add items
-        const itemsToAdd = this.collection.slice(0, pageSize);
-        this.organizeItems(itemsToAdd, 0, rowsPerPage);
-        itemsToAdd.forEach(item => this.addItemToDOM(item));
-        this.scrollBufferedItems = itemsToAdd;
-
-        // Prepare second page
-        const bufferedItems = this.collection.slice(this.domCollection.length);
-        const missing = bufferedItems.length - pageSize;
-        this.requiredItems = Math.min(missing, bufferedItems.length, 0);
-
-        // Load images
-        this.flushBufferedItems();
-        this.updateNextButtonVisibility();
-    }
-
-    /**
      *
      */
     protected abstract getEstimatedColumnsPerRow(): number;
@@ -602,11 +565,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * @param {Item} item
      * @param destination
      */
-    protected addItemToDOM(item: Item<Model>, destination: HTMLElement | null = this.bodyElementRef): void {
-        if (!destination) {
-            throw new Error('Gallery not initialized');
-        }
-
+    protected addItemToDOM(item: Item<Model>, destination: HTMLElement = this.bodyElementRef): void {
         this.domCollection.push(item);
 
         destination.appendChild(item.init());
@@ -634,10 +593,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     }
 
     protected updateNextButtonVisibility(): void {
-        if (!this.nextButton) {
-            return;
-        }
-
         if (this.domCollection.length === this.collection.length) {
             this.nextButton.style.display = 'none';
         } else {
@@ -685,18 +640,19 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         name: keyof CustomEventDetailMap<Model>,
         data: CustomEventDetailMap<Model>[keyof CustomEventDetailMap<Model>],
     ): void {
-        const event = new CustomEvent(name, {detail: data});
-        this.elementRef.dispatchEvent(event);
+        try {
+            const event = new CustomEvent(name, {detail: data});
+            this.elementRef.dispatchEvent(event);
+        } catch {
+            // silent fail
+        }
     }
 
     /**
      * Effectively empty gallery, and should prepare container to receive new items
      */
     protected empty(): void {
-        if (this.bodyElementRef) {
-            this.bodyElementRef.innerHTML = '';
-        }
-
+        this.bodyElementRef.innerHTML = '';
         this.requestedIndexesLog.length = 0;
         this._domCollection = [];
         this._collection = [];

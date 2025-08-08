@@ -9,7 +9,7 @@ test.describe('Natural', () => {
 
         await setup.page.evaluate(() => {
             const gallery = new window.Natural(document.getElementById('gallery'), {rowHeight: 400});
-            gallery.init();
+
             gallery.addItems(window.images);
         });
     });
