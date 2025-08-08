@@ -313,8 +313,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         return this._domCollection;
     }
 
-    get selectedItems(): Model[] {
-        return this.domCollection.filter(item => item.selected).map(item => item.model);
+    get selectedItems(): Item<Model>[] {
+        return this.collection.filter(item => item.selected);
     }
 
     get width(): number {
@@ -327,7 +327,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         const photoSwipeId = this.domCollection.length - 1;
 
         /* istanbul ignore next */
-        item.rootElement.addEventListener('zoom', () => {
+        item.rootElement?.addEventListener('zoom', () => {
             this.psLightbox?.loadAndOpen(photoSwipeId);
         });
     }
@@ -366,15 +366,26 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     }
 
     /**
-     * Select all items visible in the DOM
+     * Select all items given to the gallery, whenever they are in the DOM or not
+     */
+    public selectCollection(): Item<Model>[] {
+        return this.selectItems(this.collection);
+    }
+
+    /**
+     * Select all items in the DOM
      * Ignores buffered items
      */
-    public selectDomCollection(): Model[] {
+    public selectDomCollection(): Item<Model>[] {
+        return this.selectItems(this.domCollection);
+    }
+
+    private selectItems(collection: Item<Model>[]): Item<Model>[] {
         if (!this.options.selectable) {
             throw Error('Gallery is not selectable');
         }
 
-        this.domCollection.forEach(item => item.select());
+        collection.forEach(item => item.select());
         return this.selectedItems;
     }
 
@@ -469,7 +480,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
                 w: item.model.enlargedWidth,
                 h: item.model.enlargedHeight,
                 msrc: item.model.thumbnailSrc,
-                element: item.rootElement,
+                element: item.rootElement!,
                 thumbCropped: item.cropped,
                 alt: item.sanitizedTitle,
             };
@@ -569,8 +580,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         this.requiredItems++;
         this.dispatchEvent('item-added-to-dom', item);
 
-        // When selected / unselected
-        item.rootElement.addEventListener('select', () => {
+        item.rootElement?.addEventListener('select', () => {
             this.dispatchEvent(
                 'select',
                 this.domCollection.filter(i => i.selected),
@@ -578,7 +588,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         });
 
         // When activate (if activate event is given in options)
-        item.rootElement.addEventListener('activate', (ev: CustomEvent<ItemActivateEventDetail<Model>>) => {
+        item.rootElement?.addEventListener('activate', (ev: CustomEvent<ItemActivateEventDetail<Model>>) => {
             this.dispatchEvent('activate', {item, event: ev.detail.event});
         });
 

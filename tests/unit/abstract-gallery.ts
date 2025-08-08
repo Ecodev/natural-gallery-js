@@ -155,6 +155,20 @@ export function testGallery<
         expect(container.querySelectorAll('.figure.selected').length).toBe(0);
     });
 
+    it('should select entire collection and unselect all', () => {
+        const gallery = new galleryClass(container, {...options, selectable: true});
+        gallery.addItems(getImages(50));
+        expectItemsCount(gallery, 50, expected.maxItemsInDom);
+
+        const selected = gallery.selectCollection();
+        expect(selected.length).toBe(50); // exception for masonry
+        expect(container.querySelectorAll('.figure.selected').length).toBe(expected.maxItemsInDom || 50);
+
+        gallery.unselectAllItems();
+        expectItemsCount(gallery, 50, expected.maxItemsInDom);
+        expect(container.querySelectorAll('.figure.selected').length).toBe(0);
+    });
+
     it('should switch label hover status', () => {
         const gallery = new galleryClass(container, {...options, labelVisibility: LabelVisibility.HOVER});
         gallery.addItems(getImages(50));
@@ -210,7 +224,7 @@ export function testGallery<
         const spy = jest.fn();
         gallery.addEventListener('activate', spy);
         const item = gallery.collection[0];
-        (item.rootElement.querySelector('.activation') as HTMLButtonElement)?.click();
+        (item.rootElement?.querySelector('.activation') as HTMLButtonElement)?.click();
         expect(spy).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledWith(expect.objectContaining({detail: expect.objectContaining({item})}));
     });

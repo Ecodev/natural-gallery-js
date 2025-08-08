@@ -40,7 +40,7 @@ export class Item<Model extends ModelAttributes> {
     /**
      * Reference to the select button
      */
-    private _checkbox!: HTMLButtonElement;
+    private _checkbox: HTMLButtonElement | null = null;
     /**
      * Element referring the "button" containing the label
      */
@@ -118,11 +118,16 @@ export class Item<Model extends ModelAttributes> {
     /**
      * Item root element reference (figure)
      */
-    private _rootElement!: HTMLElement;
+    private _rootElement: HTMLElement | null = null;
 
     /* istanbul ignore next */
-    get rootElement(): HTMLElement {
+    get rootElement(): HTMLElement | null {
         return this._rootElement;
+    }
+
+    /* istanbul ignore next */
+    get checkbox(): HTMLButtonElement | null {
+        return this._checkbox;
     }
 
     /* istanbul ignore next */
@@ -241,7 +246,7 @@ export class Item<Model extends ModelAttributes> {
 
     private emitSelectEvent(): void {
         const event = new CustomEvent<Item<Model>>('select', {detail: this});
-        this._rootElement.dispatchEvent(event);
+        this._rootElement?.dispatchEvent(event);
     }
 
     public toggleSelect(): void {
@@ -261,7 +266,7 @@ export class Item<Model extends ModelAttributes> {
     public select(): void {
         this.throwNotSelectableError();
         this._selected = true;
-        this._rootElement.classList.add('selected');
+        this._rootElement?.classList.add('selected');
         this.updateAriaSelectedStatus();
         this.emitSelectEvent();
     }
@@ -269,18 +274,18 @@ export class Item<Model extends ModelAttributes> {
     public unselect(): void {
         this.throwNotSelectableError();
         this._selected = false;
-        this._rootElement.classList.remove('selected');
+        this._rootElement?.classList.remove('selected');
         this.updateAriaSelectedStatus();
         this.emitSelectEvent();
     }
 
     public remove(): void {
-        this._rootElement.parentNode?.removeChild(this._rootElement);
+        this._rootElement?.parentNode?.removeChild(this._rootElement);
     }
 
     private updateAriaSelectedStatus(): void {
-        this._checkbox.setAttribute('aria-checked', String(this._selected));
-        this._checkbox.setAttribute('aria-label', this._selected ? 'Unselect' : 'Select');
+        this._checkbox?.setAttribute('aria-checked', String(this._selected));
+        this._checkbox?.setAttribute('aria-label', this._selected ? 'Unselect' : 'Select');
     }
 
     private getEmptyLinkOrButton(): HTMLElement | HTMLButtonElement | null {
@@ -343,7 +348,7 @@ export class Item<Model extends ModelAttributes> {
         image.style.objectPosition = this.model.objectPosition || 'center';
         image.classList.add('image');
         image.setAttribute('loading', 'lazy');
-        image.addEventListener('load', () => this._rootElement.classList.add('loaded'));
+        image.addEventListener('load', () => this._rootElement?.classList.add('loaded'));
 
         // If alt is provided and different from title, set it on mage
         // If title, but no alt neither caption, set title as alt attribute on image
@@ -416,7 +421,7 @@ export class Item<Model extends ModelAttributes> {
         const activate = (ev: MouseEvent | KeyboardEvent) => {
             const data: ItemActivateEventDetail<Model> = {item: this, event: ev};
             const activableEvent = new CustomEvent<ItemActivateEventDetail<Model>>('activate', {detail: data});
-            this._rootElement.dispatchEvent(activableEvent);
+            this._rootElement?.dispatchEvent(activableEvent);
         };
         element.addEventListener('click', activate);
         element.addEventListener('keydown', e => {
@@ -438,7 +443,7 @@ export class Item<Model extends ModelAttributes> {
             element.classList.add('zoomable');
             const handleZoom = () => {
                 const event = new CustomEvent<Item<Model>>('zoom', {detail: this});
-                this._rootElement.dispatchEvent(event);
+                this._rootElement?.dispatchEvent(event);
             };
 
             element.addEventListener('click', handleZoom);
