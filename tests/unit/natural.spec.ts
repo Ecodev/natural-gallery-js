@@ -23,6 +23,22 @@ describe('Natural Gallery', () => {
         expect(gallery.domCollectionLength).toBe(0);
     });
 
+    it('should initialize with photoswipe', () => {
+        const container = document.createElement('div');
+        const gallery = new Natural(container, {rowHeight: 123, lightbox: true});
+        expect(container.querySelector('.natural-gallery-body')).toBeDefined();
+
+        expect(gallery.collectionLength).toBe(0);
+        expect(container.querySelectorAll('.figure').length).toBe(0);
+        expect(gallery.domCollectionLength).toBe(0);
+
+        const collection = getImages(5);
+        gallery.addItems(collection);
+        expect(gallery.collectionLength).toBe(5);
+        expect(container.querySelectorAll('.figure').length).toBe(5);
+        expect(gallery.domCollectionLength).toBe(5);
+    });
+
     it('options should be completed and overridden', () => {
         const result: NaturalGalleryOptions = {
             rowHeight: 123, // new attribute

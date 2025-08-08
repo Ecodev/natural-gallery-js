@@ -13,16 +13,27 @@ describe('Masonry Gallery', () => {
             minRowsAtStart: 2,
             selectable: false,
             activable: false,
-            infiniteScrollOffset: -676,
+            infiniteScrollOffset: -563.3333333333334,
             photoSwipeOptions: {
                 loop: false,
+            },
+            ratioLimit: {
+                min: 0.6,
+                max: 0.8,
             },
             photoSwipePluginsInitFn: null,
             ssr: {
                 galleryWidth: 480,
             },
         };
-        const gallery = new Masonry(getContainerElement(), {columnWidth: 400, gap: 4});
+        const gallery = new Masonry(getContainerElement(), {
+            columnWidth: 400,
+            gap: 4,
+            ratioLimit: {
+                min: 0.6,
+                max: 0.8,
+            },
+        });
         expect(gallery.getOptions()).toEqual(result);
     });
 
@@ -38,6 +49,11 @@ describe('Masonry Gallery', () => {
         expect(gallery.collectionLength).toEqual(0);
         expect(gallery.domCollectionLength).toEqual(0);
         expect(container.querySelectorAll('.figure').length).toBe(0);
+    });
+
+    it('should error with invalid row size', () => {
+        const container = getContainerElement();
+        expect(() => new Masonry(container, {columnWidth: -123})).toThrow('Option.columnWidth must be positive');
     });
 
     it('should resize', async () => {

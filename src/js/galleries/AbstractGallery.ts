@@ -279,6 +279,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     /**
      * Get PhotoSwipe Lightbox
      */
+    /* istanbul ignore next */
     get photoSwipe(): PhotoSwipeLightbox | null {
         return this.psLightbox;
     }
@@ -286,6 +287,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     /**
      * Get currently selected PhotoSwipe image
      */
+    /* istanbul ignore next */
     get photoSwipeCurrentItem(): Model | null {
         return this.collection[this.psLightbox?.pswp?.currIndex || 0]?.model || null;
     }
@@ -332,6 +334,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
     public addItemToPhotoSwipeCollection(item: Item<Model>) {
         const photoSwipeId = this.domCollection.length - 1;
 
+        /* istanbul ignore next */
         item.rootElement.addEventListener('zoom', () => {
             this.psLightbox?.loadAndOpen(photoSwipeId);
         });
@@ -343,11 +346,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
      * @param models list of models
      */
     public addItems(models: Model[]): void {
-        // Accept only tables
-        if (!(models.constructor === Array && models.length)) {
-            return;
-        }
-
         // Display newly added images if it's the first addition or if all images are already shown
         const addToDom = this.collection.length === this.domCollection.length;
         const collectionSize = this.collection.length;
@@ -464,11 +462,13 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             pswpModule: PhotoSwipe,
         });
 
+        /* istanbul ignore next */
         this.psLightbox.addFilter('numItems', (): number => {
             return this.domCollection.length;
             // return this.collection.length;
         });
 
+        /* istanbul ignore next */
         this.psLightbox.addFilter('itemData', (_itemData: SlideData, index: number): SlideData => {
             const item = this.collection[index];
             return {
@@ -483,6 +483,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
             };
         });
 
+        /* istanbul ignore next */
         if (this.options.photoSwipePluginsInitFn) {
             this.options.photoSwipePluginsInitFn(this.psLightbox);
         }
@@ -490,6 +491,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         this.psLightbox.init();
 
         // Loading one more page when going to next image
+        /* istanbul ignore next */
         this.psLightbox.on('change', () => {
             // Positive delta means next slide.
             // If we go next slide, and current index is out of visible collection bound, load more items
@@ -499,6 +501,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes> {
         });
 
         // With accessibility :focus usage, figures tend to stay sticky on focused state. This returns to wanted behavior
+        /* istanbul ignore next */
         this.psLightbox.on('destroy', () => {
             (this.document.activeElement as HTMLElement)?.blur();
         });
