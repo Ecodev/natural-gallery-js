@@ -1,6 +1,7 @@
 # Natural Gallery JS
 
 [![Build Status](https://github.com/Ecodev/natural-gallery-js/workflows/main/badge.svg)](https://github.com/Ecodev/natural-gallery-js/actions)
+![Coverage](https://img.shields.io/badge/coverage-98.98%25-brightgreen)
 
 A library that allows you to display images with with natural layouts, infinite scroll, lazy loading, lightbox and interactivity in a developer friendly by exposing an usefull api.
 
