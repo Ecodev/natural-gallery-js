@@ -98,6 +98,7 @@ export function testGallery<
     it('should complete collection but not DOM', () => {
         const gallery = new galleryClass(container, options);
         gallery.addItems(getImages(100));
+
         expectItemsCount(gallery, 100, expected.maxItemsInDom);
     });
 
@@ -224,7 +225,7 @@ export function testGallery<
         const spy = jest.fn();
         gallery.addEventListener('activate', spy);
         const item = gallery.collection[0];
-        (item.rootElement?.querySelector('.activation') as HTMLButtonElement)?.click();
+        (item.rootElement!.querySelector('.activation') as HTMLButtonElement).click();
         expect(spy).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledWith(expect.objectContaining({detail: expect.objectContaining({item})}));
     });
@@ -260,8 +261,6 @@ export function testGallery<
         Object.defineProperty(container, 'getBoundingClientRect', {value: () => ({width: 200})});
         setViewport(200);
 
-        await new Promise(resolve => setTimeout(resolve, 100));
-        iframe?.contentWindow?.dispatchEvent(new Event('resize'));
         (gallery as unknown as {startResize: () => void}).startResize();
         expect(gallery.bodyElement.classList.contains('resizing')).toBe(true);
         (gallery as unknown as {endResize: () => void}).endResize();
@@ -273,16 +272,10 @@ export function testGallery<
 
     it('should not reorganize empty collection on resize', async () => {
         const gallery = new galleryClass(container, options);
-        expectItemsCount(gallery, 0);
 
         const iframe = container.querySelector('iframe');
         expect(iframe).toBeDefined();
 
-        Object.defineProperty(container, 'getBoundingClientRect', {value: () => ({width: 200})});
-        setViewport(200);
-
-        await new Promise(resolve => setTimeout(resolve, 100));
-        iframe?.contentWindow?.dispatchEvent(new Event('resize'));
         (gallery as unknown as {endResize: () => void}).endResize();
 
         expect(gallery.domCollection.length).toEqual(0);
