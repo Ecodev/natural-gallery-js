@@ -64,40 +64,39 @@ jobs:
             - run: yarn --frozen-lockfile
             - run: ./node_modules/.bin/prettier --check .
 
-
     deploy:
-       runs-on: ubuntu-latest
-       permissions:
-           contents: read
-           pages: write
-           id-token: write
-       environment:
-           name: github-pages
-           url: ${{ steps.deployment.outputs.page_url }}
-       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-       needs: [ build, test, lint, prettier ]
-       steps:
-           - uses: actions/checkout@v4
-           - uses: actions/setup-node@v4
-             with:
-                 node-version: '18'
-                 cache: 'yarn'
-           - run: yarn --frozen-lockfile
-           - run: yarn build
-           - name: Setup Ruby
-             uses: ruby/setup-ruby@v1
-             with:
-                 ruby-version: '3.4.5'
-                 bundler-cache: true
-                 working-directory: docs
-           - name: Build Jekyll
-             run: |
-                 cd docs
-                 bundle exec jekyll build
-           - name: Upload artifact
-             uses: actions/upload-pages-artifact@v2
-             with:
-                 path: ./docs/_site
-           - name: Deploy docs
-             id: deployment
-             uses: actions/deploy-pages@v2
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            pages: write
+            id-token: write
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        needs: [build, test, lint, prettier]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: '18'
+                  cache: 'yarn'
+            - run: yarn --frozen-lockfile
+            - run: yarn build
+            - name: Setup Ruby
+              uses: ruby/setup-ruby@v1
+              with:
+                  ruby-version: '3.4.5'
+                  bundler-cache: true
+                  working-directory: docs
+            - name: Build Jekyll
+              run: |
+                  cd docs
+                  bundle exec jekyll build
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v2
+              with:
+                  path: ./docs/_site
+            - name: Deploy docs
+              id: deployment
+              uses: actions/deploy-pages@v2
