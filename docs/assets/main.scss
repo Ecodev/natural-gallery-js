@@ -1,7 +1,27 @@
 ---
 ---
 
-@import 'theme', 'typography', 'base', 'layout', 'monokai', 'menu';
+@use 'sass:color';
+@use '../_sass/theme';
+@use '../_sass/base';
+@use '../_sass/layout';
+@use '../_sass/monokai';
+@use '../_sass/menu';
+@use '../_sass/typography';
+
+:root {
+    --ngjs-figure-radius: 8px;                          // Border radius for figure elements
+    --ngjs-focus-outline: 1px solid orange;             // Focus outline style
+    --ngjs-marker-border-color: currentColor;           // Border color for selection marker
+    --ngjs-marker-check-color: transparent;             // Background color for marker check
+    --ngjs-selected-marker-color: orange;               // Color for selected marker
+    --ngjs-selected-marker-check: black;                // Color for selected marker check
+    --ngjs-link-bg: rgb(0, 0, 0, 0.7);                  // Background color for non-link titles
+    --ngjs-link-color: white;                           // Text color for non-link titles
+    --ngjs-link-radius: 4px;                            // Border radius for link buttons/anchors
+    --ngjs-link-hover-bg: rgb(0, 0, 0);                 // Background color for link hover state
+    --ngjs-link-hover-color: white;                     // Text color for link hover state
+}
 
 #search {
     flex: 1;
@@ -18,7 +38,7 @@
     position: relative;
     flex: none;
     height: 6px;
-    background: darken($accent, 20%);
+    background: color.adjust(theme.$accent,  $lightness: -20%);
 
     &::after {
         display: block;
@@ -30,10 +50,7 @@
         bottom: 0;
         opacity: 0;
         transition: opacity 1s ease-in;
-        background: $primary;
-        background: -moz-linear-gradient(left, $primary 50%, $accent 150%); /* FF3.6-15 */
-        background: -webkit-linear-gradient(left, $primary 50%, $accent 150%); /* Chrome10-25,Safari5.1-6 */
-        background: linear-gradient(to right, $primary 50%, $accent 150%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        background: linear-gradient(to right, theme.$primary 50%, theme.$accent 150%);
     }
 
     &.loading::after {
@@ -43,10 +60,7 @@
 }
 
 .natural-gallery-js {
-    margin-bottom: $gap;
-    .figure {
-        border-radius: 10px;
-    }
+    margin-bottom: theme.$gap;
 }
 
 #version {

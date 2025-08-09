@@ -12,11 +12,10 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
     /**
      * Options after having been defaulted
      */
-    protected declare options: Required<NaturalGalleryOptions>;
+    declare protected options: Required<NaturalGalleryOptions>;
 
     constructor(elementRef: HTMLElement, options: NaturalGalleryOptions, scrollElementRef?: HTMLElement | null) {
         super(elementRef, options, scrollElementRef);
-
         if (!options.rowHeight || options.rowHeight <= 0) {
             throw new Error('Option.rowHeight must be positive');
         }
@@ -80,7 +79,7 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
         const chunkModels = chunk.map(c => c.model);
         const rowHeight = containerWidth
             ? this.getRowHeight(chunkModels, containerWidth, margin, ratioLimits)
-            : maxRowHeight ?? 0;
+            : (maxRowHeight ?? 0);
         const rowWidth = this.getRowWidth(chunkModels, rowHeight, margin, ratioLimits);
 
         // Overflowed pixels
@@ -104,7 +103,6 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
             item.height = Math.floor(rowHeight);
             item.cropped = cropped;
             item.row = row;
-            item.last = i === chunk.length - 1;
             item.style();
         }
     }
@@ -128,7 +126,7 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
     }
 
     /**
-     * Return the ratio format of models as if they where a single image
+     * Return the ratio format of models as if they were a single image
      */
     public static getRatios(models: SizedModel[], ratioLimits?: RatioLimits): number {
         return models.reduce((total, model) => total + getImageRatio(model, ratioLimits), 0);
@@ -141,6 +139,10 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
     public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
         Natural.organizeItems(this, items, fromRow, toRow);
+    }
+
+    protected getFormatName(): string {
+        return 'format-natural';
     }
 
     protected endResize(): void {

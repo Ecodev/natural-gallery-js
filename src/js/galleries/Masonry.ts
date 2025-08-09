@@ -12,7 +12,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     /**
      * Options after having been defaulted
      */
-    protected declare options: Required<MasonryGalleryOptions>;
+    declare protected options: Required<MasonryGalleryOptions>;
 
     /**
      * Regroup the list of columns
@@ -24,6 +24,23 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
         if (!options.columnWidth || options.columnWidth <= 0) {
             throw new Error('Option.columnWidth must be positive');
+        }
+
+        this.addColumns();
+
+        /**
+         * Setup scroll detection to prevent empty zones due to different heights
+         */
+        if (!this.options.infiniteScrollOffset) {
+            let ratio = 0.5; // Portrait format to maximize estimated height
+
+            // Better prediction using ratio if provided
+            if (this.options.ratioLimit && this.options.ratioLimit.min) {
+                ratio = this.options.ratioLimit.min;
+            }
+
+            const columnWidth = this.getColumnWidth();
+            this.options.infiniteScrollOffset = (-1 * columnWidth) / ratio;
         }
     }
 
@@ -48,7 +65,6 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
             const item = items[i];
             const {ratio, cropped} = getImageRatioAndIfCropped(item.model, gallery.options.ratioLimit);
 
-            item.last = true;
             item.width = Math.floor(columnWidth);
             item.height = item.width / ratio;
             item.cropped = cropped;
@@ -56,33 +72,8 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         }
     }
 
-    public init(): void {
-        super.init();
-
-        /**
-         * Setup scroll detection to prevent empty zones due to different heights
-         */
-        if (!this.options.infiniteScrollOffset) {
-            let ratio = 0.5; // Portrait format to maximize estimated height
-
-            // Better prediction using ratio if provided
-            if (this.options.ratioLimit && this.options.ratioLimit.min) {
-                ratio = this.options.ratioLimit.min;
-            }
-
-            const columnWidth = this.getColumnWidth();
-
-            this.options.infiniteScrollOffset = (-1 * columnWidth) / ratio;
-        }
-    }
-
     public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
         Masonry.organizeItems(this, items, fromRow, toRow);
-    }
-
-    protected initItems(): void {
-        this.addColumns();
-        super.initItems();
     }
 
     protected onScroll(): void {
@@ -91,6 +82,10 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
     protected onPageAdd(): void {
         this.addUntilFill();
+    }
+
+    protected getFormatName(): string {
+        return 'format-masonry';
     }
 
     protected getEstimatedColumnsPerRow(): number {
@@ -116,7 +111,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     protected addUntilFill(): void {
         do {
             this.addItemsToDom(1);
-        } while (this.viewPortIsNotFilled() && this.domCollection.length < this.collection.length);
+        } while (this.viewportIsNotFilled() && this.domCollection.length < this.collection.length);
     }
 
     protected addItemToDOM(item: Item<Model>): void {
@@ -132,17 +127,13 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
             return;
         }
 
-        // Compute with new width. Rows indexes may have change
+        // Compute with new width. Rows indexes may have changed
         this.domCollection.length = 0;
         this.addColumns();
         this.addUntilFill();
     }
 
     protected addColumns(): void {
-        if (!this.bodyElementRef) {
-            throw new Error('Gallery not initialized');
-        }
-
         this.bodyElementRef.innerHTML = '';
         this.columns = [];
         const columnWidth = this.getColumnWidth();
@@ -159,9 +150,9 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     }
 
     /**
-     * Returns true if at least one columns doesn't overflow on the bottom of the viewport
+     * Returns true if at least one column doesn't overflow on the bottom of the viewport
      */
-    private viewPortIsNotFilled(): boolean {
+    private viewportIsNotFilled(): boolean {
         return this.columns.some(
             c => c.elementRef.getBoundingClientRect().bottom < this.document.documentElement.clientHeight,
         );

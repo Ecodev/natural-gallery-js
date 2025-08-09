@@ -10,7 +10,7 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
     /**
      * Options after having been defaulted
      */
-    protected declare options: Required<SquareGalleryOptions>;
+    declare protected options: Required<SquareGalleryOptions>;
 
     constructor(elementRef: HTMLElement, options: SquareGalleryOptions, scrollElementRef?: HTMLElement | null) {
         super(elementRef, options, scrollElementRef);
@@ -38,10 +38,13 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
             item.width = Math.floor(sideSize);
             item.height = Math.floor(sideSize);
             item.cropped = true;
-            item.last = i % gallery.options.itemsPerRow === gallery.options.itemsPerRow - 1;
             item.row = Math.floor(i / gallery.options.itemsPerRow) + firstRowIndex;
             item.style();
         }
+    }
+
+    public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
+        Square.organizeItems(this, items, fromRow, toRow);
     }
 
     protected getEstimatedColumnsPerRow(): number {
@@ -60,7 +63,7 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
         return (this.width - (itemsPerRow - 1) * this.options.gap) / itemsPerRow;
     }
 
-    public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
-        Square.organizeItems(this, items, fromRow, toRow);
+    protected getFormatName(): string {
+        return 'format-square';
     }
 }

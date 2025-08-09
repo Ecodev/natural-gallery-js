@@ -1,4 +1,17 @@
-@import 'figure';
+// CSS Custom Properties (--ngjs variables) used in this file:
+// --ngjs-figure-radius: Border radius for figure elements (default: $defaultBorderRadius)
+// --ngjs-link-radius: Border radius for link buttons/anchors (default: 4px)
+// --ngjs-focus-outline: Focus outline style (default: 1px solid orange)
+// --ngjs-marker-border-color: Border color for selection marker (default: currentColor)
+// --ngjs-marker-check-color: Background color for marker check (default: transparent)
+// --ngjs-selected-marker-color: Color for selected marker (default: orange)
+// --ngjs-selected-marker-check: Color for selected marker check (default: black)
+// --ngjs-link-bg: Background color for non-link titles (default: rgb(0, 0, 0, 0.7))
+// --ngjs-link-color: Text color for non-link titles (default: white)
+// --ngjs-link-hover-bg: Background color for link hover state (default: rgb(0, 0, 0))
+// --ngjs-link-hover-color: Text color for link hover state (default: white)
+
+@use 'figure';
 
 .pswp {
     z-index: 9999999;
@@ -17,6 +30,9 @@
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+        font-family: inherit;
+        font-size: inherit;
+        line-height: inherit;
     }
 
     iframe {
@@ -43,23 +59,42 @@
 
     .column {
         float: left;
-
-        &:last-child {
-            margin-right: 0 !important;
-        }
-
-        .figure:last-child {
-            margin-bottom: 0 !important;
-        }
     }
 
     /**
     * Pictures
     * ===================================================
     */
+
+    &.format-square,
+    &.format-natural {
+        .natural-gallery-body {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+    }
+
+    &.format-masonry {
+        .natural-gallery-body {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            .column {
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    }
+
     .natural-gallery-body {
         padding: 0;
         margin: 0;
+
+        .figure {
+            background-color: var(--ngjs-figure-bg, rgba(0, 137, 224, 0.1));
+        }
 
         &.resizing {
             .figure,
@@ -67,28 +102,6 @@
                 transition: none;
                 opacity: 0;
             }
-        }
-
-        &::after {
-            content: '';
-            display: block;
-            clear: both;
-        }
-
-        a.figure {
-            width: inherit;
-            height: inherit;
-            cursor: default;
-
-            img {
-                width: inherit;
-                height: inherit;
-                object-fit: cover;
-            }
-        }
-
-        a.figure.zoomable {
-            cursor: zoom-in;
         }
     }
 
@@ -100,34 +113,30 @@
         display: block;
         margin: 10px auto;
         text-align: center;
-        height: 30px;
+        height: 50px;
+        padding-block: 10px;
+        background: none;
+        border: none;
+        width: 100%;
+        cursor: pointer;
+        border-radius: var(--ngjs-figure-radius, figure.$defaultBorderRadius);
 
         svg {
             cursor: pointer;
             font-size: 16px;
-            height: inherit;
+            height: 30px;
+            color: var(--ngjs-next-color, rgb(0, 137, 224));
+            fill: currentColor;
+        }
+
+        &:hover {
+            background-color: var(--ngjs-next-hover-bg, rgba(0, 0, 0, 0.2));
         }
 
         &::after {
             content: '';
             display: block;
             clear: both;
-        }
-    }
-
-    /**
-    * Animations
-    * ===================================================
-    */
-    @keyframes loading {
-        0% {
-            transform: scale(0, 0);
-            opacity: 0.3;
-        }
-
-        100% {
-            transform: scale(1, 1);
-            opacity: 0.05;
         }
     }
 }

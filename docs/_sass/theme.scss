@@ -1,4 +1,5 @@
 @charset "utf-8";
+@use 'sass:color';
 
 $background-color: #222222 !default;
 $text-color: #ddd !default;
@@ -10,8 +11,8 @@ $accent: #b72ae2 !default;
 $accent-contrast: white !default;
 
 $grey-color: #828282 !default;
-$grey-color-light: lighten($grey-color, 40%) !default;
-$grey-color-dark: darken($grey-color, 25%) !default;
+$grey-color-light: color.adjust($grey-color, $lightness: 40%) !default;
+$grey-color-dark: color.adjust($grey-color, $lightness: -25%) !default;
 
 $base-font-family: 'Raleway', sans-serif !default;
 $base-font-size: 20px !default;

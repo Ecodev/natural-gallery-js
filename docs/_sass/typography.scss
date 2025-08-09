@@ -1,7 +1,10 @@
+@use 'theme';
+
+
 body {
-    font: $base-font-weight #{$base-font-size}/#{$base-line-height} $base-font-family;
-    color: $text-color;
-    background-color: $background-color;
+    font: theme.$base-font-weight #{theme.$base-font-size}/#{theme.$base-line-height} theme.$base-font-family;
+    color: theme.$text-color;
+    background-color: theme.$background-color;
     -webkit-text-size-adjust: 100%;
     -webkit-font-feature-settings: "kern" 1;
     -moz-font-feature-settings: "kern" 1;
@@ -30,14 +33,14 @@ h1, h2, h3, h4, h5, h6,
 p, blockquote, pre,
 ul, ol, dl,
 %vertical-rhythm {
-    margin-bottom: $gap * 0.6;
+    margin-bottom: theme.$gap * 0.6;
 }
 
 /**
  * Lists
  */
 ul, ol {
-    margin-left: $gap;
+    margin-left: theme.$gap;
 }
 
 li {
@@ -51,7 +54,7 @@ li {
  * Headings
  */
 h1, h2, h3, h4, h5, h6 {
-    font-weight: $base-font-weight;
+    font-weight: theme.$base-font-weight;
 }
 
 .markdown {
@@ -74,7 +77,7 @@ h1, h2, h3, h4, h5, h6 {
         margin-bottom: 16px;
         font-weight: 600;
         line-height: 1.25;
-        color: $primary;
+        color: theme.$primary;
     }
 
     h3 {
@@ -84,7 +87,7 @@ h1, h2, h3, h4, h5, h6 {
         margin-bottom: 16px;
         font-weight: 600;
         line-height: 1.25;
-        color: $accent;
+        color: theme.$accent;
 
     }
 
@@ -93,19 +96,19 @@ h1, h2, h3, h4, h5, h6 {
     }
 
     a {
-        border-bottom: 1px solid $primary;
+        border-bottom: 1px solid theme.$primary;
         &:hover {
-            color: $primary;
+            color: theme.$primary;
         }
     }
 
     figure.highlight {
         font-size: 16px;
         line-height: 2em;
-        margin-bottom: $gap;
+        margin-bottom: theme.$gap;
 
         pre {
-            padding: $small-gap;
+            padding: theme.$small-gap;
             overflow-x: auto;
 
             code {
@@ -122,7 +125,7 @@ h1, h2, h3, h4, h5, h6 {
  * Tables
  */
     table {
-        margin-bottom: $gap;
+        margin-bottom: theme.$gap;
         width: 100%;
         text-align: left;
         border-collapse: collapse;

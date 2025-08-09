@@ -1,9 +1,6 @@
 ---
 layout: default
 ---
-
-{% include icons.html %}
-
 <div class="padding-v markdown">
 
     <div class="row">
@@ -64,21 +61,21 @@ layout: default
                     <td></td>
                 </tr>
                 <tr>
-                    <td>collectionLength</td>
+                    <td>collection.length</td>
                     <td>number</td>
                     <td>Size of full collection (including not yet displayed items)</td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td>domCollectionLength</td>
+                    <td>domCollection.length</td>
                     <td>number</td>
-                    <td>Size of collection visible in the DOM</td>
+                    <td>Size of the collection in the DOM</td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td>selectVisibleItems()</td>
+                    <td>selectDomCollection()</td>
                     <td>void</td>
-                    <td>Select all items visible in the DOM</td>
+                    <td>Select all items in the DOM</td>
                     <td></td>
                 </tr>
                 <tr>
@@ -137,31 +134,31 @@ gallery.addEventListener(eventName, function(ev) {
                 <tr>
                     <td>activate</td>
                     <td>Emitted when an item has been clicked</td>
-                    <td>{% highlight javascript %}{model: Object, clickEvent: MouseEvent}{% endhighlight %}</td>
+                    <td>{% highlight javascript %}{item: Item, event: KeyboardEvent | MouseEvent}{% endhighlight %}</td>
                     <td><a href="#activable">Docs</a></td>
                 </tr>
                 <tr>
                     <td>select</td>
-                    <td>Emitted when an item is (un)selected. Contains the list of selected models</td>
-                    <td>{% highlight javascript %}model[]{% endhighlight %}</td>
+                    <td>Emitted when an item is (un)selected. Contains the list of selected items</td>
+                    <td>{% highlight javascript %}item[]{% endhighlight %}</td>
                     <td><a href="#select">Docs</a></td>
                 </tr>
                 <tr>
                     <td>zoom</td>
                     <td>Notifies the item and PhotoSwipe object when it's opened.</td>
-                    <td>{% highlight javascript %}{item: Object, photoswipe: PhotoSwipeObject}{% endhighlight %}</td>
+                    <td>{% highlight javascript %}{item: Item, photoswipe: PhotoSwipeObject}{% endhighlight %}</td>
                     <td><a href="#zoom">Docs </a></td>
                 </tr>
                 <tr>
                     <td>item-added-to-dom</td>
                     <td>Emitted when the item has been added to DOM as empty rectangle, but image has not been lazy loaded yet</td>
-                    <td>{% highlight javascript %}model{% endhighlight %}</td>
+                    <td>{% highlight javascript %}item{% endhighlight %}</td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>item-displayed</td>
                     <td>Emitted when the image has lazy loaded and is visible</td>
-                    <td>{% highlight javascript %}model{% endhighlight %}</td>
+                    <td>{% highlight javascript %}item{% endhighlight %}</td>
                     <td></td>
                 </tr>
             </table>
@@ -217,10 +214,10 @@ gallery.addEventListener('pagination', function(ev) {
 
 {% highlight javascript %}
 gallery.addEventListener('activate', function(ev) {
-    console.log(ev.detail); // {model: Object, clickEvent: MouseEvent}
+    console.log(ev.detail); // {item: Item, event: MouseEvent | KeyboardEvent}
 
     // Prevents to redirect to destination page in case clicked element is an <a href />
-    ev.detail.clickEvent.preventDefault();
+    ev.detail.event.preventDefault();
 });
 {% endhighlight %}
     </div>
@@ -229,12 +226,12 @@ gallery.addEventListener('activate', function(ev) {
         <div class="container-1000px">
             <h3 id="select">select</h3>
             <p>Emits a notification with an array that contains the list of the currently selected items.</p>
-            <p>Items in the list are the same as those provided as input.</p>
+            <p>Item is the elements root reference. Use "item.model" to access your own data, given on addItem(models[]); </p>
         </div>
 
 {% highlight javascript %}
 gallery.addEventListener('select', function(ev) {
-    console.log(ev.detail); // [Model1, Model2, Model3]
+    console.log(ev.detail); // [Item1, Item2, Item3]
 });
 {% endhighlight %}
 
@@ -282,60 +279,53 @@ gallery.addEventListener('zoom', function(ev) {
         </div>
         <script type="module">
             import {Square} from './assets/natural-gallery-js/natural-gallery.js';
+            const defaultOptions = {gap:20, itemsPerRow: 1, labelVisibility: 'always' }
             window.addEventListener('load', function() {
                 var photoswipeRef = document.getElementsByClassName('pswp')[0];
 
                 var galleryApi1Ref = document.getElementById('gallery-api-1');
-                var galleryApi1 = new Square(galleryApi1Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: false, selectable: true}, photoswipeRef);
-                galleryApi1.init();
-                var imagesZoom1 = {% include sample.json %}.slice(0, 1);
-                imagesZoom1[0].title = 'Image link and no lightbox = whole image click should emit activate event';
+                var galleryApi1 = new Square(galleryApi1Ref, {...defaultOptions, lightbox: false, selectable: true, activable: false}, photoswipeRef);
+                var imagesZoom1 = {% include single-image.json %};
+                imagesZoom1[0].title = 'Link + no lightbox + not activable = all figure is a link';
                 imagesZoom1[0].link = '#demo-events';
                 galleryApi1.setItems(imagesZoom1);
 
                 var galleryApi2Ref = document.getElementById('gallery-api-2');
-                var galleryApi2 = new Square(galleryApi2Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: true, selectable: true}, photoswipeRef);
-                galleryApi2.init();
-                var imagesZoom2 = {% include sample.json %}.slice(0, 1);
-                imagesZoom2[0].title = 'Image link and  lightbox = button click should emit activate, image click should emit zoom';
+                var galleryApi2 = new Square(galleryApi2Ref, {...defaultOptions, lightbox: true, selectable: true, activable: false}, photoswipeRef);
+                var imagesZoom2 = {% include single-image.json %};
+                imagesZoom2[0].title = 'Link + lightbox + selectable + not activable = caption is link, image is lightbox';
                 imagesZoom2[0].link = '#demo-events';
                 galleryApi2.setItems(imagesZoom2);
 
                 var galleryApi3Ref = document.getElementById('gallery-api-3');
-                var galleryApi3 = new Square(galleryApi3Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: false, activable: true, selectable: true}, photoswipeRef);
-                galleryApi3.init();
-                var imagesZoom3 = {% include sample.json %}.slice(0, 1);
-                imagesZoom3[0].title = 'Without image link and no lightbox, but option.activable = true';
+                var galleryApi3 = new Square(galleryApi3Ref, {...defaultOptions, lightbox: false, selectable: true, activable: true }, photoswipeRef);
+                var imagesZoom3 = {% include single-image.json %};
+                imagesZoom3[0].title = 'No link + no lightbox + activable = a click on whole element emit activate event';
                 galleryApi3.setItems(imagesZoom3);
 
                 var galleryApi4Ref = document.getElementById('gallery-api-4');
-                var galleryApi4 = new Square(galleryApi4Ref, {gap:20, itemsPerRow: 1, showLabels: 'always', lightbox: true, activable: true, selectable: true}, photoswipeRef);
-                galleryApi4.init();
-                var imagesZoom4 = {% include sample.json %}.slice(0, 1);
-                imagesZoom4[0].title = 'Without image link but with lightbox and option.activable = true';
+                var galleryApi4 = new Square(galleryApi4Ref, {...defaultOptions, lightbox: true, selectable: true, activable: true}, photoswipeRef);
+                var imagesZoom4 = {% include single-image.json %};
+                imagesZoom4[0].title = 'No link + lightbox + activable = image opens lightbox and button emits activate event';
                 galleryApi4.setItems(imagesZoom4);
 
                 galleryApi1.addEventListener('pagination', function(ev) {console.log('pagination', ev.detail)});
-
-                galleryApi1.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.clickEvent.preventDefault()});
+                galleryApi1.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.event.preventDefault()});
                 galleryApi1.addEventListener('zoom', function(ev) {console.log('zoom', ev.detail)});
                 galleryApi1.addEventListener('select', function(ev) {console.log('select', ev.detail)});
 
-                galleryApi2.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.clickEvent.preventDefault()});
+                galleryApi2.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.event.preventDefault()});
                 galleryApi2.addEventListener('zoom', function(ev) {console.log('zoom', ev.detail)});
                 galleryApi2.addEventListener('select', function(ev) {console.log('select', ev.detail)});
 
-                galleryApi3.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.clickEvent.preventDefault()});
+                galleryApi3.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.event.preventDefault()});
                 galleryApi3.addEventListener('zoom', function(ev) {console.log('zoom', ev.detail)});
                 galleryApi3.addEventListener('select', function(ev) {console.log('select', ev.detail)});
 
-                galleryApi4.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.clickEvent.preventDefault()});
+                galleryApi4.addEventListener('activate', function(ev) {console.log('activate', ev.detail); ev.detail.event.preventDefault()});
                 galleryApi4.addEventListener('zoom', function(ev) {console.log('zoom', ev.detail)});
                 galleryApi4.addEventListener('select', function(ev) {console.log('select', ev.detail)});
             });
         </script>
-
     </div>
-
-
 </div>

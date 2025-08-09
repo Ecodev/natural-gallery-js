@@ -22,7 +22,6 @@ layout: default
 
 {% highlight html %}
 <link rel="stylesheet" href="assets/natural-gallery-js/natural-gallery.css">
-<link rel="stylesheet" href="assets/natural-gallery-js/themes/natural.css">
 {% endhighlight %}
     </div>
 
@@ -35,10 +34,9 @@ layout: default
         </div>
 
         {% highlight html %}
-            <div id="body" style="overflow:auto; min-height:100%; height:100%;">
-                <div id="gallery"></div>
-            </div>
-        {% endhighlight %}
+<div id="body" style="overflow:auto; min-height:100%; height:100%;">
+    <div id="gallery"></div>
+</div>{% endhighlight %}
     </div>
 
     <div class="row">
@@ -61,7 +59,7 @@ window.addEventListener('load', function() {
     var gallery = new Square(elementRef);
 
     // Init the gallery
-    gallery.init();
+
 })
 {% endhighlight %}
     </div>

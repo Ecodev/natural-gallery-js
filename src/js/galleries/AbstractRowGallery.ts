@@ -1,6 +1,17 @@
-import {AbstractGallery, ModelAttributes} from './AbstractGallery';
+import {AbstractGallery, GalleryOptions, ModelAttributes} from './AbstractGallery';
 
-export abstract class AbstractRowGallery<Model extends ModelAttributes> extends AbstractGallery<Model> {
+export abstract class AbstractRowGallery<
+    Model extends ModelAttributes = ModelAttributes,
+> extends AbstractGallery<Model> {
+    protected constructor(
+        protected elementRef: HTMLElement,
+        options: GalleryOptions,
+        protected scrollElementRef?: HTMLElement | null,
+    ) {
+        super(elementRef, options, scrollElementRef);
+        this.bodyElementRef!.style.rowGap = this.options.gap + 'px';
+    }
+
     protected onScroll(): void {
         this.addRows(1);
     }
@@ -23,6 +34,7 @@ export abstract class AbstractRowGallery<Model extends ModelAttributes> extends 
         // Compute size only for elements we're going to add
         const bufferedItems = this.collection.slice(nbVisibleImages);
         this.organizeItems(bufferedItems, nextRow, lastWantedRow);
+
         const itemsToAdd = bufferedItems.filter(i => i.row <= lastWantedRow);
         itemsToAdd.forEach(i => this.addItemToDOM(i));
 
@@ -37,7 +49,7 @@ export abstract class AbstractRowGallery<Model extends ModelAttributes> extends 
             return;
         }
 
-        // Compute with new width. Rows indexes may have change
+        // Compute with new width. Rows indexes may have changed
         this.organizeItems(this.domCollection);
     }
 }

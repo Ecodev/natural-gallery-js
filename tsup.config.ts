@@ -22,9 +22,5 @@ export default defineConfig({
             src: 'package.json',
             dest: `${outDir}/package.json`,
         }),
-        copyPlugin.copyPlugin({
-            src: 'src/styles/themes',
-            dest: `${outDir}/themes/`,
-        }),
     ],
 });

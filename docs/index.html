@@ -31,7 +31,11 @@ layout: default
 <script type="module">
     var options = {
         rowHeight: 400,
+        labelVisibility: 'always',
         lightbox: true,
+        // activable: true,
+        // selectable: true,
+        // rowsPerPage: 2,
         ratioLimit: {
             min: .5,
             max: 2
@@ -49,9 +53,7 @@ layout: default
 
     import {Natural} from './assets/natural-gallery-js/natural-gallery.js';
     import {setupDemo} from './assets/main.js';
-
     setupDemo(Natural, options);
-
 </script>
 
 {%- include gallery.html -%}

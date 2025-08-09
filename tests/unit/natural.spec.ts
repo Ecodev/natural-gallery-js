@@ -1,60 +1,42 @@
-import {Natural, NaturalGalleryOptions} from '../../src';
-import {ModelAttributes} from '../../src/js/galleries/AbstractGallery';
+import {ModelAttributes, Natural} from '../../src';
 import * as domino from 'domino';
-import {Item} from '../../src/js/Item';
-
-export function getSize<T extends ModelAttributes>({
-    width,
-    height,
-    row,
-}: Item<T>): Pick<Item<T>, 'width' | 'height' | 'row'> {
-    return {width, height, row};
-}
-
-const imageModel: ModelAttributes = {
-    thumbnailSrc: 'thumbnailSrc',
-    enlargedSrc: 'enlargedSrc',
-    enlargedWidth: 1980,
-    enlargedHeight: 1080,
-    title: 'title 1',
-    color: 'color',
-};
+import {describe, expect, it} from '@jest/globals';
+import {getContainerElement, getSize} from './utils';
+import {getBaseExpectedOptions, testGallery} from './abstract-gallery';
 
 describe('Natural Gallery', () => {
-    test('options should be completed and overriden', () => {
-        const result: NaturalGalleryOptions = {
-            rowHeight: 123, // new attribute
-            gap: 4, // overriden attribute
-            rowsPerPage: 0,
-            showLabels: 'hover',
-            lightbox: false,
-            minRowsAtStart: 2,
-            selectable: false,
-            activable: false,
-            infiniteScrollOffset: 0,
-            photoSwipeOptions: {
-                loop: false,
+    testGallery(
+        Natural,
+        {
+            rowHeight: 300, // new from default
+            gap: 4, // different from default
+            ratioLimit: {
+                min: 0.6,
+                max: 0.8,
             },
-            photoSwipePluginsInitFn: null,
-            ssr: {
-                galleryWidth: 480,
+        },
+        {
+            maxItemsInDom: 20,
+            itemsAfterScroll: 25,
+            itemsInFirstPage: 20,
+            itemsInSecondPage: 40,
+            options: {
+                ...getBaseExpectedOptions(),
+                rowHeight: 300,
+                ratioLimit: {
+                    min: 0.6,
+                    max: 0.8,
+                },
             },
-        };
+        },
+    );
 
-        const gallery = new Natural(document.createElement('div'), {rowHeight: 123, gap: 4});
-        expect(gallery.getOptions()).toEqual(result);
+    it('should error with invalid column size', () => {
+        const container = getContainerElement();
+        expect(() => new Natural(container, {rowHeight: -300})).toThrow('Option.rowHeight must be positive');
     });
 
-    test('should add items before creation and not render them', () => {
-        const images = [imageModel, imageModel, imageModel, imageModel, imageModel, imageModel];
-        const gallery = new Natural(document.createElement('div'), {rowHeight: 123});
-        gallery.addItems(images);
-
-        expect(gallery.collection.length).toEqual(6);
-        expect(gallery.domCollection.length).toEqual(0);
-    });
-
-    test('should return row height', () => {
+    it('should return row height', () => {
         const images = [
             {
                 enlargedWidth: 6000,
@@ -80,7 +62,7 @@ describe('Natural Gallery', () => {
         expect(rowHeight2).toBeLessThan(rowHeight1);
     });
 
-    test('should organize items that dont fill the line', () => {
+    it('should organize items that dont fill the line', () => {
         const images: ModelAttributes[] = [
             {
                 thumbnailSrc: 'foo.jpg',
@@ -94,10 +76,11 @@ describe('Natural Gallery', () => {
             },
         ];
 
-        const container = {getBoundingClientRect: () => ({width: 999})} as HTMLElement;
+        const container = getContainerElement(999);
         const gallery = new Natural(container, {rowHeight: 400});
+
         gallery.addItems(images);
-        gallery.organizeItems(gallery.collection, 0, 999);
+        gallery.organizeItems(gallery.collection, 0);
 
         const result = [
             {width: 600, height: 400, row: 0},
@@ -107,7 +90,7 @@ describe('Natural Gallery', () => {
         expect(gallery.collection.map(getSize)).toEqual(result);
     });
 
-    test('should organize items that overflow first line with no gap', () => {
+    it('should organize items that overflow first line with no gap', () => {
         const images: ModelAttributes[] = [
             {
                 thumbnailSrc: 'foo.jpg',
@@ -139,10 +122,11 @@ describe('Natural Gallery', () => {
             },
         ];
 
-        const container = {getBoundingClientRect: () => ({width: 999})} as HTMLElement;
+        const container = getContainerElement(999);
         const gallery = new Natural(container, {rowHeight: 400, gap: 0});
+
         gallery.addItems(images);
-        gallery.organizeItems(gallery.collection, 0, 999);
+        gallery.organizeItems(gallery.collection, 0);
 
         const result = [
             {width: 408, height: 272, row: 0},
@@ -155,7 +139,7 @@ describe('Natural Gallery', () => {
         expect(gallery.collection.map(getSize)).toEqual(result);
     });
 
-    test('should organize items that overflow first line with gap Angular', () => {
+    it('should organize items that overflow first line with gap Angular', () => {
         const images: ModelAttributes[] = [
             {
                 thumbnailSrc: 'foo.jpg',
@@ -187,10 +171,11 @@ describe('Natural Gallery', () => {
             },
         ];
 
-        const container = {getBoundingClientRect: () => ({width: 999})} as HTMLElement;
+        const container = getContainerElement(999);
         const gallery = new Natural(container, {rowHeight: 400, gap: 20});
+
         gallery.addItems(images);
-        gallery.organizeItems(gallery.collection, 0, 999);
+        gallery.organizeItems(gallery.collection, 0);
 
         const result = [
             {width: 392, height: 261, row: 0},
@@ -203,7 +188,7 @@ describe('Natural Gallery', () => {
         expect(gallery.collection.map(getSize)).toEqual(result);
     });
 
-    test('should be compatible with Angular SSR', () => {
+    it('should be compatible with Angular SSR', () => {
         const images: ModelAttributes[] = [
             {
                 thumbnailSrc: 'foo.jpg',
@@ -236,12 +221,11 @@ describe('Natural Gallery', () => {
         ];
 
         const window = domino.createWindow('<h1>Hello world</h1>', 'http://example.com');
-        const document = window.document;
-        const container = document.createElement('div');
 
+        const container = window.document.createElement('div');
         const gallery = new Natural(container, {rowHeight: 400, gap: 20, selectable: true});
         gallery.addItems(images);
-        gallery.organizeItems(gallery.collection, 0, 999);
+        gallery.organizeItems(gallery.collection, 0);
 
         const result = [
             {width: 480, height: 320, row: 0},
