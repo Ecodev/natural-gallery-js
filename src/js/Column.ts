@@ -25,10 +25,6 @@ export class Column<Model extends ModelAttributes> {
         return this._elementRef.offsetHeight;
     }
 
-    get length(): number {
-        return this.collection.length;
-    }
-
     get elementRef(): HTMLElement {
         return this._elementRef;
     }

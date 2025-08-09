@@ -11,7 +11,7 @@ describe('Square Gallery', () => {
             maxItemsInDom: 16,
             itemsAfterScroll: 20,
             itemsInFirstPage: 16,
-            itemsInSecondPage: 24,
+            itemsInSecondPage: 32,
             options: {
                 ...getBaseExpectedOptions(),
                 itemsPerRow: 4,

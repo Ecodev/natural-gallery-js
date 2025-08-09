@@ -113,12 +113,18 @@
         display: block;
         margin: 10px auto;
         text-align: center;
-        height: 30px;
+        height: 50px;
+        padding-block: 10px;
+        background: none;
+        border: none;
+        width: 100%;
+        cursor: pointer;
+        border-radius: var(--ngjs-figure-radius, figure.$defaultBorderRadius);
 
         svg {
             cursor: pointer;
             font-size: 16px;
-            height: inherit;
+            height: 30px;
             color: var(--ngjs-next-color, rgb(0, 137, 224));
             fill: currentColor;
         }

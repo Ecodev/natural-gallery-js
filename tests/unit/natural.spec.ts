@@ -19,7 +19,7 @@ describe('Natural Gallery', () => {
             maxItemsInDom: 20,
             itemsAfterScroll: 25,
             itemsInFirstPage: 20,
-            itemsInSecondPage: 30,
+            itemsInSecondPage: 40,
             options: {
                 ...getBaseExpectedOptions(),
                 rowHeight: 300,

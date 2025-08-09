@@ -235,9 +235,18 @@ export function testGallery<
         expectItemsCount(gallery, 50, expected.itemsInFirstPage || 50);
 
         if (gallery instanceof AbstractRowGallery) {
-            (gallery as unknown as {addRows: (v: number) => void}).addRows(2);
+            (gallery as unknown as {addRows: (v: number) => void}).addRows(4);
             expectItemsCount(gallery, 50, expected.itemsInSecondPage || 50);
         }
+    });
+
+    it('should add second page', () => {
+        const gallery = new galleryClass(container, {...options, rowsPerPage: 4});
+        gallery.addItems(getImages(50));
+        expectItemsCount(gallery, 50, expected.itemsInFirstPage || 50);
+
+        (container.querySelector('.natural-gallery-next') as HTMLButtonElement).click();
+        expectItemsCount(gallery, 50, expected.itemsInSecondPage || 50);
     });
 
     it('should resize', async () => {

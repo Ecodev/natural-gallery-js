@@ -236,9 +236,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         this.elementRef.classList.add(this.getFormatName());
 
         // Next button
-        this.nextButton = this.document.createElement('div');
+        this.nextButton = this.document.createElement('button');
         this.nextButton.classList.add('natural-gallery-next');
         this.nextButton.appendChild(getNextIcon(this.document));
+        this.nextButton.setAttribute('aria-label', 'next page');
         this.nextButton.style.display = 'none';
         this.nextButton.addEventListener('click', e => {
             e.preventDefault();
@@ -468,7 +469,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         /* istanbul ignore next */
         this.psLightbox.addFilter('numItems', (): number => {
             return this.domCollection.length;
-            // return this.collection.length;
         });
 
         /* istanbul ignore next */
