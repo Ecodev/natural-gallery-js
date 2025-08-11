@@ -27,12 +27,12 @@ export type ObjectPosition =
 /**
  * A map of all possible event and the structure of their details
  */
-export interface CustomEventDetailMap<T> {
-    activate: {item: T; event: MouseEvent | KeyboardEvent};
-    'item-added-to-dom': T;
-    'item-displayed': T;
+export interface CustomEventDetailMap<T extends ModelAttributes> {
+    activate: {item: Item<T>; event: MouseEvent | KeyboardEvent};
+    'item-added-to-dom': Item<T>;
+    'item-displayed': Item<T>;
     pagination: {offset: number; limit: number};
-    select: T[];
+    select: Item<T>[];
 }
 
 /**
@@ -637,9 +637,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         this.bodyElementRef?.classList.remove('resizing');
     }
 
-    protected dispatchEvent<K extends keyof CustomEventDetailMap<Item<Model>>>(
+    protected dispatchEvent<K extends keyof CustomEventDetailMap<Model>>(
         name: K,
-        data: CustomEventDetailMap<Item<Model>>[K],
+        data: CustomEventDetailMap<Model>[K],
     ): void {
         try {
             const event = new CustomEvent(name, {detail: data});
