@@ -1,5 +1,5 @@
 import {ModelAttributes} from '../../src';
-import {Item} from '../../src/js/Item';
+import {Item} from '../../src';
 
 /* eslint-disable no-restricted-globals */
 

@@ -1,5 +1,5 @@
 import {Masonry, MasonryGalleryOptions, Natural, NaturalGalleryOptions, Square, SquareGalleryOptions} from '../../src';
-import {LabelVisibility} from '../../src/js/Item';
+import {LabelVisibility} from '../../src';
 import {expect, it} from '@jest/globals';
 import {getContainerElement, getImages, scrollTo, setViewport} from './utils';
 import {AbstractGallery} from '../../src/js/galleries/AbstractGallery';

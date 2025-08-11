@@ -1,4 +1,4 @@
-import {Item, ItemOptions} from '../../src/js/Item';
+import {Item, ItemOptions} from '../../src';
 import {LabelVisibility} from '../../src';
 import {afterEach, beforeEach, describe, expect, it} from '@jest/globals';
 import {ModelAttributes} from '../../src';

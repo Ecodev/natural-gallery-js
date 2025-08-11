@@ -12,8 +12,8 @@ module.exports = {
             statements: 98.98,
             branches: 93.14,
             functions: 97.31,
-            lines: 99.47
-        }
+            lines: 99.47,
+        },
     },
     transform: {'^.+\\.js?$': require.resolve('babel-jest')},
     transformIgnorePatterns: ['/node_modules/(?!(photoswipe)/)'],
