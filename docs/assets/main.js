@@ -8,6 +8,7 @@ export function setupDemo(galleryClass, options) {
         let scrollableElement = document.getElementById('body');
         let searchElement = document.getElementById('search');
         let suggestions = document.getElementsByClassName('suggestion');
+        let toggleLabelElements = document.getElementsByClassName('toggleLabels');
         loadingBar = document.getElementById('loadingBar');
 
         // Create gallery
@@ -68,13 +69,16 @@ export function setupDemo(galleryClass, options) {
             }
         });
 
-        for (let i = 0; i < suggestions.length; i++) {
-            suggestions[i].addEventListener('click', function(e) {
+        for (let suggestion of suggestions) {
+            suggestion.addEventListener('click', function(e) {
                 searchElement.value = e.target.getAttribute('value');
                 newSearch(e.target.getAttribute('value'));
             });
         }
 
+        for (let element of toggleLabelElements) {
+            element.addEventListener('click', toggleLabels)
+        }
     });
 
     let isHover = true;
