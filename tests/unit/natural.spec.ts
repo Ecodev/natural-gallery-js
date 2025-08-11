@@ -237,4 +237,40 @@ describe('Natural Gallery', () => {
 
         expect(gallery.collection.map(getSize)).toEqual(result);
     });
+
+    it('should not apply scrolling class when scroll events are triggered without actual scrolling', done => {
+        const images: ModelAttributes[] = [
+            {
+                thumbnailSrc: 'foo.jpg',
+                enlargedWidth: 6000,
+                enlargedHeight: 4000,
+            },
+            {
+                thumbnailSrc: 'bar.jpg',
+                enlargedWidth: 3648,
+                enlargedHeight: 5472,
+            },
+        ];
+
+        const container = getContainerElement(500);
+        const gallery = new Natural(container, {rowHeight: 400});
+        gallery.addItems(images);
+
+        // Simulate a scroll event without actual scroll position change
+        // This simulates what happens when mouse hover triggers scroll events in some browsers
+        const scrollEvent = new Event('scroll');
+
+        // Initially, the gallery should not have the scrolling class
+        expect(container.classList.contains('scrolling')).toBe(false);
+
+        // Dispatch a scroll event without changing scroll position
+        document.dispatchEvent(scrollEvent);
+
+        // Wait for any potential debounced functions to trigger
+        setTimeout(() => {
+            // The scrolling class should NOT be applied since no actual scrolling occurred
+            expect(container.classList.contains('scrolling')).toBe(false);
+            done();
+        }, 200); // Wait longer than the debounce timeout
+    });
 });

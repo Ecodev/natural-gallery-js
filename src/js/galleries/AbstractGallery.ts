@@ -667,20 +667,26 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         const scrollable = element;
         const wrapper: HTMLElement = element instanceof Document ? element.documentElement : element;
 
-        const startScroll = debounce(() => this.elementRef.classList.add('scrolling'), 300, {edges: ['leading']});
-        const endScroll = debounce(() => this.elementRef.classList.remove('scrolling'), 300);
+        const startScroll = debounce(() => this.elementRef.classList.add('scrolling'), 100, {edges: ['leading']});
+        const endScroll = debounce(() => this.elementRef.classList.remove('scrolling'), 150);
 
         scrollable.addEventListener('scroll', () => {
-            startScroll();
-            endScroll();
-
             const endOfGalleryAt =
                 this.elementRef.offsetTop + this.elementRef.offsetHeight + this.options.infiniteScrollOffset;
 
-            // Avoid to expand gallery if we are scrolling up
+            // Calculate scroll position and delta
             const current_scroll_top = wrapper.scrollTop - (wrapper.clientTop || 0);
             const wrapperHeight = wrapper.clientHeight;
             const scroll_delta = current_scroll_top - this.old_scroll_top;
+
+            // Only apply scrolling class if there's actual scroll position change
+            // This prevents the class from being applied when scroll events are triggered
+            // without actual scrolling (e.g., on mousehover in some browsers/zoom levels)
+            if (Math.abs(scroll_delta) > 0) {
+                startScroll();
+                endScroll();
+            }
+
             this.old_scroll_top = current_scroll_top;
 
             // "enableMoreLoading" is a setting coming from the BE bloking / enabling dynamic loading of thumbnail
