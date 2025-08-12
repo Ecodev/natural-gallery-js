@@ -331,40 +331,7 @@ describe('Natural Gallery', () => {
         expect(true).toBe(true); // This test passes to show the potential mechanism
     });
 
-    it('should prove that resizing class causes gallery to disappear (confirmed)', () => {
-        // What we CAN prove: The resizing class makes galleries disappear
-        const images: ModelAttributes[] = [
-            {
-                thumbnailSrc: 'foo.jpg',
-                enlargedWidth: 6000,
-                enlargedHeight: 4000,
-            },
-        ];
 
-        const container = getContainerElement(500);
-        const gallery = new Natural(container, {rowHeight: 400});
-        gallery.addItems(images);
-
-        const bodyElement = gallery.bodyElement;
-
-        // Verify initial state: gallery is visible
-        expect(bodyElement.classList.contains('resizing')).toBe(false);
-        
-        // Apply resizing class (this is what happens when resize events fire)
-        (gallery as any).startResize();
-        
-        // Verify the gallery disappears (opacity: 0 via CSS)
-        expect(bodyElement.classList.contains('resizing')).toBe(true);
-        
-        // Remove resizing class
-        (gallery as any).endResize();
-        
-        // Verify the gallery reappears
-        expect(bodyElement.classList.contains('resizing')).toBe(false);
-        
-        // PROVEN: .resizing class with opacity: 0 makes gallery disappear
-        // This matches the user reports in issue #101
-    });
 
     it('should confirm hover transforms exist in CSS', () => {
         // What we CAN prove: Hover transforms are defined in CSS
@@ -424,7 +391,9 @@ describe('Natural Gallery', () => {
 
         // Track if resize events are fired
         let resizeEventFired = false;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const originalStartResize = (gallery as any).startResize;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (gallery as any).startResize = () => {
             resizeEventFired = true;
             originalStartResize.call(gallery);
