@@ -483,7 +483,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
                 element: item.rootElement!,
                 thumbCropped: item.cropped,
                 alt: item.sanitizedTitle,
-                item
+                item,
             };
         });
 
