@@ -52,6 +52,8 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0 # Need all tags to get a version number in-between tags
             - uses: actions/setup-node@v4
               with:
                   node-version: '24'
@@ -63,6 +65,8 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0 # Need all tags to get a version number in-between tags
             - uses: actions/setup-node@v4
               with:
                   node-version: '24'
@@ -83,6 +87,8 @@ jobs:
         needs: [build, test, lint, prettier]
         steps:
             - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0 # Need all tags to get a version number in-between tags
             - uses: actions/setup-node@v4
               with:
                   node-version: '24'
