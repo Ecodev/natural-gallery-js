@@ -16,14 +16,10 @@ A library that allows you to display images with with natural layouts, infinite 
 - [Api and events](https://ecodev.github.io/natural-gallery-js/docs-api.html)
 - [Theming and customization](https://ecodev.github.io/natural-gallery-js/docs-theming.html)
 
-## Install with NPM or Yarn
+## Install
 
 ```sh
-npm i @ecodev/natural-gallery-js
-```
-
-```sh
-yarn add @ecodev/natural-gallery-js
+pnpm add @ecodev/natural-gallery-js
 ```
 
 ## Contributing
@@ -42,8 +38,8 @@ Consider a pull request, but create an issue before to expose your idea. Maybe t
 
 The most useful commands for development are:
 
-- `yarn dev` to start a development server
-- `yarn build` to build the lib and the docs locally (it will be published automatically by GitHub Actions `deploy` job)
+- `pnpm dev` to start a development server
+- `pnpm build` to build the lib and the docs locally (it will be published automatically by GitHub Actions `deploy` job)
 - `git tag -am 1.2.3 1.2.3 && git push` to publish the lib to npm (via GitHub Actions `release` job)
 
 ## Licence
