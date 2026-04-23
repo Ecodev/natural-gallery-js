@@ -5,17 +5,17 @@ jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   fetch-depth: 0 # Need all tags to get a version number in-between tags
-            - uses: pnpm/action-setup@v5
-            - uses: actions/setup-node@v4
+            - uses: pnpm/action-setup@v6
+            - uses: actions/setup-node@v6
               with:
                   node-version: '24'
                   cache: 'pnpm'
             - run: pnpm install --frozen-lockfile
             - run: pnpm build
-            - uses: actions/upload-artifact@v4
+            - uses: actions/upload-artifact@v7
               with:
                   name: dist
                   path: dist/
@@ -23,11 +23,11 @@ jobs:
     test:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   fetch-depth: 0 # Need all tags to get a version number in-between tags
-            - uses: pnpm/action-setup@v5
-            - uses: actions/setup-node@v4
+            - uses: pnpm/action-setup@v6
+            - uses: actions/setup-node@v6
               with:
                   node-version: '24'
                   cache: 'pnpm'
@@ -53,11 +53,11 @@ jobs:
     lint:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   fetch-depth: 0 # Need all tags to get a version number in-between tags
-            - uses: pnpm/action-setup@v5
-            - uses: actions/setup-node@v4
+            - uses: pnpm/action-setup@v6
+            - uses: actions/setup-node@v6
               with:
                   node-version: '24'
                   cache: 'pnpm'
@@ -67,11 +67,11 @@ jobs:
     prettier:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   fetch-depth: 0 # Need all tags to get a version number in-between tags
-            - uses: pnpm/action-setup@v5
-            - uses: actions/setup-node@v4
+            - uses: pnpm/action-setup@v6
+            - uses: actions/setup-node@v6
               with:
                   node-version: '24'
                   cache: 'pnpm'
@@ -90,11 +90,11 @@ jobs:
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         needs: [build, test, lint, prettier]
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   fetch-depth: 0 # Need all tags to get a version number in-between tags
-            - uses: pnpm/action-setup@v5
-            - uses: actions/setup-node@v4
+            - uses: pnpm/action-setup@v6
+            - uses: actions/setup-node@v6
               with:
                   node-version: '24'
                   cache: 'pnpm'
@@ -127,18 +127,18 @@ jobs:
         if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
         needs: [build, test, lint, prettier]
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   ref: ${{ github.ref }} # Otherwise our annotated tag is not fetched and we cannot get correct version
-            - uses: actions/download-artifact@v4
+            - uses: actions/download-artifact@v8
               with:
                   name: dist
                   path: dist/
             - run: rm .gitignore
 
             # Publish to npm
-            - uses: pnpm/action-setup@v5
-            - uses: actions/setup-node@v4
+            - uses: pnpm/action-setup@v6
+            - uses: actions/setup-node@v6
               with:
                   node-version: '24'
                   registry-url: 'https://registry.npmjs.org'
