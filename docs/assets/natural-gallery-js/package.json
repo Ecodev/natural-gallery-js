@@ -46,7 +46,7 @@
         "scroll",
         "infinite scroll"
     ],
-    "packageManager": "pnpm@10.33.0",
+    "packageManager": "pnpm@11.0.1",
     "devDependencies": {
         "@babel/preset-env": "^7.28.0",
         "@jest/globals": "^30.3.0",
