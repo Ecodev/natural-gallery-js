@@ -24,7 +24,7 @@
     "scripts": {
         "dev": "concurrently --kill-others \"tsdown --watch src/\" \"cross-env DOCS=1 tsdown --watch src/\" \"pnpm run dev-docs\"",
         "dev-docs": "cd docs && bundle install && bundle exec jekyll serve --livereload",
-        "build": "tsdown && cross-env DOCS=1 tsdown && cd dist && pwd && pnpm version --no-git-checks --no-git-tag-version --allow-same-version `git describe --tags --always`",
+        "build": "tsdown && cross-env DOCS=1 tsdown && cd dist && pnpm version --no-git-checks --no-git-tag-version --allow-same-version `git describe --tags --always`",
         "unit": "vitest run --coverage",
         "e2e": "playwright test",
         "test": "pnpm unit && pnpm e2e",
