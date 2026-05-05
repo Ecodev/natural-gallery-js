@@ -1,4 +1,5 @@
 /* eslint-disable no-restricted-globals */
+import {beforeEach} from 'vitest';
 import {setViewport} from './utils';
 
 Object.defineProperties(document.documentElement, {

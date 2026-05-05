@@ -1,5 +1,5 @@
 import {ModelAttributes, Square} from '../../src';
-import {describe, expect, it} from '@jest/globals';
+import {describe, expect, it} from 'vitest';
 import {getContainerElement, getSize} from './utils';
 import {getBaseExpectedOptions, testGallery} from './abstract-gallery';
 

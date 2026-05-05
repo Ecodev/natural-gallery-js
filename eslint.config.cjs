@@ -65,7 +65,6 @@ module.exports = defineConfig([
 
         languageOptions: {
             globals: {
-                ...globals.jest,
                 ...globals.browser,
                 page: 'readonly',
                 PATH: 'readonly',

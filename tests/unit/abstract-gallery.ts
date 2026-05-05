@@ -1,6 +1,6 @@
 import {Masonry, MasonryGalleryOptions, Natural, NaturalGalleryOptions, Square, SquareGalleryOptions} from '../../src';
 import {LabelVisibility} from '../../src';
-import {expect, it} from '@jest/globals';
+import {beforeEach, expect, it, vi} from 'vitest';
 import {getContainerElement, getImages, scrollTo, setViewport} from './utils';
 import {AbstractGallery} from '../../src/js/galleries/AbstractGallery';
 import {AbstractRowGallery} from '../../src/js/galleries/AbstractRowGallery';
@@ -115,8 +115,8 @@ export function testGallery<
     });
 
     it('should load some items, buffer the others and add more to dom on scroll', async () => {
-        const paginationSpy = jest.fn();
-        const displayedSpy = jest.fn();
+        const paginationSpy = vi.fn();
+        const displayedSpy = vi.fn();
         container.addEventListener('pagination', paginationSpy);
         container.addEventListener('item-displayed', displayedSpy);
 
@@ -187,7 +187,7 @@ export function testGallery<
 
     it('should emit pagination on the moment of listening start', () => {
         const gallery = new galleryClass(container, options);
-        const spy = jest.fn();
+        const spy = vi.fn();
         gallery.addEventListener('pagination', spy);
         expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -195,7 +195,7 @@ export function testGallery<
     it('should error if selection on non selectable gallery', () => {
         const gallery = new galleryClass(container, {...options, selectable: false});
         gallery.addItems(getImages(5));
-        const spy = jest.fn();
+        const spy = vi.fn();
         gallery.addEventListener('select', spy);
         const item = gallery.collection[0];
         expect(() => item.toggleSelect()).toThrow('Gallery is not selectable');
@@ -205,7 +205,7 @@ export function testGallery<
         const gallery = new galleryClass(container, {...options, selectable: true});
         gallery.addItems(getImages(5));
 
-        const spy = jest.fn();
+        const spy = vi.fn();
         gallery.addEventListener('select', spy);
         const item = gallery.collection[0];
         item.toggleSelect();
@@ -222,7 +222,7 @@ export function testGallery<
         const gallery = new galleryClass(container, {...options, activable: true});
         gallery.addItems(getImages(5));
 
-        const spy = jest.fn();
+        const spy = vi.fn();
         gallery.addEventListener('activate', spy);
         const item = gallery.collection[0];
         (item.rootElement!.querySelector('.activation') as HTMLButtonElement).click();

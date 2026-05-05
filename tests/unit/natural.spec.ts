@@ -1,6 +1,6 @@
 import {ModelAttributes, Natural} from '../../src';
 import * as domino from 'domino';
-import {describe, expect, it} from '@jest/globals';
+import {describe, expect, it} from 'vitest';
 import {getContainerElement, getSize} from './utils';
 import {getBaseExpectedOptions, testGallery} from './abstract-gallery';
 

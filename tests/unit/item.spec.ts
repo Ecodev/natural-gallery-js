@@ -1,6 +1,6 @@
 import {Item, ItemOptions} from '../../src';
 import {LabelVisibility} from '../../src';
-import {afterEach, beforeEach, describe, expect, it} from '@jest/globals';
+import {afterEach, beforeEach, describe, expect, it, MockInstance, vi} from 'vitest';
 import {ModelAttributes} from '../../src';
 import {click, key} from './utils';
 
@@ -72,7 +72,7 @@ function createItem(
     };
 }
 
-function testItem(item: SemanticItem, expected: ItemExpectation, warnSpy: jest.SpyInstance): void {
+function testItem(item: SemanticItem, expected: ItemExpectation, warnSpy: MockInstance): void {
     expect(warnSpy).toHaveBeenCalledTimes(expected.warn);
     warnSpy.mockClear();
 
@@ -135,7 +135,7 @@ function expectEvent(
     outputEvent: string,
     expected: boolean,
 ): void {
-    const eventSpy = jest.fn();
+    const eventSpy = vi.fn();
     root.addEventListener(outputEvent, eventSpy);
     eventTarget.dispatchEvent(triggerEvent);
     if (expected) {
@@ -148,12 +148,12 @@ function expectEvent(
 
 describe('Item', () => {
     let mockDocument: Document;
-    let consoleWarnSpy: jest.SpyInstance;
+    let consoleWarnSpy: MockInstance;
 
     afterEach(() => consoleWarnSpy.mockRestore());
     beforeEach(() => {
         mockDocument = document;
-        consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+        consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     });
 
     it('should setup link target', () => {

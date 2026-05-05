@@ -14,6 +14,11 @@ const config: PlaywrightTestConfig = {
         viewport,
         video: {size: viewport, mode: 'retain-on-failure'},
     },
+    webServer: {
+        command: 'cd docs && bundle exec jekyll serve --port 4000',
+        port: 4000,
+        reuseExistingServer: !process.env.CI,
+    },
 };
 
 export default config;

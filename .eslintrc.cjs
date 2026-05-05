@@ -38,7 +38,6 @@ module.exports = {
         {
             files: ['*.spec.js', '*.spec.ts'],
             env: {
-                jest: true,
                 browser: true,
             },
             globals: {

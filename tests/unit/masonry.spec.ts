@@ -1,5 +1,5 @@
 import {Masonry} from '../../src';
-import {describe, expect, it} from '@jest/globals';
+import {describe, expect, it} from 'vitest';
 import {getContainerElement} from './utils';
 import {getBaseExpectedOptions, testGallery} from './abstract-gallery';
 

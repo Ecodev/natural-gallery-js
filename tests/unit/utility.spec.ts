@@ -1,6 +1,6 @@
 import {getImageRatio, getImageRatioAndIfCropped, getNextIcon, sanitizeHtml} from '../../src/js/Utility';
 import * as domino from 'domino';
-import {describe, expect, it} from '@jest/globals';
+import {describe, expect, it} from 'vitest';
 
 describe('Utility', () => {
     it('should limit image ratio', () => {

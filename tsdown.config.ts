@@ -4,7 +4,7 @@ import copyPlugin from '@sprout2000/esbuild-copy-plugin';
 
 const isDoc = process.env.DOCS;
 const outDir = isDoc ? 'docs/assets/natural-gallery-js' : 'dist';
-const dts = !isDoc && !process.env.JEST;
+const dts = !isDoc;
 
 export default defineConfig({
     entry: {'natural-gallery': 'src/index.ts'},
