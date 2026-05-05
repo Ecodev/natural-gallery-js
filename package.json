@@ -3,7 +3,7 @@
     "description": "A lazy load, infinite scroll, natural and masonry layout gallery",
     "author": "Samuel Baptista <samuel.baptista@ecodev.ch>",
     "license": "MIT",
-    "version": "0.0.0",
+    "version": "11.1.3-5-g5e08211",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Ecodev/natural-gallery-js.git"
@@ -22,9 +22,9 @@
         "node": ">=18.0.0"
     },
     "scripts": {
-        "dev": "concurrently --kill-others \"tsup --watch src/\" \"cross-env DOCS=1 tsup --watch src/\" \"pnpm run dev-docs\"",
+        "dev": "concurrently --kill-others \"tsdown --watch src/\" \"cross-env DOCS=1 tsdown --watch src/\" \"pnpm run dev-docs\"",
         "dev-docs": "cd docs && bundle install && bundle exec jekyll serve --livereload",
-        "build": "tsup && cross-env DOCS=1 tsup && cd dist && pwd && pnpm version --no-git-checks --no-git-tag-version `git describe --tags --always`",
+        "build": "tsdown && cross-env DOCS=1 tsdown && cd dist && pwd && pnpm version --no-git-checks --no-git-tag-version `git describe --tags --always`",
         "unit": "jest --runInBand --detectOpenHandles",
         "e2e": "playwright test",
         "test": "pnpm unit && pnpm e2e",
@@ -53,6 +53,7 @@
         "@jest/globals": "^30.3.0",
         "@playwright/test": "^1.54.1",
         "@sprout2000/esbuild-copy-plugin": "^1.1.19",
+        "@tsdown/css": "^0.21.10",
         "@types/jest": "^27.4.1",
         "@typescript-eslint/eslint-plugin": "^8.36.0",
         "@typescript-eslint/parser": "^8.36.0",
@@ -72,7 +73,7 @@
         "prettier": "^3.6.2",
         "ts-jest": "^29.3.4",
         "ts-loader": "^9.5.2",
-        "tsup": "~8.2.0",
+        "tsdown": "^0.21.10",
         "typescript": "~5.8.3"
     }
 }

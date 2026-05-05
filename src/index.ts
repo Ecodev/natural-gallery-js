@@ -1,7 +1,7 @@
 import './styles/natural-gallery.scss';
-export {ModelAttributes, CustomEventDetailMap} from './js/galleries/AbstractGallery';
-export {Item, ItemOptions, LabelVisibility} from './js/Item';
+export {type ModelAttributes, type CustomEventDetailMap} from './js/galleries/AbstractGallery';
+export {Item, type ItemOptions, LabelVisibility} from './js/Item';
 
-export {Natural, NaturalGalleryOptions} from './js/galleries/Natural';
-export {Masonry, MasonryGalleryOptions} from './js/galleries/Masonry';
-export {Square, SquareGalleryOptions} from './js/galleries/Square';
+export {Natural, type NaturalGalleryOptions} from './js/galleries/Natural';
+export {Masonry, type MasonryGalleryOptions} from './js/galleries/Masonry';
+export {Square, type SquareGalleryOptions} from './js/galleries/Square';

@@ -1,4 +1,4 @@
-import {defineConfig} from 'tsup';
+import {defineConfig} from 'tsdown';
 import {sassPlugin} from 'esbuild-sass-plugin';
 import copyPlugin from '@sprout2000/esbuild-copy-plugin';
 
@@ -8,7 +8,6 @@ const dts = !isDoc && !process.env.JEST;
 
 export default defineConfig({
     entry: {'natural-gallery': 'src/index.ts'},
-    splitting: false,
     sourcemap: true,
     clean: true,
     outDir: outDir,
@@ -16,11 +15,19 @@ export default defineConfig({
     minify: true,
     platform: 'neutral',
     dts: dts,
-    esbuildPlugins: [
+    plugins: [
         sassPlugin(),
         copyPlugin.copyPlugin({
             src: 'package.json',
             dest: `${outDir}/package.json`,
         }),
     ],
+    deps: {
+        onlyBundle: ['es-toolkit', 'photoswipe'],
+    },
+    target: false,
+    css: {
+        // Change 'style.css' to your custom name
+        fileName: 'natural-gallery.css',
+    },
 });
