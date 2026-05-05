@@ -43,10 +43,8 @@ jobs:
                   bundler-cache: true
                   working-directory: docs
 
-            - name: Run tests
-              run: |
-                  pnpm build 
-                  pnpm test
+            - run: pnpm build
+            - run: pnpm test
 
     lint:
         runs-on: ubuntu-latest
