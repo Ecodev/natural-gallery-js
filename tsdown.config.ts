@@ -1,6 +1,4 @@
 import {defineConfig} from 'tsdown';
-import {sassPlugin} from 'esbuild-sass-plugin';
-import copyPlugin from '@sprout2000/esbuild-copy-plugin';
 
 const isDoc = process.env.DOCS;
 const outDir = isDoc ? 'docs/assets/natural-gallery-js' : 'dist';
@@ -15,13 +13,7 @@ export default defineConfig({
     minify: true,
     platform: 'neutral',
     dts: dts,
-    plugins: [
-        sassPlugin(),
-        copyPlugin.copyPlugin({
-            src: 'package.json',
-            dest: `${outDir}/package.json`,
-        }),
-    ],
+    copy: 'package.json',
     deps: {
         onlyBundle: ['es-toolkit', 'photoswipe'],
     },
