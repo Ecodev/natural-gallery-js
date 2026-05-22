@@ -47,7 +47,7 @@
         "scroll",
         "infinite scroll"
     ],
-    "packageManager": "pnpm@11.0.1",
+    "packageManager": "pnpm@11.2.1",
     "devDependencies": {
         "@eslint/eslintrc": "^3.3.5",
         "@eslint/js": "^10.0.1",
