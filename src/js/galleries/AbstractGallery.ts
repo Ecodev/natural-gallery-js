@@ -185,6 +185,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * Avoid to load more images when scrolling up
      */
     private old_scroll_top = 0;
+    protected currentScrollTop = 0;
+    protected currentViewportHeight = 0;
     /**
      * Stores page index that have been emitted
      * Keeps a log of pages already asked to prevent to ask them multiple times
@@ -528,6 +530,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
 
     protected abstract getFormatName(): string;
 
+    protected abstract onVirtualScroll(): void;
+
     /**
      * Return number of rows to show per page to fill the empty space until the bottom of the screen
      * Should grant all the space is used or more, but not less.
@@ -683,6 +687,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
             const wrapperHeight = wrapper.clientHeight;
             const scroll_delta = current_scroll_top - this.old_scroll_top;
             this.old_scroll_top = current_scroll_top;
+
+            this.currentScrollTop = current_scroll_top;
+            this.currentViewportHeight = wrapperHeight;
+            this.onVirtualScroll();
 
             // "enableMoreLoading" is a setting coming from the BE bloking / enabling dynamic loading of thumbnail
             if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {

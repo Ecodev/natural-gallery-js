@@ -281,4 +281,56 @@ export function testGallery<
         expect(gallery.domCollection.length).toEqual(0);
         expect(container.querySelectorAll('figcaption').length).toBe(0);
     });
+
+    it('should virtually trim items on deep scroll and restore on scroll back', () => {
+        scrollTo(0);
+
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(100));
+
+        scrollTo(1500);
+
+        // Capture domCollection size after scroll (onScroll may have loaded extra items)
+        const domCount = gallery.domCollection.length;
+
+        // Fewer figures physically in DOM after virtual trimming
+        expect(container.querySelectorAll('.figure').length).toBeLessThan(domCount);
+
+        // Scroll back to top — all figures should be restored
+        scrollTo(0);
+        expect(container.querySelectorAll('.figure').length).toBe(domCount);
+    });
+
+    it('should skip virtual scroll when viewport height is not yet known', () => {
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(20));
+        const domCount = expected.maxItemsInDom ?? 20;
+
+        (gallery as unknown as {currentViewportHeight: number}).currentViewportHeight = 0;
+        (gallery as unknown as {onVirtualScroll: () => void}).onVirtualScroll();
+
+        // Guard returned early — no items trimmed
+        expect(container.querySelectorAll('.figure').length).toBe(domCount);
+    });
+
+    it('should restore virtually trimmed items when gallery is resized', () => {
+        scrollTo(0);
+
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(100));
+
+        scrollTo(1500);
+
+        const domCount = gallery.domCollection.length;
+        const trimmedCount = container.querySelectorAll('.figure').length;
+        expect(trimmedCount).toBeLessThan(domCount);
+
+        if (gallery instanceof AbstractRowGallery) {
+            // Resize triggers restoreAllTopItems — all figures must return before reorganizing
+            (gallery as unknown as {endResize: () => void}).endResize();
+            expect(container.querySelectorAll('.figure').length).toBe(domCount);
+        }
+
+        scrollTo(0);
+    });
 }

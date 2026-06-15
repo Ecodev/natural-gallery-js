@@ -76,6 +76,28 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         Masonry.organizeItems(this, items, fromRow, toRow);
     }
 
+    protected onVirtualScroll(): void {
+        if (this.currentViewportHeight <= 0) return;
+
+        const overscan = this.currentViewportHeight;
+        const galleryTop = this.elementRef.offsetTop;
+
+        for (const column of this.columns) {
+            while (column.firstVisibleItem) {
+                const item = column.firstVisibleItem;
+                const rowBottom = galleryTop + column.topSpacerHeight + item.height;
+                if (this.currentScrollTop - rowBottom <= overscan) break;
+                column.trimTopItem();
+            }
+
+            while (column.hiddenFromTopCount > 0) {
+                const hiddenContentBottom = galleryTop + column.topSpacerHeight;
+                if (this.currentScrollTop - hiddenContentBottom > overscan) break;
+                column.restoreTopItem();
+            }
+        }
+    }
+
     protected onScroll(): void {
         this.addUntilFill();
     }
