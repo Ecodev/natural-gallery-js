@@ -51,24 +51,24 @@
     "devDependencies": {
         "@eslint/eslintrc": "^3.3.5",
         "@eslint/js": "^10.0.1",
-        "@playwright/test": "^1.59.1",
+        "@playwright/test": "^1.60.0",
         "@tsdown/css": "^0.21.10",
-        "@typescript-eslint/eslint-plugin": "^8.59.1",
-        "@typescript-eslint/parser": "^8.59.1",
-        "@vitest/coverage-v8": "^4.1.5",
+        "@typescript-eslint/eslint-plugin": "^8.61.0",
+        "@typescript-eslint/parser": "^8.61.0",
+        "@vitest/coverage-v8": "^4.1.8",
         "concurrently": "^9.2.1",
         "cross-env": "^10.1.0",
         "domino": "^2.1.7",
-        "es-toolkit": "^1.46.1",
-        "eslint": "^10.3.0",
+        "es-toolkit": "^1.47.1",
+        "eslint": "^10.5.0",
         "eslint-plugin-jsdoc": "^62.9.0",
         "globals": "^17.6.0",
         "jsdom": "^29.1.1",
         "photoswipe": "^5.4.4",
-        "prettier": "^3.8.3",
-        "sass": "^1.99.0",
+        "prettier": "^3.8.4",
+        "sass": "^1.101.0",
         "tsdown": "^0.21.10",
         "typescript": "~6.0.3",
-        "vitest": "^4.1.5"
+        "vitest": "^4.1.8"
     }
 }
