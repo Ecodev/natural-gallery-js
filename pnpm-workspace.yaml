@@ -1,14 +1,14 @@
 allowBuilds:
-  '@parcel/watcher': false
-  esbuild: true
+    '@parcel/watcher': false
+    esbuild: true
 # The minimum age of a release to be considered for dependency installation.
 # The value is in minutes (1440 minutes = 1 day).
 minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
-  - shell-quote@1.8.4
+    - shell-quote@1.8.4
 
 nodeLinker: hoisted
 
 overrides:
-  shell-quote@>=1.1.0 <=1.8.3: ^1.8.4
+    shell-quote@>=1.1.0 <=1.8.3: ^1.8.4
