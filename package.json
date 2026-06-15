@@ -33,6 +33,9 @@
         "prettier": "./node_modules/.bin/prettier --write .",
         "relink": "cd dist && (pnpm unlink ; pnpm link)"
     },
+    "overrides": {
+        "shell-quote": "^1.8.4"
+    },
     "keywords": [
         "gallery",
         "image",
