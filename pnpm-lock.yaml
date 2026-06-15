@@ -15,16 +15,16 @@ importers:
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.3.0)
       '@playwright/test':
-        specifier: ^1.54.1
+        specifier: ^1.59.1
         version: 1.59.1
       '@tsdown/css':
         specifier: ^0.21.10
-        version: 0.21.10(postcss@8.5.13)(sass@1.99.0)(tsdown@0.21.10)
+        version: 0.21.10(postcss@8.5.15)(sass@1.99.0)(tsdown@0.21.10)
       '@typescript-eslint/eslint-plugin':
-        specifier: ^8.36.0
+        specifier: ^8.59.1
         version: 8.59.1(@typescript-eslint/parser@8.59.1(eslint@10.3.0)(typescript@6.0.3))(eslint@10.3.0)(typescript@6.0.3)
       '@typescript-eslint/parser':
-        specifier: ^8.36.0
+        specifier: ^8.59.1
         version: 8.59.1(eslint@10.3.0)(typescript@6.0.3)
       '@vitest/coverage-v8':
         specifier: ^4.1.5
@@ -36,10 +36,10 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       domino:
-        specifier: ^2.1.6
+        specifier: ^2.1.7
         version: 2.1.7
       es-toolkit:
-        specifier: ^1.39.7
+        specifier: ^1.46.1
         version: 1.46.1
       eslint:
         specifier: ^10.3.0
@@ -57,7 +57,7 @@ importers:
         specifier: ^5.4.4
         version: 5.4.4
       prettier:
-        specifier: ^3.6.2
+        specifier: ^3.8.3
         version: 3.8.3
       sass:
         specifier: ^1.99.0
@@ -685,8 +685,8 @@ packages:
   brace-expansion@1.1.14:
     resolution: {integrity: sha512-MWPGfDxnyzKU7rNOW9SP/c50vi3xrmrua/+6hfPbCS2ABNWfx24vPidzvC7krjU/RTo235sV776ymlsMtGKj8g==}
 
-  brace-expansion@5.0.5:
-    resolution: {integrity: sha512-VZznLgtwhn+Mact9tfiwx64fA9erHH/MCXEUfB/0bX/6Fz6ny5EGTXYltMocqg4xFAQZtnO3DHWWXi8RiuN7cQ==}
+  brace-expansion@5.0.6:
+    resolution: {integrity: sha512-kLpxurY4Z4r9sgMsyG0Z9uzsBlgiU/EFKhj/h91/8yHu0edo7XuixOIH3VcJ8kkxs6/jPzoI6U9Vj3WqbMQ94g==}
     engines: {node: 18 || 20 || >=22}
 
   cac@7.0.0:
@@ -1009,8 +1009,8 @@ packages:
   js-tokens@10.0.0:
     resolution: {integrity: sha512-lM/UBzQmfJRo9ABXbPWemivdCW8V2G8FHaHdypQaIy523snUjog0W71ayWXTjiR+ixeMyVHN2XcpnTd/liPg/Q==}
 
-  js-yaml@4.1.1:
-    resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
+  js-yaml@4.2.0:
+    resolution: {integrity: sha512-ePWsvanv0DWuDRsW8dnt+R4jQ31SCRCQ7hhNcPXZPsoBZiemuZNYGf7adZdqX2D86j6rvKp3RpCxVTSb8WQlOw==}
     hasBin: true
 
   jsdoc-type-pratt-parser@7.2.0:
@@ -1248,8 +1248,8 @@ packages:
       yaml:
         optional: true
 
-  postcss@8.5.13:
-    resolution: {integrity: sha512-qif0+jGGZoLWdHey3UFHHWP0H7Gbmsk8T5VEqyYFbWqPr1XqvLGBbk/sl8V5exGmcYJklJOhOQq1pV9IcsiFag==}
+  postcss@8.5.15:
+    resolution: {integrity: sha512-FfR8sjd4em2T6fb3I2MwAJU7HWVMr9zba+enmQeeWFfCbm+UOC/0X4DS8XtpUTMwWMGbjKYP7xjfNekzyGmB3A==}
     engines: {node: ^10 || ^12 || >=14}
 
   prelude-ls@1.2.1:
@@ -1398,6 +1398,10 @@ packages:
 
   tinyglobby@0.2.16:
     resolution: {integrity: sha512-pn99VhoACYR8nFHhxqix+uvsbXineAasWm5ojXoN8xEwK5Kd3/TrhNn1wByuD52UxWRLy8pu+kRMniEi6Eq9Zg==}
+    engines: {node: '>=12.0.0'}
+
+  tinyglobby@0.2.17:
+    resolution: {integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==}
     engines: {node: '>=12.0.0'}
 
   tinyrainbow@3.1.0:
@@ -1780,7 +1784,7 @@ snapshots:
       globals: 14.0.0
       ignore: 5.3.2
       import-fresh: 3.3.1
-      js-yaml: 4.1.1
+      js-yaml: 4.2.0
       minimatch: 3.1.5
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
@@ -1962,14 +1966,14 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
-  '@tsdown/css@0.21.10(postcss@8.5.13)(sass@1.99.0)(tsdown@0.21.10)':
+  '@tsdown/css@0.21.10(postcss@8.5.15)(sass@1.99.0)(tsdown@0.21.10)':
     dependencies:
       lightningcss: 1.32.0
-      postcss-load-config: 6.0.1(postcss@8.5.13)
+      postcss-load-config: 6.0.1(postcss@8.5.15)
       rolldown: 1.0.0-rc.17
       tsdown: 0.21.10(@tsdown/css@0.21.10)(typescript@6.0.3)
     optionalDependencies:
-      postcss: 8.5.13
+      postcss: 8.5.15
       sass: 1.99.0
     transitivePeerDependencies:
       - jiti
@@ -2196,7 +2200,7 @@ snapshots:
       balanced-match: 1.0.2
       concat-map: 0.0.1
 
-  brace-expansion@5.0.5:
+  brace-expansion@5.0.6:
     dependencies:
       balanced-match: 4.0.4
 
@@ -2495,7 +2499,7 @@ snapshots:
 
   js-tokens@10.0.0: {}
 
-  js-yaml@4.1.1:
+  js-yaml@4.2.0:
     dependencies:
       argparse: 2.0.1
 
@@ -2619,7 +2623,7 @@ snapshots:
 
   minimatch@10.2.5:
     dependencies:
-      brace-expansion: 5.0.5
+      brace-expansion: 5.0.6
 
   minimatch@3.1.5:
     dependencies:
@@ -2689,13 +2693,13 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.2
 
-  postcss-load-config@6.0.1(postcss@8.5.13):
+  postcss-load-config@6.0.1(postcss@8.5.15):
     dependencies:
       lilconfig: 3.1.3
     optionalDependencies:
-      postcss: 8.5.13
+      postcss: 8.5.15
 
-  postcss@8.5.13:
+  postcss@8.5.15:
     dependencies:
       nanoid: 3.3.12
       picocolors: 1.1.1
@@ -2834,6 +2838,11 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.4)
       picomatch: 4.0.4
 
+  tinyglobby@0.2.17:
+    dependencies:
+      fdir: 6.5.0(picomatch@4.0.4)
+      picomatch: 4.0.4
+
   tinyrainbow@3.1.0: {}
 
   tldts-core@7.0.30: {}
@@ -2880,7 +2889,7 @@ snapshots:
       unconfig-core: 7.5.0
       unrun: 0.2.37
     optionalDependencies:
-      '@tsdown/css': 0.21.10(postcss@8.5.13)(sass@1.99.0)(tsdown@0.21.10)
+      '@tsdown/css': 0.21.10(postcss@8.5.15)(sass@1.99.0)(tsdown@0.21.10)
       typescript: 6.0.3
     transitivePeerDependencies:
       - '@ts-macro/tsc'
@@ -2916,9 +2925,9 @@ snapshots:
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
-      postcss: 8.5.13
+      postcss: 8.5.15
       rolldown: 1.0.0-rc.17
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
     optionalDependencies:
       fsevents: 2.3.3
       sass: 1.99.0
