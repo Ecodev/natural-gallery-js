@@ -161,7 +161,7 @@ export class Item<Model extends ModelAttributes> {
         const image = this.getImage(!!caption);
 
         // Prepare contextual containers
-        let root = null;
+        let root: HTMLElement;
         const link = this.getEmptyLinkOrButton();
         let zoomableElement: HTMLElement | null = null;
 
@@ -208,7 +208,7 @@ export class Item<Model extends ModelAttributes> {
             figure.appendChild(image);
         }
 
-        this._rootElement = root!;
+        this._rootElement = root;
         this._rootElement.setAttribute('role', 'group');
         this._rootElement.classList.add('root');
 
