@@ -203,12 +203,12 @@ export class Item<Model extends ModelAttributes> {
             root = link;
             figure.appendChild(image);
             link.appendChild(figure);
-        } else if (!this.options.lightbox && !caption && !link) {
+        } else {
             root = figure;
             figure.appendChild(image);
         }
 
-        this._rootElement = root || figure;
+        this._rootElement = root!;
         this._rootElement.setAttribute('role', 'group');
         this._rootElement.classList.add('root');
 
@@ -436,23 +436,21 @@ export class Item<Model extends ModelAttributes> {
             return;
         }
 
-        if (element) {
-            element.tabIndex = 0;
-            element.setAttribute('aria-label', 'zoom');
-            element.setAttribute('role', 'button');
-            element.classList.add('zoomable');
-            const handleZoom = () => {
-                const event = new CustomEvent<Item<Model>>('zoom', {detail: this});
-                this._rootElement?.dispatchEvent(event);
-            };
+        element.tabIndex = 0;
+        element.setAttribute('aria-label', 'zoom');
+        element.setAttribute('role', 'button');
+        element.classList.add('zoomable');
+        const handleZoom = () => {
+            const event = new CustomEvent<Item<Model>>('zoom', {detail: this});
+            this._rootElement?.dispatchEvent(event);
+        };
 
-            element.addEventListener('click', handleZoom);
-            element.addEventListener('keydown', e => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleZoom();
-                }
-            });
-        }
+        element.addEventListener('click', handleZoom);
+        element.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleZoom();
+            }
+        });
     }
 }

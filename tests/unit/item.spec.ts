@@ -1178,6 +1178,47 @@ describe('Item', () => {
         });
     };
 
+    it('should render plain figure when no lightbox, no caption and no link', () => {
+        const item = createItem(document, {});
+        expect(item.root.tagName).toBe('FIGURE');
+        expect(item.caption).toBeNull();
+        expect(item.link).toBeNull();
+    });
+
+    it('should not fire zoom on non-Enter/Space keydown', () => {
+        const item = createItem(document, {}, {lightbox: true});
+        const spy = vi.fn();
+        item.root.addEventListener('zoom', spy);
+        // With lightbox=true and no caption/link, the root figure itself is the zoomable element
+        item.root.dispatchEvent(new KeyboardEvent('keydown', {key: 'Tab'}));
+        expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should not fire select on non-Enter/Space keydown', () => {
+        const item = createItem(document, {}, {selectable: true});
+        const spy = vi.fn();
+        item.root.addEventListener('select', spy);
+        item.select!.dispatchEvent(new KeyboardEvent('keydown', {key: 'Tab'}));
+        expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should not fire activate on non-Enter/Space keydown', () => {
+        const item = createItem(document, {title: 'test'}, {activable: true, labelVisibility: LabelVisibility.ALWAYS});
+        const activation = item.root.querySelector<HTMLElement>('.activation')!;
+        const spy = vi.fn();
+        item.root.addEventListener('activate', spy);
+        activation.dispatchEvent(new KeyboardEvent('keydown', {key: 'Tab'}));
+        expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should add loaded class when image fires load event', () => {
+        const item = createItem(document, {});
+        const img = item.root.querySelector('img')!;
+        expect(item.root.classList.contains('loaded')).toBe(false);
+        img.dispatchEvent(new Event('load'));
+        expect(item.root.classList.contains('loaded')).toBe(true);
+    });
+
     testWithSelectable(false, null);
     testWithSelectable(true, ALL_EVENTS);
 });

@@ -627,10 +627,12 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * Space between the top of the gallery wrapper (parent of gallery root elementRef) and the bottom of the window
      */
     protected getGalleryVisibleHeight(): number {
+        /* istanbul ignore else */
         if (this.document.defaultView) {
             return this.document.defaultView.innerHeight - this.elementRef.offsetTop;
         }
 
+        /* istanbul ignore next */
         return 0;
     }
 

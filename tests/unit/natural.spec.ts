@@ -1,7 +1,7 @@
 import {ModelAttributes, Natural} from '../../src';
 import * as domino from 'domino';
 import {describe, expect, it} from 'vitest';
-import {getContainerElement, getSize} from './utils';
+import {getContainerElement, getImages, getSize} from './utils';
 import {getBaseExpectedOptions, testGallery} from './abstract-gallery';
 
 describe('Natural Gallery', () => {
@@ -34,6 +34,49 @@ describe('Natural Gallery', () => {
     it('should error with invalid column size', () => {
         const container = getContainerElement();
         expect(() => new Natural(container, {rowHeight: -300})).toThrow('Option.rowHeight must be positive');
+    });
+
+    it('should estimate columns with ratioLimit.max but no min', () => {
+        const container = getContainerElement(999);
+        const gallery = new Natural(container, {rowHeight: 300, ratioLimit: {max: 2}});
+        gallery.addItems(getImages(5));
+        expect(gallery.domCollection.length).toBe(5);
+    });
+
+    it('should use zero height when containerWidth and maxRowHeight are both null', () => {
+        const container = getContainerElement(999);
+        const gallery = new Natural(container, {rowHeight: 400});
+        gallery.addItems(getImages(2));
+
+        Natural.computeSizes(gallery.collection, null, 0, 0, null);
+        expect(gallery.collection[0].height).toBe(0);
+        expect(gallery.collection[0].width).toBe(0);
+    });
+
+    it('should complete last incomplete row when new items fit alongside existing', () => {
+        const container = getContainerElement(999);
+        const gallery = new Natural(container, {rowHeight: 300, gap: 4});
+        gallery.addItems(getImages(3)); // A,B → row 0; C → row 1 alone (incomplete)
+        expect(gallery.domCollection.length).toBe(3);
+        gallery.addItems(getImages(2)); // completeLastRow adds D to row 1, super.addRows adds E to row 2
+        expect(gallery.domCollection.length).toBe(5);
+    });
+
+    it('should restore all items when all are virtually hidden from top', () => {
+        const container = getContainerElement();
+        const gallery = new Natural(container, {rowHeight: 300, gap: 4});
+        gallery.addItems(getImages(10));
+
+        const domCount = gallery.domCollection.length;
+
+        // Simulate all dom items having been trimmed from the top
+        (gallery as unknown as {virtualHiddenFromTopCount: number}).virtualHiddenFromTopCount = domCount;
+
+        // endResize calls restoreAllTopItems; with virtualHiddenFromTopCount === domCollection.length,
+        // _domCollection[domCount] is undefined, triggering the ?? null fallback
+        (gallery as unknown as {endResize: () => void}).endResize();
+
+        expect(container.querySelectorAll('.figure').length).toBe(domCount);
     });
 
     it('should return row height', () => {

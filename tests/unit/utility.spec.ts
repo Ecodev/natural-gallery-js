@@ -14,6 +14,16 @@ describe('Utility', () => {
         expect(ratios3).toBe(1);
     });
 
+    it('should return ratio unchanged when no ratioLimits', () => {
+        const ratio = getImageRatio({enlargedWidth: 6000, enlargedHeight: 4000});
+        expect(ratio).toBe(1.5);
+    });
+
+    it('should return ratio unchanged when within min and max bounds', () => {
+        const ratio = getImageRatio({enlargedWidth: 6000, enlargedHeight: 4000}, {min: 1, max: 3});
+        expect(ratio).toBe(1.5);
+    });
+
     it('should get svg', () => {
         const svg = getNextIcon(document);
         expect(svg.outerHTML).toBe(
@@ -82,6 +92,11 @@ describe('sanitizeHtml', () => {
 });
 
 describe('getImageRatioAndIfCropped', () => {
+    it('should return correct ratio and cropped=false when no ratioLimits', () => {
+        const result = getImageRatioAndIfCropped({enlargedWidth: 400, enlargedHeight: 200});
+        expect(result).toEqual({ratio: 2, cropped: false});
+    });
+
     it('should return correct ratio and cropped=false when within limits', () => {
         const result = getImageRatioAndIfCropped({enlargedWidth: 400, enlargedHeight: 200}, {min: 1, max: 3});
         expect(result).toEqual({ratio: 2, cropped: false});

@@ -333,4 +333,66 @@ export function testGallery<
 
         scrollTo(0);
     });
+
+    it('should trigger resize handlers when iframe contentWindow fires resize', () => {
+        // jsdom returns null for iframe.contentWindow — mock it with a real EventTarget
+        // so the gallery can attach its resize listener and we can dispatch the event
+        const mockContentWindow = new EventTarget();
+        vi.spyOn(HTMLIFrameElement.prototype, 'contentWindow', 'get').mockReturnValue(
+            mockContentWindow as unknown as WindowProxy,
+        );
+
+        try {
+            const gallery = new galleryClass(container, options);
+            gallery.addItems(getImages(5));
+
+            mockContentWindow.dispatchEvent(new Event('resize'));
+
+            // startResize is debounced with {edges: ['leading']} — fires synchronously on first call
+            expect(gallery.bodyElement.classList.contains('resizing')).toBe(true);
+        } finally {
+            vi.restoreAllMocks();
+        }
+    });
+
+    it('should add items to collection only when buffer is not exhausted', () => {
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(100));
+
+        const domCountAfterFirst = gallery.domCollection.length;
+        const collectionCountAfterFirst = gallery.collection.length;
+
+        // For galleries with a DOM limit (Natural, Square): collection > domCollection,
+        // so addToDom=false on the next call — items go to collection only, DOM unchanged.
+        // For Masonry (no limit): addToDom=true, items also go to DOM.
+        gallery.addItems(getImages(5));
+
+        expect(gallery.collection.length).toBe(collectionCountAfterFirst + 5);
+        expect(gallery.domCollection.length).toBeGreaterThanOrEqual(domCountAfterFirst);
+    });
+
+    it('should skip duplicate pagination request for the same offset', async () => {
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(50));
+
+        const internal = gallery as unknown as {
+            requestedIndexesLog: number[];
+            requiredItems: number;
+            flushBufferedItems: () => void;
+        };
+
+        // Pre-log the current collection length to simulate a request already in flight
+        internal.requestedIndexesLog.push(gallery.collection.length);
+        internal.requiredItems = 1;
+
+        // Use container directly — gallery.addEventListener fires immediately (by design)
+        const paginationSpy = vi.fn();
+        container.addEventListener('pagination', paginationSpy);
+
+        // Reset the debounce timer; when it fires the dedup guard should prevent emission
+        internal.flushBufferedItems();
+        await new Promise(resolve => setTimeout(resolve, 600));
+
+        expect(paginationSpy).toHaveBeenCalledTimes(0);
+    });
 }

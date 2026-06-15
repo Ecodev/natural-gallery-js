@@ -155,7 +155,7 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
         let ratio = 1;
 
         // Better prediction using ratio if provided
-        if (this.options.ratioLimit && this.options.ratioLimit.min) {
+        if (this.options.ratioLimit?.min) {
             ratio = this.options.ratioLimit.min;
         }
 

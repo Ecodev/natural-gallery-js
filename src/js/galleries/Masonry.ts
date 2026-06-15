@@ -212,12 +212,8 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     }
 
     private getShortestColumn(): Column<Model> {
-        return this.columns.reduce((shortestColumn, column) => {
-            if (!shortestColumn) {
-                return column;
-            }
-
-            return column.height < shortestColumn.height ? column : shortestColumn;
-        });
+        return this.columns.reduce((shortestColumn, column) =>
+            column.height < shortestColumn.height ? column : shortestColumn,
+        );
     }
 }
