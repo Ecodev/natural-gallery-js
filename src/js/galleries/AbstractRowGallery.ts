@@ -1,4 +1,3 @@
-import {Item} from '../Item';
 import {AbstractGallery, GalleryOptions, ModelAttributes} from './AbstractGallery';
 
 export abstract class AbstractRowGallery<
