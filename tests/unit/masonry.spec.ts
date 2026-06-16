@@ -67,4 +67,19 @@ describe('Column', () => {
         const column = new Column(document, {width: 100, gap: 4});
         expect(() => column.restoreTopItem()).not.toThrow();
     });
+
+    it('should guard trimBottomItem when item has no rootElement', () => {
+        const column = new Column(document, {width: 100, gap: 4});
+        // addItem with an uninitialized item (no rootElement)
+        const mockItem = {height: 100, rootElement: null} as unknown as import('../../src/js/Item').Item<never>;
+        column.addItem(mockItem);
+        column.trimBottomItem(); // guard fires: !item?.rootElement → return
+        expect(column.hiddenFromBottomCount).toBe(0);
+    });
+
+    it('should guard restoreBottomItem when nothing is hidden from bottom', () => {
+        const column = new Column(document, {width: 100, gap: 4});
+        column.restoreBottomItem(); // guard fires: hiddenFromBottomCount === 0 → return
+        expect(column.hiddenFromBottomCount).toBe(0);
+    });
 });

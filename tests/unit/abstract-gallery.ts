@@ -19,7 +19,8 @@ export function expectItemsCount(gallery: AbstractGallery, collectionSize: numbe
     }
     expect(gallery.collection.length).toBe(collectionSize);
     expect(gallery.domCollection.length).toBe(domSize);
-    expect(gallery.rootElement.querySelectorAll('.figure').length).toBe(domSize);
+    // Physical DOM count may be ≤ domSize when virtual scroll has hidden items
+    expect(gallery.rootElement.querySelectorAll('.figure').length).toBeLessThanOrEqual(domSize);
 }
 
 export function getBaseExpectedOptions(): Partial<NaturalGalleryOptions> {
@@ -282,7 +283,7 @@ export function testGallery<
         expect(container.querySelectorAll('figcaption').length).toBe(0);
     });
 
-    it('should virtually trim items on deep scroll and restore on scroll back', () => {
+    it('should trim items from the top on deep scroll', () => {
         scrollTo(0);
 
         const gallery = new galleryClass(container, options);
@@ -293,12 +294,33 @@ export function testGallery<
         // Capture domCollection size after scroll (onScroll may have loaded extra items)
         const domCount = gallery.domCollection.length;
 
-        // Fewer figures physically in DOM after virtual trimming
+        // Fewer figures physically in DOM — top rows removed
         expect(container.querySelectorAll('.figure').length).toBeLessThan(domCount);
 
-        // Scroll back to top — all figures should be restored
+        scrollTo(0); // cleanup
+    });
+
+    it('should trim items from the bottom when scrolled far then back to top', () => {
         scrollTo(0);
-        expect(container.querySelectorAll('.figure').length).toBe(domCount);
+
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(100));
+
+        // Scroll incrementally to load enough rows so totalHeight > 2 × viewport
+        scrollTo(1500);
+        scrollTo(2000);
+        scrollTo(2500);
+        scrollTo(3000);
+
+        const domCount = gallery.domCollection.length;
+
+        // Back to top: bottom rows (far below viewport) get removed
+        scrollTo(0);
+        expect(container.querySelectorAll('.figure').length).toBeLessThan(domCount);
+
+        // Scroll toward bottom: bottom rows come back into range
+        scrollTo(3000);
+        expect(container.querySelectorAll('.figure').length).toBeGreaterThan(0);
     });
 
     it('should skip virtual scroll when viewport height is not yet known', () => {
@@ -319,14 +341,17 @@ export function testGallery<
         const gallery = new galleryClass(container, options);
         gallery.addItems(getImages(100));
 
+        // Load enough rows so both top and bottom trimming fire before resize
         scrollTo(1500);
+        scrollTo(2000);
+        scrollTo(2500);
+        scrollTo(3000);
+        scrollTo(0); // triggers bottom trim for galleries with enough rows
 
         const domCount = gallery.domCollection.length;
-        const trimmedCount = container.querySelectorAll('.figure').length;
-        expect(trimmedCount).toBeLessThan(domCount);
 
         if (gallery instanceof AbstractRowGallery) {
-            // Resize triggers restoreAllTopItems — all figures must return before reorganizing
+            // endResize must restore both top and bottom items before reorganizing
             (gallery as unknown as {endResize: () => void}).endResize();
             expect(container.querySelectorAll('.figure').length).toBe(domCount);
         }

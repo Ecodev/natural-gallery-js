@@ -11,6 +11,9 @@ export class Column<Model extends ModelAttributes> {
     private readonly _elementRef: HTMLElement;
     private _hiddenFromTopCount = 0;
     private _topSpacerHeight = 0;
+    private _hiddenFromBottomCount = 0;
+    private _bottomSpacerHeight = 0;
+    private _totalHeight = 0;
 
     public constructor(
         document: Document,
@@ -38,12 +41,33 @@ export class Column<Model extends ModelAttributes> {
         return this._hiddenFromTopCount;
     }
 
+    get bottomSpacerHeight(): number {
+        return this._bottomSpacerHeight;
+    }
+
+    get hiddenFromBottomCount(): number {
+        return this._hiddenFromBottomCount;
+    }
+
+    get totalHeight(): number {
+        return this._totalHeight;
+    }
+
+    get hasVisibleItems(): boolean {
+        return this._hiddenFromTopCount + this._hiddenFromBottomCount < this._items.length;
+    }
+
     get firstVisibleItem(): Item<Model> | undefined {
         return this._items[this._hiddenFromTopCount];
     }
 
+    get lastVisibleItem(): Item<Model> | undefined {
+        return this._items[this._items.length - this._hiddenFromBottomCount - 1];
+    }
+
     public addItem(item: Item<Model>): void {
         this._items.push(item);
+        this._totalHeight += item.height + this.options.gap;
     }
 
     public trimTopItem(): void {
@@ -63,5 +87,23 @@ export class Column<Model extends ModelAttributes> {
         this._elementRef.style.paddingTop = this._topSpacerHeight + 'px';
         const nextVisible = this._items[this._hiddenFromTopCount + 1]?.rootElement ?? null;
         this._elementRef.insertBefore(item.rootElement!, nextVisible);
+    }
+
+    public trimBottomItem(): void {
+        const item = this.lastVisibleItem;
+        if (!item?.rootElement) return;
+        item.remove();
+        this._bottomSpacerHeight += item.height + this.options.gap;
+        this._hiddenFromBottomCount++;
+        this._elementRef.style.paddingBottom = this._bottomSpacerHeight + 'px';
+    }
+
+    public restoreBottomItem(): void {
+        if (this._hiddenFromBottomCount === 0) return;
+        this._hiddenFromBottomCount--;
+        const item = this._items[this._items.length - this._hiddenFromBottomCount - 1];
+        this._bottomSpacerHeight = Math.max(0, this._bottomSpacerHeight - item.height - this.options.gap);
+        this._elementRef.style.paddingBottom = this._bottomSpacerHeight + 'px';
+        this._elementRef.appendChild(item.rootElement!);
     }
 }

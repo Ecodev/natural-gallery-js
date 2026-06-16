@@ -81,10 +81,11 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
         const overscan = this.currentViewportHeight;
         const galleryTop = this.elementRef.offsetTop;
+        const viewportBottom = this.currentScrollTop + this.currentViewportHeight;
 
         for (const column of this.columns) {
-            while (column.firstVisibleItem) {
-                const item = column.firstVisibleItem;
+            while (column.hasVisibleItems) {
+                const item = column.firstVisibleItem!;
                 const rowBottom = galleryTop + column.topSpacerHeight + item.height;
                 if (this.currentScrollTop - rowBottom <= overscan) break;
                 column.trimTopItem();
@@ -94,6 +95,18 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
                 const hiddenContentBottom = galleryTop + column.topSpacerHeight;
                 if (this.currentScrollTop - hiddenContentBottom > overscan) break;
                 column.restoreTopItem();
+            }
+
+            while (column.hasVisibleItems) {
+                const contentBottom = galleryTop + column.totalHeight - column.bottomSpacerHeight;
+                if (contentBottom - viewportBottom <= overscan) break;
+                column.trimBottomItem();
+            }
+
+            while (column.hiddenFromBottomCount > 0) {
+                const hiddenRowTop = galleryTop + column.totalHeight - column.bottomSpacerHeight;
+                if (hiddenRowTop - viewportBottom > overscan) break;
+                column.restoreBottomItem();
             }
         }
     }
