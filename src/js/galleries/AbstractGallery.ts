@@ -223,14 +223,21 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
                 return;
             }
 
+            // Snapshot and reset before dispatching: dispatchEvent() is synchronous, and a consumer's pagination
+            // handler commonly calls addItems() synchronously right back (e.g. from an already-cached source) —
+            // that re-enters addItemToDOM() and increments requiredItems again *during* this very call. Resetting
+            // only after dispatchEvent() returns would wipe out those reentrant increments, permanently losing
+            // track of items that were genuinely added and never asking for more once the buffer is exhausted.
+            const offset = this.collection.length;
+            const limit = this.requiredItems;
+            this.requiredItems = 0;
+
             // Each time a pagination event is emitted, the offset is logged and then verified to be sure to not ask it
             // twice. That would cause duplicated entries and probably empty buffer with smaller pages. That could
             // cause infinite loading until the end of the gallery
-            if (this.requestedIndexesLog.indexOf(this.collection.length) < 0) {
-                const offset = this.collection.length;
-                this.dispatchEvent('pagination', {offset, limit: this.requiredItems});
+            if (this.requestedIndexesLog.indexOf(offset) < 0) {
+                this.dispatchEvent('pagination', {offset, limit});
                 this.requestedIndexesLog.push(offset);
-                this.requiredItems = 0;
             }
         }, 500);
 
@@ -261,6 +268,13 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         const startResize = debounce(() => this.startResize(), resizeDebounceDuration, {edges: ['leading']});
         const endResize = debounce(() => this.endResize(), resizeDebounceDuration);
         iframe.contentWindow?.addEventListener('resize', () => {
+            // Undebounced and called on every raw resize event (not just the leading edge of a settled burst):
+            // a burst that starts right after construction (the iframe's own natural initial sizing) can still be
+            // "open" (its trailing endResize() timer not yet elapsed) by the time a later, genuine user resize
+            // happens, in which case startResize()'s leading edge does NOT fire again and would otherwise capture
+            // a stale (pre-scroll) anchor. captureResizeAnchor() is cheap pure-JS (no DOM reads), safe to run on
+            // every event.
+            this.captureResizeAnchor();
             endResize();
             startResize();
         });
@@ -397,6 +411,24 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      */
     public unselectAllItems(): void {
         this.domCollection.forEach(item => item.unselect());
+    }
+
+    /**
+     * Scroll so that the given item becomes visible.
+     *
+     * Does nothing if the item is not currently part of domCollection (not yet loaded/displayed).
+     *
+     * Note: `behavior: 'smooth'` can visibly conflict with virtual scroll mounting/unmounting items while the
+     * animation runs; prefer the default 'auto' (instant) unless you know your use case doesn't scroll through
+     * a large virtualized range.
+     */
+    public scrollToItem(item: Item<Model>, options?: {behavior?: ScrollBehavior}): void {
+        const top = this.getItemTop(item);
+        if (top === null) {
+            return;
+        }
+
+        this.applyScrollPosition(top, options?.behavior);
     }
 
     /**
@@ -540,6 +572,25 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     protected abstract getEstimatedRowsPerPage(): number;
 
     /**
+     * Absolute top offset (relative to the scroll container) of given item, or null if it's not currently part of
+     * domCollection. Used by scrollToItem() and by resize scroll-anchoring.
+     */
+    protected abstract getItemTop(item: Item<Model>): number | null;
+
+    /**
+     * Apply a scroll position on the gallery's scroll container (custom scrollElementRef, or the window itself —
+     * the counterpart of bindScroll() listening on `this.document` when no scrollElementRef is given)
+     */
+    protected applyScrollPosition(top: number, behavior: ScrollBehavior = 'auto'): void {
+        const clampedTop = Math.max(0, top);
+        if (this.scrollElementRef) {
+            this.scrollElementRef.scrollTo({top: clampedTop, behavior});
+        } else {
+            this.document.defaultView?.scrollTo({top: clampedTop, behavior});
+        }
+    }
+
+    /**
      * Fire pagination event
      * Information provided in the event allows to retrieve items from the server using given data :
      * "offset" and "limit" that have the same semantic that respective attributes in mySQL.
@@ -638,6 +689,16 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
 
     protected startResize(): void {
         this.bodyElementRef?.classList.add('resizing');
+    }
+
+    /**
+     * Capture whatever scroll-position anchor a subclass needs in order to keep the same content visible across a
+     * resize. Called synchronously on every raw resize event, not just the (debounced) startResize() — see the
+     * call site in the constructor for why that distinction matters. No-op by default.
+     */
+    /* istanbul ignore next */
+    protected captureResizeAnchor(): void {
+        // no-op by default
     }
 
     protected endResize(): void {

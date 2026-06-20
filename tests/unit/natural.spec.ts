@@ -1,6 +1,6 @@
 import {ModelAttributes, Natural} from '../../src';
 import * as domino from 'domino';
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 import {getContainerElement, getImages, getSize} from './utils';
 import {getBaseExpectedOptions, testGallery} from './abstract-gallery';
 
@@ -60,6 +60,24 @@ describe('Natural Gallery', () => {
         expect(gallery.domCollection.length).toBe(3);
         gallery.addItems(getImages(2)); // completeLastRow adds D to row 1, super.addRows adds E to row 2
         expect(gallery.domCollection.length).toBe(5);
+    });
+
+    it('should scroll a custom scrollElementRef when provided, instead of the window', () => {
+        const scrollElementRef = document.createElement('div');
+        const scrollToSpy = vi.fn();
+        Object.defineProperty(scrollElementRef, 'scrollTo', {value: scrollToSpy, writable: true, configurable: true});
+
+        const windowScrollToSpy = vi.fn();
+        Object.defineProperty(window, 'scrollTo', {value: windowScrollToSpy, writable: true, configurable: true});
+
+        const container = getContainerElement();
+        const gallery = new Natural(container, {rowHeight: 300}, scrollElementRef);
+        gallery.addItems(getImages(5));
+
+        gallery.scrollToItem(gallery.domCollection[0]);
+
+        expect(scrollToSpy).toHaveBeenCalledTimes(1);
+        expect(windowScrollToSpy).not.toHaveBeenCalled();
     });
 
     it('should restore all items when all are virtually hidden from top', () => {

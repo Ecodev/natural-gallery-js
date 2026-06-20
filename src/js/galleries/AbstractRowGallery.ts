@@ -1,3 +1,4 @@
+import {Item} from '../Item';
 import {AbstractGallery, GalleryOptions, ModelAttributes} from './AbstractGallery';
 
 export abstract class AbstractRowGallery<
@@ -57,7 +58,28 @@ export abstract class AbstractRowGallery<
         this.updateNextButtonVisibility();
     }
 
+    private resizeAnchor: {item: Item<Model>; offset: number} | null = null;
+
+    /**
+     * Capture the scroll anchor as early as possible — before the browser's own layout (e.g. CSS flex-wrap
+     * re-wrapping figures at their old width into a new arrangement) has a chance to clamp/alter the scroll
+     * position. By the time endResize() runs (500ms debounce later), currentScrollTop may already have been
+     * silently overwritten by that browser-driven reflow. Called on every raw resize event (not just the
+     * debounced startResize()): a burst that started right after construction can still be "open" when a later,
+     * genuine resize happens, in which case startResize()'s leading edge wouldn't fire again and would otherwise
+     * leave us with a stale (pre-scroll) anchor.
+     */
+    protected captureResizeAnchor(): void {
+        const anchorItem = this.currentViewportHeight > 0 ? this.findAnchorItem() : null;
+        const anchorTop = anchorItem ? this.getItemTop(anchorItem) : null;
+        this.resizeAnchor =
+            anchorItem && anchorTop !== null ? {item: anchorItem, offset: this.currentScrollTop - anchorTop} : null;
+    }
+
     protected endResize(): void {
+        const anchor = this.resizeAnchor;
+        this.resizeAnchor = null;
+
         this.restoreAllTopItems();
         this.restoreAllBottomItems();
         super.endResize();
@@ -67,7 +89,34 @@ export abstract class AbstractRowGallery<
         }
 
         this.organizeItems(this.domCollection);
+        this.recomputeVirtualTotalHeight();
 
+        // The browser may have already silently clamped the real scroll position by now (e.g. CSS flex-wrap
+        // re-wrapping figures at their old width as soon as the container got wider/narrower, before any of our
+        // JS ran) — currentScrollTop can no longer be trusted to reflect where the user actually was. Use the
+        // anchor-derived target instead, so the re-trim below operates on consistent data with where we're about
+        // to scroll, rather than a stale/corrupted value.
+        const anchorNewTop = anchor ? this.getItemTop(anchor.item) : null;
+        const targetTop = anchor && anchorNewTop !== null ? Math.max(0, anchorNewTop + anchor.offset) : null;
+        if (targetTop !== null) {
+            this.currentScrollTop = targetTop;
+        }
+
+        // Re-trim immediately instead of leaving everything mounted until the next scroll event
+        if (this.currentViewportHeight > 0) {
+            this.trimTopRows();
+            this.trimBottomRows();
+        }
+
+        if (targetTop !== null) {
+            this.applyScrollPosition(targetTop);
+        }
+    }
+
+    /**
+     * Recompute total height of the whole domCollection (used by endResize() and addRows())
+     */
+    protected recomputeVirtualTotalHeight(): void {
         this.virtualTotalHeight = 0;
         let lastRow = -1;
         for (const item of this._domCollection) {
@@ -76,6 +125,51 @@ export abstract class AbstractRowGallery<
                 lastRow = item.row;
             }
         }
+    }
+
+    /**
+     * Absolute top offset of given item's row, or null if item is not part of domCollection
+     */
+    protected getItemTop(item: Item<Model>): number | null {
+        let top = this.elementRef.offsetTop;
+        let lastRow = -1;
+        let lastRowHeight = 0;
+        for (const current of this._domCollection) {
+            if (current.row !== lastRow) {
+                if (lastRow !== -1) {
+                    top += lastRowHeight + this.options.gap;
+                }
+                lastRow = current.row;
+            }
+            if (current === item) {
+                return top;
+            }
+            lastRowHeight = current.height;
+        }
+        return null;
+    }
+
+    /**
+     * First item of whichever row currently spans currentScrollTop. Used to re-anchor scroll position across a
+     * resize, so the same content stays visible instead of drifting to the top.
+     */
+    private findAnchorItem(): Item<Model> | null {
+        let top = this.elementRef.offsetTop;
+        let i = 0;
+        const n = this._domCollection.length;
+        while (i < n) {
+            const rowStart = i;
+            const row = this._domCollection[i].row;
+            const rowHeight = this._domCollection[i].height;
+            while (i < n && this._domCollection[i].row === row) {
+                i++;
+            }
+            if (top + rowHeight >= this.currentScrollTop || i >= n) {
+                return this._domCollection[rowStart];
+            }
+            top += rowHeight + this.options.gap;
+        }
+        return null;
     }
 
     protected empty(): void {

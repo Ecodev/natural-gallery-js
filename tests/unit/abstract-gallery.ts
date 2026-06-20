@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import {Masonry, MasonryGalleryOptions, Natural, NaturalGalleryOptions, Square, SquareGalleryOptions} from '../../src';
 import {LabelVisibility} from '../../src';
 import {beforeEach, expect, it, vi} from 'vitest';
@@ -135,6 +136,52 @@ export function testGallery<
         await new Promise(resolve => setTimeout(resolve, 600));
         expect(paginationSpy).toHaveBeenCalledTimes(2);
         expect(displayedSpy).toHaveBeenCalledTimes(expected.itemsAfterScroll || 50); // masonry adds all
+    });
+
+    it('should not lose track of items added by a synchronous (reentrant) pagination handler', () => {
+        vi.useFakeTimers();
+        try {
+            const gallery = new galleryClass(container, options);
+            const internal = gallery as unknown as {requiredItems: number; flushBufferedItems: () => void};
+            const paginationOffsets: number[] = [];
+
+            // dispatchEvent() is synchronous: a consumer backed by an already-available/cached data source (or
+            // one that simply already has the next page in memory) can call addItems() right back inside the
+            // handler — that re-enters addItemToDOM() and increments requiredItems again *while* this very
+            // flush is still running, before it returns. requiredItems must not be wiped out once the handler
+            // returns, otherwise those newly-added items are never accounted for and pagination stalls forever.
+            // Listen on `container` directly (not gallery.addEventListener), which would re-trigger
+            // requestItems() as a subscribe side effect and add an extra, uncontrolled load before our own
+            // addItems() call below.
+            container.addEventListener('pagination', ((ev: CustomEvent<{offset: number; limit: number}>) => {
+                paginationOffsets.push(ev.detail.offset);
+                gallery.addItems(getImages(ev.detail.limit));
+            }) as EventListener);
+
+            // Seed with a single image: small enough to always be fully mounted immediately
+            // (minRowsAtStart >= 1), regardless of each gallery type's estimated initial page size —
+            // addItems()'s reentrant call below only triggers onScroll()/addRows() when domCollection is
+            // already fully caught up with collection.
+            gallery.addItems(getImages(1));
+            expect(gallery.domCollection.length).toBe(gallery.collection.length);
+
+            internal.requiredItems = 3; // simulate items freshly mounted (e.g. by a prior scroll), pending report
+            internal.flushBufferedItems(); // schedule the debounced flush
+            vi.advanceTimersByTime(500); // let it fire — the reentrant addItems() call happens synchronously inside
+
+            // Confirm the reentrant increment survived instead of being wiped to 0 afterward.
+            expect(internal.requiredItems).toBeGreaterThan(0);
+
+            // Simulate the next real scroll event re-arming the debounce, exactly like onScroll()/addItemToDOM()
+            // does in production on every subsequent scroll.
+            internal.flushBufferedItems();
+            vi.advanceTimersByTime(500);
+
+            expect(paginationOffsets.length).toBe(2);
+            expect(paginationOffsets[1]).toBeGreaterThan(paginationOffsets[0]);
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     it('should throw exception when selecting not selectable gallery', () => {
@@ -335,7 +382,7 @@ export function testGallery<
         expect(container.querySelectorAll('.figure').length).toBe(domCount);
     });
 
-    it('should restore virtually trimmed items when gallery is resized', () => {
+    it('should re-virtualize, not leave everything mounted, after resize', () => {
         scrollTo(0);
 
         const gallery = new galleryClass(container, options);
@@ -350,11 +397,64 @@ export function testGallery<
 
         const domCount = gallery.domCollection.length;
 
-        if (gallery instanceof AbstractRowGallery) {
-            // endResize must restore both top and bottom items before reorganizing
-            (gallery as unknown as {endResize: () => void}).endResize();
-            expect(container.querySelectorAll('.figure').length).toBe(domCount);
-        }
+        // endResize must reorganize layout without losing or duplicating items (Natural/Square/Masonry alike)...
+        const internal = gallery as unknown as {captureResizeAnchor: () => void; endResize: () => void};
+        internal.captureResizeAnchor();
+        internal.endResize();
+        expect(gallery.domCollection.length).toBe(domCount);
+
+        // ...and re-trim immediately to the viewport instead of leaving everything mounted until the next scroll
+        const physicalCount = container.querySelectorAll('.figure').length;
+        expect(physicalCount).toBeLessThanOrEqual(domCount);
+        expect(physicalCount).toBeGreaterThan(0);
+
+        scrollTo(0);
+    });
+
+    it('should anchor scroll position to current viewport content across a resize', () => {
+        scrollTo(0);
+
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(100));
+
+        // Stay scrolled deep (several rows/columns down) — don't scroll back to top before resizing
+        scrollTo(1500);
+        scrollTo(2000);
+        scrollTo(2500);
+
+        const domCountBefore = gallery.domCollection.length;
+
+        const scrollToSpy = vi.fn();
+        Object.defineProperty(window, 'scrollTo', {value: scrollToSpy, writable: true, configurable: true});
+
+        // Anchor is captured in captureResizeAnchor() (called on every raw resize event, before any relayout),
+        // then consumed and applied in endResize()
+        const internal = gallery as unknown as {captureResizeAnchor: () => void; endResize: () => void};
+        internal.captureResizeAnchor();
+        internal.endResize();
+
+        // No items lost or duplicated by the relayout
+        expect(gallery.domCollection.length).toBe(domCountBefore);
+
+        // Anchored: scrollTo was called with a strictly positive top, since we were deep-scrolled, not at the top —
+        // this is what keeps the same content visible across the resize instead of drifting/jumping to the top
+        expect(scrollToSpy).toHaveBeenCalled();
+        const lastTop = scrollToSpy.mock.calls[scrollToSpy.mock.calls.length - 1][0].top;
+        expect(lastTop).toBeGreaterThan(0);
+
+        scrollTo(0);
+    });
+
+    it('should not crash finding a resize anchor when domCollection is empty but viewport is known', () => {
+        const gallery = new galleryClass(container, options); // no addItems — domCollection stays empty
+        scrollTo(500); // currentViewportHeight becomes known (> 0) before any item exists
+
+        const internal = gallery as unknown as {captureResizeAnchor: () => void; endResize: () => void};
+        expect(() => {
+            internal.captureResizeAnchor();
+            internal.endResize();
+        }).not.toThrow();
+        expect(gallery.domCollection.length).toBe(0);
 
         scrollTo(0);
     });
@@ -419,5 +519,39 @@ export function testGallery<
         await new Promise(resolve => setTimeout(resolve, 600));
 
         expect(paginationSpy).toHaveBeenCalledTimes(0);
+
+        // requiredItems must be reset even though we skipped dispatching, otherwise it leaks and accumulates
+        // across cycles until it eventually inflates a future, genuinely new pagination request
+        expect(internal.requiredItems).toBe(0);
+    });
+
+    it('should scroll to a given displayed item via scrollToItem', () => {
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(20));
+
+        const scrollToSpy = vi.fn();
+        Object.defineProperty(window, 'scrollTo', {value: scrollToSpy, writable: true, configurable: true});
+
+        const target = gallery.domCollection[gallery.domCollection.length - 1];
+        gallery.scrollToItem(target);
+
+        expect(scrollToSpy).toHaveBeenCalledTimes(1);
+        expect(scrollToSpy.mock.calls[0][0].top).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should do nothing when scrolling to an item not yet displayed', () => {
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(50));
+
+        const scrollToSpy = vi.fn();
+        Object.defineProperty(window, 'scrollTo', {value: scrollToSpy, writable: true, configurable: true});
+
+        // Only meaningful for galleries that actually buffer items beyond domCollection (Natural/Square in jsdom;
+        // Masonry adds everything to DOM in jsdom, see "Due to jsdom limitations" comment above)
+        if (gallery.domCollection.length < gallery.collection.length) {
+            const notDisplayedItem = gallery.collection[gallery.collection.length - 1];
+            gallery.scrollToItem(notDisplayedItem);
+            expect(scrollToSpy).not.toHaveBeenCalled();
+        }
     });
 }
