@@ -80,7 +80,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         if (this.currentViewportHeight <= 0) return;
 
         const overscan = this.currentViewportHeight;
-        const galleryTop = this.elementRef.offsetTop;
+        const galleryTop = this.getGalleryTop();
         const viewportBottom = this.currentScrollTop + this.currentViewportHeight;
 
         for (const column of this.columns) {
@@ -155,8 +155,6 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         super.addItemToDOM(item, shortestColumn.elementRef);
     }
 
-    private resizeAnchor: {item: Item<Model>; offset: number} | null = null;
-
     /**
      * Capture the scroll anchor as early as possible — before the browser's own layout has a chance to alter the
      * scroll position. Called on every raw resize event (not just the debounced startResize()): a burst that
@@ -210,7 +208,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
         if (this.currentViewportHeight > 0) {
             const overscan = this.currentViewportHeight;
-            const galleryTop = this.elementRef.offsetTop;
+            const galleryTop = this.getGalleryTop();
             this.columns.forEach(column =>
                 column.mountVisibleWindow(
                     this.currentScrollTop - overscan,
@@ -253,7 +251,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
      * a resize, so the same content stays visible instead of drifting.
      */
     private findAnchorItem(): Item<Model> | null {
-        const galleryTop = this.elementRef.offsetTop;
+        const galleryTop = this.getGalleryTop();
         let best: Item<Model> | null = null;
         let bestTop = Infinity;
         for (const column of this.columns) {
@@ -274,7 +272,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     }
 
     protected getItemTop(item: Item<Model>): number | null {
-        const galleryTop = this.elementRef.offsetTop;
+        const galleryTop = this.getGalleryTop();
         for (const column of this.columns) {
             const index = column.items.indexOf(item);
             if (index >= 0) {

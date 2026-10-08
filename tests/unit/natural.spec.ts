@@ -123,6 +123,29 @@ describe('Natural Gallery', () => {
         expect(rowHeight2).toBeLessThan(rowHeight1);
     });
 
+    it('should read the gallery width once when organizing many rows', () => {
+        const container = getContainerElement(999);
+        const gallery = new Natural(container, {rowHeight: 100});
+        gallery.addItems(getImages(100));
+
+        const getBoundingClientRect = vi.spyOn(container, 'getBoundingClientRect');
+        gallery.organizeItems(gallery.collection, 0);
+
+        expect(new Set(gallery.collection.map(item => item.row)).size).toBeGreaterThan(10);
+        expect(getBoundingClientRect).toHaveBeenCalledTimes(1);
+    });
+
+    it('should number rows from the given current row', () => {
+        const container = getContainerElement(999);
+        const gallery = new Natural(container, {rowHeight: 100});
+        gallery.addItems(getImages(30));
+
+        Natural.organizeItems(gallery, gallery.collection, 0, null, 5);
+
+        expect(gallery.collection[0].row).toBe(5);
+        expect(gallery.collection[gallery.collection.length - 1].row).toBeGreaterThan(5);
+    });
+
     it('should organize items that dont fill the line', () => {
         const images: ModelAttributes[] = [
             {

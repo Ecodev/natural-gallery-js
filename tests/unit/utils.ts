@@ -55,7 +55,7 @@ export function setViewport(width = 1024, height = 768): void {
 export function getContainerElement(width: number | null = null): HTMLElement {
     const container = document.createElement('div');
     Object.defineProperty(container, 'getBoundingClientRect', {
-        value: () => ({width: width ?? window.innerWidth}),
+        value: () => ({width: width ?? window.innerWidth, top: -document.documentElement.scrollTop}),
         writable: true,
         configurable: true,
     });

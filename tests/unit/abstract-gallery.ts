@@ -306,7 +306,9 @@ export function testGallery<
         const iframe = container.querySelector('iframe');
         expect(iframe).toBeDefined();
 
-        Object.defineProperty(container, 'getBoundingClientRect', {value: () => ({width: 200})});
+        Object.defineProperty(container, 'getBoundingClientRect', {
+            value: () => ({width: 200, top: -document.documentElement.scrollTop}),
+        });
         setViewport(200);
 
         (gallery as unknown as {startResize: () => void}).startResize();
@@ -345,6 +347,24 @@ export function testGallery<
         expect(container.querySelectorAll('.figure').length).toBeLessThan(domCount);
 
         scrollTo(0); // cleanup
+    });
+
+    it('should keep rows visible when the gallery is offset by a positioned ancestor', () => {
+        scrollTo(0);
+
+        // offsetTop stays 0 (relative to a positioned ancestor) while the gallery starts 3000px down the document
+        Object.defineProperty(container, 'getBoundingClientRect', {
+            value: () => ({width: window.innerWidth, top: 3000 - document.documentElement.scrollTop}),
+        });
+
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(100));
+
+        scrollTo(3000);
+
+        expect(container.contains(gallery.domCollection[0].rootElement!)).toBe(true);
+
+        scrollTo(0);
     });
 
     it('should trim items from the bottom when scrolled far then back to top', () => {
@@ -441,6 +461,29 @@ export function testGallery<
         expect(scrollToSpy).toHaveBeenCalled();
         const lastTop = scrollToSpy.mock.calls[scrollToSpy.mock.calls.length - 1][0].top;
         expect(lastTop).toBeGreaterThan(0);
+
+        scrollTo(0);
+    });
+
+    it('should keep the user scroll position when the user scrolls during the resize debounce', () => {
+        scrollTo(0);
+
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(100));
+
+        scrollTo(1500);
+        scrollTo(2000);
+        scrollTo(2500);
+
+        const scrollToSpy = vi.fn();
+        Object.defineProperty(window, 'scrollTo', {value: scrollToSpy, writable: true, configurable: true});
+
+        const internal = gallery as unknown as {captureResizeAnchor: () => void; endResize: () => void};
+        internal.captureResizeAnchor();
+        document.dispatchEvent(new Event('wheel'));
+        internal.endResize();
+
+        expect(scrollToSpy).not.toHaveBeenCalled();
 
         scrollTo(0);
     });

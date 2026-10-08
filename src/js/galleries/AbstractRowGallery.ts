@@ -21,10 +21,11 @@ export abstract class AbstractRowGallery<
 
     protected onVirtualScroll(): void {
         if (this.currentViewportHeight <= 0) return;
-        this.trimTopRows();
-        this.restoreTopRows();
-        this.trimBottomRows();
-        this.restoreBottomRows();
+        const galleryTop = this.getGalleryTop();
+        this.trimTopRows(galleryTop);
+        this.restoreTopRows(galleryTop);
+        this.trimBottomRows(galleryTop);
+        this.restoreBottomRows(galleryTop);
     }
 
     protected onScroll(): void {
@@ -57,8 +58,6 @@ export abstract class AbstractRowGallery<
         this.flushBufferedItems();
         this.updateNextButtonVisibility();
     }
-
-    private resizeAnchor: {item: Item<Model>; offset: number} | null = null;
 
     /**
      * Capture the scroll anchor as early as possible — before the browser's own layout (e.g. CSS flex-wrap
@@ -104,8 +103,9 @@ export abstract class AbstractRowGallery<
 
         // Re-trim immediately instead of leaving everything mounted until the next scroll event
         if (this.currentViewportHeight > 0) {
-            this.trimTopRows();
-            this.trimBottomRows();
+            const galleryTop = this.getGalleryTop();
+            this.trimTopRows(galleryTop);
+            this.trimBottomRows(galleryTop);
         }
 
         if (targetTop !== null) {
@@ -131,7 +131,7 @@ export abstract class AbstractRowGallery<
      * Absolute top offset of given item's row, or null if item is not part of domCollection
      */
     protected getItemTop(item: Item<Model>): number | null {
-        let top = this.elementRef.offsetTop;
+        let top = this.getGalleryTop();
         let lastRow = -1;
         let lastRowHeight = 0;
         for (const current of this._domCollection) {
@@ -154,7 +154,7 @@ export abstract class AbstractRowGallery<
      * resize, so the same content stays visible instead of drifting to the top.
      */
     private findAnchorItem(): Item<Model> | null {
-        let top = this.elementRef.offsetTop;
+        let top = this.getGalleryTop();
         let i = 0;
         const n = this._domCollection.length;
         while (i < n) {
@@ -183,9 +183,8 @@ export abstract class AbstractRowGallery<
         super.empty();
     }
 
-    private trimTopRows(): void {
+    private trimTopRows(galleryTop: number): void {
         const overscan = this.currentViewportHeight;
-        const galleryTop = this.elementRef.offsetTop;
 
         while (this.virtualHiddenFromTopCount + this.virtualHiddenFromBottomCount < this._domCollection.length) {
             const firstVisibleIdx = this.virtualHiddenFromTopCount;
@@ -210,9 +209,8 @@ export abstract class AbstractRowGallery<
         }
     }
 
-    private restoreTopRows(): void {
+    private restoreTopRows(galleryTop: number): void {
         const overscan = this.currentViewportHeight;
-        const galleryTop = this.elementRef.offsetTop;
 
         while (this.virtualHiddenFromTopCount > 0) {
             const hiddenContentBottom = galleryTop + this.virtualTopPadding;
@@ -239,9 +237,8 @@ export abstract class AbstractRowGallery<
         }
     }
 
-    private trimBottomRows(): void {
+    private trimBottomRows(galleryTop: number): void {
         const overscan = this.currentViewportHeight;
-        const galleryTop = this.elementRef.offsetTop;
         const viewportBottom = this.currentScrollTop + this.currentViewportHeight;
 
         while (this.virtualHiddenFromTopCount + this.virtualHiddenFromBottomCount < this._domCollection.length) {
@@ -267,9 +264,8 @@ export abstract class AbstractRowGallery<
         }
     }
 
-    private restoreBottomRows(): void {
+    private restoreBottomRows(galleryTop: number): void {
         const overscan = this.currentViewportHeight;
-        const galleryTop = this.elementRef.offsetTop;
         const viewportBottom = this.currentScrollTop + this.currentViewportHeight;
 
         while (this.virtualHiddenFromBottomCount > 0) {

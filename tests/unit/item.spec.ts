@@ -136,7 +136,11 @@ function expectEvent(
     expected: boolean,
 ): void {
     const eventSpy = vi.fn();
+    // jsdom does not implement navigation and logs "Not implemented: navigation to another Document" whenever a
+    // click reaches an item rendered as a link
+    const preventLinkNavigation = (event: Event) => event.preventDefault();
     root.addEventListener(outputEvent, eventSpy);
+    root.addEventListener('click', preventLinkNavigation);
     eventTarget.dispatchEvent(triggerEvent);
     if (expected) {
         expect(eventSpy).toHaveBeenCalled();
@@ -144,6 +148,7 @@ function expectEvent(
         expect(eventSpy).not.toHaveBeenCalled();
     }
     root.removeEventListener(outputEvent, eventSpy);
+    root.removeEventListener('click', preventLinkNavigation);
 }
 
 describe('Item', () => {

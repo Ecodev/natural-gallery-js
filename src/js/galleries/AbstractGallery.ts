@@ -188,6 +188,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     protected currentScrollTop = 0;
     protected currentViewportHeight = 0;
     /**
+     * Item and offset that keep the same content visible across a resize. Captured on each raw resize event,
+     * consumed by endResize(), and discarded when the user scrolls in between.
+     */
+    protected resizeAnchor: {item: Item<Model>; offset: number} | null = null;
+    /**
      * Stores page index that have been emitted
      * Keeps a log of pages already asked to prevent to ask them multiple times
      */
@@ -272,8 +277,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
             // a burst that starts right after construction (the iframe's own natural initial sizing) can still be
             // "open" (its trailing endResize() timer not yet elapsed) by the time a later, genuine user resize
             // happens, in which case startResize()'s leading edge does NOT fire again and would otherwise capture
-            // a stale (pre-scroll) anchor. captureResizeAnchor() is cheap pure-JS (no DOM reads), safe to run on
-            // every event.
+            // a stale (pre-scroll) anchor. captureResizeAnchor() is cheap (a single layout read plus pure-JS math),
+            // safe to run on every event.
             this.captureResizeAnchor();
             endResize();
             startResize();
@@ -581,6 +586,25 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * Apply a scroll position on the gallery's scroll container (custom scrollElementRef, or the window itself —
      * the counterpart of bindScroll() listening on `this.document` when no scrollElementRef is given)
      */
+    /**
+     * Top offset of the gallery in the scroll container coordinates, the same coordinates as currentScrollTop.
+     * elementRef.offsetTop cannot be used: it is relative to the offset parent, and differs from the scroll container
+     * coordinates as soon as a positioned ancestor is offset.
+     */
+    protected getGalleryTop(): number {
+        const galleryTop = this.elementRef.getBoundingClientRect().top;
+        if (this.scrollElementRef) {
+            return (
+                galleryTop -
+                this.scrollElementRef.getBoundingClientRect().top -
+                this.scrollElementRef.clientTop +
+                this.scrollElementRef.scrollTop
+            );
+        }
+
+        return galleryTop + this.document.documentElement.scrollTop;
+    }
+
     protected applyScrollPosition(top: number, behavior: ScrollBehavior = 'auto'): void {
         const clampedTop = Math.max(0, top);
         if (this.scrollElementRef) {
@@ -737,6 +761,12 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
 
         const startScroll = debounce(() => this.elementRef.classList.add('scrolling'), 300, {edges: ['leading']});
         const endScroll = debounce(() => this.elementRef.classList.remove('scrolling'), 300);
+
+        // A scroll started by the user during the resize debounce takes precedence over the anchor captured before it
+        const discardResizeAnchor = () => (this.resizeAnchor = null);
+        for (const eventName of ['wheel', 'touchstart', 'keydown', 'pointerdown']) {
+            scrollable.addEventListener(eventName, discardResizeAnchor, {passive: true});
+        }
 
         scrollable.addEventListener('scroll', () => {
             startScroll();

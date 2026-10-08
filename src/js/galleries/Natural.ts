@@ -34,33 +34,50 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
         const options = gallery.options;
 
-        for (let chunkSize = 1; chunkSize <= items.length; chunkSize++) {
-            const chunk = items.slice(0, chunkSize);
-            const rowWidth = this.getRowWidth(
-                chunk.map(c => c.model),
-                options.rowHeight,
-                options.gap,
-                options.ratioLimit,
-            );
+        // Read once: each read forces a layout of all items styled by computeSizes() for the previous row
+        const galleryWidth = gallery.width;
 
-            if (rowWidth >= gallery.width) {
-                // if end of row
+        let row = currentRow;
+        let rowStart = 0;
+        while (rowStart < items.length) {
+            const remainingCount = items.length - rowStart;
+            let nextRowStart: number | null = null;
 
-                this.computeSizes(chunk, gallery.width, options.gap, currentRow, null, options.ratioLimit);
+            for (let chunkSize = 1; chunkSize <= remainingCount; chunkSize++) {
+                const chunk = items.slice(rowStart, rowStart + chunkSize);
+                const rowWidth = this.getRowWidth(
+                    chunk.map(c => c.model),
+                    options.rowHeight,
+                    options.gap,
+                    options.ratioLimit,
+                );
 
-                const nextRow = currentRow + 1;
-                if (toRow === null || nextRow <= toRow) {
-                    Natural.organizeItems(gallery, items.slice(chunkSize), fromRow, toRow, nextRow);
+                if (rowWidth >= galleryWidth) {
+                    // if end of row
+
+                    this.computeSizes(chunk, galleryWidth, options.gap, row, null, options.ratioLimit);
+
+                    const nextRow = row + 1;
+                    if (toRow === null || nextRow <= toRow) {
+                        nextRowStart = rowStart + chunkSize;
+                        row = nextRow;
+                    }
+
+                    break;
+                } else if (chunkSize === remainingCount) {
+                    // if end of list
+                    // the width is not fixed as we have not enough items
+                    // size of images are indexed on max row height.
+                    this.computeSizes(chunk, null, options.gap, row, options.rowHeight, options.ratioLimit);
+                    break;
                 }
+            }
 
-                break;
-            } else if (chunkSize === items.length) {
-                // if end of list
-                // the width is not fixed as we have not enough items
-                // size of images are indexed on max row height.
-                this.computeSizes(chunk, null, options.gap, currentRow, options.rowHeight, options.ratioLimit);
+            if (nextRowStart === null) {
                 break;
             }
+
+            rowStart = nextRowStart;
         }
     }
 
