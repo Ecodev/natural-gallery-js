@@ -145,7 +145,7 @@ jobs:
               with:
                   node-version: '24'
                   registry-url: 'https://registry.npmjs.org'
-            - run: pnpm publish dist/
+            - run: pnpm publish dist/ --no-git-checks
 
             # Create release
             - name: Get release info
