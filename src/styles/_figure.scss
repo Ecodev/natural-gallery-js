@@ -214,7 +214,20 @@ $defaultBorderRadius: 8px;
         }
     }
 
+    // The long press of the gallery replaces the context menu, the preview and the text selection of the system
+    &.touch-long-press .root {
+        -webkit-touch-callout: none;
+        user-select: none;
+
+        img,
+        a {
+            -webkit-user-drag: none;
+        }
+    }
+
     &.selection-mode .root {
+        user-select: none;
+
         &,
         .zoomable,
         a,

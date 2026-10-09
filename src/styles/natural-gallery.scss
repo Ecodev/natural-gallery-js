@@ -45,7 +45,8 @@
         border: 0;
     }
 
-    &.scrolling {
+    // The selection drag looks for the items under the pointer while the gallery scrolls
+    &.scrolling:not(.selection-dragging) {
         &,
         & * {
             pointer-events: none !important;

@@ -7,10 +7,22 @@ export function key(eventValue: string): KeyboardEvent {
     return new KeyboardEvent('keydown', {key: eventValue});
 }
 
-export function click(): MouseEvent {
+export function click(init: MouseEventInit = {}): MouseEvent {
     return new MouseEvent('click', {
         bubbles: true,
         cancelable: true,
+        ...init,
+    });
+}
+
+export function pointer(type: string, clientX = 0, init: PointerEventInit = {}): PointerEvent {
+    return new PointerEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        button: 0,
+        pointerType: 'mouse',
+        clientX,
+        ...init,
     });
 }
 

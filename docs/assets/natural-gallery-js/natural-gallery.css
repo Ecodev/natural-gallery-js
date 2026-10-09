@@ -167,6 +167,17 @@
 .natural-gallery-js .root .title.hover {
   transform: translateY(calc(100% + 12px));
 }
+.natural-gallery-js.touch-long-press .root {
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+.natural-gallery-js.touch-long-press .root img,
+.natural-gallery-js.touch-long-press .root a {
+  -webkit-user-drag: none;
+}
+.natural-gallery-js.selection-mode .root {
+  user-select: none;
+}
 .natural-gallery-js.selection-mode .root,
 .natural-gallery-js.selection-mode .root .zoomable,
 .natural-gallery-js.selection-mode .root a,
@@ -210,7 +221,7 @@
   background-color: transparent;
   border: 0;
 }
-.natural-gallery-js.scrolling, .natural-gallery-js.scrolling * {
+.natural-gallery-js.scrolling:not(.selection-dragging), .natural-gallery-js.scrolling:not(.selection-dragging) * {
   pointer-events: none !important;
 }
 .natural-gallery-js {

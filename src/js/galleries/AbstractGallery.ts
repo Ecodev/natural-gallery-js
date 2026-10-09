@@ -119,6 +119,53 @@ export interface ModelAttributes extends SizedModel {
     alt?: string;
 }
 
+/**
+ * Duration in milliseconds of a press that selects the pressed item, activates the selection mode, and starts the
+ * selection drag
+ */
+const LONG_PRESS_DURATION = 500;
+
+/**
+ * Distance in pixels the pointer can move before the long press without giving the move back to the browser, which
+ * scrolls on touch devices, or drags the image natively
+ */
+const LONG_PRESS_TOLERANCE = 5;
+
+/**
+ * Distance in pixels between two points of the pointer path where the gallery looks for an item, so that a fast
+ * pointer does not skip small items
+ */
+const POINTER_PATH_STEP = 10;
+
+/**
+ * Drag that gives to all the items under the pointer path the selection status opposite to the one the item where the
+ * drag started had
+ */
+interface SelectionDrag<Model extends ModelAttributes> {
+    anchor: Item<Model>;
+    select: boolean;
+    touch: boolean;
+    /**
+     * Pointer position in the viewport at the last update
+     */
+    clientX: number;
+    clientY: number;
+    /**
+     * Gallery top in the viewport at the last update. The variation of the gallery top gives the scroll that moved the
+     * items under the pointer since the last update.
+     */
+    galleryTop: number;
+    /**
+     * Whether the drag selects, which happens after the long press, or as soon as a mouse leaves the anchor item in
+     * selection mode
+     */
+    active: boolean;
+    /**
+     * Removes the document listeners of the drag
+     */
+    abortController: AbortController;
+}
+
 export interface GalleryOptions extends ItemOptions {
     rowsPerPage?: number;
     minRowsAtStart?: number;
@@ -128,10 +175,19 @@ export interface GalleryOptions extends ItemOptions {
     /**
      * Enables the selection mode, and implies `selectable`. The selection mode is active as long as at least one item
      * is selected. While the selection mode is active, all checkboxes are visible, a click anywhere on an item toggles
-     * its selection instead of opening the lightbox, following the link or emitting `activate`, and Escape unselects
-     * all items.
+     * its selection instead of opening the lightbox, following the link or emitting `activate`, a shift click selects
+     * all the items since the last clicked item, and Escape unselects all items.
+     *
+     * A long press on an item selects the item, activates the selection mode, and starts a drag that gives the same
+     * selection status to all the items under the pointer path. In selection mode, a mouse drag starts without the
+     * long press.
      */
     selectionMode?: boolean;
+    /**
+     * Enables the long press on touch devices, which replaces the long press of the system, like the context menu or
+     * the preview of the image. Requires `selectionMode`.
+     */
+    touchLongPress?: boolean;
     ssr?: {
         /**
          * In SSR mode, if the gallery width cannot be computed, it will fallback to this value
@@ -158,6 +214,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         },
         photoSwipePluginsInitFn: null,
         selectionMode: false,
+        touchLongPress: true,
         ssr: {
             galleryWidth: 480,
         },
@@ -213,6 +270,19 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     private nextButton: HTMLElement;
     private _selectionModeActive = false;
     private readonly itemsByRootElement = new WeakMap<HTMLElement, Item<Model>>();
+    private selectionDrag: SelectionDrag<Model> | null = null;
+    /**
+     * Last item clicked or dragged over, where the range of a shift click starts
+     */
+    private selectionAnchor: Item<Model> | null = null;
+    /**
+     * A drag ends with a click on the item under the pointer, which must not toggle that item
+     */
+    private suppressNextClick = false;
+    /**
+     * Null outside of batchSelectionChange(), true once a selection change happened during the batch
+     */
+    private batchedSelectionChange: boolean | null = null;
 
     /**
      *
@@ -315,6 +385,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
 
         if (this.options.selectionMode) {
             this.bindSelectionMode();
+            this.elementRef.classList.toggle('touch-long-press', this.options.touchLongPress);
         }
     }
 
@@ -458,6 +529,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         }
 
         if (!active) {
+            this.endSelectionDrag();
             this.unselectAllItems();
         }
 
@@ -792,6 +864,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         this.requestedIndexesLog.length = 0;
         this._domCollection = [];
         this._collection = [];
+        this.selectionAnchor = null;
 
         if (this.options.selectionMode) {
             this.applySelectionMode(false);
@@ -799,11 +872,30 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     }
 
     private onSelectionChange(): void {
+        if (this.batchedSelectionChange !== null) {
+            this.batchedSelectionChange = true;
+            return;
+        }
+
         const selectedItems = this.selectedItems;
         this.dispatchEvent('select', selectedItems);
 
         if (this.options.selectionMode) {
             this.applySelectionMode(selectedItems.length > 0);
+        }
+    }
+
+    /**
+     * Emit a single select event for all the selection changes made by the callback
+     */
+    private batchSelectionChange(callback: () => void): void {
+        this.batchedSelectionChange = false;
+        callback();
+        const changed = this.batchedSelectionChange;
+        this.batchedSelectionChange = null;
+
+        if (changed) {
+            this.onSelectionChange();
         }
     }
 
@@ -834,14 +926,32 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         this.bodyElementRef.addEventListener(
             'click',
             event => {
-                const item = this.getSelectionModeItem(event);
-                if (!item) {
+                if (this.suppressNextClick) {
+                    this.suppressNextClick = false;
+                    event.preventDefault();
+                    event.stopPropagation();
                     return;
                 }
 
-                event.preventDefault();
-                event.stopPropagation();
-                item.toggleSelect();
+                const target = event.target as HTMLElement;
+                const item = this.getItem(target);
+                const checkbox = !!target.closest('.select-btn');
+                if (!item || (!this._selectionModeActive && !checkbox)) {
+                    return;
+                }
+
+                const anchor = this.selectionAnchor;
+                this.selectionAnchor = item;
+
+                if (event.shiftKey && anchor && this._selectionModeActive) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    this.selectRange(anchor, item, !item.selected);
+                } else if (!checkbox) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    item.toggleSelect();
+                }
             },
             {capture: true},
         );
@@ -866,6 +976,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
                 }
 
                 event.preventDefault();
+                this.selectionAnchor = item;
                 item.toggleSelect();
             },
             {capture: true},
@@ -884,6 +995,175 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         };
 
         this.document.addEventListener('keydown', onEscape);
+
+        this.bodyElementRef.addEventListener('pointerdown', event => this.startSelectionDrag(event));
+
+        // The browser would otherwise drag the image or the link itself, and cancel the selection drag
+        this.bodyElementRef.addEventListener('dragstart', event => {
+            if (this._selectionModeActive) {
+                event.preventDefault();
+            }
+        });
+
+        // On touch devices, the long press of the system opens a context menu
+        this.bodyElementRef.addEventListener('contextmenu', event => {
+            if (this.selectionDrag?.touch) {
+                event.preventDefault();
+            }
+        });
+    }
+
+    /**
+     * The selection drag starts with a long press, or with a mouse or pen drag in selection mode. Before the long press,
+     * a touch drag scrolls.
+     */
+    private startSelectionDrag(event: PointerEvent): void {
+        this.suppressNextClick = false;
+        const touch = event.pointerType === 'touch';
+        if (event.button !== 0 || (touch && !this.options.touchLongPress)) {
+            return;
+        }
+
+        const item = this.getItem(event.target as HTMLElement);
+        if (!item) {
+            return;
+        }
+
+        const drag: SelectionDrag<Model> = {
+            anchor: item,
+            select: !item.selected,
+            touch,
+            clientX: event.clientX,
+            clientY: event.clientY,
+            galleryTop: this.elementRef.getBoundingClientRect().top,
+            active: false,
+            abortController: new AbortController(),
+        };
+        this.selectionDrag = drag;
+        const signal = drag.abortController.signal;
+
+        const longPress = setTimeout(() => this.paintSelectionDrag(drag, []), LONG_PRESS_DURATION);
+        signal.addEventListener('abort', () => clearTimeout(longPress));
+
+        const waitsForLongPress = () => !drag.active && (drag.touch || !this._selectionModeActive);
+        const follow = (clientX: number, clientY: number) => {
+            const items = this.getItemsOnPointerPath(drag, clientX, clientY);
+            if (drag.active || (!waitsForLongPress() && items.some(other => other !== drag.anchor))) {
+                this.paintSelectionDrag(drag, items);
+            }
+        };
+
+        this.document.addEventListener(
+            'pointermove',
+            moveEvent => {
+                const distance = Math.hypot(moveEvent.clientX - event.clientX, moveEvent.clientY - event.clientY);
+                if (waitsForLongPress() && distance > LONG_PRESS_TOLERANCE) {
+                    this.endSelectionDrag();
+                } else {
+                    follow(moveEvent.clientX, moveEvent.clientY);
+                }
+            },
+            {signal},
+        );
+
+        // Scrolling during the drag moves other items under the motionless pointer
+        this.document.addEventListener('scroll', () => follow(drag.clientX, drag.clientY), {
+            signal,
+            capture: true,
+            passive: true,
+        });
+
+        // After the long press, a touch drag selects instead of scrolling
+        this.document.addEventListener(
+            'touchmove',
+            touchEvent => {
+                if (drag.active) {
+                    touchEvent.preventDefault();
+                }
+            },
+            {signal, passive: false},
+        );
+
+        this.document.addEventListener(
+            'pointerup',
+            () => {
+                this.endSelectionDrag();
+                this.suppressNextClick = drag.active;
+            },
+            {signal},
+        );
+
+        this.document.addEventListener('pointercancel', () => this.endSelectionDrag(), {signal});
+    }
+
+    private endSelectionDrag(): void {
+        this.selectionDrag?.abortController.abort();
+        this.selectionDrag = null;
+        this.elementRef.classList.remove('selection-dragging');
+    }
+
+    /**
+     * Items under the pointer path since the last update, in the order of the path. The last pointer position moves
+     * with the items scrolled since the last update.
+     */
+    private getItemsOnPointerPath(drag: SelectionDrag<Model>, clientX: number, clientY: number): Item<Model>[] {
+        const galleryTop = this.elementRef.getBoundingClientRect().top;
+        const fromX = drag.clientX;
+        const fromY = drag.clientY + galleryTop - drag.galleryTop;
+        drag.clientX = clientX;
+        drag.clientY = clientY;
+        drag.galleryTop = galleryTop;
+
+        const steps = Math.max(1, Math.ceil(Math.hypot(clientX - fromX, clientY - fromY) / POINTER_PATH_STEP));
+        const items: Item<Model>[] = [];
+        for (let step = 1; step <= steps; step++) {
+            const element = this.document.elementFromPoint(
+                fromX + ((clientX - fromX) * step) / steps,
+                fromY + ((clientY - fromY) * step) / steps,
+            );
+            const item = element ? this.getItem(element) : undefined;
+            if (item && !items.includes(item)) {
+                items.push(item);
+            }
+        }
+
+        return items;
+    }
+
+    /**
+     * The first paint activates the drag and includes the anchor item
+     */
+    private paintSelectionDrag(drag: SelectionDrag<Model>, items: Item<Model>[]): void {
+        if (!drag.active) {
+            drag.active = true;
+            this.elementRef.classList.add('selection-dragging');
+            items = [drag.anchor, ...items];
+        }
+
+        this.batchSelectionChange(() => items.forEach(item => this.setItemSelected(item, drag.select)));
+
+        if (items.length) {
+            this.selectionAnchor = items[items.length - 1];
+        }
+    }
+
+    /**
+     * Give the selection status to all the items between the two given items, in the collection order
+     */
+    private selectRange(from: Item<Model>, to: Item<Model>, selected: boolean): void {
+        const fromIndex = this.collection.indexOf(from);
+        const toIndex = this.collection.indexOf(to);
+        const items = this.collection.slice(Math.min(fromIndex, toIndex), Math.max(fromIndex, toIndex) + 1);
+
+        this.batchSelectionChange(() => items.forEach(item => this.setItemSelected(item, selected)));
+    }
+
+    private setItemSelected(item: Item<Model>, selected: boolean): void {
+        if (selected && !item.selected) {
+            item.select();
+        } else if (!selected && item.selected) {
+            item.unselect();
+        }
     }
 
     private getSelectionModeItem(event: Event): Item<Model> | undefined {
@@ -892,7 +1172,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
             return undefined;
         }
 
-        const rootElement = target.closest<HTMLElement>('.root');
+        return this.getItem(target);
+    }
+
+    private getItem(element: Element): Item<Model> | undefined {
+        const rootElement = element.closest<HTMLElement>('.root');
 
         return rootElement ? this.itemsByRootElement.get(rootElement) : undefined;
     }

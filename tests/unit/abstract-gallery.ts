@@ -1,8 +1,8 @@
 /* eslint-disable no-restricted-globals */
 import {Masonry, MasonryGalleryOptions, Natural, NaturalGalleryOptions, Square, SquareGalleryOptions} from '../../src';
 import {LabelVisibility} from '../../src';
-import {beforeEach, expect, it, vi} from 'vitest';
-import {click, getContainerElement, getImages, key, scrollTo, setViewport} from './utils';
+import {afterEach, beforeEach, describe, expect, it, Mock, vi} from 'vitest';
+import {click, getContainerElement, getImages, key, pointer, scrollTo, setViewport} from './utils';
 import {AbstractGallery} from '../../src/js/galleries/AbstractGallery';
 import {AbstractRowGallery} from '../../src/js/galleries/AbstractRowGallery';
 
@@ -39,6 +39,7 @@ export function getBaseExpectedOptions(): Partial<NaturalGalleryOptions> {
         },
         photoSwipePluginsInitFn: null,
         selectionMode: false,
+        touchLongPress: true,
         ssr: {
             galleryWidth: 480,
         },
@@ -413,6 +414,290 @@ export function testGallery<
         gallery.setSelectionModeActive(true);
         gallery.setItems(getImages(5));
         expect(gallery.selectionModeActive).toBe(false);
+    });
+
+    describe('selection drag', () => {
+        let gallery: T;
+        const image = (index: number) => gallery.collection[index].rootElement!.querySelector('img')!;
+        const selectedIndexes = () => gallery.selectedItems.map(item => gallery.collection.indexOf(item));
+
+        // Items are 100 pixels wide and laid out along x + y. Points before the first item are outside of the
+        // document, and points after the last item are in the gallery but not on an item.
+        const at = (index: number) => index * 100 + 50;
+
+        beforeEach(() => {
+            document.body.appendChild(container);
+            gallery = new galleryClass(container, {...options, selectionMode: true});
+            gallery.addItems(getImages(10));
+
+            const elementFromPoint = (x: number, y: number): Element | null => {
+                const position = x + y;
+                if (position < 0) {
+                    return null;
+                }
+
+                return position >= 1000 ? gallery.bodyElement : image(Math.floor(position / 100));
+            };
+            Object.defineProperty(document, 'elementFromPoint', {value: elementFromPoint, configurable: true});
+        });
+
+        afterEach(() => {
+            document.dispatchEvent(pointer('pointercancel'));
+            container.remove();
+            vi.useRealTimers();
+        });
+
+        it('should select the items under the pointer path with a mouse in selection mode', () => {
+            gallery.collection[0].select();
+            const spy = vi.fn();
+            gallery.addEventListener('select', spy);
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            document.dispatchEvent(pointer('pointermove', at(2) + 10));
+            expect(selectedIndexes()).toEqual([0]);
+
+            document.dispatchEvent(pointer('pointermove', at(5)));
+            expect(selectedIndexes()).toEqual([0, 2, 3, 4, 5]);
+            expect(spy).toHaveBeenCalledTimes(1);
+
+            document.dispatchEvent(pointer('pointermove', at(3)));
+            expect(selectedIndexes()).toEqual([0, 2, 3, 4, 5]);
+            expect(spy).toHaveBeenCalledTimes(1);
+
+            document.dispatchEvent(pointer('pointerup', at(3)));
+            image(3).dispatchEvent(click());
+            expect(selectedIndexes()).toEqual([0, 2, 3, 4, 5]);
+
+            document.dispatchEvent(pointer('pointermove', at(8)));
+            expect(selectedIndexes()).toEqual([0, 2, 3, 4, 5]);
+
+            image(3).dispatchEvent(click());
+            expect(selectedIndexes()).toEqual([0, 2, 4, 5]);
+        });
+
+        it('should unselect the items under the pointer path when the drag starts on a selected item', () => {
+            gallery.selectCollection();
+
+            image(3).dispatchEvent(pointer('pointerdown', at(3)));
+            document.dispatchEvent(pointer('pointermove', at(5)));
+            expect(selectedIndexes()).toEqual([0, 1, 2, 6, 7, 8, 9]);
+        });
+
+        it('should ignore the points of the pointer path that are not on an item', () => {
+            gallery.collection[5].select();
+
+            image(8).dispatchEvent(pointer('pointerdown', at(8)));
+            document.dispatchEvent(pointer('pointermove', 1500));
+            expect(selectedIndexes()).toEqual([5, 8, 9]);
+
+            document.dispatchEvent(pointer('pointermove', -500));
+            expect(selectedIndexes()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        });
+
+        it('should select the items that the scroll moves under the motionless pointer', () => {
+            scrollTo(0);
+            gallery.collection[0].select();
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            document.dispatchEvent(pointer('pointermove', at(2) + 60));
+            scrollTo(-300);
+            expect(selectedIndexes()).toEqual([0, 2, 3, 4, 5, 6]);
+            scrollTo(0);
+        });
+
+        it('should keep toggling the anchor item on a simple click', () => {
+            gallery.collection[0].select();
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            document.dispatchEvent(pointer('pointerup', at(2)));
+            image(2).dispatchEvent(click());
+            expect(selectedIndexes()).toEqual([0, 2]);
+        });
+
+        it('should stop the drag on pointercancel and on Escape', () => {
+            gallery.collection[0].select();
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            document.dispatchEvent(pointer('pointermove', at(3)));
+            document.dispatchEvent(pointer('pointercancel'));
+            image(3).dispatchEvent(click());
+            expect(selectedIndexes()).toEqual([0, 2]);
+
+            image(5).dispatchEvent(pointer('pointerdown', at(5)));
+            document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}));
+            document.dispatchEvent(pointer('pointermove', at(8)));
+            expect(selectedIndexes()).toEqual([]);
+        });
+
+        it('should not start a drag outside of items, or with the right button', () => {
+            gallery.setSelectionModeActive(true);
+            image(2).dispatchEvent(pointer('pointerdown', at(2), {button: 2}));
+            document.dispatchEvent(pointer('pointermove', at(5)));
+            gallery.bodyElement.dispatchEvent(pointer('pointerdown', at(2)));
+            document.dispatchEvent(pointer('pointermove', at(5)));
+            expect(selectedIndexes()).toEqual([]);
+        });
+
+        it('should select the pressed item and start the drag on a long press outside of the selection mode', () => {
+            vi.useFakeTimers();
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            document.dispatchEvent(pointer('pointermove', at(2) + 3));
+            document.dispatchEvent(new Event('scroll'));
+            expect(selectedIndexes()).toEqual([]);
+
+            vi.advanceTimersByTime(500);
+            expect(selectedIndexes()).toEqual([2]);
+            expect(gallery.selectionModeActive).toBe(true);
+            expect(container.classList.contains('selection-dragging')).toBe(true);
+
+            document.dispatchEvent(pointer('pointermove', at(4)));
+            expect(selectedIndexes()).toEqual([2, 3, 4]);
+
+            document.dispatchEvent(pointer('pointerup', at(4)));
+            expect(container.classList.contains('selection-dragging')).toBe(false);
+            image(4).dispatchEvent(click());
+            expect(selectedIndexes()).toEqual([2, 3, 4]);
+        });
+
+        it('should give the pointer back to the browser when it moves before the long press', () => {
+            vi.useFakeTimers();
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            document.dispatchEvent(pointer('pointermove', at(2) + 10));
+            vi.advanceTimersByTime(500);
+            expect(selectedIndexes()).toEqual([]);
+            expect(gallery.selectionModeActive).toBe(false);
+        });
+
+        it('should cancel the long press when the pointer is released before', () => {
+            vi.useFakeTimers();
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            document.dispatchEvent(pointer('pointerup', at(2)));
+            vi.advanceTimersByTime(500);
+            expect(selectedIndexes()).toEqual([]);
+        });
+
+        it('should toggle the pressed item only once on a long press in selection mode', () => {
+            vi.useFakeTimers();
+            gallery.collection[0].select();
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            vi.advanceTimersByTime(500);
+            expect(selectedIndexes()).toEqual([0, 2]);
+
+            document.dispatchEvent(pointer('pointerup', at(2)));
+            image(2).dispatchEvent(click());
+            expect(selectedIndexes()).toEqual([0, 2]);
+
+            image(5).dispatchEvent(pointer('pointerdown', at(5)));
+            document.dispatchEvent(pointer('pointermove', at(6)));
+            vi.advanceTimersByTime(500);
+            expect(selectedIndexes()).toEqual([0, 2, 5, 6]);
+        });
+
+        it('should scroll before the long press and select after it with touch, even in selection mode', () => {
+            vi.useFakeTimers();
+            gallery.collection[0].select();
+            const touchmove = () => {
+                const event = new Event('touchmove', {cancelable: true});
+                document.dispatchEvent(event);
+                return event.defaultPrevented;
+            };
+            const contextmenu = () => {
+                const event = new Event('contextmenu', {bubbles: true, cancelable: true});
+                image(2).dispatchEvent(event);
+                return event.defaultPrevented;
+            };
+
+            image(5).dispatchEvent(pointer('pointerdown', at(5), {pointerType: 'touch'}));
+            document.dispatchEvent(pointer('pointermove', at(7), {pointerType: 'touch'}));
+            vi.advanceTimersByTime(500);
+            expect(selectedIndexes()).toEqual([0]);
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2), {pointerType: 'touch'}));
+            expect(touchmove()).toBe(false);
+            expect(contextmenu()).toBe(true);
+
+            vi.advanceTimersByTime(500);
+            expect(selectedIndexes()).toEqual([0, 2]);
+            expect(touchmove()).toBe(true);
+
+            document.dispatchEvent(pointer('pointermove', at(3), {pointerType: 'touch'}));
+            expect(selectedIndexes()).toEqual([0, 2, 3]);
+        });
+
+        it('should keep the context menu of the system with a mouse', () => {
+            const contextmenu = () => {
+                const event = new Event('contextmenu', {bubbles: true, cancelable: true});
+                image(2).dispatchEvent(event);
+                return event.defaultPrevented;
+            };
+
+            expect(contextmenu()).toBe(false);
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            expect(contextmenu()).toBe(false);
+        });
+
+        it('should let the system handle the long press on touch devices when disabled', () => {
+            vi.useFakeTimers();
+            container.remove();
+            container = getContainerElement();
+            document.body.appendChild(container);
+            gallery = new galleryClass(container, {...options, selectionMode: true, touchLongPress: false});
+            gallery.addItems(getImages(10));
+            expect(container.classList.contains('touch-long-press')).toBe(false);
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2), {pointerType: 'touch'}));
+            vi.advanceTimersByTime(500);
+            expect(selectedIndexes()).toEqual([]);
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            vi.advanceTimersByTime(500);
+            expect(selectedIndexes()).toEqual([2]);
+        });
+
+        it('should prevent the native drag of images only in selection mode', () => {
+            expect(container.classList.contains('touch-long-press')).toBe(true);
+
+            const inactiveDragStart = new Event('dragstart', {bubbles: true, cancelable: true});
+            image(2).dispatchEvent(inactiveDragStart);
+            expect(inactiveDragStart.defaultPrevented).toBe(false);
+
+            gallery.setSelectionModeActive(true);
+            const activeDragStart = new Event('dragstart', {bubbles: true, cancelable: true});
+            image(2).dispatchEvent(activeDragStart);
+            expect(activeDragStart.defaultPrevented).toBe(true);
+        });
+
+        it('should select the range since the last clicked item on shift click', () => {
+            const checkbox = (index: number) => gallery.collection[index].checkbox!;
+
+            checkbox(2).dispatchEvent(click());
+            image(5).dispatchEvent(click({shiftKey: true}));
+            expect(selectedIndexes()).toEqual([2, 3, 4, 5]);
+
+            image(0).dispatchEvent(click({shiftKey: true}));
+            expect(selectedIndexes()).toEqual([0, 1, 2, 3, 4, 5]);
+
+            image(3).dispatchEvent(click({shiftKey: true}));
+            expect(selectedIndexes()).toEqual([4, 5]);
+
+            checkbox(7).dispatchEvent(click({shiftKey: true}));
+            expect(selectedIndexes()).toEqual([3, 4, 5, 6, 7]);
+
+            image(8).dispatchEvent(pointer('pointerdown', at(8)));
+            document.dispatchEvent(pointer('pointermove', at(9)));
+            document.dispatchEvent(pointer('pointerup', at(9)));
+            image(9).dispatchEvent(click());
+            image(6).dispatchEvent(click({shiftKey: true}));
+            expect(selectedIndexes()).toEqual([3, 4, 5]);
+
+            gallery.setItems(getImages(10));
+            checkbox(4).dispatchEvent(click({shiftKey: true}));
+            expect(selectedIndexes()).toEqual([4]);
+        });
     });
 
     it('should init with page size', () => {
