@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-globals */
 import {Masonry, MasonryGalleryOptions, Natural, NaturalGalleryOptions, Square, SquareGalleryOptions} from '../../src';
 import {LabelVisibility} from '../../src';
-import {afterEach, beforeEach, describe, expect, it, Mock, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {click, getContainerElement, getImages, key, pointer, scrollTo, setViewport} from './utils';
 import {AbstractGallery} from '../../src/js/galleries/AbstractGallery';
 import {AbstractRowGallery} from '../../src/js/galleries/AbstractRowGallery';
@@ -494,14 +494,17 @@ export function testGallery<
             expect(selectedIndexes()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
         });
 
-        it('should select the items that the scroll moves under the motionless pointer', () => {
+        it('should not select the items that the scroll moves under the motionless pointer', () => {
             scrollTo(0);
             gallery.collection[0].select();
 
             image(2).dispatchEvent(pointer('pointerdown', at(2)));
-            document.dispatchEvent(pointer('pointermove', at(2) + 60));
+            document.dispatchEvent(pointer('pointermove', at(3)));
             scrollTo(-300);
-            expect(selectedIndexes()).toEqual([0, 2, 3, 4, 5, 6]);
+            expect(selectedIndexes()).toEqual([0, 2, 3]);
+
+            document.dispatchEvent(pointer('pointermove', at(4)));
+            expect(selectedIndexes()).toEqual([0, 2, 3, 4]);
             scrollTo(0);
         });
 
@@ -543,7 +546,6 @@ export function testGallery<
 
             image(2).dispatchEvent(pointer('pointerdown', at(2)));
             document.dispatchEvent(pointer('pointermove', at(2) + 3));
-            document.dispatchEvent(new Event('scroll'));
             expect(selectedIndexes()).toEqual([]);
 
             vi.advanceTimersByTime(500);
@@ -669,6 +671,83 @@ export function testGallery<
             const activeDragStart = new Event('dragstart', {bubbles: true, cancelable: true});
             image(2).dispatchEvent(activeDragStart);
             expect(activeDragStart.defaultPrevented).toBe(true);
+        });
+
+        it('should scroll the window while the drag is close to an edge of the viewport', () => {
+            vi.useFakeTimers();
+            const scrollBy = vi.fn();
+            Object.defineProperty(window, 'scrollBy', {value: scrollBy, writable: true, configurable: true});
+            const lastScroll = () => scrollBy.mock.lastCall![1] as number;
+            gallery.collection[0].select();
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            document.dispatchEvent(pointer('pointermove', at(3), {clientY: 400}));
+            vi.advanceTimersByTime(100);
+            expect(scrollBy).not.toHaveBeenCalled();
+
+            document.dispatchEvent(pointer('pointermove', at(3), {clientY: 738}));
+            vi.advanceTimersByTime(100);
+            const halfSpeedScroll = lastScroll();
+            expect(halfSpeedScroll).toBeGreaterThan(0);
+
+            document.dispatchEvent(pointer('pointermove', at(3), {clientY: 900}));
+            vi.advanceTimersByTime(100);
+            expect(lastScroll()).toBeCloseTo(halfSpeedScroll * 2);
+
+            document.dispatchEvent(pointer('pointermove', at(3), {clientY: 10}));
+            vi.advanceTimersByTime(100);
+            expect(lastScroll()).toBeLessThan(0);
+
+            document.dispatchEvent(pointer('pointermove', at(3), {clientY: 400}));
+            vi.advanceTimersByTime(100);
+            scrollBy.mockClear();
+            vi.advanceTimersByTime(100);
+            expect(scrollBy).not.toHaveBeenCalled();
+
+            document.dispatchEvent(pointer('pointermove', at(3), {clientY: 760}));
+            vi.advanceTimersByTime(100);
+            expect(scrollBy).toHaveBeenCalled();
+
+            document.dispatchEvent(pointer('pointerup', at(3)));
+            scrollBy.mockClear();
+            vi.advanceTimersByTime(100);
+            expect(scrollBy).not.toHaveBeenCalled();
+        });
+
+        it('should start scrolling on a long press close to an edge of the viewport', () => {
+            vi.useFakeTimers();
+            const scrollBy = vi.fn();
+            Object.defineProperty(window, 'scrollBy', {value: scrollBy, writable: true, configurable: true});
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2), {clientY: 760}));
+            vi.advanceTimersByTime(600);
+            expect(scrollBy).toHaveBeenCalled();
+        });
+
+        it('should scroll the scroll container', () => {
+            vi.useFakeTimers();
+            container.remove();
+            container = getContainerElement();
+            const scroller = document.createElement('div');
+            let scrollTop = 0;
+            Object.defineProperties(scroller, {
+                getBoundingClientRect: {value: () => ({top: 100, bottom: 500})},
+                scrollTop: {get: () => scrollTop, set: (value: number) => (scrollTop = value)},
+            });
+            scroller.appendChild(container);
+            document.body.appendChild(scroller);
+            const galleryWithScroller = galleryClass as unknown as new (...args: unknown[]) => T;
+            gallery = new galleryWithScroller(container, {...options, selectionMode: true}, scroller);
+            gallery.addItems(getImages(10));
+            gallery.collection[0].select();
+
+            image(2).dispatchEvent(pointer('pointerdown', 150, {clientY: 100}));
+            document.dispatchEvent(pointer('pointermove', 150, {clientY: 600}));
+            expect(selectedIndexes()).toEqual([0, 2, 3, 4, 5, 6, 7]);
+
+            vi.advanceTimersByTime(100);
+            expect(scrollTop).toBeGreaterThan(0);
+            scroller.remove();
         });
 
         it('should select the range since the last clicked item on shift click', () => {

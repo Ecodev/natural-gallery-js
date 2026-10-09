@@ -138,6 +138,23 @@ const LONG_PRESS_TOLERANCE = 5;
 const POINTER_PATH_STEP = 10;
 
 /**
+ * Height in pixels of the zones, along the top and bottom edges of the scroll viewport, where a selection drag scrolls
+ * the gallery
+ */
+const AUTO_SCROLL_ZONE = 60;
+
+/**
+ * Scroll speed in pixels per millisecond of a selection drag at an edge of the scroll viewport
+ */
+const AUTO_SCROLL_MAX_SPEED = 1.5;
+
+/**
+ * Longest duration in milliseconds between two frames that the auto scroll takes into account, so that a frozen page
+ * does not scroll a long way at once when it resumes
+ */
+const AUTO_SCROLL_MAX_FRAME_DURATION = 50;
+
+/**
  * Drag that gives to all the items under the pointer path the selection status opposite to the one the item where the
  * drag started had
  */
@@ -150,11 +167,6 @@ interface SelectionDrag<Model extends ModelAttributes> {
      */
     clientX: number;
     clientY: number;
-    /**
-     * Gallery top in the viewport at the last update. The variation of the gallery top gives the scroll that moved the
-     * items under the pointer since the last update.
-     */
-    galleryTop: number;
     /**
      * Whether the drag selects, which happens after the long press, or as soon as a mouse leaves the anchor item in
      * selection mode
@@ -1035,43 +1047,61 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
             touch,
             clientX: event.clientX,
             clientY: event.clientY,
-            galleryTop: this.elementRef.getBoundingClientRect().top,
             active: false,
             abortController: new AbortController(),
         };
         this.selectionDrag = drag;
         const signal = drag.abortController.signal;
 
-        const longPress = setTimeout(() => this.paintSelectionDrag(drag, []), LONG_PRESS_DURATION);
+        // Near an edge of the scroll viewport, the gallery scrolls on each frame
+        let autoScrollFrame = 0;
+        const autoScroll = (previousTime: number | null) => (time: number) => {
+            const speed = this.getAutoScrollSpeed(drag.clientY);
+            if (!speed) {
+                autoScrollFrame = 0;
+                return;
+            }
+
+            if (previousTime !== null) {
+                this.scrollBy(speed * Math.min(time - previousTime, AUTO_SCROLL_MAX_FRAME_DURATION));
+            }
+
+            autoScrollFrame = requestAnimationFrame(autoScroll(time));
+        };
+        const startAutoScroll = () => {
+            if (drag.active && !autoScrollFrame) {
+                autoScrollFrame = requestAnimationFrame(autoScroll(null));
+            }
+        };
+        signal.addEventListener('abort', () => cancelAnimationFrame(autoScrollFrame));
+
+        const longPress = setTimeout(() => {
+            this.paintSelectionDrag(drag, []);
+            startAutoScroll();
+        }, LONG_PRESS_DURATION);
         signal.addEventListener('abort', () => clearTimeout(longPress));
 
         const waitsForLongPress = () => !drag.active && (drag.touch || !this._selectionModeActive);
-        const follow = (clientX: number, clientY: number) => {
-            const items = this.getItemsOnPointerPath(drag, clientX, clientY);
-            if (drag.active || (!waitsForLongPress() && items.some(other => other !== drag.anchor))) {
-                this.paintSelectionDrag(drag, items);
-            }
-        };
 
+        // Only the pointer moves select, the scroll moves items under the pointer without selecting them
         this.document.addEventListener(
             'pointermove',
             moveEvent => {
                 const distance = Math.hypot(moveEvent.clientX - event.clientX, moveEvent.clientY - event.clientY);
                 if (waitsForLongPress() && distance > LONG_PRESS_TOLERANCE) {
                     this.endSelectionDrag();
-                } else {
-                    follow(moveEvent.clientX, moveEvent.clientY);
+                    return;
                 }
+
+                const items = this.getItemsOnPointerPath(drag, moveEvent.clientX, moveEvent.clientY);
+                if (drag.active || (!waitsForLongPress() && items.some(other => other !== drag.anchor))) {
+                    this.paintSelectionDrag(drag, items);
+                }
+
+                startAutoScroll();
             },
             {signal},
         );
-
-        // Scrolling during the drag moves other items under the motionless pointer
-        this.document.addEventListener('scroll', () => follow(drag.clientX, drag.clientY), {
-            signal,
-            capture: true,
-            passive: true,
-        });
 
         // After the long press, a touch drag selects instead of scrolling
         this.document.addEventListener(
@@ -1103,16 +1133,52 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     }
 
     /**
-     * Items under the pointer path since the last update, in the order of the path. The last pointer position moves
-     * with the items scrolled since the last update.
+     * Visible part of the scroll container, in the viewport
+     */
+    private getScrollViewport(): {top: number; bottom: number} {
+        if (this.scrollElementRef) {
+            const {top, bottom} = this.scrollElementRef.getBoundingClientRect();
+            return {top, bottom};
+        }
+
+        return {top: 0, bottom: this.document.documentElement.clientHeight};
+    }
+
+    private scrollBy(top: number): void {
+        if (this.scrollElementRef) {
+            this.scrollElementRef.scrollTop += top;
+        } else {
+            this.document.defaultView?.scrollBy(0, top);
+        }
+    }
+
+    /**
+     * Scroll speed in pixels per millisecond of a selection drag, negative upward. The speed grows as the pointer gets
+     * closer to an edge of the scroll viewport, and is maximal beyond the edge.
+     */
+    private getAutoScrollSpeed(clientY: number): number {
+        const viewport = this.getScrollViewport();
+        const zone = Math.min(AUTO_SCROLL_ZONE, (viewport.bottom - viewport.top) / 4);
+        const topIntrusion = zone - (clientY - viewport.top);
+        const bottomIntrusion = zone - (viewport.bottom - clientY);
+
+        if (topIntrusion > 0) {
+            return -AUTO_SCROLL_MAX_SPEED * Math.min(1, topIntrusion / zone);
+        } else if (bottomIntrusion > 0) {
+            return AUTO_SCROLL_MAX_SPEED * Math.min(1, bottomIntrusion / zone);
+        }
+
+        return 0;
+    }
+
+    /**
+     * Items under the pointer path since the last update, in the order of the path
      */
     private getItemsOnPointerPath(drag: SelectionDrag<Model>, clientX: number, clientY: number): Item<Model>[] {
-        const galleryTop = this.elementRef.getBoundingClientRect().top;
         const fromX = drag.clientX;
-        const fromY = drag.clientY + galleryTop - drag.galleryTop;
+        const fromY = drag.clientY;
         drag.clientX = clientX;
         drag.clientY = clientY;
-        drag.galleryTop = galleryTop;
 
         const steps = Math.max(1, Math.ceil(Math.hypot(clientX - fromX, clientY - fromY) / POINTER_PATH_STEP));
         const items: Item<Model>[] = [];

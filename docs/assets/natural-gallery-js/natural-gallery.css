@@ -169,6 +169,7 @@
 }
 .natural-gallery-js.touch-long-press .root {
   -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
 .natural-gallery-js.touch-long-press .root img,
