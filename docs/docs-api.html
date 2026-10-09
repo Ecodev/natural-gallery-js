@@ -85,6 +85,18 @@ layout: default
                     <td></td>
                 </tr>
                 <tr>
+                    <td>selectionModeActive</td>
+                    <td>boolean</td>
+                    <td>Whether the selection mode is active</td>
+                    <td><a href="#selection-mode-change">Docs</a></td>
+                </tr>
+                <tr>
+                    <td>setSelectionModeActive(active)</td>
+                    <td>void</td>
+                    <td>Activate or deactivate the selection mode. Deactivating the selection mode unselects all items. Requires the selectionMode option.</td>
+                    <td><a href="#selection-mode-change">Docs</a></td>
+                </tr>
+                <tr>
                     <td>photoswipe</td>
                     <td>object</td>
                     <td>access to the PhotoSwipeLightbox object</td>
@@ -142,6 +154,12 @@ gallery.addEventListener(eventName, function(ev) {
                     <td>Emitted when an item is (un)selected. Contains the list of selected items</td>
                     <td>{% highlight javascript %}item[]{% endhighlight %}</td>
                     <td><a href="#select">Docs</a></td>
+                </tr>
+                <tr>
+                    <td>selection-mode-change</td>
+                    <td>Emitted when the selection mode is activated or deactivated</td>
+                    <td>{% highlight javascript %}boolean{% endhighlight %}</td>
+                    <td><a href="#selection-mode-change">Docs</a></td>
                 </tr>
                 <tr>
                     <td>zoom</td>
@@ -233,6 +251,23 @@ gallery.addEventListener('activate', function(ev) {
 gallery.addEventListener('select', function(ev) {
     console.log(ev.detail); // [Item1, Item2, Item3]
 });
+{% endhighlight %}
+
+    </div>
+    <div class="row">
+        <div class="container-1000px">
+            <h3 id="selection-mode-change">selection-mode-change</h3>
+            <p>Requires the selectionMode option. Emits a notification with the new state of the selection mode.</p>
+            <p>The selection mode activates when the first item is selected, including items selected on creation, and deactivates when the last item is unselected, when Escape is pressed, or when the collection is replaced.</p>
+            <p>The application can also activate the selection mode without any selected item, for example from a "Select" button, with setSelectionModeActive(true).</p>
+        </div>
+
+{% highlight javascript %}
+gallery.addEventListener('selection-mode-change', function(ev) {
+    console.log(ev.detail); // true
+});
+
+gallery.setSelectionModeActive(true);
 {% endhighlight %}
 
     </div>

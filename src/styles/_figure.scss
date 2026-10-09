@@ -213,4 +213,24 @@ $defaultBorderRadius: 8px;
             }
         }
     }
+
+    &.selection-mode .root {
+        &,
+        .zoomable,
+        a,
+        button {
+            cursor: pointer;
+        }
+
+        .select-btn {
+            transform: translateY(0%);
+        }
+
+        .image.zoomable:hover,
+        .image.zoomable:focus,
+        &.zoomable:focus .image,
+        &.zoomable:hover .image {
+            transform: none;
+        }
+    }
 }

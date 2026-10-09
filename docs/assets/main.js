@@ -1,3 +1,27 @@
+export function setupSelectionButtons(gallery) {
+    const selectButton = document.getElementById('selectImages');
+    const unselectButton = document.getElementById('unselectImages');
+
+    function render() {
+        const active = gallery.selectionModeActive;
+        const count = gallery.selectedItems.length;
+        selectButton.style.display = active ? 'none' : '';
+        unselectButton.style.display = active ? '' : 'none';
+        unselectButton.textContent = count ? 'Unselect ' + count + (count > 1 ? ' images' : ' image') : 'Stop selecting';
+    }
+
+    selectButton.addEventListener('click', () => gallery.setSelectionModeActive(true));
+    unselectButton.addEventListener('click', () => gallery.setSelectionModeActive(false));
+
+    gallery.addEventListener('selection-mode-change', function(ev) {
+        console.log('selection-mode-change', ev.detail);
+        render();
+    });
+    gallery.addEventListener('select', render);
+
+    render();
+}
+
 export function setupDemo(galleryClass, options) {
     let gallery;
     let lastSearch;
@@ -13,6 +37,7 @@ export function setupDemo(galleryClass, options) {
 
         // Create gallery
         gallery = new galleryClass(galleryElement, options, scrollableElement);
+        setupSelectionButtons(gallery);
 
         if (options.lightbox) {
             gallery.photoSwipe.on('uiRegister', function() {

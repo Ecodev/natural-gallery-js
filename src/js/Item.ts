@@ -56,6 +56,7 @@ export class Item<Model extends ModelAttributes> {
         public readonly model: Model,
     ) {
         this.sanitizedTitle = sanitizeHtml(model.title);
+        this._selected = !!options.selectable && !!model.selected;
     }
 
     /**
@@ -407,7 +408,7 @@ export class Item<Model extends ModelAttributes> {
         this._checkbox = checkbox;
         this.updateAriaSelectedStatus();
 
-        if (this.model.selected) {
+        if (this._selected) {
             this.select();
         } else {
             this.unselect();

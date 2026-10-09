@@ -167,6 +167,19 @@
 .natural-gallery-js .root .title.hover {
   transform: translateY(calc(100% + 12px));
 }
+.natural-gallery-js.selection-mode .root,
+.natural-gallery-js.selection-mode .root .zoomable,
+.natural-gallery-js.selection-mode .root a,
+.natural-gallery-js.selection-mode .root button {
+  cursor: pointer;
+}
+.natural-gallery-js.selection-mode .root .select-btn {
+  transform: translateY(0%);
+}
+.natural-gallery-js.selection-mode .root .image.zoomable:hover,
+.natural-gallery-js.selection-mode .root .image.zoomable:focus, .natural-gallery-js.selection-mode .root.zoomable:focus .image, .natural-gallery-js.selection-mode .root.zoomable:hover .image {
+  transform: none;
+}
 
 .pswp {
   z-index: 9999999;

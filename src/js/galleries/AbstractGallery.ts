@@ -33,6 +33,7 @@ export interface CustomEventDetailMap<T extends ModelAttributes> {
     'item-displayed': Item<T>;
     pagination: {offset: number; limit: number};
     select: Item<T>[];
+    'selection-mode-change': boolean;
 }
 
 /**
@@ -46,6 +47,7 @@ declare global {
         'item-displayed': CustomEvent;
         pagination: CustomEvent;
         select: CustomEvent;
+        'selection-mode-change': CustomEvent;
     }
 }
 
@@ -123,6 +125,13 @@ export interface GalleryOptions extends ItemOptions {
     infiniteScrollOffset?: number;
     photoSwipeOptions?: PhotoSwipeOptions;
     photoSwipePluginsInitFn?: ((lighbox: PhotoSwipeLightbox) => void) | null;
+    /**
+     * Enables the selection mode, and implies `selectable`. The selection mode is active as long as at least one item
+     * is selected. While the selection mode is active, all checkboxes are visible, a click anywhere on an item toggles
+     * its selection instead of opening the lightbox, following the link or emitting `activate`, and Escape unselects
+     * all items.
+     */
+    selectionMode?: boolean;
     ssr?: {
         /**
          * In SSR mode, if the gallery width cannot be computed, it will fallback to this value
@@ -148,6 +157,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
             loop: false,
         },
         photoSwipePluginsInitFn: null,
+        selectionMode: false,
         ssr: {
             galleryWidth: 480,
         },
@@ -201,6 +211,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * Reference to next button element
      */
     private nextButton: HTMLElement;
+    private _selectionModeActive = false;
+    private readonly itemsByRootElement = new WeakMap<HTMLElement, Item<Model>>();
 
     /**
      *
@@ -215,6 +227,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     ) {
         this.document = this.elementRef.ownerDocument;
         this.options = defaultsDeep(options, this.options);
+
+        if (this.options.selectionMode) {
+            this.options.selectable = true;
+        }
 
         // After having finished to add items to dom, show images inside containers and emit updated pagination
         this.flushBufferedItems = debounce(() => {
@@ -296,6 +312,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         if (this.options.lightbox) {
             this.photoSwipeInit();
         }
+
+        if (this.options.selectionMode) {
+            this.bindSelectionMode();
+        }
     }
 
     /**
@@ -339,6 +359,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         return this.collection.filter(item => item.selected);
     }
 
+    get selectionModeActive(): boolean {
+        return this._selectionModeActive;
+    }
+
     get width(): number {
         // elementRef.clientWidth rounds ceil, we need round floor to grant computing fits in the available space
         // elementRef.getBoundingClientRect().width doesn't round, so we can round floor.
@@ -370,6 +394,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
             const item = new Item<Model>(this.document, itemOptions, model);
             this._collection.push(item);
         });
+
+        if (this.options.selectionMode && models.some(model => model.selected)) {
+            this.applySelectionMode(true);
+        }
 
         if (addToDom && collectionSize === 0) {
             // First addition : collection size is 0
@@ -408,6 +436,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         }
 
         collection.forEach(item => item.select());
+        this.notifySelectionOfItemsNotInDom(collection);
         return this.selectedItems;
     }
 
@@ -415,7 +444,24 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * Unselect all selected elements
      */
     public unselectAllItems(): void {
-        this.domCollection.forEach(item => item.unselect());
+        const selectedItems = this.selectedItems;
+        selectedItems.forEach(item => item.unselect());
+        this.notifySelectionOfItemsNotInDom(selectedItems);
+    }
+
+    /**
+     * Activate or deactivate the selection mode. Deactivating the selection mode unselects all items.
+     */
+    public setSelectionModeActive(active: boolean): void {
+        if (!this.options.selectionMode) {
+            throw Error('Gallery has no selection mode');
+        }
+
+        if (!active) {
+            this.unselectAllItems();
+        }
+
+        this.applySelectionMode(active);
     }
 
     /**
@@ -654,18 +700,15 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     protected addItemToDOM(item: Item<Model>, destination: HTMLElement = this.bodyElementRef): void {
         this.domCollection.push(item);
 
-        destination.appendChild(item.init());
+        const rootElement = item.init();
+        destination.appendChild(rootElement);
+        this.itemsByRootElement.set(rootElement, item);
 
         this.scrollBufferedItems.push(item);
         this.requiredItems++;
         this.dispatchEvent('item-added-to-dom', item);
 
-        item.rootElement?.addEventListener('select', () => {
-            this.dispatchEvent(
-                'select',
-                this.domCollection.filter(i => i.selected),
-            );
-        });
+        item.rootElement?.addEventListener('select', () => this.onSelectionChange());
 
         // When activate (if activate event is given in options)
         item.rootElement?.addEventListener('activate', (ev: CustomEvent<ItemActivateEventDetail<Model>>) => {
@@ -749,6 +792,109 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         this.requestedIndexesLog.length = 0;
         this._domCollection = [];
         this._collection = [];
+
+        if (this.options.selectionMode) {
+            this.applySelectionMode(false);
+        }
+    }
+
+    private onSelectionChange(): void {
+        const selectedItems = this.selectedItems;
+        this.dispatchEvent('select', selectedItems);
+
+        if (this.options.selectionMode) {
+            this.applySelectionMode(selectedItems.length > 0);
+        }
+    }
+
+    /**
+     * An item that is not in the DOM yet has no root element to emit its own select event
+     */
+    private notifySelectionOfItemsNotInDom(items: Item<Model>[]): void {
+        if (items.some(item => !item.rootElement)) {
+            this.onSelectionChange();
+        }
+    }
+
+    private applySelectionMode(active: boolean): void {
+        if (this._selectionModeActive === active) {
+            return;
+        }
+
+        this._selectionModeActive = active;
+        this.elementRef.classList.toggle('selection-mode', active);
+        this.dispatchEvent('selection-mode-change', active);
+    }
+
+    /**
+     * While the selection mode is active, the gallery takes over clicks and Enter or Space keys on items, before the
+     * item elements receive them. The checkbox keeps its own behavior.
+     */
+    private bindSelectionMode(): void {
+        this.bodyElementRef.addEventListener(
+            'click',
+            event => {
+                const item = this.getSelectionModeItem(event);
+                if (!item) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+                item.toggleSelect();
+            },
+            {capture: true},
+        );
+
+        this.bodyElementRef.addEventListener(
+            'keydown',
+            event => {
+                if (event.key !== 'Enter' && event.key !== ' ') {
+                    return;
+                }
+
+                const item = this.getSelectionModeItem(event);
+                if (!item) {
+                    return;
+                }
+
+                event.stopPropagation();
+
+                // A link or a button emits a click on Enter or Space, and the click listener toggles the selection
+                if ((event.target as HTMLElement).closest('a, button')) {
+                    return;
+                }
+
+                event.preventDefault();
+                item.toggleSelect();
+            },
+            {capture: true},
+        );
+
+        // The gallery has no destroy method, so the listener removes itself once the gallery has left the document
+        const onEscape = (event: KeyboardEvent) => {
+            if (!this.elementRef.isConnected) {
+                this.document.removeEventListener('keydown', onEscape);
+                return;
+            }
+
+            if (event.key === 'Escape' && !event.defaultPrevented && this._selectionModeActive) {
+                this.setSelectionModeActive(false);
+            }
+        };
+
+        this.document.addEventListener('keydown', onEscape);
+    }
+
+    private getSelectionModeItem(event: Event): Item<Model> | undefined {
+        const target = event.target as HTMLElement | null;
+        if (!this._selectionModeActive || !target?.closest || target.closest('.select-btn')) {
+            return undefined;
+        }
+
+        const rootElement = target.closest<HTMLElement>('.root');
+
+        return rootElement ? this.itemsByRootElement.get(rootElement) : undefined;
     }
 
     /**

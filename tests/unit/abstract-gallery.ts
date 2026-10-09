@@ -2,7 +2,7 @@
 import {Masonry, MasonryGalleryOptions, Natural, NaturalGalleryOptions, Square, SquareGalleryOptions} from '../../src';
 import {LabelVisibility} from '../../src';
 import {beforeEach, expect, it, vi} from 'vitest';
-import {getContainerElement, getImages, scrollTo, setViewport} from './utils';
+import {click, getContainerElement, getImages, key, scrollTo, setViewport} from './utils';
 import {AbstractGallery} from '../../src/js/galleries/AbstractGallery';
 import {AbstractRowGallery} from '../../src/js/galleries/AbstractRowGallery';
 
@@ -38,6 +38,7 @@ export function getBaseExpectedOptions(): Partial<NaturalGalleryOptions> {
             loop: false,
         },
         photoSwipePluginsInitFn: null,
+        selectionMode: false,
         ssr: {
             galleryWidth: 480,
         },
@@ -276,6 +277,142 @@ export function testGallery<
         (item.rootElement!.querySelector('.activation') as HTMLButtonElement).click();
         expect(spy).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledWith(expect.objectContaining({detail: expect.objectContaining({item})}));
+    });
+
+    it('should activate the selection mode while at least one item is selected', () => {
+        const gallery = new galleryClass(container, {...options, selectionMode: true});
+        gallery.addItems(getImages(5));
+        const spy = vi.fn();
+        gallery.addEventListener('selection-mode-change', spy);
+        expect(gallery.selectionModeActive).toBe(false);
+
+        const [item1, item2] = gallery.collection;
+        item1.checkbox!.click();
+        expect(item1.selected).toBe(true);
+        expect(gallery.selectionModeActive).toBe(true);
+        expect(container.classList.contains('selection-mode')).toBe(true);
+        expect(spy).toHaveBeenLastCalledWith(expect.objectContaining({detail: true}));
+
+        item2.select();
+        item1.unselect();
+        expect(gallery.selectionModeActive).toBe(true);
+
+        item2.unselect();
+        expect(gallery.selectionModeActive).toBe(false);
+        expect(container.classList.contains('selection-mode')).toBe(false);
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy).toHaveBeenLastCalledWith(expect.objectContaining({detail: false}));
+    });
+
+    it('should keep item interactions unchanged without the selection mode', () => {
+        const gallery = new galleryClass(container, {...options, selectable: true, activable: true});
+        gallery.addItems(getImages(5));
+        const spy = vi.fn();
+        gallery.addEventListener('activate', spy);
+
+        const item = gallery.collection[0];
+        item.select();
+        (item.rootElement!.querySelector('.activation') as HTMLButtonElement).click();
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(item.selected).toBe(true);
+        expect(gallery.selectionModeActive).toBe(false);
+        expect(() => gallery.setSelectionModeActive(true)).toThrow('Gallery has no selection mode');
+    });
+
+    it('should toggle selection instead of activating items while the selection mode is active', () => {
+        const gallery = new galleryClass(container, {...options, selectionMode: true, activable: true});
+        gallery.addItems(getImages(5));
+        const spy = vi.fn();
+        gallery.addEventListener('activate', spy);
+        const [item1, item2] = gallery.collection;
+        const image2 = item2.rootElement!.querySelector('img')!;
+        const activation2 = item2.rootElement!.querySelector('.activation') as HTMLButtonElement;
+
+        image2.dispatchEvent(click());
+        image2.dispatchEvent(key('Enter'));
+        expect(item2.selected).toBe(false);
+
+        item1.checkbox!.click();
+        image2.dispatchEvent(click());
+        expect(item2.selected).toBe(true);
+
+        gallery.bodyElement.dispatchEvent(click());
+        expect(gallery.selectedItems).toEqual([item1, item2]);
+
+        activation2.click();
+        expect(item2.selected).toBe(false);
+        expect(spy).not.toHaveBeenCalled();
+
+        activation2.dispatchEvent(key('Enter'));
+        expect(item2.selected).toBe(false);
+        expect(spy).not.toHaveBeenCalled();
+
+        image2.dispatchEvent(key(' '));
+        expect(item2.selected).toBe(true);
+
+        image2.dispatchEvent(key('a'));
+        expect(item2.selected).toBe(true);
+
+        item1.checkbox!.click();
+        expect(item1.selected).toBe(false);
+        expect(gallery.selectionModeActive).toBe(true);
+    });
+
+    it('should activate the selection mode when created with a selection', () => {
+        const images = getImages(50);
+        images[49].selected = true;
+        const gallery = new galleryClass(container, {...options, selectionMode: true});
+        gallery.addItems(images);
+        expect(gallery.selectionModeActive).toBe(true);
+        expect(gallery.selectedItems).toEqual([gallery.collection[49]]);
+    });
+
+    it('should unselect all items and deactivate the selection mode on Escape', () => {
+        document.body.appendChild(container);
+        const images = getImages(50);
+        images[0].selected = true;
+        images[49].selected = true;
+        const gallery = new galleryClass(container, {...options, selectionMode: true});
+        gallery.addItems(images);
+        const spy = vi.fn();
+        gallery.addEventListener('select', spy);
+
+        const preventedEscape = new KeyboardEvent('keydown', {key: 'Escape', bubbles: true, cancelable: true});
+        document.body.addEventListener('keydown', event => event.preventDefault(), {once: true});
+        document.body.dispatchEvent(preventedEscape);
+        expect(gallery.selectionModeActive).toBe(true);
+
+        document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
+        expect(gallery.selectionModeActive).toBe(true);
+
+        document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}));
+        expect(gallery.selectionModeActive).toBe(false);
+        expect(gallery.selectedItems).toEqual([]);
+        expect(spy).toHaveBeenLastCalledWith(expect.objectContaining({detail: []}));
+
+        container.remove();
+        gallery.setSelectionModeActive(true);
+        document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}));
+        expect(gallery.selectionModeActive).toBe(true);
+    });
+
+    it('should keep a manually activated selection mode without selection', () => {
+        const gallery = new galleryClass(container, {...options, selectionMode: true});
+        gallery.addItems(getImages(5));
+
+        gallery.setSelectionModeActive(true);
+        expect(gallery.selectionModeActive).toBe(true);
+        expect(gallery.selectedItems).toEqual([]);
+
+        gallery.collection[0].select();
+        gallery.collection[1].select();
+        gallery.setSelectionModeActive(false);
+        expect(gallery.selectionModeActive).toBe(false);
+        expect(gallery.selectedItems).toEqual([]);
+
+        gallery.setSelectionModeActive(true);
+        gallery.setItems(getImages(5));
+        expect(gallery.selectionModeActive).toBe(false);
     });
 
     it('should init with page size', () => {
