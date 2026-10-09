@@ -167,14 +167,16 @@
 .natural-gallery-js .root .title.hover {
   transform: translateY(calc(100% + 12px));
 }
-.natural-gallery-js.touch-long-press .root {
-  -webkit-touch-callout: none;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-}
-.natural-gallery-js.touch-long-press .root img,
-.natural-gallery-js.touch-long-press .root a {
-  -webkit-user-drag: none;
+@media (hover: none) and (pointer: coarse) {
+  .natural-gallery-js.touch-long-press .root {
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .natural-gallery-js.touch-long-press .root img,
+  .natural-gallery-js.touch-long-press .root a {
+    -webkit-user-drag: none;
+  }
 }
 .natural-gallery-js.selection-mode .root {
   user-select: none;
@@ -191,6 +193,21 @@
 .natural-gallery-js.selection-mode .root .image.zoomable:hover,
 .natural-gallery-js.selection-mode .root .image.zoomable:focus, .natural-gallery-js.selection-mode .root.zoomable:focus .image, .natural-gallery-js.selection-mode .root.zoomable:hover .image {
   transform: none;
+}
+.natural-gallery-js .root {
+  border: 0 solid transparent;
+  transition: border 0.1s ease-out, background-color 1s;
+}
+.natural-gallery-js .root.selected {
+  border: var(--ngjs-selected-border-width, 3px) solid var(--ngjs-selected-marker-color, orange);
+}
+.natural-gallery-js .root.long-pressing {
+  border: calc(var(--ngjs-selected-border-width, 3px) * 0.7) solid color-mix(in srgb, var(--ngjs-selected-marker-color, orange) 70%, transparent);
+  transition: border 0.3s linear 0.1s, background-color 1s;
+}
+.natural-gallery-js:not(.selection-mode) .root.long-pressing:not(:hover) .select-btn {
+  transform: translateY(calc((-100% - 15px) * 0.3));
+  transition: transform 0.3s linear 0.1s;
 }
 
 .pswp {

@@ -214,16 +214,18 @@ $defaultBorderRadius: 8px;
         }
     }
 
-    // The long press of the gallery replaces the context menu, the preview, the text selection and the tap highlight
-    // of the system
-    &.touch-long-press .root {
-        -webkit-touch-callout: none;
-        -webkit-tap-highlight-color: transparent;
-        user-select: none;
+    // On touch devices, the long press of the gallery replaces the context menu, the preview, the text selection and
+    // the tap highlight of the system. A mouse keeps the text selection and the native drag outside the selection mode.
+    @media (hover: none) and (pointer: coarse) {
+        &.touch-long-press .root {
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
 
-        img,
-        a {
-            -webkit-user-drag: none;
+            img,
+            a {
+                -webkit-user-drag: none;
+            }
         }
     }
 
@@ -247,5 +249,32 @@ $defaultBorderRadius: 8px;
         &.zoomable:hover .image {
             transform: none;
         }
+    }
+
+    // The selection border shrinks the content of the item
+    .root {
+        border: 0 solid transparent;
+        transition:
+            border 0.1s ease-out,
+            background-color 1s;
+    }
+
+    .root.selected {
+        border: var(--ngjs-selected-border-width, 3px) solid var(--ngjs-selected-marker-color, orange);
+    }
+
+    // The long press selects the item after 500ms. From 100ms to 400ms, the border and the checkbox appear
+    // progressively, then the selection completes them. Before 100ms, a simple click shows nothing.
+    .root.long-pressing {
+        border: calc(var(--ngjs-selected-border-width, 3px) * 0.7) solid
+            color-mix(in srgb, var(--ngjs-selected-marker-color, orange) 70%, transparent);
+        transition:
+            border 0.3s linear 0.1s,
+            background-color 1s;
+    }
+
+    &:not(.selection-mode) .root.long-pressing:not(:hover) .select-btn {
+        transform: translateY(calc((-100% - 15px) * 0.3));
+        transition: transform 0.3s linear 0.1s;
     }
 }

@@ -391,10 +391,64 @@ export function testGallery<
         expect(gallery.selectedItems).toEqual([]);
         expect(spy).toHaveBeenLastCalledWith(expect.objectContaining({detail: []}));
 
-        container.remove();
         gallery.setSelectionModeActive(true);
+        const input = document.createElement('input');
+        const dialog = document.createElement('dialog');
+        const dialogButton = document.createElement('button');
+        dialog.appendChild(dialogButton);
+        document.body.append(input, dialog);
+        input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
+        dialogButton.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
+        expect(gallery.selectionModeActive).toBe(true);
+        input.remove();
+        dialog.remove();
+
+        container.remove();
         document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}));
         expect(gallery.selectionModeActive).toBe(true);
+
+        document.body.appendChild(container);
+        document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}));
+        expect(gallery.selectionModeActive).toBe(false);
+        container.remove();
+    });
+
+    it('should emit a single select event when selecting or unselecting all items', () => {
+        const gallery = new galleryClass(container, {...options, selectionMode: true});
+        gallery.addItems(getImages(50));
+        const spy = vi.fn();
+        gallery.addEventListener('select', spy);
+
+        gallery.selectCollection();
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(gallery.selectedItems.length).toBe(50);
+
+        gallery.selectCollection();
+        expect(spy).toHaveBeenCalledTimes(1);
+
+        gallery.unselectAllItems();
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy).toHaveBeenLastCalledWith(expect.objectContaining({detail: []}));
+        expect(gallery.selectionModeActive).toBe(false);
+    });
+
+    it('should toggle the selection with Space or Enter on a link while the selection mode is active', () => {
+        const images = getImages(5).map(image => ({...image, link: 'https://example.com'}));
+        const gallery = new galleryClass(container, {...options, selectionMode: true});
+        gallery.addItems(images);
+        gallery.setSelectionModeActive(true);
+        const item = gallery.collection[1];
+        const link = item.rootElement!.querySelector('a')!;
+
+        const space = new KeyboardEvent('keydown', {key: ' ', cancelable: true});
+        link.dispatchEvent(space);
+        expect(space.defaultPrevented).toBe(true);
+        expect(item.selected).toBe(true);
+
+        link.dispatchEvent(key('Enter'));
+        expect(item.selected).toBe(true);
+        link.dispatchEvent(click());
+        expect(item.selected).toBe(false);
     });
 
     it('should keep a manually activated selection mode without selection', () => {
@@ -479,6 +533,7 @@ export function testGallery<
             gallery.selectCollection();
 
             image(3).dispatchEvent(pointer('pointerdown', at(3)));
+            expect(gallery.collection[3].rootElement!.classList.contains('long-pressing')).toBe(false);
             document.dispatchEvent(pointer('pointermove', at(5)));
             expect(selectedIndexes()).toEqual([0, 1, 2, 6, 7, 8, 9]);
         });
@@ -544,11 +599,14 @@ export function testGallery<
         it('should select the pressed item and start the drag on a long press outside of the selection mode', () => {
             vi.useFakeTimers();
 
+            const longPressing = () => gallery.collection[2].rootElement!.classList.contains('long-pressing');
             image(2).dispatchEvent(pointer('pointerdown', at(2)));
             document.dispatchEvent(pointer('pointermove', at(2) + 3));
             expect(selectedIndexes()).toEqual([]);
+            expect(longPressing()).toBe(true);
 
             vi.advanceTimersByTime(500);
+            expect(longPressing()).toBe(false);
             expect(selectedIndexes()).toEqual([2]);
             expect(gallery.selectionModeActive).toBe(true);
             expect(container.classList.contains('selection-dragging')).toBe(true);
@@ -577,6 +635,7 @@ export function testGallery<
 
             image(2).dispatchEvent(pointer('pointerdown', at(2)));
             document.dispatchEvent(pointer('pointerup', at(2)));
+            expect(gallery.collection[2].rootElement!.classList.contains('long-pressing')).toBe(false);
             vi.advanceTimersByTime(500);
             expect(selectedIndexes()).toEqual([]);
         });
@@ -630,7 +689,61 @@ export function testGallery<
             expect(selectedIndexes()).toEqual([0, 2, 3]);
         });
 
-        it('should keep the context menu of the system with a mouse', () => {
+        it('should keep preventing the touch scroll once the virtual scroll removed the pressed item', () => {
+            vi.useFakeTimers();
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2), {pointerType: 'touch'}));
+            vi.advanceTimersByTime(500);
+            gallery.collection[2].remove();
+
+            const touchmove = new Event('touchmove', {bubbles: true, cancelable: true});
+            image(2).dispatchEvent(touchmove);
+            expect(touchmove.defaultPrevented).toBe(true);
+        });
+
+        it('should end the drag of the first pointer when a second pointer goes down', () => {
+            vi.useFakeTimers();
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2), {pointerType: 'touch'}));
+            image(5).dispatchEvent(pointer('pointerdown', at(5), {pointerType: 'touch'}));
+            document.dispatchEvent(pointer('pointercancel', 0, {pointerType: 'touch'}));
+            vi.advanceTimersByTime(500);
+            expect(selectedIndexes()).toEqual([]);
+            expect(gallery.selectionModeActive).toBe(false);
+        });
+
+        it('should end the drag when the collection is replaced', () => {
+            vi.useFakeTimers();
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            gallery.setItems(getImages(10));
+            vi.advanceTimersByTime(500);
+            document.dispatchEvent(pointer('pointermove', at(4)));
+            expect(selectedIndexes()).toEqual([]);
+            expect(container.classList.contains('selection-dragging')).toBe(false);
+        });
+
+        it('should not suppress a click from the keyboard after a drag released outside of the gallery', () => {
+            container.remove();
+            container = getContainerElement();
+            document.body.appendChild(container);
+            gallery = new galleryClass(container, {...options, selectionMode: true, activable: true});
+            gallery.addItems(getImages(10));
+            gallery.collection[0].select();
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            document.dispatchEvent(pointer('pointermove', at(3)));
+            document.dispatchEvent(pointer('pointerup', -500));
+            expect(selectedIndexes()).toEqual([0, 2, 3]);
+
+            const activation = gallery.collection[5].rootElement!.querySelector('.activation') as HTMLButtonElement;
+            activation.dispatchEvent(key('Enter'));
+            activation.click();
+            expect(selectedIndexes()).toEqual([0, 2, 3, 5]);
+        });
+
+        it('should keep the context menu of the system and end the drag with a mouse', () => {
+            vi.useFakeTimers();
             const contextmenu = () => {
                 const event = new Event('contextmenu', {bubbles: true, cancelable: true});
                 image(2).dispatchEvent(event);
@@ -640,6 +753,9 @@ export function testGallery<
             expect(contextmenu()).toBe(false);
             image(2).dispatchEvent(pointer('pointerdown', at(2)));
             expect(contextmenu()).toBe(false);
+
+            vi.advanceTimersByTime(500);
+            expect(selectedIndexes()).toEqual([]);
         });
 
         it('should let the system handle the long press on touch devices when disabled', () => {
@@ -677,7 +793,7 @@ export function testGallery<
             vi.useFakeTimers();
             const scrollBy = vi.fn();
             Object.defineProperty(window, 'scrollBy', {value: scrollBy, writable: true, configurable: true});
-            const lastScroll = () => scrollBy.mock.lastCall![1] as number;
+            const lastScroll = () => (scrollBy.mock.lastCall![0] as ScrollToOptions).top!;
             gallery.collection[0].select();
 
             image(2).dispatchEvent(pointer('pointerdown', at(2)));
@@ -689,6 +805,7 @@ export function testGallery<
             vi.advanceTimersByTime(100);
             const halfSpeedScroll = lastScroll();
             expect(halfSpeedScroll).toBeGreaterThan(0);
+            expect(scrollBy).toHaveBeenLastCalledWith(expect.objectContaining({behavior: 'instant'}));
 
             document.dispatchEvent(pointer('pointermove', at(3), {clientY: 900}));
             vi.advanceTimersByTime(100);
@@ -732,7 +849,8 @@ export function testGallery<
             let scrollTop = 0;
             Object.defineProperties(scroller, {
                 getBoundingClientRect: {value: () => ({top: 100, bottom: 500})},
-                scrollTop: {get: () => scrollTop, set: (value: number) => (scrollTop = value)},
+                scrollTop: {get: () => scrollTop},
+                scrollBy: {value: (scrollOptions: ScrollToOptions) => (scrollTop += scrollOptions.top!)},
             });
             scroller.appendChild(container);
             document.body.appendChild(scroller);
