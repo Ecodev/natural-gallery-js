@@ -67,15 +67,9 @@ layout: default
                     <td></td>
                 </tr>
                 <tr>
-                    <td>domCollection.length</td>
-                    <td>number</td>
-                    <td>Size of the collection in the DOM</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>selectDomCollection()</td>
-                    <td>void</td>
-                    <td>Select all items in the DOM</td>
+                    <td>getVisibleCollection()</td>
+                    <td>Item[]</td>
+                    <td>Items touching the viewport, even partially, in the order of the collection</td>
                     <td></td>
                 </tr>
                 <tr>
@@ -168,15 +162,15 @@ gallery.addEventListener(eventName, function(ev) {
                     <td><a href="#zoom">Docs </a></td>
                 </tr>
                 <tr>
-                    <td>item-added-to-dom</td>
-                    <td>Emitted when the item has been added to DOM as empty rectangle, but image has not been lazy loaded yet</td>
+                    <td>item-element-created</td>
+                    <td>Emitted once per item, when the item comes within one viewport height of the viewport and its element is created, before the image starts loading. The element is kept when it leaves the DOM, so it is the place to customize it</td>
                     <td>{% highlight javascript %}item{% endhighlight %}</td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td>item-displayed</td>
-                    <td>Emitted when the image has lazy loaded and is visible</td>
-                    <td>{% highlight javascript %}item{% endhighlight %}</td>
+                    <td>visible-collection-change</td>
+                    <td>Emitted when the items touching the viewport change. Indexes are the positions in the collection, -1 when no item touches the viewport</td>
+                    <td>{% highlight javascript %}{items: Item[], firstIndex: number, lastIndex: number}{% endhighlight %}</td>
                     <td></td>
                 </tr>
             </table>

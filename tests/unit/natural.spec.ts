@@ -1,7 +1,7 @@
-import {ModelAttributes, Natural} from '../../src';
+import {Item, ModelAttributes, Natural} from '../../src';
 import * as domino from 'domino';
 import {describe, expect, it, vi} from 'vitest';
-import {getContainerElement, getImages, getSize} from './utils';
+import {getContainerElement, getImages, getSize, scrollTo} from './utils';
 import {getBaseExpectedOptions, testGallery} from './abstract-gallery';
 
 describe('Natural Gallery', () => {
@@ -16,8 +16,6 @@ describe('Natural Gallery', () => {
             },
         },
         {
-            maxItemsInDom: 20,
-            itemsAfterScroll: 25,
             itemsInFirstPage: 20,
             itemsInSecondPage: 40,
             options: {
@@ -40,7 +38,7 @@ describe('Natural Gallery', () => {
         const container = getContainerElement(999);
         const gallery = new Natural(container, {rowHeight: 300, ratioLimit: {max: 2}});
         gallery.addItems(getImages(5));
-        expect(gallery.domCollection.length).toBe(5);
+        expect(gallery.collection.every(item => item.height > 0)).toBe(true);
     });
 
     it('should use zero height when containerWidth and maxRowHeight are both null', () => {
@@ -57,9 +55,15 @@ describe('Natural Gallery', () => {
         const container = getContainerElement(999);
         const gallery = new Natural(container, {rowHeight: 300, gap: 4});
         gallery.addItems(getImages(3)); // A,B → row 0; C → row 1 alone (incomplete)
-        expect(gallery.domCollection.length).toBe(3);
-        gallery.addItems(getImages(2)); // completeLastRow adds D to row 1, super.addRows adds E to row 2
-        expect(gallery.domCollection.length).toBe(5);
+        const [, , c] = gallery.collection;
+        expect(c.row).toBe(1);
+        const incompleteHeight = c.height;
+
+        gallery.addItems(getImages(2)); // C and D → row 1, now complete; E → row 2
+        const [, , , d, e] = gallery.collection;
+        expect(d.row).toBe(1);
+        expect(e.row).toBe(2);
+        expect(c.height).toBeLessThan(incompleteHeight);
     });
 
     it('should scroll a custom scrollElementRef when provided, instead of the window', () => {
@@ -74,10 +78,43 @@ describe('Natural Gallery', () => {
         const gallery = new Natural(container, {rowHeight: 300}, scrollElementRef);
         gallery.addItems(getImages(5));
 
-        gallery.scrollToItem(gallery.domCollection[0]);
+        gallery.scrollToItem(gallery.collection[0]);
 
         expect(scrollToSpy).toHaveBeenCalledTimes(1);
         expect(windowScrollToSpy).not.toHaveBeenCalled();
+    });
+
+    it('should anchor on the row crossing the top of the viewport when the next row is taller than the viewport', () => {
+        scrollTo(0);
+
+        // Each image fills a row on its own, 1706px high
+        const gallery = new Natural(getContainerElement(1024), {rowHeight: 2000, gap: 4});
+        gallery.addItems(getImages(5).map(image => ({...image, enlargedWidth: 1080, enlargedHeight: 1800})));
+
+        scrollTo(500);
+        const internal = gallery as unknown as {
+            captureResizeAnchor: () => void;
+            resizeAnchor: {item: Item} | null;
+            currentViewportHeight: number;
+        };
+        internal.captureResizeAnchor();
+        expect(internal.resizeAnchor?.item).toBe(gallery.collection[0]);
+
+        // No anchor while the viewport height is unknown
+        internal.currentViewportHeight = 0;
+        internal.captureResizeAnchor();
+        expect(internal.resizeAnchor).toBeNull();
+
+        scrollTo(0);
+    });
+
+    it('should organize only up to the given row', () => {
+        const gallery = new Natural(getContainerElement(999), {rowHeight: 300, gap: 4});
+        gallery.addItems(getImages(6)); // Two images per row
+        gallery.collection.forEach(item => (item.row = -1));
+
+        Natural.organizeItems(gallery, gallery.collection, 0, 0);
+        expect(gallery.collection.map(item => item.row)).toEqual([0, 0, -1, -1, -1, -1]);
     });
 
     it('should restore all items when all are virtually hidden from top', () => {
@@ -85,7 +122,7 @@ describe('Natural Gallery', () => {
         const gallery = new Natural(container, {rowHeight: 300, gap: 4});
         gallery.addItems(getImages(10));
 
-        const domCount = gallery.domCollection.length;
+        const domCount = gallery.collection.length;
 
         // Simulate all dom items having been trimmed from the top
         (gallery as unknown as {virtualHiddenFromTopCount: number}).virtualHiddenFromTopCount = domCount;

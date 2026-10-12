@@ -30,7 +30,7 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
         toRow: number | null = null,
     ): void {
         const sideSize = gallery.getItemSideSize();
-        let lastIndex = toRow ? gallery.options.itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
+        let lastIndex = toRow !== null ? gallery.options.itemsPerRow * (toRow - firstRowIndex + 1) : items.length;
         lastIndex = lastIndex > items.length ? items.length : lastIndex;
 
         for (let i = 0; i < lastIndex; i++) {

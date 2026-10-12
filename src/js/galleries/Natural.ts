@@ -149,23 +149,12 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
         return models.reduce((total, model) => total + getImageRatio(model, ratioLimits), 0);
     }
 
-    public addRows(rows: number): void {
-        this.completeLastRow();
-        super.addRows(rows);
-    }
-
     public organizeItems(items: Item<Model>[], fromRow?: number, toRow?: number): void {
         Natural.organizeItems(this, items, fromRow, toRow);
     }
 
     protected getFormatName(): string {
         return 'format-natural';
-    }
-
-    protected endResize(): void {
-        super.endResize();
-        this.completeLastRow();
-        this.flushBufferedItems();
     }
 
     protected getEstimatedColumnsPerRow(): number {
@@ -181,30 +170,5 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
     protected getEstimatedRowsPerPage(): number {
         return Math.ceil(this.getGalleryVisibleHeight() / (this.options.rowHeight + this.options.gap)) + 1;
-    }
-
-    private completeLastRow(): void {
-        if (!this.domCollection.length) {
-            return;
-        }
-
-        // Get last row number
-        const lastVisibleRow = this.domCollection[this.domCollection.length - 1].row;
-
-        // Get number of items in that last row
-        const visibleItemsInLastRow = this.domCollection.filter(i => i.row === lastVisibleRow).length;
-
-        // Get a list from first item of last row until end of collection
-        const collectionFromLastVisibleRow = this.collection.slice(this.domCollection.length - visibleItemsInLastRow);
-        this.organizeItems(
-            collectionFromLastVisibleRow,
-            collectionFromLastVisibleRow[0].row,
-            collectionFromLastVisibleRow[0].row,
-        );
-        const itemsToAdd = collectionFromLastVisibleRow
-            .slice(visibleItemsInLastRow)
-            .filter(i => i.row <= collectionFromLastVisibleRow[0].row);
-
-        itemsToAdd.forEach(i => this.addItemToDOM(i));
     }
 }

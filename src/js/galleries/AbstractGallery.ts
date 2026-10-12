@@ -25,15 +25,25 @@ export type ObjectPosition =
     | string;
 
 /**
+ * Items touching the viewport, even partially, in the order of the collection, and the indexes of the first and the
+ * last of them in the collection. Both indexes are -1 when no item touches the viewport.
+ */
+export interface VisibleCollectionChange<T extends ModelAttributes> {
+    items: Item<T>[];
+    firstIndex: number;
+    lastIndex: number;
+}
+
+/**
  * A map of all possible event and the structure of their details
  */
 export interface CustomEventDetailMap<T extends ModelAttributes> {
     activate: {item: Item<T>; event: MouseEvent | KeyboardEvent};
-    'item-added-to-dom': Item<T>;
-    'item-displayed': Item<T>;
+    'item-element-created': Item<T>;
     pagination: {offset: number; limit: number};
     select: Item<T>[];
     'selection-mode-change': boolean;
+    'visible-collection-change': VisibleCollectionChange<T>;
 }
 
 /**
@@ -43,8 +53,7 @@ export interface CustomEventDetailMap<T extends ModelAttributes> {
 declare global {
     interface HTMLElementEventMap {
         activate: CustomEvent;
-        'item-added-to-dom': CustomEvent;
-        'item-displayed': CustomEvent;
+        'item-element-created': CustomEvent;
         pagination: CustomEvent;
         select: CustomEvent;
         'selection-mode-change': CustomEvent;
@@ -238,22 +247,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     protected bodyElementRef: HTMLElement;
 
     /**
-     * Items for which container has been added to dom, but image has not been queries yet
+     * With rowsPerPage, number of pages shown so far
      */
-    protected scrollBufferedItems: Item<Model>[] = [];
-
-    /**
-     * Debounce function
-     * Runs a small delay after last image has been added to dom
-     * When it runs, images are loaded (appear with fade) and more images are queries to preserve a buffer of
-     * out-of-dom items
-     */
-    protected flushBufferedItems: () => void;
-
-    /**
-     * Number of items to query on buffer flushing
-     */
-    protected requiredItems = 0;
+    protected shownPageCount = 1;
     protected readonly document: Document;
     /**
      * PhotoSwipe Lightbox object
@@ -267,8 +263,17 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     protected currentScrollTop = 0;
     protected currentViewportHeight = 0;
     /**
-     * Item and offset that keep the same content visible across a resize. Captured on each raw resize event,
-     * consumed by endResize(), and discarded when the user scrolls in between.
+     * Gallery top read together with currentScrollTop. The browser changes the layout before the gallery hears about
+     * a resize, so the resize anchor relies on both values as they were before the resize.
+     */
+    protected currentGalleryTop = 0;
+    /**
+     * Gallery width the items are organized for
+     */
+    private organizedWidth = 0;
+    /**
+     * Item and offset that keep the same content visible across a resize. Captured by startResize(), consumed by
+     * endResize(), and discarded when the user scrolls in between.
      */
     protected resizeAnchor: {item: Item<Model>; offset: number} | null = null;
     /**
@@ -315,36 +320,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
             this.options.selectable = true;
         }
 
-        // After having finished to add items to dom, show images inside containers and emit updated pagination
-        this.flushBufferedItems = debounce(() => {
-            this.scrollBufferedItems.forEach(item => {
-                this.dispatchEvent('item-displayed', item);
-            });
-
-            this.scrollBufferedItems = [];
-
-            if (!this.requiredItems) {
-                return;
-            }
-
-            // Snapshot and reset before dispatching: dispatchEvent() is synchronous, and a consumer's pagination
-            // handler commonly calls addItems() synchronously right back (e.g. from an already-cached source) —
-            // that re-enters addItemToDOM() and increments requiredItems again *during* this very call. Resetting
-            // only after dispatchEvent() returns would wipe out those reentrant increments, permanently losing
-            // track of items that were genuinely added and never asking for more once the buffer is exhausted.
-            const offset = this.collection.length;
-            const limit = this.requiredItems;
-            this.requiredItems = 0;
-
-            // Each time a pagination event is emitted, the offset is logged and then verified to be sure to not ask it
-            // twice. That would cause duplicated entries and probably empty buffer with smaller pages. That could
-            // cause infinite loading until the end of the gallery
-            if (this.requestedIndexesLog.indexOf(offset) < 0) {
-                this.dispatchEvent('pagination', {offset, limit});
-                this.requestedIndexesLog.push(offset);
-            }
-        }, 500);
-
         this.elementRef.classList.add('natural-gallery-js');
         this.elementRef.classList.add(this.getFormatName());
 
@@ -356,7 +331,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         this.nextButton.style.display = 'none';
         this.nextButton.addEventListener('click', e => {
             e.preventDefault();
-            this.onPageAdd();
+            this.showNextPage();
         });
 
         this.bodyElementRef = this.document.createElement('div');
@@ -370,15 +345,19 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         // Resize debounce
         const resizeDebounceDuration = 500;
         const startResize = debounce(() => this.startResize(), resizeDebounceDuration, {edges: ['leading']});
-        const endResize = debounce(() => this.endResize(), resizeDebounceDuration);
+        const endResize = debounce(() => {
+            this.endResize();
+            this.organizedWidth = this.width;
+            this.readScrollPosition();
+            this.updateVisibleCollection();
+        }, resizeDebounceDuration);
+        this.organizedWidth = this.width;
         iframe.contentWindow?.addEventListener('resize', () => {
-            // Undebounced and called on every raw resize event (not just the leading edge of a settled burst):
-            // a burst that starts right after construction (the iframe's own natural initial sizing) can still be
-            // "open" (its trailing endResize() timer not yet elapsed) by the time a later, genuine user resize
-            // happens, in which case startResize()'s leading edge does NOT fire again and would otherwise capture
-            // a stale (pre-scroll) anchor. captureResizeAnchor() is cheap (a single layout read plus pure-JS math),
-            // safe to run on every event.
-            this.captureResizeAnchor();
+            // The iframe also fires a resize event when it first takes its size, without any change of width
+            if (this.width === this.organizedWidth) {
+                return;
+            }
+
             endResize();
             startResize();
         });
@@ -386,9 +365,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         this.elementRef.appendChild(this.bodyElementRef);
         this.elementRef.appendChild(this.nextButton);
 
-        if (!this.options.rowsPerPage) {
-            this.bindScroll(this.scrollElementRef || this.document);
-        }
+        this.bindScroll(this.scrollElementRef || this.document);
 
         this.requestItems();
 
@@ -401,6 +378,12 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
             this.elementRef.classList.toggle('touch-long-press', this.options.touchLongPress);
         }
     }
+
+    /**
+     * Items touching the viewport, even partially, in the order of the collection. The positions come from the item
+     * sizes alone, with no DOM read but the gallery top.
+     */
+    public abstract getVisibleCollection(): Item<Model>[];
 
     /**
      * Get PhotoSwipe Lightbox
@@ -429,15 +412,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     }
 
     /**
-     * Partial set of items that represent the visible items
-     * @type {Item[]}
-     * @private
+     * Last items touching the viewport, as emitted by visible-collection-change
      */
-    protected _domCollection: Item<Model>[] = [];
-
-    get domCollection(): Item<Model>[] {
-        return this._domCollection;
-    }
+    private lastVisibleCollection: Item<Model>[] = [];
 
     get selectedItems(): Item<Model>[] {
         return this.collection.filter(item => item.selected);
@@ -454,11 +431,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     }
 
     public addItemToPhotoSwipeCollection(item: Item<Model>) {
-        const photoSwipeId = this.domCollection.length - 1;
-
         /* istanbul ignore next */
         item.rootElement?.addEventListener('zoom', () => {
-            this.psLightbox?.loadAndOpen(photoSwipeId);
+            this.psLightbox?.loadAndOpen(this.collection.indexOf(item));
         });
     }
 
@@ -468,9 +443,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * @param models list of models
      */
     public addItems(models: Model[]): void {
-        // Display newly added images if it's the first addition or if all images are already shown
-        const addToDom = this.collection.length === this.domCollection.length;
-        const collectionSize = this.collection.length;
+        const firstNewIndex = this.collection.length;
 
         // Complete collection
         models.forEach((model: Model) => {
@@ -479,17 +452,18 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
             this._collection.push(item);
         });
 
+        // Every received item is laid out at once, so the scrollbar covers all of them
+        this.readScrollPosition();
+        this.computeNewItemsSizes(firstNewIndex);
+        this.mountAroundViewport();
+        this.updateNextButtonVisibility();
+
         if (this.options.selectionMode && models.some(model => model.selected)) {
             this.applySelectionMode(true);
         }
 
-        if (addToDom && collectionSize === 0) {
-            // First addition : collection size is 0
-            this.onPageAdd();
-        } else if (addToDom && collectionSize > 0) {
-            // Gallery collection completion (after first addition) : collection size > 0
-            this.onScroll();
-        }
+        this.requestNextPageWhenNeeded();
+        this.updateVisibleCollection();
     }
 
     public setLabelHover(activate: boolean): void {
@@ -504,14 +478,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      */
     public selectCollection(): Item<Model>[] {
         return this.selectItems(this.collection);
-    }
-
-    /**
-     * Select all items in the DOM
-     * Ignores buffered items
-     */
-    public selectDomCollection(): Item<Model>[] {
-        return this.selectItems(this.domCollection);
     }
 
     private selectItems(collection: Item<Model>[]): Item<Model>[] {
@@ -549,7 +515,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     /**
      * Scroll so that the given item becomes visible.
      *
-     * Does nothing if the item is not currently part of domCollection (not yet loaded/displayed).
+     * Does nothing if the item is not laid out yet.
      *
      * Note: `behavior: 'smooth'` can visibly conflict with virtual scroll mounting/unmounting items while the
      * animation runs; prefer the default 'auto' (instant) unless you know your use case doesn't scroll through
@@ -600,6 +566,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      */
     public clear(): void {
         this.empty();
+        this.updateVisibleCollection();
         this.requestItems();
     }
 
@@ -635,7 +602,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
 
         /* istanbul ignore next */
         this.psLightbox.addFilter('numItems', (): number => {
-            return this.domCollection.length;
+            return this.getShownItemCount();
         });
 
         /* istanbul ignore next */
@@ -666,8 +633,12 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         this.psLightbox.on('change', () => {
             // Positive delta means next slide.
             // If we go next slide, and current index is out of visible collection bound, load more items
-            if (this.psLightbox?.pswp && this.psLightbox.pswp.currIndex > this.domCollection.length - 10) {
-                this.onPageAdd();
+            if (this.psLightbox?.pswp && this.psLightbox.pswp.currIndex > this.getShownItemCount() - 10) {
+                if (this.options.rowsPerPage) {
+                    this.showNextPage();
+                } else {
+                    this.requestNextPage();
+                }
             }
         });
 
@@ -683,19 +654,30 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      */
     protected abstract getEstimatedColumnsPerRow(): number;
 
-    /**
-     * AbstractRowGallery + Masonry
-     */
-    protected abstract onScroll(): void;
-
-    /**
-     * AbstractRowGallery + Masonry
-     */
-    protected abstract onPageAdd(): void;
-
     protected abstract getFormatName(): string;
 
     protected abstract onVirtualScroll(): void;
+
+    /**
+     * Compute the size and the position of the items from the given index to the end of the collection
+     */
+    protected abstract computeNewItemsSizes(firstNewIndex: number): void;
+
+    /**
+     * Mount the items to show, according to the virtual scroll, or to the pages shown so far with rowsPerPage
+     */
+    protected abstract mountAroundViewport(): void;
+
+    /**
+     * Number of items at the start of the collection that the gallery shows. With infinite scroll, every item of
+     * the collection is shown. With rowsPerPage, only the items of the pages shown so far.
+     */
+    protected abstract getShownItemCount(): number;
+
+    /**
+     * Height of every item of the collection, computed from the item sizes alone, with no DOM read
+     */
+    protected abstract getContentHeight(): number;
 
     /**
      * Return number of rows to show per page to fill the empty space until the bottom of the screen
@@ -705,10 +687,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     protected abstract getEstimatedRowsPerPage(): number;
 
     /**
-     * Absolute top offset (relative to the scroll container) of given item, or null if it's not currently part of
-     * domCollection. Used by scrollToItem() and by resize scroll-anchoring.
+     * Absolute top offset (relative to the scroll container) of given item, or null if it's not part of the
+     * collection. Used by scrollToItem() and by resize scroll-anchoring. The gallery top defaults to the current one.
      */
-    protected abstract getItemTop(item: Item<Model>): number | null;
+    protected abstract getItemTop(item: Item<Model>, galleryTop?: number): number | null;
 
     /**
      * Apply a scroll position on the gallery's scroll container (custom scrollElementRef, or the window itself —
@@ -747,16 +729,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * Information provided in the event allows to retrieve items from the server using given data :
      * "offset" and "limit" that have the same semantic that respective attributes in mySQL.
      *
-     * The gallery asks for items it needs, including some buffer items that are not displayed when given but are
-     * available to be added immediately to DOM when user scrolls.
+     * The gallery asks for one page of items
      *
      */
     protected requestItems(): void {
-        const estimatedPerRow = this.getEstimatedColumnsPerRow();
-
-        // +1 because we have to get more than what is used under onPageAdd().
-        // Without +1 all items are always added to DOM and gallery will loop load until end of collection
-        const limit = estimatedPerRow * this.getRowsPerPage() + 1;
+        const limit = this.getEstimatedColumnsPerRow() * this.getRowsPerPage();
         this.dispatchEvent('pagination', {offset: this.collection.length, limit: limit});
     }
 
@@ -775,20 +752,18 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     }
 
     /**
-     * Add given item to DOM and to domCollection
-     * @param {Item} item
-     * @param destination
+     * Root element of given item, created the first time the item is mounted. The image starts loading as soon as
+     * the root element exists, so items far from the viewport keep no root element until they come close to it.
      */
-    protected addItemToDOM(item: Item<Model>, destination: HTMLElement = this.bodyElementRef): void {
-        this.domCollection.push(item);
+    protected mountItem(item: Item<Model>): HTMLElement {
+        if (item.rootElement) {
+            return item.rootElement;
+        }
 
         const rootElement = item.init();
-        destination.appendChild(rootElement);
         this.itemsByRootElement.set(rootElement, item);
 
-        this.scrollBufferedItems.push(item);
-        this.requiredItems++;
-        this.dispatchEvent('item-added-to-dom', item);
+        this.dispatchEvent('item-element-created', item);
 
         item.rootElement?.addEventListener('select', () => this.onSelectionChange());
 
@@ -800,10 +775,81 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         if (this.options.lightbox) {
             this.addItemToPhotoSwipeCollection(item);
         }
+
+        return rootElement;
+    }
+
+    /**
+     * Ask for the next page before the user runs out of items. With rowsPerPage, when less than one page of items
+     * remains hidden. With infinite scroll, when the viewport comes within one viewport height of the end of the
+     * gallery.
+     */
+    protected requestNextPageWhenNeeded(): void {
+        if (this.options.rowsPerPage) {
+            const hiddenCount = this.collection.length - this.getShownItemCount();
+            if (hiddenCount < this.getEstimatedColumnsPerRow() * this.options.rowsPerPage) {
+                this.requestNextPage();
+            }
+
+            return;
+        }
+
+        // A gallery that is not visible would ask for pages forever, since its content never grows
+        if (this.currentViewportHeight <= 0 || this.width <= 0) {
+            return;
+        }
+
+        const endOfGalleryAt = this.getGalleryTop() + this.getContentHeight() + this.options.infiniteScrollOffset;
+        if (this.currentScrollTop + 2 * this.currentViewportHeight >= endOfGalleryAt) {
+            this.requestNextPage();
+        }
+    }
+
+    /**
+     * Emit visible-collection-change when the items touching the viewport differ from the last emitted ones
+     */
+    protected updateVisibleCollection(): void {
+        const items = this.getVisibleCollection();
+        const previous = this.lastVisibleCollection;
+        if (items.length === previous.length && items.every((item, i) => item === previous[i])) {
+            return;
+        }
+
+        this.lastVisibleCollection = items;
+        this.dispatchEvent('visible-collection-change', {
+            items,
+            firstIndex: items.length ? this.collection.indexOf(items[0]) : -1,
+            lastIndex: items.length ? this.collection.indexOf(items[items.length - 1]) : -1,
+        });
+    }
+
+    /**
+     * Ask for the items that follow the collection, once per offset
+     */
+    protected requestNextPage(): void {
+        const offset = this.collection.length;
+        if (this.requestedIndexesLog.indexOf(offset) >= 0) {
+            return;
+        }
+
+        this.requestedIndexesLog.push(offset);
+        const limit = this.getEstimatedColumnsPerRow() * this.getRowsPerPage();
+        this.dispatchEvent('pagination', {offset, limit});
+    }
+
+    /**
+     * With rowsPerPage, show one more page
+     */
+    protected showNextPage(): void {
+        this.shownPageCount++;
+        this.mountAroundViewport();
+        this.updateNextButtonVisibility();
+        this.requestNextPageWhenNeeded();
+        this.updateVisibleCollection();
     }
 
     protected updateNextButtonVisibility(): void {
-        if (this.domCollection.length === this.collection.length) {
+        if (this.getShownItemCount() === this.collection.length) {
             this.nextButton.style.display = 'none';
         } else {
             this.nextButton.style.display = 'block';
@@ -836,14 +882,19 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         return 0;
     }
 
+    /**
+     * The anchor is captured once, at the first resize event. Between two resize events, the browser already
+     * rearranges the items at their old sizes and moves the scroll position, so an anchor captured later would no
+     * longer match the computed positions.
+     */
     protected startResize(): void {
+        this.captureResizeAnchor();
         this.bodyElementRef?.classList.add('resizing');
     }
 
     /**
      * Capture whatever scroll-position anchor a subclass needs in order to keep the same content visible across a
-     * resize. Called synchronously on every raw resize event, not just the (debounced) startResize() — see the
-     * call site in the constructor for why that distinction matters. No-op by default.
+     * resize. No-op by default.
      */
     /* istanbul ignore next */
     protected captureResizeAnchor(): void {
@@ -872,7 +923,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     protected empty(): void {
         this.bodyElementRef.innerHTML = '';
         this.requestedIndexesLog.length = 0;
-        this._domCollection = [];
+        this.shownPageCount = 1;
         this._collection = [];
         this.endSelectionDrag();
         this.selectionAnchor = null;
@@ -1277,7 +1328,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      */
     private bindScroll(element: HTMLElement | Document) {
         const scrollable = element;
-        const wrapper: HTMLElement = element instanceof Document ? element.documentElement : element;
 
         const startScroll = debounce(() => this.elementRef.classList.add('scrolling'), 300, {edges: ['leading']});
         const endScroll = debounce(() => this.elementRef.classList.remove('scrolling'), 300);
@@ -1292,25 +1342,35 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
             startScroll();
             endScroll();
 
-            const endOfGalleryAt =
-                this.elementRef.offsetTop + this.elementRef.offsetHeight + this.options.infiniteScrollOffset;
+            this.readScrollPosition();
+            const scroll_delta = this.currentScrollTop - this.old_scroll_top;
+            this.old_scroll_top = this.currentScrollTop;
 
-            // Avoid to expand gallery if we are scrolling up
-            const current_scroll_top = wrapper.scrollTop - (wrapper.clientTop || 0);
-            const wrapperHeight = wrapper.clientHeight;
-            const scroll_delta = current_scroll_top - this.old_scroll_top;
-            this.old_scroll_top = current_scroll_top;
+            if (!this.options.rowsPerPage) {
+                this.onVirtualScroll();
 
-            this.currentScrollTop = current_scroll_top;
-            this.currentViewportHeight = wrapperHeight;
-            this.onVirtualScroll();
-
-            // "enableMoreLoading" is a setting coming from the BE bloking / enabling dynamic loading of thumbnail
-            if (scroll_delta > 0 && current_scroll_top + wrapperHeight >= endOfGalleryAt) {
-                // When scrolling only add a row at once
-                this.onScroll();
+                // Avoid to expand gallery if we are scrolling up
+                if (scroll_delta > 0) {
+                    this.requestNextPageWhenNeeded();
+                }
             }
+
+            this.updateVisibleCollection();
         });
+    }
+
+    /**
+     * Read the scroll position and the viewport height of the scroll container (custom scrollElementRef, or the
+     * window itself). A hidden scroll container has no height, so the window height stands in for it. The viewport
+     * height stays unknown (0) during server side rendering.
+     */
+    private readScrollPosition(): void {
+        const wrapper = this.scrollElementRef ?? this.document.documentElement;
+        this.currentScrollTop = (wrapper.scrollTop || 0) - (wrapper.clientTop || 0);
+        this.currentViewportHeight = wrapper.clientHeight || this.document.defaultView?.innerHeight || 0;
+        if (this.currentViewportHeight > 0) {
+            this.currentGalleryTop = this.getGalleryTop();
+        }
     }
 
     get rootElement(): HTMLElement {

@@ -31,7 +31,7 @@ export abstract class AbstractRowGallery<
         const mountedTop = galleryTop + this.virtualTopPadding;
         const mountedBottom = galleryTop + this.virtualTotalHeight - this.virtualBottomPadding;
         const hasMountedRows =
-            this.virtualHiddenFromTopCount + this.virtualHiddenFromBottomCount < this._domCollection.length;
+            this.virtualHiddenFromTopCount + this.virtualHiddenFromBottomCount < this.collection.length;
         if (!hasMountedRows || mountedBottom < windowTop || mountedTop > windowBottom) {
             this.mountVisibleWindow(windowTop, windowBottom, galleryTop);
             return;
@@ -43,49 +43,74 @@ export abstract class AbstractRowGallery<
         this.restoreBottomRows(galleryTop);
     }
 
-    protected onScroll(): void {
-        this.addRows(1);
+    protected getContentHeight(): number {
+        return this.virtualTotalHeight;
     }
 
-    protected onPageAdd(): void {
-        this.addRows(this.getRowsPerPage());
-    }
-
-    protected addRows(rows: number): void {
-        const nbVisibleImages = this.domCollection.length;
-        const nextRow = this.domCollection.length ? this.domCollection[nbVisibleImages - 1].row + 1 : 0;
-        const lastWantedRow = nextRow + rows - 1;
-
-        const bufferedItems = this.collection.slice(nbVisibleImages);
-        this.organizeItems(bufferedItems, nextRow, lastWantedRow);
-
-        const itemsToAdd = bufferedItems.filter(i => i.row <= lastWantedRow);
-        itemsToAdd.forEach(i => this.addItemToDOM(i));
-
-        let lastRowSeen = -1;
-        for (const item of itemsToAdd) {
-            if (item.row !== lastRowSeen) {
-                this.virtualTotalHeight += item.height + this.options.gap;
-                lastRowSeen = item.row;
-            }
+    protected getShownItemCount(): number {
+        if (!this.options.rowsPerPage) {
+            return this.collection.length;
         }
 
-        this.flushBufferedItems();
-        this.updateNextButtonVisibility();
+        const shownRowCount = this.shownPageCount * this.options.rowsPerPage;
+        const firstHiddenIndex = this.collection.findIndex(item => item.row >= shownRowCount);
+
+        return firstHiddenIndex < 0 ? this.collection.length : firstHiddenIndex;
+    }
+
+    protected computeNewItemsSizes(firstNewIndex: number): void {
+        if (firstNewIndex === this.collection.length) {
+            return;
+        }
+
+        // The last row of the previous items may be incomplete, so it is organized again together with the new items
+        let start = firstNewIndex;
+        const lastRow = start ? this.collection[start - 1].row : 0;
+        while (start > 0 && this.collection[start - 1].row === lastRow) {
+            start--;
+        }
+
+        this.organizeItems(this.collection.slice(start), lastRow);
+    }
+
+    public getVisibleCollection(): Item<Model>[] {
+        if (this.currentViewportHeight <= 0) {
+            return [];
+        }
+
+        const viewportTop = this.currentScrollTop;
+        const viewportBottom = this.currentScrollTop + this.currentViewportHeight;
+        const visible: Item<Model>[] = [];
+
+        // The viewport always lies within the mounted rows, so the rows hidden by the virtual scroll are skipped
+        let rowTop = this.getGalleryTop() + this.virtualTopPadding;
+        let i = this.virtualHiddenFromTopCount;
+        const end = this.collection.length - this.virtualHiddenFromBottomCount;
+        while (i < end && rowTop < viewportBottom) {
+            const rowStart = i;
+            const row = this.collection[i].row;
+            const rowHeight = this.collection[i].height;
+            while (i < end && this.collection[i].row === row) {
+                i++;
+            }
+
+            if (rowTop + rowHeight > viewportTop) {
+                visible.push(...this.collection.slice(rowStart, i));
+            }
+
+            rowTop += rowHeight + this.options.gap;
+        }
+
+        return visible;
     }
 
     /**
-     * Capture the scroll anchor as early as possible — before the browser's own layout (e.g. CSS flex-wrap
-     * re-wrapping figures at their old width into a new arrangement) has a chance to clamp/alter the scroll
-     * position. By the time endResize() runs (500ms debounce later), currentScrollTop may already have been
-     * silently overwritten by that browser-driven reflow. Called on every raw resize event (not just the
-     * debounced startResize()): a burst that started right after construction can still be "open" when a later,
-     * genuine resize happens, in which case startResize()'s leading edge wouldn't fire again and would otherwise
-     * leave us with a stale (pre-scroll) anchor.
+     * Capture the scroll anchor at the first resize event, from the scroll position and the gallery top read before
+     * the resize, since the browser has already rearranged the figures at their old width by then
      */
     protected captureResizeAnchor(): void {
         const anchorItem = this.currentViewportHeight > 0 ? this.findAnchorItem() : null;
-        const anchorTop = anchorItem ? this.getItemTop(anchorItem) : null;
+        const anchorTop = anchorItem ? this.getItemTop(anchorItem, this.currentGalleryTop) : null;
         this.resizeAnchor =
             anchorItem && anchorTop !== null ? {item: anchorItem, offset: this.currentScrollTop - anchorTop} : null;
     }
@@ -96,11 +121,11 @@ export abstract class AbstractRowGallery<
 
         super.endResize();
 
-        if (!this.domCollection.length) {
+        if (!this.collection.length) {
             return;
         }
 
-        this.organizeItems(this.domCollection);
+        this.organizeItems(this.collection);
 
         // The browser may have already silently clamped the real scroll position by now (e.g. CSS flex-wrap
         // re-wrapping figures at their old width as soon as the container got wider/narrower, before any of our
@@ -114,17 +139,7 @@ export abstract class AbstractRowGallery<
         }
 
         // Mount only the rows around the viewport, instead of mounting everything and trimming afterwards
-        const galleryTop = this.getGalleryTop();
-        if (this.currentViewportHeight > 0) {
-            const overscan = this.currentViewportHeight;
-            this.mountVisibleWindow(
-                this.currentScrollTop - overscan,
-                this.currentScrollTop + this.currentViewportHeight + overscan,
-                galleryTop,
-            );
-        } else {
-            this.mountVisibleWindow(-Infinity, Infinity, galleryTop);
-        }
+        this.mountAroundViewport();
 
         if (targetTop !== null) {
             this.applyScrollPosition(targetTop);
@@ -132,13 +147,13 @@ export abstract class AbstractRowGallery<
     }
 
     /**
-     * Absolute top offset of given item's row, or null if item is not part of domCollection
+     * Absolute top offset of given item's row, or null if item is not part of the collection
      */
-    protected getItemTop(item: Item<Model>): number | null {
-        let top = this.getGalleryTop();
+    protected getItemTop(item: Item<Model>, galleryTop = this.getGalleryTop()): number | null {
+        let top = galleryTop;
         let lastRow = -1;
         let lastRowHeight = 0;
-        for (const current of this._domCollection) {
+        for (const current of this.collection) {
             if (current.row !== lastRow) {
                 if (lastRow !== -1) {
                     top += lastRowHeight + this.options.gap;
@@ -154,26 +169,39 @@ export abstract class AbstractRowGallery<
     }
 
     /**
-     * First item of whichever row currently spans currentScrollTop. Used to re-anchor scroll position across a
-     * resize, so the same content stays visible instead of drifting to the top.
+     * First item of the first row entirely within the viewport. When that row is taller than the viewport, first item
+     * of the row crossing the top of the viewport instead. Used to re-anchor scroll position across a resize, so the
+     * same content stays visible instead of drifting to the top.
      */
     private findAnchorItem(): Item<Model> | null {
-        let top = this.getGalleryTop();
+        const viewportBottom = this.currentScrollTop + this.currentViewportHeight;
+        let crossingTopItem: Item<Model> | null = null;
+        let top = this.currentGalleryTop;
         let i = 0;
-        const n = this._domCollection.length;
+        const n = this.collection.length;
         while (i < n) {
             const rowStart = i;
-            const row = this._domCollection[i].row;
-            const rowHeight = this._domCollection[i].height;
-            while (i < n && this._domCollection[i].row === row) {
+            const row = this.collection[i].row;
+            const rowHeight = this.collection[i].height;
+            while (i < n && this.collection[i].row === row) {
                 i++;
             }
-            if (top + rowHeight >= this.currentScrollTop || i >= n) {
-                return this._domCollection[rowStart];
+
+            const bottom = top + rowHeight;
+            if (top >= this.currentScrollTop) {
+                return bottom <= viewportBottom
+                    ? this.collection[rowStart]
+                    : (crossingTopItem ?? this.collection[rowStart]);
             }
-            top += rowHeight + this.options.gap;
+
+            if (bottom >= this.currentScrollTop || i >= n) {
+                crossingTopItem = this.collection[rowStart];
+            }
+
+            top = bottom + this.options.gap;
         }
-        return null;
+
+        return crossingTopItem;
     }
 
     protected empty(): void {
@@ -190,22 +218,22 @@ export abstract class AbstractRowGallery<
     private trimTopRows(galleryTop: number): void {
         const overscan = this.currentViewportHeight;
 
-        while (this.virtualHiddenFromTopCount + this.virtualHiddenFromBottomCount < this._domCollection.length) {
+        while (this.virtualHiddenFromTopCount + this.virtualHiddenFromBottomCount < this.collection.length) {
             const firstVisibleIdx = this.virtualHiddenFromTopCount;
-            const firstRow = this._domCollection[firstVisibleIdx].row;
+            const firstRow = this.collection[firstVisibleIdx].row;
 
             let endIdx = firstVisibleIdx;
-            while (endIdx < this._domCollection.length && this._domCollection[endIdx].row === firstRow) {
+            while (endIdx < this.collection.length && this.collection[endIdx].row === firstRow) {
                 endIdx++;
             }
 
-            const rowHeight = this._domCollection[firstVisibleIdx].height;
+            const rowHeight = this.collection[firstVisibleIdx].height;
             const rowBottom = galleryTop + this.virtualTopPadding + rowHeight;
 
             if (this.currentScrollTop - rowBottom <= overscan) break;
 
             for (let i = firstVisibleIdx; i < endIdx; i++) {
-                this._domCollection[i].remove();
+                this.collection[i].remove();
             }
             this.virtualTopPadding += rowHeight + this.options.gap;
             this.virtualHiddenFromTopCount = endIdx;
@@ -221,18 +249,18 @@ export abstract class AbstractRowGallery<
             if (this.currentScrollTop - hiddenContentBottom > overscan) break;
 
             const prevLastIdx = this.virtualHiddenFromTopCount - 1;
-            const prevRow = this._domCollection[prevLastIdx].row;
+            const prevRow = this.collection[prevLastIdx].row;
 
             let startIdx = prevLastIdx;
-            while (startIdx > 0 && this._domCollection[startIdx - 1].row === prevRow) {
+            while (startIdx > 0 && this.collection[startIdx - 1].row === prevRow) {
                 startIdx--;
             }
 
-            const rowHeight = this._domCollection[startIdx].height;
-            const firstCurrentElement = this._domCollection[this.virtualHiddenFromTopCount]?.rootElement ?? null;
+            const rowHeight = this.collection[startIdx].height;
+            const firstCurrentElement = this.collection[this.virtualHiddenFromTopCount].rootElement;
 
             for (let i = startIdx; i < this.virtualHiddenFromTopCount; i++) {
-                this.bodyElementRef.insertBefore(this._domCollection[i].rootElement!, firstCurrentElement);
+                this.bodyElementRef.insertBefore(this.mountItem(this.collection[i]), firstCurrentElement);
             }
 
             this.virtualTopPadding = Math.max(0, this.virtualTopPadding - rowHeight - this.options.gap);
@@ -245,22 +273,22 @@ export abstract class AbstractRowGallery<
         const overscan = this.currentViewportHeight;
         const viewportBottom = this.currentScrollTop + this.currentViewportHeight;
 
-        while (this.virtualHiddenFromTopCount + this.virtualHiddenFromBottomCount < this._domCollection.length) {
+        while (this.virtualHiddenFromTopCount + this.virtualHiddenFromBottomCount < this.collection.length) {
             const contentBottom = galleryTop + this.virtualTotalHeight - this.virtualBottomPadding;
             if (contentBottom - viewportBottom <= overscan) break;
 
-            const lastVisibleIdx = this._domCollection.length - this.virtualHiddenFromBottomCount - 1;
-            const lastRow = this._domCollection[lastVisibleIdx].row;
+            const lastVisibleIdx = this.collection.length - this.virtualHiddenFromBottomCount - 1;
+            const lastRow = this.collection[lastVisibleIdx].row;
 
             let startIdx = lastVisibleIdx;
-            while (startIdx > this.virtualHiddenFromTopCount && this._domCollection[startIdx - 1].row === lastRow) {
+            while (startIdx > this.virtualHiddenFromTopCount && this.collection[startIdx - 1].row === lastRow) {
                 startIdx--;
             }
 
-            const rowHeight = this._domCollection[startIdx].height;
+            const rowHeight = this.collection[startIdx].height;
 
             for (let i = startIdx; i <= lastVisibleIdx; i++) {
-                this._domCollection[i].remove();
+                this.collection[i].remove();
             }
             this.virtualBottomPadding += rowHeight + this.options.gap;
             this.virtualHiddenFromBottomCount += lastVisibleIdx - startIdx + 1;
@@ -276,24 +304,73 @@ export abstract class AbstractRowGallery<
             const hiddenRowTop = galleryTop + this.virtualTotalHeight - this.virtualBottomPadding;
             if (hiddenRowTop - viewportBottom > overscan) break;
 
-            const firstHiddenIdx = this._domCollection.length - this.virtualHiddenFromBottomCount;
-            const firstHiddenRow = this._domCollection[firstHiddenIdx].row;
+            const firstHiddenIdx = this.collection.length - this.virtualHiddenFromBottomCount;
+            const firstHiddenRow = this.collection[firstHiddenIdx].row;
 
             let endIdx = firstHiddenIdx;
-            while (endIdx + 1 < this._domCollection.length && this._domCollection[endIdx + 1].row === firstHiddenRow) {
+            while (endIdx + 1 < this.collection.length && this.collection[endIdx + 1].row === firstHiddenRow) {
                 endIdx++;
             }
 
-            const rowHeight = this._domCollection[firstHiddenIdx].height;
+            const rowHeight = this.collection[firstHiddenIdx].height;
 
             for (let i = firstHiddenIdx; i <= endIdx; i++) {
-                this.bodyElementRef.appendChild(this._domCollection[i].rootElement!);
+                this.bodyElementRef.appendChild(this.mountItem(this.collection[i]));
             }
 
             this.virtualBottomPadding = Math.max(0, this.virtualBottomPadding - rowHeight - this.options.gap);
             this.virtualHiddenFromBottomCount -= endIdx - firstHiddenIdx + 1;
             this.bodyElementRef.style.paddingBottom = this.virtualBottomPadding + 'px';
         }
+    }
+
+    /**
+     * Mount the rows within one viewport height above and below the viewport. While the viewport height is unknown,
+     * as during server side rendering, no row is mounted and every row is folded into the bottom padding. With
+     * rowsPerPage, there is no virtual scroll and the rows of the pages shown so far are mounted.
+     */
+    protected mountAroundViewport(): void {
+        if (this.options.rowsPerPage) {
+            this.mountShownRows();
+        } else if (this.currentViewportHeight > 0) {
+            const overscan = this.currentViewportHeight;
+            this.mountVisibleWindow(
+                this.currentScrollTop - overscan,
+                this.currentScrollTop + this.currentViewportHeight + overscan,
+                this.getGalleryTop(),
+            );
+        } else {
+            this.mountVisibleWindow(-Infinity, -Infinity, 0);
+        }
+    }
+
+    /**
+     * With rowsPerPage, mount the rows of the pages shown so far. The following rows stay out of the DOM without any
+     * padding, since they are hidden until the next button is clicked.
+     */
+    private mountShownRows(): void {
+        const shownCount = this.getShownItemCount();
+        let totalHeight = 0;
+        let lastRow = -1;
+        const shown: HTMLElement[] = [];
+        for (let i = 0; i < shownCount; i++) {
+            const item = this.collection[i];
+            if (item.row !== lastRow) {
+                totalHeight += item.height + this.options.gap;
+                lastRow = item.row;
+            }
+            shown.push(this.mountItem(item));
+        }
+
+        this.virtualTotalHeight = totalHeight;
+        this.virtualHiddenFromTopCount = 0;
+        this.virtualTopPadding = 0;
+        this.virtualHiddenFromBottomCount = this.collection.length - shownCount;
+        this.virtualBottomPadding = 0;
+        this.bodyElementRef.style.paddingTop = '0';
+        this.bodyElementRef.style.paddingBottom = '0';
+        this.bodyElementRef.innerHTML = '';
+        shown.forEach(element => this.bodyElementRef.appendChild(element));
     }
 
     /**
@@ -310,12 +387,12 @@ export abstract class AbstractRowGallery<
         const visible: HTMLElement[] = [];
 
         let i = 0;
-        const n = this._domCollection.length;
+        const n = this.collection.length;
         while (i < n) {
             const rowStart = i;
-            const row = this._domCollection[i].row;
-            const rowHeight = this._domCollection[i].height;
-            while (i < n && this._domCollection[i].row === row) {
+            const row = this.collection[i].row;
+            const rowHeight = this.collection[i].height;
+            while (i < n && this.collection[i].row === row) {
                 i++;
             }
 
@@ -331,7 +408,7 @@ export abstract class AbstractRowGallery<
                 bottomPadding += rowHeight + this.options.gap;
             } else {
                 for (let j = rowStart; j < i; j++) {
-                    visible.push(this._domCollection[j].rootElement!);
+                    visible.push(this.mountItem(this.collection[j]));
                 }
             }
         }
@@ -343,6 +420,7 @@ export abstract class AbstractRowGallery<
         this.virtualBottomPadding = bottomPadding;
         this.bodyElementRef.style.paddingTop = topPadding + 'px';
         this.bodyElementRef.style.paddingBottom = bottomPadding + 'px';
-        this.bodyElementRef.replaceChildren(...visible);
+        this.bodyElementRef.innerHTML = '';
+        visible.forEach(element => this.bodyElementRef.appendChild(element));
     }
 }

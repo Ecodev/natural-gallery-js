@@ -4,24 +4,24 @@ import {LabelVisibility} from '../../src';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {click, getContainerElement, getImages, key, pointer, scrollTo, setViewport} from './utils';
 import {AbstractGallery} from '../../src/js/galleries/AbstractGallery';
-import {AbstractRowGallery} from '../../src/js/galleries/AbstractRowGallery';
 
 interface GalleryExpectation {
     options: MasonryGalleryOptions | NaturalGalleryOptions | SquareGalleryOptions;
-    maxItemsInDom?: number;
-    itemsAfterScroll?: number;
     itemsInFirstPage?: number;
     itemsInSecondPage?: number;
 }
 
-export function expectItemsCount(gallery: AbstractGallery, collectionSize: number, domSize?: number): void {
-    if (!domSize) {
-        domSize = collectionSize;
-    }
+export function expectItemsCount(gallery: AbstractGallery, collectionSize: number, shownSize?: number): void {
     expect(gallery.collection.length).toBe(collectionSize);
-    expect(gallery.domCollection.length).toBe(domSize);
-    // Physical DOM count may be ≤ domSize when virtual scroll has hidden items
-    expect(gallery.rootElement.querySelectorAll('.figure').length).toBeLessThanOrEqual(domSize);
+
+    const mounted = gallery.rootElement.querySelectorAll('.figure').length;
+    if (shownSize === undefined) {
+        // The virtual scroll mounts only the items around the viewport
+        expect(mounted).toBeLessThanOrEqual(collectionSize);
+    } else {
+        // With rowsPerPage, every item of the pages shown so far is mounted
+        expect(mounted).toBe(shownSize);
+    }
 }
 
 export function getBaseExpectedOptions(): Partial<NaturalGalleryOptions> {
@@ -98,12 +98,16 @@ export function testGallery<
         expectItemsCount(gallery, 0);
     });
 
-    // Due to jsdom limitations, masonry always add all to DOM
-    it('should complete collection but not DOM', () => {
+    it('should place the whole collection but mount only the items around the viewport', () => {
+        scrollTo(0);
+
         const gallery = new galleryClass(container, options);
         gallery.addItems(getImages(100));
 
-        expectItemsCount(gallery, 100, expected.maxItemsInDom);
+        expectItemsCount(gallery, 100);
+        const mounted = container.querySelectorAll('.figure').length;
+        expect(mounted).toBeGreaterThan(0);
+        expect(mounted).toBeLessThan(100);
     });
 
     it('should replace existing list', () => {
@@ -118,121 +122,142 @@ export function testGallery<
         expectItemsCount(gallery, 4);
     });
 
-    it('should load some items, buffer the others and add more to dom on scroll', async () => {
+    it('should ask for the next page when the viewport comes close to the end of the gallery', () => {
+        scrollTo(0);
+
         const paginationSpy = vi.fn();
-        const displayedSpy = vi.fn();
+        const createdSpy = vi.fn();
         container.addEventListener('pagination', paginationSpy);
-        container.addEventListener('item-displayed', displayedSpy);
+        container.addEventListener('item-element-created', createdSpy);
 
         const gallery = new galleryClass(container, options);
         gallery.addItems(getImages(50));
-        expectItemsCount(gallery, 50, expected.maxItemsInDom);
+        expectItemsCount(gallery, 50);
+        expect(paginationSpy).toHaveBeenCalledTimes(1);
 
-        Object.defineProperty(container, 'offsetHeight', {value: 1200, writable: true, configurable: true});
+        scrollTo(100); // Far from the end of the gallery
+        expect(paginationSpy).toHaveBeenCalledTimes(1);
 
-        scrollTo(100); // Scroll not enough to add new items
-        expectItemsCount(gallery, 50, expected.maxItemsInDom);
-
-        scrollTo(500);
-        expectItemsCount(gallery, 50, expected.itemsAfterScroll);
-        await new Promise(resolve => setTimeout(resolve, 600));
+        scrollTo(100000);
         expect(paginationSpy).toHaveBeenCalledTimes(2);
-        expect(displayedSpy).toHaveBeenCalledTimes(expected.itemsAfterScroll || 50); // masonry adds all
+        expect(paginationSpy.mock.calls[1][0].detail.offset).toBe(50);
+
+        scrollTo(100001); // Same offset is never asked twice
+        expect(paginationSpy).toHaveBeenCalledTimes(2);
+
+        gallery.addItems([]); // End of the collection
+        expect(paginationSpy).toHaveBeenCalledTimes(2);
+
+        // Only the items that came close to the viewport got an element
+        expect(createdSpy.mock.calls.length).toBeGreaterThan(0);
+        expect(createdSpy.mock.calls.length).toBeLessThan(50);
+
+        scrollTo(0);
     });
 
-    it('should not lose track of items added by a synchronous (reentrant) pagination handler', () => {
-        vi.useFakeTimers();
-        try {
-            const gallery = new galleryClass(container, options);
-            const internal = gallery as unknown as {requiredItems: number; flushBufferedItems: () => void};
-            const paginationOffsets: number[] = [];
+    it('should give the items touching the viewport, in the order of the collection', () => {
+        scrollTo(0);
 
-            // dispatchEvent() is synchronous: a consumer backed by an already-available/cached data source (or
-            // one that simply already has the next page in memory) can call addItems() right back inside the
-            // handler — that re-enters addItemToDOM() and increments requiredItems again *while* this very
-            // flush is still running, before it returns. requiredItems must not be wiped out once the handler
-            // returns, otherwise those newly-added items are never accounted for and pagination stalls forever.
-            // Listen on `container` directly (not gallery.addEventListener), which would re-trigger
-            // requestItems() as a subscribe side effect and add an extra, uncontrolled load before our own
-            // addItems() call below.
-            container.addEventListener('pagination', ((ev: CustomEvent<{offset: number; limit: number}>) => {
-                paginationOffsets.push(ev.detail.offset);
-                gallery.addItems(getImages(ev.detail.limit));
-            }) as EventListener);
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(100));
 
-            // Seed with a single image: small enough to always be fully mounted immediately
-            // (minRowsAtStart >= 1), regardless of each gallery type's estimated initial page size —
-            // addItems()'s reentrant call below only triggers onScroll()/addRows() when domCollection is
-            // already fully caught up with collection.
-            gallery.addItems(getImages(1));
-            expect(gallery.domCollection.length).toBe(gallery.collection.length);
+        const atTop = gallery.getVisibleCollection();
+        expect(atTop.length).toBeGreaterThan(0);
+        expect(atTop[0]).toBe(gallery.collection[0]);
+        atTop.forEach(item => expect(container.contains(item.rootElement)).toBe(true));
 
-            internal.requiredItems = 3; // simulate items freshly mounted (e.g. by a prior scroll), pending report
-            internal.flushBufferedItems(); // schedule the debounced flush
-            vi.advanceTimersByTime(500); // let it fire — the reentrant addItems() call happens synchronously inside
+        const indexes = atTop.map(item => gallery.collection.indexOf(item));
+        expect(indexes).toEqual([...indexes].sort((a, b) => a - b));
 
-            // Confirm the reentrant increment survived instead of being wiped to 0 afterward.
-            expect(internal.requiredItems).toBeGreaterThan(0);
+        scrollTo(1500);
+        const deeper = gallery.getVisibleCollection();
+        expect(deeper.length).toBeGreaterThan(0);
+        expect(deeper).not.toContain(gallery.collection[0]);
 
-            // Simulate the next real scroll event re-arming the debounce, exactly like onScroll()/addItemToDOM()
-            // does in production on every subsequent scroll.
-            internal.flushBufferedItems();
-            vi.advanceTimersByTime(500);
+        scrollTo(0);
+    });
 
-            expect(paginationOffsets.length).toBe(2);
-            expect(paginationOffsets[1]).toBeGreaterThan(paginationOffsets[0]);
-        } finally {
-            vi.useRealTimers();
+    it('should emit visible-collection-change only when the items touching the viewport change', () => {
+        scrollTo(0);
+
+        const spy = vi.fn();
+        container.addEventListener('visible-collection-change', spy);
+
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(100));
+
+        expect(spy).toHaveBeenCalledTimes(1);
+        const first = spy.mock.calls[0][0].detail;
+        expect(first.items).toEqual(gallery.getVisibleCollection());
+        expect(first.firstIndex).toBe(0);
+        expect(first.lastIndex).toBe(gallery.collection.indexOf(first.items[first.items.length - 1]));
+
+        scrollTo(1500);
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy.mock.calls[1][0].detail.lastIndex).toBeGreaterThan(first.lastIndex);
+
+        scrollTo(1501); // Same items touch the viewport
+        expect(spy).toHaveBeenCalledTimes(2);
+
+        gallery.clear();
+        expect(spy).toHaveBeenCalledTimes(3);
+        expect(spy.mock.calls[2][0].detail).toEqual({items: [], firstIndex: -1, lastIndex: -1});
+
+        scrollTo(0);
+    });
+
+    it('should keep one page of hidden items in reserve with rowsPerPage', () => {
+        const paginationSpy = vi.fn();
+        container.addEventListener('pagination', paginationSpy);
+
+        const gallery = new galleryClass(container, {...options, rowsPerPage: 1});
+        expect(paginationSpy).toHaveBeenCalledTimes(1);
+
+        gallery.addItems(getImages(100)); // Far more than one page in reserve
+        expect(paginationSpy).toHaveBeenCalledTimes(1);
+
+        const next = container.querySelector('.natural-gallery-next') as HTMLButtonElement;
+        while (next.style.display !== 'none') {
+            next.click();
         }
-    });
 
+        expect(paginationSpy).toHaveBeenCalledTimes(2);
+        expect(paginationSpy.mock.calls[1][0].detail.offset).toBe(100);
+    });
     it('should throw exception when selecting not selectable gallery', () => {
         const gallery = new galleryClass(container, options);
         gallery.addItems(getImages(1));
-        expect(() => gallery.selectDomCollection()).toThrow('Gallery is not selectable');
-    });
-
-    it('should select DOM collection and unselect all', () => {
-        const gallery = new galleryClass(container, {...options, selectable: true});
-        gallery.addItems(getImages(50));
-        expectItemsCount(gallery, 50, expected.maxItemsInDom);
-
-        const selected = gallery.selectDomCollection();
-        expect(selected.length).toBe(expected.maxItemsInDom || 50); // exception for masonry
-        expect(container.querySelectorAll('.figure.selected').length).toBe(expected.maxItemsInDom || 50);
-
-        gallery.unselectAllItems();
-        expectItemsCount(gallery, 50, expected.maxItemsInDom);
-        expect(container.querySelectorAll('.figure.selected').length).toBe(0);
+        expect(() => gallery.selectCollection()).toThrow('Gallery is not selectable');
     });
 
     it('should select entire collection and unselect all', () => {
         const gallery = new galleryClass(container, {...options, selectable: true});
         gallery.addItems(getImages(50));
-        expectItemsCount(gallery, 50, expected.maxItemsInDom);
+        expectItemsCount(gallery, 50);
+        const mounted = container.querySelectorAll('.figure').length;
 
         const selected = gallery.selectCollection();
-        expect(selected.length).toBe(50); // exception for masonry
-        expect(container.querySelectorAll('.figure.selected').length).toBe(expected.maxItemsInDom || 50);
+        expect(selected.length).toBe(50);
+        expect(container.querySelectorAll('.figure.selected').length).toBe(mounted);
 
         gallery.unselectAllItems();
-        expectItemsCount(gallery, 50, expected.maxItemsInDom);
+        expectItemsCount(gallery, 50);
         expect(container.querySelectorAll('.figure.selected').length).toBe(0);
     });
 
     it('should switch label hover status', () => {
         const gallery = new galleryClass(container, {...options, labelVisibility: LabelVisibility.HOVER});
         gallery.addItems(getImages(50));
-        expectItemsCount(gallery, 50, expected.maxItemsInDom);
+        expectItemsCount(gallery, 50);
+        const mounted = container.querySelectorAll('.figure').length;
 
-        expect(container.querySelectorAll('figcaption.hover').length).toBe(expected.maxItemsInDom || 50);
-        expect(gallery.domCollection.length).toEqual(expected.maxItemsInDom || 50);
+        expect(container.querySelectorAll('figcaption.hover').length).toBe(mounted);
 
         gallery.setLabelHover(false);
         expect(container.querySelectorAll('figcaption.hover').length).toBe(0);
 
         gallery.setLabelHover(true);
-        expect(container.querySelectorAll('figcaption.hover').length).toBe(expected.maxItemsInDom || 50);
+        expect(container.querySelectorAll('figcaption.hover').length).toBe(mounted);
     });
 
     it('should emit pagination on the moment of listening start', () => {
@@ -900,27 +925,22 @@ export function testGallery<
     it('should init with page size', () => {
         const gallery = new galleryClass(container, {...options, rowsPerPage: 4});
         gallery.addItems(getImages(50));
-        expectItemsCount(gallery, 50, expected.itemsInFirstPage || 50);
-
-        if (gallery instanceof AbstractRowGallery) {
-            (gallery as unknown as {addRows: (v: number) => void}).addRows(4);
-            expectItemsCount(gallery, 50, expected.itemsInSecondPage || 50);
-        }
+        expectItemsCount(gallery, 50, expected.itemsInFirstPage);
     });
 
     it('should add second page', () => {
         const gallery = new galleryClass(container, {...options, rowsPerPage: 4});
         gallery.addItems(getImages(50));
-        expectItemsCount(gallery, 50, expected.itemsInFirstPage || 50);
+        expectItemsCount(gallery, 50, expected.itemsInFirstPage);
 
         (container.querySelector('.natural-gallery-next') as HTMLButtonElement).click();
-        expectItemsCount(gallery, 50, expected.itemsInSecondPage || 50);
+        expectItemsCount(gallery, 50, expected.itemsInSecondPage);
     });
 
     it('should resize', async () => {
         const gallery = new galleryClass(container, options);
         gallery.addItems(getImages(50));
-        expectItemsCount(gallery, 50, expected.maxItemsInDom);
+        expectItemsCount(gallery, 50);
 
         const iframe = container.querySelector('iframe');
         expect(iframe).toBeDefined();
@@ -935,8 +955,10 @@ export function testGallery<
         (gallery as unknown as {endResize: () => void}).endResize();
         expect(gallery.bodyElement.classList.contains('resizing')).toBe(false);
 
-        expectItemsCount(gallery, 50, expected.maxItemsInDom);
-        expect(container.querySelectorAll('figcaption').length).toBe(expected.maxItemsInDom || 50);
+        expectItemsCount(gallery, 50);
+        const mounted = container.querySelectorAll('.figure').length;
+        expect(mounted).toBeGreaterThan(0);
+        expect(container.querySelectorAll('figcaption').length).toBe(mounted);
     });
 
     it('should not reorganize empty collection on resize', async () => {
@@ -947,7 +969,7 @@ export function testGallery<
 
         (gallery as unknown as {endResize: () => void}).endResize();
 
-        expect(gallery.domCollection.length).toEqual(0);
+        expect(gallery.collection.length).toEqual(0);
         expect(container.querySelectorAll('figcaption').length).toBe(0);
     });
 
@@ -959,11 +981,8 @@ export function testGallery<
 
         scrollTo(1500);
 
-        // Capture domCollection size after scroll (onScroll may have loaded extra items)
-        const domCount = gallery.domCollection.length;
-
         // Fewer figures physically in DOM — top rows removed
-        expect(container.querySelectorAll('.figure').length).toBeLessThan(domCount);
+        expect(container.querySelectorAll('.figure').length).toBeLessThan(gallery.collection.length);
 
         scrollTo(0); // cleanup
     });
@@ -981,7 +1000,7 @@ export function testGallery<
 
         scrollTo(3000);
 
-        expect(container.contains(gallery.domCollection[0].rootElement!)).toBe(true);
+        expect(container.contains(gallery.collection[0].rootElement!)).toBe(true);
 
         scrollTo(0);
     });
@@ -998,11 +1017,9 @@ export function testGallery<
         scrollTo(2500);
         scrollTo(3000);
 
-        const domCount = gallery.domCollection.length;
-
         // Back to top: bottom rows (far below viewport) get removed
         scrollTo(0);
-        expect(container.querySelectorAll('.figure').length).toBeLessThan(domCount);
+        expect(container.querySelectorAll('.figure').length).toBeLessThan(gallery.collection.length);
 
         // Scroll toward bottom: bottom rows come back into range
         scrollTo(3000);
@@ -1032,7 +1049,7 @@ export function testGallery<
     it('should skip virtual scroll when viewport height is not yet known', () => {
         const gallery = new galleryClass(container, options);
         gallery.addItems(getImages(20));
-        const domCount = expected.maxItemsInDom ?? 20;
+        const domCount = container.querySelectorAll('.figure').length;
 
         (gallery as unknown as {currentViewportHeight: number}).currentViewportHeight = 0;
         (gallery as unknown as {onVirtualScroll: () => void}).onVirtualScroll();
@@ -1054,13 +1071,13 @@ export function testGallery<
         scrollTo(3000);
         scrollTo(0); // triggers bottom trim for galleries with enough rows
 
-        const domCount = gallery.domCollection.length;
+        const domCount = gallery.collection.length;
 
         // endResize must reorganize layout without losing or duplicating items (Natural/Square/Masonry alike)...
         const internal = gallery as unknown as {captureResizeAnchor: () => void; endResize: () => void};
         internal.captureResizeAnchor();
         internal.endResize();
-        expect(gallery.domCollection.length).toBe(domCount);
+        expect(gallery.collection.length).toBe(domCount);
 
         // ...and re-trim immediately to the viewport instead of leaving everything mounted until the next scroll
         const physicalCount = container.querySelectorAll('.figure').length;
@@ -1081,7 +1098,7 @@ export function testGallery<
         scrollTo(2000);
         scrollTo(2500);
 
-        const domCountBefore = gallery.domCollection.length;
+        const domCountBefore = gallery.collection.length;
 
         const scrollToSpy = vi.fn();
         Object.defineProperty(window, 'scrollTo', {value: scrollToSpy, writable: true, configurable: true});
@@ -1093,7 +1110,7 @@ export function testGallery<
         internal.endResize();
 
         // No items lost or duplicated by the relayout
-        expect(gallery.domCollection.length).toBe(domCountBefore);
+        expect(gallery.collection.length).toBe(domCountBefore);
 
         // Anchored: scrollTo was called with a strictly positive top, since we were deep-scrolled, not at the top —
         // this is what keeps the same content visible across the resize instead of drifting/jumping to the top
@@ -1127,8 +1144,8 @@ export function testGallery<
         scrollTo(0);
     });
 
-    it('should not crash finding a resize anchor when domCollection is empty but viewport is known', () => {
-        const gallery = new galleryClass(container, options); // no addItems — domCollection stays empty
+    it('should not crash finding a resize anchor when the collection is empty but viewport is known', () => {
+        const gallery = new galleryClass(container, options); // no addItems — the collection stays empty
         scrollTo(500); // currentViewportHeight becomes known (> 0) before any item exists
 
         const internal = gallery as unknown as {captureResizeAnchor: () => void; endResize: () => void};
@@ -1136,7 +1153,7 @@ export function testGallery<
             internal.captureResizeAnchor();
             internal.endResize();
         }).not.toThrow();
-        expect(gallery.domCollection.length).toBe(0);
+        expect(gallery.collection.length).toBe(0);
 
         scrollTo(0);
     });
@@ -1153,6 +1170,13 @@ export function testGallery<
             const gallery = new galleryClass(container, options);
             gallery.addItems(getImages(5));
 
+            // The iframe taking its size does not change the width of the gallery
+            mockContentWindow.dispatchEvent(new Event('resize'));
+            expect(gallery.bodyElement.classList.contains('resizing')).toBe(false);
+
+            Object.defineProperty(container, 'getBoundingClientRect', {
+                value: () => ({width: 200, top: -document.documentElement.scrollTop}),
+            });
             mockContentWindow.dispatchEvent(new Event('resize'));
 
             // startResize is debounced with {edges: ['leading']} — fires synchronously on first call
@@ -1162,51 +1186,59 @@ export function testGallery<
         }
     });
 
-    it('should add items to collection only when buffer is not exhausted', () => {
-        const gallery = new galleryClass(container, options);
-        gallery.addItems(getImages(100));
+    it('should end the resize 500ms after the last resize event that changes the width', () => {
+        vi.useFakeTimers();
+        const mockContentWindow = new EventTarget();
+        vi.spyOn(HTMLIFrameElement.prototype, 'contentWindow', 'get').mockReturnValue(
+            mockContentWindow as unknown as WindowProxy,
+        );
 
-        const domCountAfterFirst = gallery.domCollection.length;
-        const collectionCountAfterFirst = gallery.collection.length;
+        try {
+            const gallery = new galleryClass(container, options);
+            gallery.addItems(getImages(5));
 
-        // For galleries with a DOM limit (Natural, Square): collection > domCollection,
-        // so addToDom=false on the next call — items go to collection only, DOM unchanged.
-        // For Masonry (no limit): addToDom=true, items also go to DOM.
-        gallery.addItems(getImages(5));
+            Object.defineProperty(container, 'getBoundingClientRect', {
+                value: () => ({width: 200, top: -document.documentElement.scrollTop}),
+            });
+            mockContentWindow.dispatchEvent(new Event('resize'));
+            expect(gallery.bodyElement.classList.contains('resizing')).toBe(true);
 
-        expect(gallery.collection.length).toBe(collectionCountAfterFirst + 5);
-        expect(gallery.domCollection.length).toBeGreaterThanOrEqual(domCountAfterFirst);
+            vi.advanceTimersByTime(500);
+            expect(gallery.bodyElement.classList.contains('resizing')).toBe(false);
+
+            // The items are now organized for that width
+            mockContentWindow.dispatchEvent(new Event('resize'));
+            expect(gallery.bodyElement.classList.contains('resizing')).toBe(false);
+        } finally {
+            vi.useRealTimers();
+            vi.restoreAllMocks();
+        }
     });
 
-    it('should skip duplicate pagination request for the same offset', async () => {
+    it('should lay out every received item at once', () => {
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(100));
+        gallery.addItems(getImages(5));
+
+        expect(gallery.collection.length).toBe(105);
+        expect(gallery.collection.every(item => item.width > 0 && item.height > 0)).toBe(true);
+    });
+    it('should skip duplicate pagination request for the same offset', () => {
         const gallery = new galleryClass(container, options);
         gallery.addItems(getImages(50));
 
-        const internal = gallery as unknown as {
-            requestedIndexesLog: number[];
-            requiredItems: number;
-            flushBufferedItems: () => void;
-        };
+        const internal = gallery as unknown as {requestedIndexesLog: number[]; requestNextPage: () => void};
 
         // Pre-log the current collection length to simulate a request already in flight
         internal.requestedIndexesLog.push(gallery.collection.length);
-        internal.requiredItems = 1;
 
         // Use container directly — gallery.addEventListener fires immediately (by design)
         const paginationSpy = vi.fn();
         container.addEventListener('pagination', paginationSpy);
 
-        // Reset the debounce timer; when it fires the dedup guard should prevent emission
-        internal.flushBufferedItems();
-        await new Promise(resolve => setTimeout(resolve, 600));
-
+        internal.requestNextPage();
         expect(paginationSpy).toHaveBeenCalledTimes(0);
-
-        // requiredItems must be reset even though we skipped dispatching, otherwise it leaks and accumulates
-        // across cycles until it eventually inflates a future, genuinely new pagination request
-        expect(internal.requiredItems).toBe(0);
     });
-
     it('should scroll to a given displayed item via scrollToItem', () => {
         const gallery = new galleryClass(container, options);
         gallery.addItems(getImages(20));
@@ -1214,26 +1246,24 @@ export function testGallery<
         const scrollToSpy = vi.fn();
         Object.defineProperty(window, 'scrollTo', {value: scrollToSpy, writable: true, configurable: true});
 
-        const target = gallery.domCollection[gallery.domCollection.length - 1];
+        const target = gallery.collection[gallery.collection.length - 1];
         gallery.scrollToItem(target);
 
         expect(scrollToSpy).toHaveBeenCalledTimes(1);
         expect(scrollToSpy.mock.calls[0][0].top).toBeGreaterThanOrEqual(0);
     });
 
-    it('should do nothing when scrolling to an item not yet displayed', () => {
+    it('should do nothing when scrolling to an item that is not part of the collection', () => {
         const gallery = new galleryClass(container, options);
-        gallery.addItems(getImages(50));
+        gallery.addItems(getImages(5));
+
+        const otherGallery = new galleryClass(getContainerElement(), options);
+        otherGallery.addItems(getImages(1));
 
         const scrollToSpy = vi.fn();
         Object.defineProperty(window, 'scrollTo', {value: scrollToSpy, writable: true, configurable: true});
 
-        // Only meaningful for galleries that actually buffer items beyond domCollection (Natural/Square in jsdom;
-        // Masonry adds everything to DOM in jsdom, see "Due to jsdom limitations" comment above)
-        if (gallery.domCollection.length < gallery.collection.length) {
-            const notDisplayedItem = gallery.collection[gallery.collection.length - 1];
-            gallery.scrollToItem(notDisplayedItem);
-            expect(scrollToSpy).not.toHaveBeenCalled();
-        }
+        gallery.scrollToItem(otherGallery.collection[0]);
+        expect(scrollToSpy).not.toHaveBeenCalled();
     });
 }

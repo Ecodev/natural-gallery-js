@@ -1,7 +1,7 @@
-import {Masonry} from '../../src';
+import {Item, Masonry} from '../../src';
 import {Column} from '../../src/js/Column';
 import {describe, expect, it, vi} from 'vitest';
-import {getContainerElement, getImages} from './utils';
+import {getContainerElement, getImages, scrollTo} from './utils';
 import {getBaseExpectedOptions, testGallery} from './abstract-gallery';
 
 describe('Masonry Gallery', () => {
@@ -16,6 +16,8 @@ describe('Masonry Gallery', () => {
             },
         },
         {
+            itemsInFirstPage: 12, // 4 rows per page × 3 columns
+            itemsInSecondPage: 24,
             options: {
                 ...getBaseExpectedOptions(),
                 columnWidth: 400,
@@ -37,23 +39,22 @@ describe('Masonry Gallery', () => {
         const container = getContainerElement();
         const gallery = new Masonry(container, {columnWidth: 400, ratioLimit: {max: 0.8}});
         gallery.addItems(getImages(5));
-        expect(gallery.domCollection.length).toBe(5);
+        expect(gallery.collection.every(item => item.height > 0)).toBe(true);
     });
 
-    it('should pick the shortest column when heights differ', () => {
+    it('should put a new item in the column with the smallest total height', () => {
         const container = getContainerElement();
         const gallery = new Masonry(container, {columnWidth: 400});
-        gallery.addItems(getImages(3));
+        const images = getImages(4);
+        images[0].enlargedHeight = 3000;
+        images[1].enlargedHeight = 500;
+        images[2].enlargedHeight = 2000;
 
-        // Give the second column a smaller height so it becomes the shortest
-        const columnElements = container.querySelectorAll<HTMLElement>('.column');
-        Object.defineProperty(columnElements[0], 'offsetHeight', {value: 200, configurable: true});
-        Object.defineProperty(columnElements[1], 'offsetHeight', {value: 10, configurable: true});
-        Object.defineProperty(columnElements[2], 'offsetHeight', {value: 300, configurable: true});
+        gallery.addItems(images.slice(0, 3)); // One item per column
+        gallery.addItems(images.slice(3));
 
-        const domCountBefore = gallery.domCollection.length;
-        gallery.addItems(getImages(1));
-        expect(gallery.domCollection.length).toBe(domCountBefore + 1);
+        const columns = (gallery as unknown as {columns: Column<never>[]}).columns;
+        expect(columns[1].items).toContain(gallery.collection[3]);
     });
 
     it('should do nothing when scrollToItem target belongs to no column', () => {
@@ -99,6 +100,47 @@ describe('Masonry Gallery', () => {
 
         expect(internal.resizeAnchor?.item).toBe(itemA);
     });
+
+    it('should anchor on the item of the first column crossing the top of the viewport when the next one is taller than the viewport', () => {
+        scrollTo(0);
+
+        // Every item is 1695px high, the first column holds items 0 and 3
+        const gallery = new Masonry(getContainerElement(1024), {columnWidth: 400});
+        gallery.addItems(getImages(4).map(image => ({...image, enlargedWidth: 1080, enlargedHeight: 5400})));
+
+        scrollTo(500);
+        const internal = gallery as unknown as {captureResizeAnchor: () => void; resizeAnchor: {item: Item} | null};
+        internal.captureResizeAnchor();
+        expect(internal.resizeAnchor?.item).toBe(gallery.collection[0]);
+
+        scrollTo(0);
+    });
+
+    it('should not anchor without any column', () => {
+        const gallery = new Masonry(getContainerElement(0), {columnWidth: 400});
+        const internal = gallery as unknown as {
+            captureResizeAnchor: () => void;
+            resizeAnchor: {item: Item} | null;
+            currentViewportHeight: number;
+        };
+        internal.currentViewportHeight = 768;
+
+        internal.captureResizeAnchor();
+        expect(internal.resizeAnchor).toBeNull();
+    });
+
+    it('should mount and see no item while the viewport height is unknown', () => {
+        const container = getContainerElement();
+        const gallery = new Masonry(container, {columnWidth: 400});
+        gallery.addItems(getImages(5));
+
+        const internal = gallery as unknown as {mountAroundViewport: () => void; currentViewportHeight: number};
+        internal.currentViewportHeight = 0;
+        internal.mountAroundViewport();
+
+        expect(container.querySelectorAll('.figure').length).toBe(0);
+        expect(gallery.getVisibleCollection()).toEqual([]);
+    });
 });
 
 describe('Column', () => {
@@ -143,19 +185,6 @@ describe('Column', () => {
         expect(column.cumulativeHeightBefore(2)).toBe(308); // 100+4 + 200+4
     });
 
-    it('should mount all items with no hidden/spacer state via mountAll', () => {
-        const column = new Column(document, {width: 100, gap: 4});
-        [100, 200].forEach(h => column.addItem(mockItem(h)));
-
-        column.mountAll();
-
-        expect(column.hiddenFromTopCount).toBe(0);
-        expect(column.hiddenFromBottomCount).toBe(0);
-        expect(column.topSpacerHeight).toBe(0);
-        expect(column.bottomSpacerHeight).toBe(0);
-        expect(column.elementRef.children.length).toBe(2);
-    });
-
     it('should mount only the visible window via mountVisibleWindow, with top and bottom spacers', () => {
         const column = new Column(document, {width: 100, gap: 4});
         [100, 100, 100, 100, 100].forEach(h => column.addItem(mockItem(h)));
@@ -194,5 +223,16 @@ describe('Column', () => {
         expect(column.elementRef.children.length).toBe(2);
         expect(column.hiddenFromTopCount).toBe(0);
         expect(column.hiddenFromBottomCount).toBe(0);
+    });
+
+    it('should restore the last item hidden from the top when no item is mounted', () => {
+        const column = new Column(document, {width: 100, gap: 4});
+        [100, 100].forEach(h => column.addItem(mockItem(h)));
+
+        column.mountVisibleWindow(1000, 2000, 0); // Window below the column
+        expect(column.hiddenFromTopCount).toBe(2);
+
+        column.restoreTopItem();
+        expect(column.elementRef.children.length).toBe(1);
     });
 });

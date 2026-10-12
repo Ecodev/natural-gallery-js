@@ -1,6 +1,6 @@
 import {ModelAttributes, Square} from '../../src';
 import {describe, expect, it} from 'vitest';
-import {getContainerElement, getSize} from './utils';
+import {getContainerElement, getImages, getSize} from './utils';
 import {getBaseExpectedOptions, testGallery} from './abstract-gallery';
 
 describe('Square Gallery', () => {
@@ -8,8 +8,6 @@ describe('Square Gallery', () => {
         Square,
         {itemsPerRow: 4, gap: 4},
         {
-            maxItemsInDom: 16,
-            itemsAfterScroll: 20,
             itemsInFirstPage: 16,
             itemsInSecondPage: 32,
             options: {
@@ -96,5 +94,14 @@ describe('Square Gallery', () => {
         ];
 
         expect(gallery.collection.map(getSize)).toEqual(result);
+    });
+
+    it('should organize only up to the given row', () => {
+        const gallery = new Square(getContainerElement(), {itemsPerRow: 4});
+        gallery.addItems(getImages(6));
+        gallery.collection.forEach(item => (item.row = -1));
+
+        Square.organizeItems(gallery, gallery.collection, 0, 0);
+        expect(gallery.collection.map(item => item.row)).toEqual([0, 0, 0, 0, -1, -1]);
     });
 });

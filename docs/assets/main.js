@@ -22,6 +22,29 @@ export function setupSelectionButtons(gallery) {
     render();
 }
 
+/**
+ * The rowsPerPage option is set when the gallery is created, so the demo switches between the infinite scroll and the
+ * next button mode by reloading the page with the rowsPerPage URL parameter
+ */
+function setupPaginationToggle(options) {
+    const url = new URL(window.location.href);
+    const rowsPerPage = Number(url.searchParams.get('rowsPerPage'));
+    if (rowsPerPage > 0) {
+        options.rowsPerPage = rowsPerPage;
+    }
+
+    const toggle = document.getElementById('togglePagination');
+    if (options.rowsPerPage) {
+        url.searchParams.delete('rowsPerPage');
+        toggle.textContent = 'Infinite scroll';
+    } else {
+        url.searchParams.set('rowsPerPage', '6');
+        toggle.textContent = 'Next button';
+    }
+
+    toggle.href = url.toString();
+}
+
 export function setupDemo(galleryClass, options) {
     let gallery;
     let lastSearch;
@@ -34,6 +57,7 @@ export function setupDemo(galleryClass, options) {
         let suggestions = document.getElementsByClassName('suggestion');
         let toggleLabelElements = document.getElementsByClassName('toggleLabels');
         loadingBar = document.getElementById('loadingBar');
+        setupPaginationToggle(options);
 
         // Create gallery
         gallery = new galleryClass(galleryElement, options, scrollableElement);
@@ -67,12 +91,12 @@ export function setupDemo(galleryClass, options) {
             console.log('activate', ev.detail);
         });
 
-        gallery.addEventListener('item-displayed', function(ev) {
-            console.log('item-displayed', ev.detail);
+        gallery.addEventListener('visible-collection-change', function(ev) {
+            console.log('visible-collection-change', ev.detail);
         });
 
-        gallery.addEventListener('item-added-to-dom', function(ev) {
-            console.log('item-added-to-dom', ev.detail);
+        gallery.addEventListener('item-element-created', function(ev) {
+            console.log('item-element-created', ev.detail);
         });
 
         gallery.addEventListener('zoom', function(ev) {

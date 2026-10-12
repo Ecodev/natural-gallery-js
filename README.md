@@ -42,6 +42,14 @@ The most useful commands for development are:
 - `pnpm build` to build the lib and the docs locally (it will be published automatically by GitHub Actions `deploy` job)
 - `git tag -am 1.2.3 1.2.3 && git push` to publish the lib to npm (via GitHub Actions `release` job)
 
+While `pnpm dev` runs, the docs are served on http://localhost:4000, including two test pages:
+
+- http://localhost:4000/test is the page used by the e2e tests. The page starts empty, each test creates its own gallery. `Natural`, `Square`, `Masonry` and `images` are available as globals, so a gallery can be created from the browser console:
+    ```js
+    new Natural(document.getElementById('gallery'), {rowHeight: 400}).addItems(images);
+    ```
+- http://localhost:4000/test-raw shows a Natural gallery already filled with images.
+
 ## Licence
 
 Developed by [Ecodev](https://ecodev.ch) under MIT licence, the app is free of use, even for commercial usage. Even if it's not required, a credit would be much appreciated.

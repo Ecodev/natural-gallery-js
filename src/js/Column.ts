@@ -15,18 +15,18 @@ export class Column<Model extends ModelAttributes> {
     private _bottomSpacerHeight = 0;
     private _totalHeight = 0;
 
+    /**
+     * @param mountItem Returns the root element of given item, created the first time the item is mounted
+     */
     public constructor(
         document: Document,
         private options: ColumnOptions,
+        private readonly mountItem: (item: Item<Model>) => HTMLElement = item => item.rootElement!,
     ) {
         this._elementRef = document.createElement('div');
         this._elementRef.classList.add('column');
         this._elementRef.style.width = this.options.width + 'px';
         this._elementRef.style.gap = this.options.gap + 'px';
-    }
-
-    get height(): number {
-        return this._elementRef.offsetHeight;
     }
 
     get elementRef(): HTMLElement {
@@ -86,18 +86,18 @@ export class Column<Model extends ModelAttributes> {
     }
 
     /**
-     * Mount every item with no hidden/spacer state. Used when the viewport height isn't known yet (no scroll event
-     * has fired), where virtualizing would be incorrect since we don't know what's actually visible.
+     * Mount the first given number of items, and keep the following items out of the DOM without any spacer. Used
+     * with rowsPerPage, where the following items stay hidden until the next button is clicked.
      */
-    public mountAll(): void {
+    public mountFirstItems(count: number): void {
         this._elementRef.innerHTML = '';
         this._hiddenFromTopCount = 0;
         this._topSpacerHeight = 0;
-        this._hiddenFromBottomCount = 0;
+        this._hiddenFromBottomCount = this._items.length - count;
         this._bottomSpacerHeight = 0;
         this._elementRef.style.paddingTop = '0';
         this._elementRef.style.paddingBottom = '0';
-        this._items.forEach(item => this._elementRef.appendChild(item.rootElement!));
+        this._items.slice(0, count).forEach(item => this._elementRef.appendChild(this.mountItem(item)));
     }
 
     /**
@@ -159,7 +159,7 @@ export class Column<Model extends ModelAttributes> {
         this._bottomSpacerHeight = bottomSpacer;
         this._elementRef.style.paddingTop = topSpacer + 'px';
         this._elementRef.style.paddingBottom = bottomSpacer + 'px';
-        visible.forEach(item => this._elementRef.appendChild(item.rootElement!));
+        visible.forEach(item => this._elementRef.appendChild(this.mountItem(item)));
     }
 
     public trimTopItem(): void {
@@ -178,7 +178,7 @@ export class Column<Model extends ModelAttributes> {
         this._topSpacerHeight = Math.max(0, this._topSpacerHeight - item.height - this.options.gap);
         this._elementRef.style.paddingTop = this._topSpacerHeight + 'px';
         const nextVisible = this._items[this._hiddenFromTopCount + 1]?.rootElement ?? null;
-        this._elementRef.insertBefore(item.rootElement!, nextVisible);
+        this._elementRef.insertBefore(this.mountItem(item), nextVisible);
     }
 
     public trimBottomItem(): void {
@@ -196,6 +196,6 @@ export class Column<Model extends ModelAttributes> {
         const item = this._items[this._items.length - this._hiddenFromBottomCount - 1];
         this._bottomSpacerHeight = Math.max(0, this._bottomSpacerHeight - item.height - this.options.gap);
         this._elementRef.style.paddingBottom = this._bottomSpacerHeight + 'px';
-        this._elementRef.appendChild(item.rootElement!);
+        this._elementRef.appendChild(this.mountItem(item));
     }
 }
