@@ -1164,10 +1164,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         this.selectionDrag = drag;
         const signal = drag.abortController.signal;
 
-        // The style reveals the selection progressively until the long press selects the item
-        if (drag.select) {
-            item.rootElement?.classList.add('long-pressing');
-        }
+        // The style reveals the selection, or the deselection, progressively until the long press changes the item
+        item.rootElement?.classList.add('long-pressing');
 
         // Near an edge of the scroll viewport, the gallery scrolls on each frame
         let autoScrollFrame = 0;

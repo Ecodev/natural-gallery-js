@@ -557,9 +557,11 @@ export function testGallery<
         it('should unselect the items under the pointer path when the drag starts on a selected item', () => {
             gallery.selectCollection();
 
+            const longPressing = () => gallery.collection[3].rootElement!.classList.contains('long-pressing');
             image(3).dispatchEvent(pointer('pointerdown', at(3)));
-            expect(gallery.collection[3].rootElement!.classList.contains('long-pressing')).toBe(false);
+            expect(longPressing()).toBe(true);
             document.dispatchEvent(pointer('pointermove', at(5)));
+            expect(longPressing()).toBe(false);
             expect(selectedIndexes()).toEqual([0, 1, 2, 6, 7, 8, 9]);
         });
 

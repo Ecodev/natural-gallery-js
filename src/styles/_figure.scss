@@ -277,4 +277,14 @@ $defaultBorderRadius: 8px;
         transform: translateY(calc((-100% - 15px) * 0.3));
         transition: transform 0.3s linear 0.1s;
     }
+
+    // On a selected item, the long press deselects the item with the reverse animation
+    .root.selected.long-pressing {
+        border: calc(var(--ngjs-selected-border-width, 3px) * 0.3) solid
+            color-mix(in srgb, var(--ngjs-selected-marker-color, orange) 30%, transparent);
+    }
+
+    &:not(.selection-mode) .root.selected.long-pressing:not(:hover) .select-btn {
+        transform: translateY(calc((-100% - 15px) * 0.7));
+    }
 }

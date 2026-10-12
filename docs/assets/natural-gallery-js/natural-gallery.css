@@ -209,6 +209,12 @@
   transform: translateY(calc((-100% - 15px) * 0.3));
   transition: transform 0.3s linear 0.1s;
 }
+.natural-gallery-js .root.selected.long-pressing {
+  border: calc(var(--ngjs-selected-border-width, 3px) * 0.3) solid color-mix(in srgb, var(--ngjs-selected-marker-color, orange) 30%, transparent);
+}
+.natural-gallery-js:not(.selection-mode) .root.selected.long-pressing:not(:hover) .select-btn {
+  transform: translateY(calc((-100% - 15px) * 0.7));
+}
 
 .pswp {
   z-index: 9999999;
