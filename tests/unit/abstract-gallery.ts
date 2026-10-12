@@ -1009,6 +1009,26 @@ export function testGallery<
         expect(container.querySelectorAll('.figure').length).toBeGreaterThan(0);
     });
 
+    it('should mount only the items around the viewport after a jump far from the mounted items', () => {
+        scrollTo(0);
+
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(100));
+
+        for (let top = 500; top <= 6000; top += 500) {
+            scrollTo(top);
+        }
+        const mountedAtBottom = container.querySelectorAll('.figure').length;
+
+        scrollTo(0);
+        scrollTo(6000);
+
+        // Same items mounted as when reaching that position by scrolling, instead of every item in between
+        expect(container.querySelectorAll('.figure').length).toBeLessThanOrEqual(mountedAtBottom);
+
+        scrollTo(0);
+    });
+
     it('should skip virtual scroll when viewport height is not yet known', () => {
         const gallery = new galleryClass(container, options);
         gallery.addItems(getImages(20));

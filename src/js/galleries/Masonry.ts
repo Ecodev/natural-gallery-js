@@ -84,6 +84,17 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         const viewportBottom = this.currentScrollTop + this.currentViewportHeight;
 
         for (const column of this.columns) {
+            // A jump far from the mounted items (scrollbar drag, Home/End keys, programmatic scroll) would otherwise
+            // mount every item in between, one at a time, before trimming them on the next scroll event
+            const windowTop = this.currentScrollTop - overscan;
+            const windowBottom = viewportBottom + overscan;
+            const mountedTop = galleryTop + column.topSpacerHeight;
+            const mountedBottom = galleryTop + column.totalHeight - column.bottomSpacerHeight;
+            if (!column.hasVisibleItems || mountedBottom < windowTop || mountedTop > windowBottom) {
+                column.mountVisibleWindow(windowTop, windowBottom, galleryTop);
+                continue;
+            }
+
             while (column.hasVisibleItems) {
                 const item = column.firstVisibleItem!;
                 const rowBottom = galleryTop + column.topSpacerHeight + item.height;

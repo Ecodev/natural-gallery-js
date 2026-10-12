@@ -22,6 +22,21 @@ export abstract class AbstractRowGallery<
     protected onVirtualScroll(): void {
         if (this.currentViewportHeight <= 0) return;
         const galleryTop = this.getGalleryTop();
+
+        // A jump far from the mounted rows (scrollbar drag, Home/End keys, programmatic scroll) would otherwise
+        // mount every row in between, one at a time, before trimming them on the next scroll event
+        const overscan = this.currentViewportHeight;
+        const windowTop = this.currentScrollTop - overscan;
+        const windowBottom = this.currentScrollTop + this.currentViewportHeight + overscan;
+        const mountedTop = galleryTop + this.virtualTopPadding;
+        const mountedBottom = galleryTop + this.virtualTotalHeight - this.virtualBottomPadding;
+        const hasMountedRows =
+            this.virtualHiddenFromTopCount + this.virtualHiddenFromBottomCount < this._domCollection.length;
+        if (!hasMountedRows || mountedBottom < windowTop || mountedTop > windowBottom) {
+            this.mountVisibleWindow(windowTop, windowBottom, galleryTop);
+            return;
+        }
+
         this.trimTopRows(galleryTop);
         this.restoreTopRows(galleryTop);
         this.trimBottomRows(galleryTop);
@@ -79,8 +94,6 @@ export abstract class AbstractRowGallery<
         const anchor = this.resizeAnchor;
         this.resizeAnchor = null;
 
-        this.restoreAllTopItems();
-        this.restoreAllBottomItems();
         super.endResize();
 
         if (!this.domCollection.length) {
@@ -88,42 +101,33 @@ export abstract class AbstractRowGallery<
         }
 
         this.organizeItems(this.domCollection);
-        this.recomputeVirtualTotalHeight();
 
         // The browser may have already silently clamped the real scroll position by now (e.g. CSS flex-wrap
         // re-wrapping figures at their old width as soon as the container got wider/narrower, before any of our
         // JS ran) — currentScrollTop can no longer be trusted to reflect where the user actually was. Use the
-        // anchor-derived target instead, so the re-trim below operates on consistent data with where we're about
-        // to scroll, rather than a stale/corrupted value.
+        // anchor-derived target instead, so the mount window below is consistent with where we're about to
+        // scroll, rather than a stale/corrupted value.
         const anchorNewTop = anchor ? this.getItemTop(anchor.item) : null;
         const targetTop = anchor && anchorNewTop !== null ? Math.max(0, anchorNewTop + anchor.offset) : null;
         if (targetTop !== null) {
             this.currentScrollTop = targetTop;
         }
 
-        // Re-trim immediately instead of leaving everything mounted until the next scroll event
+        // Mount only the rows around the viewport, instead of mounting everything and trimming afterwards
+        const galleryTop = this.getGalleryTop();
         if (this.currentViewportHeight > 0) {
-            const galleryTop = this.getGalleryTop();
-            this.trimTopRows(galleryTop);
-            this.trimBottomRows(galleryTop);
+            const overscan = this.currentViewportHeight;
+            this.mountVisibleWindow(
+                this.currentScrollTop - overscan,
+                this.currentScrollTop + this.currentViewportHeight + overscan,
+                galleryTop,
+            );
+        } else {
+            this.mountVisibleWindow(-Infinity, Infinity, galleryTop);
         }
 
         if (targetTop !== null) {
             this.applyScrollPosition(targetTop);
-        }
-    }
-
-    /**
-     * Recompute total height of the whole domCollection (used by endResize() and addRows())
-     */
-    protected recomputeVirtualTotalHeight(): void {
-        this.virtualTotalHeight = 0;
-        let lastRow = -1;
-        for (const item of this._domCollection) {
-            if (item.row !== lastRow) {
-                this.virtualTotalHeight += item.height + this.options.gap;
-                lastRow = item.row;
-            }
         }
     }
 
@@ -292,29 +296,53 @@ export abstract class AbstractRowGallery<
         }
     }
 
-    private restoreAllTopItems(): void {
-        if (this.virtualHiddenFromTopCount === 0) return;
+    /**
+     * Mount only the rows whose [top, bottom] intersects [windowTop, windowBottom], and fold every other row into
+     * the top or bottom padding. Row positions come from the row heights alone, with no DOM read, and the DOM is
+     * touched once at the end. Existing rootElement nodes are reused, so images neither reload nor flicker.
+     */
+    private mountVisibleWindow(windowTop: number, windowBottom: number, galleryTop: number): void {
+        let cumulative = 0;
+        let hiddenFromTopCount = 0;
+        let topPadding = 0;
+        let hiddenFromBottomCount = 0;
+        let bottomPadding = 0;
+        const visible: HTMLElement[] = [];
 
-        const firstCurrentElement = this._domCollection[this.virtualHiddenFromTopCount]?.rootElement ?? null;
-        for (let i = 0; i < this.virtualHiddenFromTopCount; i++) {
-            this.bodyElementRef.insertBefore(this._domCollection[i].rootElement!, firstCurrentElement);
+        let i = 0;
+        const n = this._domCollection.length;
+        while (i < n) {
+            const rowStart = i;
+            const row = this._domCollection[i].row;
+            const rowHeight = this._domCollection[i].height;
+            while (i < n && this._domCollection[i].row === row) {
+                i++;
+            }
+
+            const rowTop = galleryTop + cumulative;
+            const rowBottom = rowTop + rowHeight;
+            cumulative += rowHeight + this.options.gap;
+
+            if (rowBottom < windowTop) {
+                hiddenFromTopCount = i;
+                topPadding += rowHeight + this.options.gap;
+            } else if (rowTop > windowBottom) {
+                hiddenFromBottomCount += i - rowStart;
+                bottomPadding += rowHeight + this.options.gap;
+            } else {
+                for (let j = rowStart; j < i; j++) {
+                    visible.push(this._domCollection[j].rootElement!);
+                }
+            }
         }
 
-        this.virtualHiddenFromTopCount = 0;
-        this.virtualTopPadding = 0;
-        this.bodyElementRef.style.paddingTop = '0';
-    }
-
-    private restoreAllBottomItems(): void {
-        if (this.virtualHiddenFromBottomCount === 0) return;
-
-        const startIdx = this._domCollection.length - this.virtualHiddenFromBottomCount;
-        for (let i = startIdx; i < this._domCollection.length; i++) {
-            this.bodyElementRef.appendChild(this._domCollection[i].rootElement!);
-        }
-
-        this.virtualHiddenFromBottomCount = 0;
-        this.virtualBottomPadding = 0;
-        this.bodyElementRef.style.paddingBottom = '0';
+        this.virtualTotalHeight = cumulative;
+        this.virtualHiddenFromTopCount = hiddenFromTopCount;
+        this.virtualTopPadding = topPadding;
+        this.virtualHiddenFromBottomCount = hiddenFromBottomCount;
+        this.virtualBottomPadding = bottomPadding;
+        this.bodyElementRef.style.paddingTop = topPadding + 'px';
+        this.bodyElementRef.style.paddingBottom = bottomPadding + 'px';
+        this.bodyElementRef.replaceChildren(...visible);
     }
 }

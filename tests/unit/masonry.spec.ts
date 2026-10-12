@@ -171,6 +171,20 @@ describe('Column', () => {
         expect(column.bottomSpacerHeight).toBe(208);
     });
 
+    it('should fold items below the window into the bottom spacer via mountVisibleWindow', () => {
+        const column = new Column(document, {width: 100, gap: 4});
+        [100, 100].forEach(h => column.addItem(mockItem(h)));
+
+        // Window entirely above the column, e.g. after jumping back to the top of a page with a header
+        column.mountVisibleWindow(-1000, -500, 0);
+
+        expect(column.elementRef.children.length).toBe(0);
+        expect(column.hiddenFromTopCount).toBe(0);
+        expect(column.hiddenFromBottomCount).toBe(2);
+        expect(column.topSpacerHeight).toBe(0);
+        expect(column.bottomSpacerHeight).toBe(208);
+    });
+
     it('should mount everything via mountVisibleWindow when the whole column fits in the window', () => {
         const column = new Column(document, {width: 100, gap: 4});
         [100, 100].forEach(h => column.addItem(mockItem(h)));

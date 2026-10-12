@@ -114,12 +114,12 @@ export class Column<Model extends ModelAttributes> {
      * from scratch rather than patching what changed. We never ask the browser where an item is — we just add up
      * heights as we go, so by the time we reach an item we already know where it starts and ends.
      *
-     * For each item, the question is simply: does it fall inside the window we care about?
-     *   - yes -> mount it
-     *   - no, and nothing has been mounted yet -> it's above the window, fold it into the top spacer
-     *   - no, but something has already been mounted -> it's below the window, fold it into the bottom spacer
-     * Because the list is already top to bottom, that's enough to know which spacer it belongs to — we never
-     * have to check both directions.
+     * For each item, the question is simply: where does it fall compared to the window we care about?
+     *   - entirely above -> fold it into the top spacer
+     *   - entirely below -> fold it into the bottom spacer
+     *   - otherwise -> mount it
+     * Because the list is already top to bottom, items above the window always come first and items below it
+     * always come last.
      *
      * Only once every item has been sorted this way do we actually touch the DOM: clear the column, set the two
      * spacers, then put the mounted items back. We reuse their existing elements instead of recreating them,
@@ -133,7 +133,6 @@ export class Column<Model extends ModelAttributes> {
         let bottomSpacer = 0;
         let hiddenTop = 0;
         let hiddenBottom = 0;
-        let mountedAny = false; // true as soon as we've crossed into the window — tells us which side we're on
         const visible: Item<Model>[] = [];
 
         for (const item of this._items) {
@@ -141,19 +140,14 @@ export class Column<Model extends ModelAttributes> {
             const itemBottom = cumulative + item.height;
             cumulative = itemBottom + this.options.gap; // move the running total forward before deciding this one
 
-            const isVisible = galleryTop + itemBottom >= viewportTop && galleryTop + itemTop <= viewportBottom;
-
-            if (isVisible) {
-                visible.push(item);
-                mountedAny = true;
-            } else if (!mountedAny) {
-                // haven't reached the window yet, so this one is above it
+            if (galleryTop + itemBottom < viewportTop) {
                 hiddenTop++;
                 topSpacer += item.height + this.options.gap;
-            } else {
-                // already went through the window, so this one is below it
+            } else if (galleryTop + itemTop > viewportBottom) {
                 hiddenBottom++;
                 bottomSpacer += item.height + this.options.gap;
+            } else {
+                visible.push(item);
             }
         }
 

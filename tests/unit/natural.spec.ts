@@ -90,8 +90,7 @@ describe('Natural Gallery', () => {
         // Simulate all dom items having been trimmed from the top
         (gallery as unknown as {virtualHiddenFromTopCount: number}).virtualHiddenFromTopCount = domCount;
 
-        // endResize calls restoreAllTopItems; with virtualHiddenFromTopCount === domCollection.length,
-        // _domCollection[domCount] is undefined, triggering the ?? null fallback
+        // endResize remounts the rows from their heights alone, whatever the previous hidden state was
         (gallery as unknown as {endResize: () => void}).endResize();
 
         expect(container.querySelectorAll('.figure').length).toBe(domCount);
