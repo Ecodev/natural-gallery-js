@@ -264,10 +264,10 @@ $defaultBorderRadius: 8px;
     }
 
     // The long press selects the item after 500ms. From 100ms to 400ms, the border and the checkbox appear
-    // progressively, then the selection completes them. Before 100ms, a simple click shows nothing.
+    // progressively, then the selection completes them. Before 100ms, a simple click shows nothing. Without
+    // color-mix(), the border keeps the opaque marker color and only its width changes.
     .root.long-pressing {
-        border: calc(var(--ngjs-selected-border-width, 3px) * 0.7) solid
-            color-mix(in srgb, var(--ngjs-selected-marker-color, orange) 70%, transparent);
+        border: calc(var(--ngjs-selected-border-width, 3px) * 0.7) solid var(--ngjs-selected-marker-color, orange);
         transition:
             border 0.3s linear 0.1s,
             background-color 1s;
@@ -280,8 +280,19 @@ $defaultBorderRadius: 8px;
 
     // On a selected item, the long press deselects the item with the reverse animation
     .root.selected.long-pressing {
-        border: calc(var(--ngjs-selected-border-width, 3px) * 0.3) solid
-            color-mix(in srgb, var(--ngjs-selected-marker-color, orange) 30%, transparent);
+        border-width: calc(var(--ngjs-selected-border-width, 3px) * 0.3);
+    }
+
+    // A var() inside color-mix() makes the declaration valid at parse time, so an unsupported color-mix() would not
+    // fall back on the previous declaration, but would remove the border color
+    @supports (color: color-mix(in srgb, red 50%, transparent)) {
+        .root.long-pressing {
+            border-color: color-mix(in srgb, var(--ngjs-selected-marker-color, orange) 70%, transparent);
+        }
+
+        .root.selected.long-pressing {
+            border-color: color-mix(in srgb, var(--ngjs-selected-marker-color, orange) 30%, transparent);
+        }
     }
 
     &:not(.selection-mode) .root.selected.long-pressing:not(:hover) .select-btn {
