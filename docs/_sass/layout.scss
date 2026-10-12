@@ -43,6 +43,14 @@
             padding-right: theme.$gap;
         }
     }
+
+    @media (max-width: 600px) {
+        [class*='container'] {
+            max-width: none;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+    }
 }
 
 .align-start {

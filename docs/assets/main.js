@@ -7,7 +7,7 @@ export function setupSelectionButtons(gallery) {
         const count = gallery.selectedItems.length;
         selectButton.style.display = active ? 'none' : '';
         unselectButton.style.display = active ? '' : 'none';
-        unselectButton.textContent = count ? 'Unselect ' + count + (count > 1 ? ' images' : ' image') : 'Stop selecting';
+        unselectButton.textContent = count ? '✖️ ' + count : '✖️ Stop';
     }
 
     selectButton.addEventListener('click', () => gallery.setSelectionModeActive(true));
@@ -33,16 +33,17 @@ function setupPaginationToggle(options) {
         options.rowsPerPage = rowsPerPage;
     }
 
-    const toggle = document.getElementById('togglePagination');
+    const infiniteButton = document.getElementById('infinitePagination');
+    const pagedButton = document.getElementById('pagedPagination');
     if (options.rowsPerPage) {
         url.searchParams.delete('rowsPerPage');
-        toggle.textContent = 'Infinite scroll';
+        pagedButton.classList.add('active');
+        infiniteButton.href = url.toString();
     } else {
         url.searchParams.set('rowsPerPage', '6');
-        toggle.textContent = 'Next button';
+        infiniteButton.classList.add('active');
+        pagedButton.href = url.toString();
     }
-
-    toggle.href = url.toString();
 }
 
 export function setupDemo(galleryClass, options) {
