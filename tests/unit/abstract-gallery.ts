@@ -893,6 +893,40 @@ export function testGallery<
             scroller.remove();
         });
 
+        it('should cancel the long press on destroy', () => {
+            vi.useFakeTimers();
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            gallery.destroy();
+            vi.advanceTimersByTime(600);
+            expect(selectedIndexes()).toEqual([]);
+            expect(gallery.collection[2].rootElement!.classList.contains('long-pressing')).toBe(false);
+        });
+
+        it('should end the drag and stop the auto scroll on destroy', () => {
+            vi.useFakeTimers();
+            const scrollBy = vi.fn();
+            Object.defineProperty(window, 'scrollBy', {value: scrollBy, writable: true, configurable: true});
+            gallery.collection[0].select();
+
+            image(2).dispatchEvent(pointer('pointerdown', at(2)));
+            document.dispatchEvent(pointer('pointermove', at(3)));
+            document.dispatchEvent(pointer('pointermove', at(3), {clientY: 760}));
+            vi.advanceTimersByTime(100);
+            expect(scrollBy).toHaveBeenCalled();
+            const selected = selectedIndexes();
+
+            gallery.destroy();
+            expect(container.classList.contains('selection-dragging')).toBe(false);
+            scrollBy.mockClear();
+            vi.advanceTimersByTime(100);
+            expect(scrollBy).not.toHaveBeenCalled();
+
+            document.dispatchEvent(pointer('pointermove', at(6)));
+            document.dispatchEvent(pointer('pointerup', at(6)));
+            expect(selectedIndexes()).toEqual(selected);
+        });
+
         it('should select the range since the last clicked item on shift click', () => {
             const checkbox = (index: number) => gallery.collection[index].checkbox!;
 
@@ -1265,5 +1299,142 @@ export function testGallery<
 
         gallery.scrollToItem(otherGallery.collection[0]);
         expect(scrollToSpy).not.toHaveBeenCalled();
+    });
+
+    describe('destroy', () => {
+        let contentWindow: EventTarget;
+
+        // The iframe fires resize events without any change of width, which the gallery ignores
+        const changeWidth = () =>
+            Object.defineProperty(container, 'getBoundingClientRect', {
+                value: () => ({width: 200, top: -document.documentElement.scrollTop}),
+            });
+
+        beforeEach(() => {
+            // jsdom returns null for iframe.contentWindow, so the gallery would not listen to resizes at all
+            contentWindow = new EventTarget();
+            vi.spyOn(HTMLIFrameElement.prototype, 'contentWindow', 'get').mockReturnValue(
+                contentWindow as unknown as WindowProxy,
+            );
+        });
+
+        afterEach(() => {
+            vi.restoreAllMocks();
+            vi.useRealTimers();
+            container.remove();
+            scrollTo(0);
+        });
+
+        it('should leave the host element clean, ready for a new gallery', () => {
+            document.body.appendChild(container);
+            const gallery = new galleryClass(container, {...options, selectionMode: true});
+            gallery.addItems(getImages(10));
+            gallery.collection[0].select();
+            scrollTo(100);
+            expect(container.classList.contains('scrolling')).toBe(true);
+
+            gallery.destroy();
+            gallery.destroy();
+            expect(container.childElementCount).toBe(0);
+            expect(container.classList.length).toBe(0);
+            expect(container.style.length).toBe(0);
+
+            const newGallery = new galleryClass(container, options);
+            newGallery.addItems(getImages(10));
+            expect(container.querySelectorAll('.natural-gallery-body').length).toBe(1);
+            expect(container.querySelectorAll('iframe').length).toBe(1);
+            expect(container.querySelectorAll('.figure').length).toBeGreaterThan(0);
+        });
+
+        it('should no longer react to scrolls, resizes and Escape', () => {
+            document.body.appendChild(container);
+            const gallery = new galleryClass(container, {...options, selectionMode: true});
+            gallery.addItems(getImages(100));
+            gallery.collection[0].select();
+            const internal = gallery as unknown as {onVirtualScroll: () => void};
+            const onVirtualScroll = vi.spyOn(internal, 'onVirtualScroll');
+            const select = vi.fn();
+            gallery.addEventListener('select', select);
+
+            gallery.destroy();
+
+            scrollTo(5000);
+            expect(onVirtualScroll).not.toHaveBeenCalled();
+            expect(container.classList.contains('scrolling')).toBe(false);
+
+            changeWidth();
+            contentWindow.dispatchEvent(new Event('resize'));
+            expect(gallery.bodyElement.classList.contains('resizing')).toBe(false);
+
+            document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}));
+            expect(gallery.selectedItems).toEqual([gallery.collection[0]]);
+            expect(select).not.toHaveBeenCalled();
+        });
+
+        it('should no longer react to the scroll container', () => {
+            const scroller = document.createElement('div');
+            const galleryWithScroller = galleryClass as unknown as new (...args: unknown[]) => T;
+            const gallery = new galleryWithScroller(container, options, scroller);
+            gallery.addItems(getImages(10));
+            const internal = gallery as unknown as {
+                onVirtualScroll: () => void;
+                resizeAnchor: {item: unknown; offset: number} | null;
+            };
+            const onVirtualScroll = vi.spyOn(internal, 'onVirtualScroll');
+
+            scroller.dispatchEvent(new Event('scroll'));
+            expect(onVirtualScroll).toHaveBeenCalledTimes(1);
+
+            gallery.destroy();
+            const anchor = {item: gallery.collection[0], offset: 0};
+            internal.resizeAnchor = anchor;
+            scroller.dispatchEvent(new Event('scroll'));
+            scroller.dispatchEvent(new Event('wheel'));
+            expect(onVirtualScroll).toHaveBeenCalledTimes(1);
+            expect(internal.resizeAnchor).toBe(anchor);
+        });
+
+        it('should cancel the pending timers', () => {
+            vi.useFakeTimers();
+            const gallery = new galleryClass(container, options);
+            const internal = gallery as unknown as {endResize: () => void};
+            const endResize = vi.spyOn(internal, 'endResize');
+            const classListRemove = vi.spyOn(container.classList, 'remove');
+            gallery.addItems(getImages(10));
+            changeWidth();
+            contentWindow.dispatchEvent(new Event('resize'));
+            expect(gallery.bodyElement.classList.contains('resizing')).toBe(true);
+            scrollTo(100);
+            expect(container.classList.contains('scrolling')).toBe(true);
+
+            gallery.destroy();
+            classListRemove.mockClear();
+            vi.advanceTimersByTime(1000);
+            expect(endResize).not.toHaveBeenCalled();
+            expect(classListRemove).not.toHaveBeenCalled();
+        });
+
+        it('should remove every listener it registered on the document', () => {
+            document.body.appendChild(container);
+            const addEventListener = vi.spyOn(document, 'addEventListener');
+            const gallery = new galleryClass(container, {...options, selectionMode: true});
+            gallery.addItems(getImages(10));
+            gallery.collection[0].rootElement!.querySelector('img')!.dispatchEvent(pointer('pointerdown'));
+            expect(addEventListener).toHaveBeenCalledWith('pointermove', expect.any(Function), expect.anything());
+
+            gallery.destroy();
+            for (const [, , listenerOptions] of addEventListener.mock.calls) {
+                expect((listenerOptions as AddEventListenerOptions).signal?.aborted).toBe(true);
+            }
+        });
+
+        it('should destroy the PhotoSwipe lightbox', () => {
+            const gallery = new galleryClass(container, {...options, lightbox: true});
+            const lightboxDestroy = vi.spyOn(gallery.photoSwipe!, 'destroy');
+
+            gallery.destroy();
+            expect(lightboxDestroy).toHaveBeenCalledTimes(1);
+            expect(gallery.photoSwipe).toBeNull();
+        });
     });
 }

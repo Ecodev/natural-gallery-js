@@ -301,6 +301,12 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * a single select event at the end
      */
     private batchingSelectionChange = false;
+    /**
+     * The abort controller removes the listeners that the gallery registered outside of its own DOM, and cancels the
+     * debounced functions, when the gallery is destroyed
+     */
+    private readonly abortController = new AbortController();
+    private readonly iframe: HTMLIFrameElement;
 
     /**
      *
@@ -339,20 +345,22 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         this.extendToFreeViewport();
 
         // Iframe
-        const iframe = this.document.createElement('iframe');
-        this.elementRef.appendChild(iframe);
+        this.iframe = this.document.createElement('iframe');
+        this.elementRef.appendChild(this.iframe);
 
         // Resize debounce
+        const signal = this.abortController.signal;
         const resizeDebounceDuration = 500;
-        const startResize = debounce(() => this.startResize(), resizeDebounceDuration, {edges: ['leading']});
-        const endResize = debounce(() => {
+        const startResize = debounce(() => this.startResize(), resizeDebounceDuration, {edges: ['leading'], signal});
+        const onEndResize = () => {
             this.endResize();
             this.organizedWidth = this.width;
             this.readScrollPosition();
             this.updateVisibleCollection();
-        }, resizeDebounceDuration);
+        };
+        const endResize = debounce(onEndResize, resizeDebounceDuration, {signal});
         this.organizedWidth = this.width;
-        iframe.contentWindow?.addEventListener('resize', () => {
+        const onResize = () => {
             // The iframe also fires a resize event when it first takes its size, without any change of width
             if (this.width === this.organizedWidth) {
                 return;
@@ -360,7 +368,14 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
 
             endResize();
             startResize();
-        });
+        };
+
+        // The iframe window is another realm, and jsdom rejects a signal from another realm
+        const contentWindow = this.iframe.contentWindow;
+        if (contentWindow) {
+            contentWindow.addEventListener('resize', onResize);
+            signal.addEventListener('abort', () => contentWindow.removeEventListener('resize', onResize));
+        }
 
         this.elementRef.appendChild(this.bodyElementRef);
         this.elementRef.appendChild(this.nextButton);
@@ -528,6 +543,34 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         }
 
         this.applyScrollPosition(top, options?.behavior);
+    }
+
+    /**
+     * Remove the gallery from the host element, which can then receive a new gallery. The gallery stops listening to
+     * the scroll container, to the document and to the resizes, cancels its pending timers, ends the selection drag,
+     * and destroys the PhotoSwipe lightbox.
+     */
+    public destroy(): void {
+        if (this.abortController.signal.aborted) {
+            return;
+        }
+
+        this.endSelectionDrag();
+        this.abortController.abort();
+        this.psLightbox?.destroy();
+        this.psLightbox = null;
+
+        this.iframe.remove();
+        this.bodyElementRef.remove();
+        this.nextButton.remove();
+        this.elementRef.classList.remove(
+            'natural-gallery-js',
+            this.getFormatName(),
+            'selection-mode',
+            'touch-long-press',
+            'scrolling',
+        );
+        this.elementRef.style.removeProperty('min-height');
     }
 
     /**
@@ -976,25 +1019,18 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
 
         this._selectionModeActive = active;
         this.elementRef.classList.toggle('selection-mode', active);
-
-        // The document listens to Escape only while the selection mode is active, so that a removed gallery does not
-        // stay referenced by the document
-        if (active) {
-            this.document.addEventListener('keydown', this.onEscape);
-        } else {
-            this.document.removeEventListener('keydown', this.onEscape);
-        }
-
         this.dispatchEvent('selection-mode-change', active);
     }
 
     /**
      * Escape leaves the selection mode, unless the gallery is out of the document, or Escape belongs to an editable
-     * field or to a dialog
+     * field or to a dialog. The document listens to Escape until destroy(). A gallery out of the document, for example
+     * in a view that is hidden and shown again, leaves Escape to the rest of the page.
      */
-    private readonly onEscape = (event: KeyboardEvent): void => {
+    private onEscape(event: KeyboardEvent): void {
         const target = event.target as HTMLElement | null;
         if (
+            !this._selectionModeActive ||
             event.key !== 'Escape' ||
             event.defaultPrevented ||
             !this.elementRef.isConnected ||
@@ -1005,13 +1041,15 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         }
 
         this.setSelectionModeActive(false);
-    };
+    }
 
     /**
      * While the selection mode is active, the gallery takes over clicks and Enter or Space keys on items, before the
      * item elements receive them. The checkbox keeps its own behavior.
      */
     private bindSelectionMode(): void {
+        this.document.addEventListener('keydown', event => this.onEscape(event), {signal: this.abortController.signal});
+
         this.bodyElementRef.addEventListener(
             'click',
             event => {
@@ -1329,16 +1367,20 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     private bindScroll(element: HTMLElement | Document) {
         const scrollable = element;
 
-        const startScroll = debounce(() => this.elementRef.classList.add('scrolling'), 300, {edges: ['leading']});
-        const endScroll = debounce(() => this.elementRef.classList.remove('scrolling'), 300);
+        const signal = this.abortController.signal;
+        const startScroll = debounce(() => this.elementRef.classList.add('scrolling'), 300, {
+            edges: ['leading'],
+            signal,
+        });
+        const endScroll = debounce(() => this.elementRef.classList.remove('scrolling'), 300, {signal});
 
         // A scroll started by the user during the resize debounce takes precedence over the anchor captured before it
         const discardResizeAnchor = () => (this.resizeAnchor = null);
         for (const eventName of ['wheel', 'touchstart', 'keydown', 'pointerdown']) {
-            scrollable.addEventListener(eventName, discardResizeAnchor, {passive: true});
+            scrollable.addEventListener(eventName, discardResizeAnchor, {passive: true, signal});
         }
 
-        scrollable.addEventListener('scroll', () => {
+        const onScrollEvent = () => {
             startScroll();
             endScroll();
 
@@ -1356,7 +1398,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
             }
 
             this.updateVisibleCollection();
-        });
+        };
+        scrollable.addEventListener('scroll', onScrollEvent, {signal});
     }
 
     /**
