@@ -111,6 +111,11 @@ describe('Natural Gallery', () => {
         internal.captureResizeAnchor();
         expect(internal.resizeAnchor?.item).toBe(gallery.collection[0]);
 
+        // The first row starts at the top of the viewport, and no row crosses the top of the viewport
+        scrollTo(0);
+        internal.captureResizeAnchor();
+        expect(internal.resizeAnchor?.item).toBe(gallery.collection[0]);
+
         // No anchor while the viewport height is unknown
         internal.currentViewportHeight = 0;
         internal.captureResizeAnchor();

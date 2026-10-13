@@ -54,7 +54,7 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         // Compute columnWidth of pictures
         const columnWidth = gallery.getColumnWidth();
 
-        let lastIndex = toIndex ? itemsPerRow * (toIndex - fromIndex + 1) : items.length;
+        let lastIndex = toIndex !== null ? itemsPerRow * (toIndex - fromIndex + 1) : items.length;
         lastIndex = lastIndex > items.length ? items.length : lastIndex;
 
         for (let i = 0; i < lastIndex; i++) {

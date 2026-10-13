@@ -114,5 +114,9 @@ describe('Square Gallery', () => {
 
         Square.organizeItems(gallery, gallery.collection, 0, 0);
         expect(gallery.collection.map(item => item.row)).toEqual([0, 0, 0, 0, -1, -1]);
+
+        // A row beyond the collection organizes every item
+        Square.organizeItems(gallery, gallery.collection, 0, 5);
+        expect(gallery.collection.map(item => item.row)).toEqual([0, 0, 0, 0, 1, 1]);
     });
 });

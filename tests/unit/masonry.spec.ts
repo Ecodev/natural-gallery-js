@@ -124,10 +124,28 @@ describe('Masonry Gallery', () => {
         internal.captureResizeAnchor();
         expect(internal.resizeAnchor?.item).toBe(gallery.collection[0]);
 
+        // The first item starts at the top of the viewport, and no item of the first column crosses the top of the
+        // viewport
         scrollTo(0);
+        internal.captureResizeAnchor();
+        expect(internal.resizeAnchor?.item).toBe(gallery.collection[0]);
     });
 
-    it('should not anchor without any column', () => {
+    it('should organize only up to the given row', () => {
+        const container = getContainerElement(1024);
+        const gallery = new Masonry(container, {columnWidth: 300});
+        gallery.addItems(getImages(10));
+        const columnCount = container.querySelectorAll('.column').length;
+        gallery.collection.forEach(item => (item.width = -1));
+
+        Masonry.organizeItems(gallery, gallery.collection, 0, 0);
+        expect(gallery.collection.filter(item => item.width > 0).length).toBe(columnCount);
+
+        Masonry.organizeItems(gallery, gallery.collection, 0, 100);
+        expect(gallery.collection.every(item => item.width > 0)).toBe(true);
+    });
+
+    it('should not anchor while the gallery holds no item', () => {
         const gallery = new Masonry(getContainerElement(0), {columnWidth: 400});
         const internal = gallery as unknown as {
             captureResizeAnchor: () => void;
