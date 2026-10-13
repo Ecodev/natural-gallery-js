@@ -197,7 +197,8 @@ export interface GalleryOptions extends ItemOptions {
      * This option enables the selection mode, and implies `selectable`. The selection mode is active as long as at least one item
      * is selected. While the selection mode is active, all checkboxes are visible, a click anywhere on an item toggles
      * its selection instead of opening the lightbox, following the link or emitting `activate`, a shift click selects
-     * all the items since the last clicked item, and Escape unselects all items.
+     * all the items since the last clicked item, and Escape unselects all items. If `lightbox` is true, a zoom button
+     * at the top right corner of each item opens the lightbox.
      *
      * A long press on an item selects the item, activates the selection mode, and starts a drag that gives the same
      * selection status to all the items under the pointer path. In selection mode, a mouse drag starts without the
@@ -466,7 +467,14 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
 
         // Complete collection
         models.forEach((model: Model) => {
-            const itemOptions = pick(this.options, ['lightbox', 'selectable', 'activable', 'gap', 'labelVisibility']);
+            const itemOptions = pick(this.options, [
+                'lightbox',
+                'selectable',
+                'selectionMode',
+                'activable',
+                'gap',
+                'labelVisibility',
+            ]);
             const item = new Item<Model>(this.document, itemOptions, model);
             this._collection.push(item);
         });
@@ -1126,6 +1134,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
                 }
 
                 const target = event.target as HTMLElement;
+                if (target.closest('.zoom-btn')) {
+                    return;
+                }
+
                 const item = this.getItem(target);
                 const checkbox = !!target.closest('.select-btn');
                 if (!item || (!this._selectionModeActive && !checkbox)) {
@@ -1212,8 +1224,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
             return;
         }
 
-        const item = this.getItem(event.target as HTMLElement);
-        if (!item) {
+        const target = event.target as HTMLElement;
+        const item = this.getItem(target);
+        if (!item || target.closest('.zoom-btn')) {
             return;
         }
 
@@ -1410,7 +1423,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
 
     private getSelectionModeItem(event: Event): Item<Model> | undefined {
         const target = event.target as HTMLElement | null;
-        if (!this._selectionModeActive || !target?.closest || target.closest('.select-btn')) {
+        if (!this._selectionModeActive || !target?.closest || target.closest('.select-btn, .zoom-btn')) {
             return undefined;
         }
 

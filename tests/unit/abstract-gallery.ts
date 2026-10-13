@@ -400,6 +400,40 @@ export function testGallery<
         expect(() => gallery.setSelectionModeActive(true)).toThrow('Gallery has no selection mode');
     });
 
+    it('should zoom without toggling the selection with the zoom button', () => {
+        vi.useFakeTimers();
+        const gallery = new galleryClass(container, {...options, selectionMode: true, lightbox: true});
+        gallery.addItems(getImages(5));
+        const [item1, item2] = gallery.collection;
+        const spy = vi.spyOn(gallery.photoSwipe!, 'loadAndOpen').mockReturnValue(true);
+        const zoomButton = item2.rootElement!.querySelector('.zoom-btn') as HTMLButtonElement;
+        expect(zoomButton).not.toBeNull();
+
+        item1.checkbox!.click();
+        zoomButton.dispatchEvent(click());
+        for (const keyName of ['Enter', ' ', 'a']) {
+            zoomButton.dispatchEvent(new KeyboardEvent('keydown', {key: keyName, bubbles: true, cancelable: true}));
+        }
+
+        zoomButton.dispatchEvent(pointer('pointerdown'));
+        vi.advanceTimersByTime(1000);
+        document.dispatchEvent(pointer('pointerup'));
+        vi.useRealTimers();
+        expect(spy).toHaveBeenCalledTimes(3);
+        expect(spy).toHaveBeenCalledWith(1);
+        expect(item2.selected).toBe(false);
+    });
+
+    it('should not add the zoom button without the lightbox or without the selection mode', () => {
+        const withoutLightbox = new galleryClass(container, {...options, selectionMode: true});
+        withoutLightbox.addItems(getImages(1));
+        expect(withoutLightbox.collection[0].rootElement!.querySelector('.zoom-btn')).toBeNull();
+
+        const withoutSelectionMode = new galleryClass(container, {...options, lightbox: true, selectable: true});
+        withoutSelectionMode.addItems(getImages(1));
+        expect(withoutSelectionMode.collection[0].rootElement!.querySelector('.zoom-btn')).toBeNull();
+    });
+
     it('should toggle selection instead of activating items while the selection mode is active', () => {
         const gallery = new galleryClass(container, {...options, selectionMode: true, activable: true});
         gallery.addItems(getImages(5));

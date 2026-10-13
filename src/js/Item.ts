@@ -19,6 +19,11 @@ export declare interface ItemOptions {
     selectable?: boolean;
 
     /**
+     * Add a zoom button, visible while the selection mode is active, when lightbox is true
+     */
+    selectionMode?: boolean;
+
+    /**
      * Activable emits 'activate' event when link is not provided. It takes place where the link used to be :
      * in caption or in image if lightbox is false
      */
@@ -214,7 +219,8 @@ export class Item<Model extends ModelAttributes> {
         this._rootElement.classList.add('root');
 
         const checkbox = this.getCheckbox();
-        [caption, checkbox].filter(c => !!c).forEach(c => figure.appendChild(c));
+        const zoomButton = this.getZoomButton();
+        [caption, checkbox, zoomButton].filter(c => !!c).forEach(c => figure.appendChild(c));
         this.handleZoom(zoomableElement);
         this.style();
 
@@ -417,6 +423,49 @@ export class Item<Model extends ModelAttributes> {
         return checkbox;
     }
 
+    /**
+     * In selection mode, a click on the image toggles the selection, so the zoom button replaces the click on the image
+     * to open the lightbox
+     */
+    private getZoomButton(): HTMLButtonElement | null {
+        if (!this.options.lightbox || !this.options.selectionMode) {
+            return null;
+        }
+
+        const button = this.document.createElement('button');
+        button.classList.add('zoom-btn');
+        button.setAttribute('aria-label', 'zoom');
+
+        const svgNamespace = 'http://www.w3.org/2000/svg';
+        const icon = this.document.createElementNS(svgNamespace, 'svg');
+        icon.setAttribute('viewBox', '0 0 24 24');
+        icon.setAttribute('aria-hidden', 'true');
+        const path = this.document.createElementNS(svgNamespace, 'path');
+        path.setAttribute('d', 'M10.5 3a7.5 7.5 0 1 0 0 15a7.5 7.5 0 1 0 0-15M16 16l5 5M10.5 7.5v6M7.5 10.5h6');
+        icon.appendChild(path);
+        button.appendChild(icon);
+
+        const handleZoomAction = (e: Event) => {
+            e.stopPropagation();
+            e.preventDefault();
+            this.emitZoomEvent();
+        };
+
+        button.addEventListener('click', handleZoomAction);
+        button.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                handleZoomAction(e);
+            }
+        });
+
+        return button;
+    }
+
+    private emitZoomEvent(): void {
+        const event = new CustomEvent<Item<Model>>('zoom', {detail: this});
+        this._rootElement?.dispatchEvent(event);
+    }
+
     private handleActivation(element: HTMLElement): void {
         element.setAttribute('aria-label', 'activate item');
         const activate = (ev: MouseEvent | KeyboardEvent) => {
@@ -441,16 +490,11 @@ export class Item<Model extends ModelAttributes> {
         element.setAttribute('aria-label', 'zoom');
         element.setAttribute('role', 'button');
         element.classList.add('zoomable');
-        const handleZoom = () => {
-            const event = new CustomEvent<Item<Model>>('zoom', {detail: this});
-            this._rootElement?.dispatchEvent(event);
-        };
-
-        element.addEventListener('click', handleZoom);
+        element.addEventListener('click', () => this.emitZoomEvent());
         element.addEventListener('keydown', e => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                handleZoom();
+                this.emitZoomEvent();
             }
         });
     }

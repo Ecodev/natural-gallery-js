@@ -139,6 +139,42 @@ $defaultBorderRadius: 8px;
             }
         }
 
+        .zoom-btn {
+            position: absolute;
+            z-index: 991;
+            top: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            width: 36px;
+            height: 36px;
+            transition: 0.2s ease all;
+            transform: translateY(calc(-100% - 15px));
+            visibility: hidden;
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.6);
+            border-top-right-radius: var(--ngjs-figure-radius, $defaultBorderRadius);
+            border-bottom-left-radius: 5px;
+            border: none;
+
+            &:hover,
+            &:focus-visible {
+                color: var(--ngjs-selected-marker-color, orange);
+            }
+
+            svg {
+                width: 20px;
+                height: 20px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2.2;
+                stroke-linecap: round;
+            }
+        }
+
         &.selected {
             .select-btn {
                 color: var(--ngjs-selected-marker-color, orange);
@@ -241,6 +277,11 @@ $defaultBorderRadius: 8px;
 
         .select-btn {
             transform: translateY(0%);
+        }
+
+        .zoom-btn {
+            transform: translateY(0%);
+            visibility: visible;
         }
 
         .image.zoomable:hover,

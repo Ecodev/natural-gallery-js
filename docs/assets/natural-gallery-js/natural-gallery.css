@@ -114,6 +114,38 @@
   transform: rotateZ(45deg);
   transform-origin: 100% 100%;
 }
+.natural-gallery-js .root .zoom-btn {
+  position: absolute;
+  z-index: 991;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  width: 36px;
+  height: 36px;
+  transition: 0.2s ease all;
+  transform: translateY(calc(-100% - 15px));
+  visibility: hidden;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.6);
+  border-top-right-radius: var(--ngjs-figure-radius, 8px);
+  border-bottom-left-radius: 5px;
+  border: none;
+}
+.natural-gallery-js .root .zoom-btn:hover, .natural-gallery-js .root .zoom-btn:focus-visible {
+  color: var(--ngjs-selected-marker-color, orange);
+}
+.natural-gallery-js .root .zoom-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
 .natural-gallery-js .root.selected .select-btn {
   color: var(--ngjs-selected-marker-color, orange);
 }
@@ -189,6 +221,10 @@
 }
 .natural-gallery-js.selection-mode .root .select-btn {
   transform: translateY(0%);
+}
+.natural-gallery-js.selection-mode .root .zoom-btn {
+  transform: translateY(0%);
+  visibility: visible;
 }
 .natural-gallery-js.selection-mode .root .image.zoomable:hover,
 .natural-gallery-js.selection-mode .root .image.zoomable:focus, .natural-gallery-js.selection-mode .root.zoomable:focus .image, .natural-gallery-js.selection-mode .root.zoomable:hover .image {
