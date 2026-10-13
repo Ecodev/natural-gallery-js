@@ -35,6 +35,17 @@ describe('Masonry Gallery', () => {
         expect(() => new Masonry(container, {columnWidth: -123})).toThrow('Option.columnWidth must be positive');
     });
 
+    it('should neither touch the DOM nor emit pagination with an invalid option', () => {
+        const container = getContainerElement();
+        const paginationSpy = vi.fn();
+        container.addEventListener('pagination', paginationSpy);
+
+        expect(() => new Masonry(container, {columnWidth: -123})).toThrow('Option.columnWidth must be positive');
+        expect(paginationSpy).not.toHaveBeenCalled();
+        expect(container.className).toBe('');
+        expect(container.childNodes.length).toBe(0);
+    });
+
     it('should initialize with ratioLimit.max but no min', () => {
         const container = getContainerElement();
         const gallery = new Masonry(container, {columnWidth: 400, ratioLimit: {max: 0.8}});
@@ -140,6 +151,32 @@ describe('Masonry Gallery', () => {
 
         expect(container.querySelectorAll('.figure').length).toBe(0);
         expect(gallery.getVisibleCollection()).toEqual([]);
+    });
+
+    it('should rebuild the columns on a resize while the collection is empty', () => {
+        let width = 1024;
+        const container = getContainerElement();
+        Object.defineProperty(container, 'getBoundingClientRect', {value: () => ({width, top: 0})});
+
+        const gallery = new Masonry(container, {columnWidth: 200});
+        expect(container.querySelectorAll('.column').length).toBe(6);
+
+        width = 400;
+        (gallery as unknown as {endResize: () => void}).endResize();
+        gallery.addItems(getImages(10));
+
+        const columns = container.querySelectorAll<HTMLElement>('.column');
+        expect(columns.length).toBe(2);
+        expect(columns[0].style.width).toBe(gallery.collection[0].width + 'px');
+    });
+
+    it('should keep one column while the gallery has no width', () => {
+        const container = getContainerElement(0);
+        const gallery = new Masonry(container, {columnWidth: 200});
+
+        expect(Number.isFinite(gallery.getOptions().infiniteScrollOffset)).toBe(true);
+        expect(() => gallery.addItems(getImages(10))).not.toThrow();
+        expect(container.querySelectorAll('.column').length).toBe(1);
     });
 });
 

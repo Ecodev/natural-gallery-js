@@ -155,6 +155,61 @@ export function testGallery<
         scrollTo(0);
     });
 
+    it('should not ask again for the first page when the user scrolls before it arrives', () => {
+        scrollTo(0);
+
+        const paginationSpy = vi.fn();
+        container.addEventListener('pagination', paginationSpy);
+
+        const gallery = new galleryClass(container, options);
+        scrollTo(10);
+        expect(paginationSpy).toHaveBeenCalledTimes(1);
+
+        gallery.clear();
+        scrollTo(20);
+        expect(paginationSpy).toHaveBeenCalledTimes(2);
+        expect(paginationSpy.mock.calls.map(call => call[0].detail.offset)).toEqual([0, 0]);
+
+        scrollTo(0);
+    });
+
+    it('should keep the focus of a mounted item when a page arrives', () => {
+        scrollTo(0);
+        document.body.appendChild(container);
+
+        const gallery = new galleryClass(container, {...options, activable: true});
+        gallery.addItems(getImages(10));
+        const button = container.querySelector<HTMLElement>('button.activation')!;
+        button.focus();
+
+        gallery.addItems(getImages(10));
+        expect(document.activeElement).toBe(button);
+
+        container.remove();
+    });
+
+    it('should neither remove nor append items when the scroll stays within the mounted items', () => {
+        scrollTo(0);
+
+        const gallery = new galleryClass(container, options);
+        gallery.addItems(getImages(200));
+        scrollTo(1000);
+
+        const appendChild = vi.spyOn(Node.prototype, 'appendChild');
+        const removeChild = vi.spyOn(Node.prototype, 'removeChild');
+        try {
+            scrollTo(1010);
+            scrollTo(1020);
+
+            expect(appendChild).not.toHaveBeenCalled();
+            expect(removeChild).not.toHaveBeenCalled();
+        } finally {
+            appendChild.mockRestore();
+            removeChild.mockRestore();
+            scrollTo(0);
+        }
+    });
+
     it('should give the items touching the viewport, in the order of the collection', () => {
         scrollTo(0);
 

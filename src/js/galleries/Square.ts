@@ -14,10 +14,6 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
 
     constructor(elementRef: HTMLElement, options: SquareGalleryOptions, scrollElementRef?: HTMLElement | null) {
         super(elementRef, options, scrollElementRef);
-
-        if (!options.itemsPerRow || options.itemsPerRow <= 0) {
-            throw new Error('Option.itemsPerRow must be positive');
-        }
     }
 
     /**
@@ -65,5 +61,11 @@ export class Square<Model extends ModelAttributes = ModelAttributes> extends Abs
 
     protected getFormatName(): string {
         return 'format-square';
+    }
+
+    protected validateOptions(): void {
+        if (!this.options.itemsPerRow || this.options.itemsPerRow <= 0) {
+            throw new Error('Option.itemsPerRow must be positive');
+        }
     }
 }

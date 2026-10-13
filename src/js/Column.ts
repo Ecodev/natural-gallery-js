@@ -1,5 +1,6 @@
 import {Item} from './Item';
 import {ModelAttributes} from './galleries/AbstractGallery';
+import {setChildren} from './Utility';
 
 export declare interface ColumnOptions {
     width: number;
@@ -90,45 +91,27 @@ export class Column<Model extends ModelAttributes> {
      * with rowsPerPage, where the following items stay hidden until the next button is clicked.
      */
     public mountFirstItems(count: number): void {
-        this._elementRef.innerHTML = '';
         this._hiddenFromTopCount = 0;
         this._topSpacerHeight = 0;
         this._hiddenFromBottomCount = this._items.length - count;
         this._bottomSpacerHeight = 0;
         this._elementRef.style.paddingTop = '0';
         this._elementRef.style.paddingBottom = '0';
-        this._items.slice(0, count).forEach(item => this._elementRef.appendChild(this.mountItem(item)));
+        setChildren(
+            this._elementRef,
+            this._items.slice(0, count).map(item => this.mountItem(item)),
+        );
     }
 
     /**
-     * Pure analytical relayout: mount only items whose [top, bottom] intersects [viewportTop, viewportBottom],
-     * reusing existing rootElement nodes (never recreated). Replaces the entire mount state in one pass, used after
-     * a resize where item sizes have changed and the previous mount state no longer applies.
-     *
-     * "Mounting" an item means putting its element on the page so it's actually visible. An item that isn't
-     * mounted isn't deleted — it's just kept off the page, and its height is folded into a block of empty space
-     * (a "spacer") instead, so the column still takes up the right amount of room without the browser having to
-     * deal with elements nobody can see.
-     *
-     * To decide who gets mounted, we go through every item once, top to bottom, and re-decide the whole thing
-     * from scratch rather than patching what changed. We never ask the browser where an item is — we just add up
-     * heights as we go, so by the time we reach an item we already know where it starts and ends.
-     *
-     * For each item, the question is simply: where does it fall compared to the window we care about?
-     *   - entirely above -> fold it into the top spacer
-     *   - entirely below -> fold it into the bottom spacer
-     *   - otherwise -> mount it
-     * Because the list is already top to bottom, items above the window always come first and items below it
-     * always come last.
-     *
-     * Only once every item has been sorted this way do we actually touch the DOM: clear the column, set the two
-     * spacers, then put the mounted items back. We reuse their existing elements instead of recreating them,
-     * otherwise every image would reload and flicker each time this runs.
+     * Mount only the items whose [top, bottom] intersects [viewportTop, viewportBottom], and fold every other item
+     * into the top or bottom spacer, so that the column keeps the height of all its items. The item positions come
+     * from the item heights alone, with no DOM read, and the DOM is touched once at the end. The mount state is
+     * computed again from scratch, which suits a resize, where the item sizes change. Existing root elements are
+     * reused, so the images neither reload nor flicker.
      */
     public mountVisibleWindow(viewportTop: number, viewportBottom: number, galleryTop: number): void {
-        this._elementRef.innerHTML = ''; // wiped once up front, items get put back at the very end
-
-        let cumulative = 0; // how much height we've gone through so far — doubles as "where the next item starts"
+        let cumulative = 0;
         let topSpacer = 0;
         let bottomSpacer = 0;
         let hiddenTop = 0;
@@ -138,7 +121,7 @@ export class Column<Model extends ModelAttributes> {
         for (const item of this._items) {
             const itemTop = cumulative;
             const itemBottom = cumulative + item.height;
-            cumulative = itemBottom + this.options.gap; // move the running total forward before deciding this one
+            cumulative = itemBottom + this.options.gap;
 
             if (galleryTop + itemBottom < viewportTop) {
                 hiddenTop++;
@@ -151,7 +134,6 @@ export class Column<Model extends ModelAttributes> {
             }
         }
 
-        // everything above is just bookkeeping in memory — the DOM only gets touched now, all at once
         this._totalHeight = cumulative;
         this._hiddenFromTopCount = hiddenTop;
         this._topSpacerHeight = topSpacer;
@@ -159,7 +141,10 @@ export class Column<Model extends ModelAttributes> {
         this._bottomSpacerHeight = bottomSpacer;
         this._elementRef.style.paddingTop = topSpacer + 'px';
         this._elementRef.style.paddingBottom = bottomSpacer + 'px';
-        visible.forEach(item => this._elementRef.appendChild(this.mountItem(item)));
+        setChildren(
+            this._elementRef,
+            visible.map(item => this.mountItem(item)),
+        );
     }
 
     public trimTopItem(): void {
@@ -177,8 +162,7 @@ export class Column<Model extends ModelAttributes> {
         const item = this._items[this._hiddenFromTopCount];
         this._topSpacerHeight = Math.max(0, this._topSpacerHeight - item.height - this.options.gap);
         this._elementRef.style.paddingTop = this._topSpacerHeight + 'px';
-        const nextVisible = this._items[this._hiddenFromTopCount + 1]?.rootElement ?? null;
-        this._elementRef.insertBefore(this.mountItem(item), nextVisible);
+        this._elementRef.insertBefore(this.mountItem(item), this._elementRef.firstChild);
     }
 
     public trimBottomItem(): void {

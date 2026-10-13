@@ -22,10 +22,6 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
     constructor(elementRef: HTMLElement, options: MasonryGalleryOptions, scrollElementRef?: HTMLElement | null) {
         super(elementRef, options, scrollElementRef);
 
-        if (!options.columnWidth || options.columnWidth <= 0) {
-            throw new Error('Option.columnWidth must be positive');
-        }
-
         this.addColumns();
 
         /**
@@ -109,8 +105,10 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
             }
 
             while (column.hasVisibleItems) {
-                const contentBottom = galleryTop + column.totalHeight - column.bottomSpacerHeight;
-                if (contentBottom - viewportBottom <= overscan) break;
+                const item = column.lastVisibleItem!;
+                const itemTop =
+                    galleryTop + column.totalHeight - column.bottomSpacerHeight - item.height - this.options.gap;
+                if (itemTop - viewportBottom <= overscan) break;
                 column.trimBottomItem();
             }
 
@@ -176,8 +174,17 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
         return 'format-masonry';
     }
 
+    protected validateOptions(): void {
+        if (!this.options.columnWidth || this.options.columnWidth <= 0) {
+            throw new Error('Option.columnWidth must be positive');
+        }
+    }
+
+    /**
+     * A gallery too narrow for a single column, like a hidden gallery, keeps one column
+     */
     protected getEstimatedColumnsPerRow(): number {
-        return Math.ceil((this.width - this.options.gap) / (this.options.columnWidth + this.options.gap));
+        return Math.max(1, Math.ceil((this.width - this.options.gap) / (this.options.columnWidth + this.options.gap)));
     }
 
     protected getEstimatedRowsPerPage(): number {
@@ -190,64 +197,20 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
 
         const columnWidth = this.getColumnWidth();
         const estimatedImageHeight = columnWidth / ratio;
+        if (estimatedImageHeight <= 0) {
+            return 0;
+        }
+
         return Math.ceil(this.getGalleryVisibleHeight() / estimatedImageHeight);
     }
 
     /**
-     * Capture the scroll anchor at the first resize event, from the scroll position and the gallery top read before
-     * the resize, since the browser has already rearranged the items by then
+     * The number and the width of the columns depend on the gallery width, so the items are spread again over new
+     * columns
      */
-    protected captureResizeAnchor(): void {
-        const anchorItem = this.currentViewportHeight > 0 ? this.findAnchorItem() : null;
-        const anchorTop = anchorItem ? this.getItemTop(anchorItem, this.currentGalleryTop) : null;
-        this.resizeAnchor =
-            anchorItem && anchorTop !== null ? {item: anchorItem, offset: this.currentScrollTop - anchorTop} : null;
-    }
-
-    protected endResize(): void {
-        super.endResize();
-
-        if (!this.collection.length) {
-            return;
-        }
-
-        const anchor = this.resizeAnchor;
-        this.resizeAnchor = null;
-
-        // Relayout the existing items in place (same items, same order) rather than recreating them — that used to
-        // lose the user's scroll position, recreate every <img> from scratch (causing a load/flicker), and force a
-        // synchronous reflow per item placed.
-        const items = this.collection;
+    protected organizeAllItems(): void {
         this.addColumns();
-        const columnWidth = this.getColumnWidth();
-
-        for (const item of items) {
-            const {ratio, cropped} = getImageRatioAndIfCropped(item.model, this.options.ratioLimit);
-            item.width = Math.floor(columnWidth);
-            item.height = item.width / ratio;
-            item.cropped = cropped;
-            item.style();
-            this.getLogicallyShortestColumn().addItem(item);
-        }
-
-        // The browser may have already silently clamped the real scroll position by now (e.g. CSS flex-wrap
-        // re-wrapping figures at their old width as soon as the container got wider/narrower, before any of our
-        // JS ran) — currentScrollTop can no longer be trusted to reflect where the user actually was. Use the
-        // anchor-derived target instead, so the mount window below is consistent with where we're about to
-        // scroll, rather than a stale/corrupted value.
-        const anchorNewTop = anchor ? this.getItemTop(anchor.item) : null;
-        const targetTop = anchor && anchorNewTop !== null ? Math.max(0, anchorNewTop + anchor.offset) : null;
-        if (targetTop !== null) {
-            this.currentScrollTop = targetTop;
-        }
-
-        this.mountAroundViewport();
-
-        if (targetTop !== null) {
-            this.applyScrollPosition(targetTop);
-        }
-
-        this.updateNextButtonVisibility();
+        super.organizeAllItems();
     }
 
     /**
@@ -291,16 +254,11 @@ export class Masonry<Model extends ModelAttributes = ModelAttributes> extends Ab
      * of the first column crossing the top of the viewport instead. Used to re-anchor scroll position across a
      * resize, so the same content stays visible instead of drifting.
      */
-    private findAnchorItem(): Item<Model> | null {
-        const firstColumn = this.columns[0];
-        if (!firstColumn) {
-            return null;
-        }
-
+    protected findAnchorItem(): Item<Model> | null {
         const viewportBottom = this.currentScrollTop + this.currentViewportHeight;
         let crossingTopItem: Item<Model> | null = null;
         let top = this.currentGalleryTop;
-        for (const item of firstColumn.items) {
+        for (const item of this.columns[0].items) {
             const bottom = top + item.height;
             if (top >= this.currentScrollTop) {
                 return bottom <= viewportBottom ? item : (crossingTopItem ?? item);

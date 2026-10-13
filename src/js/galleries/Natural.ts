@@ -16,9 +16,6 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
     constructor(elementRef: HTMLElement, options: NaturalGalleryOptions, scrollElementRef?: HTMLElement | null) {
         super(elementRef, options, scrollElementRef);
-        if (!options.rowHeight || options.rowHeight <= 0) {
-            throw new Error('Option.rowHeight must be positive');
-        }
     }
 
     public static organizeItems<T extends ModelAttributes>(
@@ -155,6 +152,12 @@ export class Natural<Model extends ModelAttributes = ModelAttributes> extends Ab
 
     protected getFormatName(): string {
         return 'format-natural';
+    }
+
+    protected validateOptions(): void {
+        if (!this.options.rowHeight || this.options.rowHeight <= 0) {
+            throw new Error('Option.rowHeight must be positive');
+        }
     }
 
     protected getEstimatedColumnsPerRow(): number {

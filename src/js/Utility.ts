@@ -53,6 +53,26 @@ export function getImageRatioAndIfCropped(model: SizedModel, ratioLimits?: Ratio
 }
 
 /**
+ * The given parent takes the given children, in the given order. The children that the parent already holds in the
+ * same order are not moved, so that they keep the focus and the hover.
+ */
+export function setChildren(parent: Node, children: Node[]): void {
+    const kept = new Set(children);
+    Array.from(parent.childNodes)
+        .filter(child => !kept.has(child))
+        .forEach(child => parent.removeChild(child));
+
+    let current = parent.firstChild;
+    for (const child of children) {
+        if (child === current) {
+            current = current.nextSibling;
+        } else {
+            parent.insertBefore(child, current);
+        }
+    }
+}
+
+/**
  * Cleans HTML, and returns only the plain text and `<br>` from all eventual tags
  */
 export function sanitizeHtml(term: string | undefined): string {

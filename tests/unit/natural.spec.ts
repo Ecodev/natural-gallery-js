@@ -34,6 +34,17 @@ describe('Natural Gallery', () => {
         expect(() => new Natural(container, {rowHeight: -300})).toThrow('Option.rowHeight must be positive');
     });
 
+    it('should neither touch the DOM nor emit pagination with an invalid option', () => {
+        const container = getContainerElement();
+        const paginationSpy = vi.fn();
+        container.addEventListener('pagination', paginationSpy);
+
+        expect(() => new Natural(container, {rowHeight: -300})).toThrow('Option.rowHeight must be positive');
+        expect(paginationSpy).not.toHaveBeenCalled();
+        expect(container.className).toBe('');
+        expect(container.childNodes.length).toBe(0);
+    });
+
     it('should estimate columns with ratioLimit.max but no min', () => {
         const container = getContainerElement(999);
         const gallery = new Natural(container, {rowHeight: 300, ratioLimit: {max: 2}});
@@ -131,6 +142,80 @@ describe('Natural Gallery', () => {
         (gallery as unknown as {endResize: () => void}).endResize();
 
         expect(container.querySelectorAll('.figure').length).toBe(domCount);
+    });
+
+    it('should show the next button when a narrower width hides items', () => {
+        let width = 1024;
+        const container = getContainerElement();
+        Object.defineProperty(container, 'getBoundingClientRect', {value: () => ({width, top: 0})});
+
+        // Two images per row, so the four images fill the two rows of the first page
+        const gallery = new Natural(container, {rowHeight: 300, rowsPerPage: 2});
+        gallery.addItems(getImages(4));
+        const nextButton = container.querySelector<HTMLElement>('.natural-gallery-next')!;
+        expect(nextButton.style.display).toBe('none');
+
+        // One image per row
+        width = 400;
+        (gallery as unknown as {endResize: () => void}).endResize();
+
+        expect(container.querySelectorAll('.figure').length).toBe(2);
+        expect(nextButton.style.display).toBe('block');
+    });
+
+    it('should show the pages up to the given item before scrolling to it', () => {
+        const scrollToSpy = vi.fn();
+        Object.defineProperty(window, 'scrollTo', {value: scrollToSpy, writable: true, configurable: true});
+
+        // Two images per row, one row per page
+        const container = getContainerElement(1024);
+        const gallery = new Natural(container, {rowHeight: 300, rowsPerPage: 1});
+        gallery.addItems(getImages(10));
+        expect(container.querySelectorAll('.figure').length).toBe(2);
+
+        gallery.scrollToItem(gallery.collection[6]);
+        expect(container.querySelectorAll('.figure').length).toBe(8);
+        expect(container.querySelector<HTMLElement>('.natural-gallery-next')!.style.display).toBe('block');
+        expect(scrollToSpy).toHaveBeenCalledTimes(1);
+        expect(scrollToSpy.mock.calls[0][0].top).toBeGreaterThan(0);
+
+        // An item already shown does not show any more page
+        gallery.scrollToItem(gallery.collection[0]);
+        expect(container.querySelectorAll('.figure').length).toBe(8);
+        expect(scrollToSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('should restore the top rows when no row is mounted any more', () => {
+        scrollTo(0);
+
+        const container = getContainerElement();
+        const gallery = new Natural(container, {rowHeight: 300, gap: 4});
+        gallery.addItems(getImages(30));
+
+        const internal = gallery as unknown as {
+            currentScrollTop: number;
+            virtualTopPadding: number;
+            virtualHiddenFromTopCount: number;
+            virtualHiddenFromBottomCount: number;
+            mountItem: (item: Item) => HTMLElement;
+            trimTopRows: (galleryTop: number) => void;
+            restoreTopRows: (galleryTop: number) => void;
+        };
+
+        // The first item hidden at the bottom has an element, out of the document
+        const firstHiddenFromBottom =
+            gallery.collection[gallery.collection.length - internal.virtualHiddenFromBottomCount];
+        internal.mountItem(firstHiddenFromBottom);
+
+        // Every mounted row is trimmed from the top
+        internal.currentScrollTop = 100000;
+        internal.trimTopRows(0);
+        expect(container.querySelectorAll('.figure').length).toBe(0);
+
+        internal.currentScrollTop = internal.virtualTopPadding;
+        expect(() => internal.restoreTopRows(0)).not.toThrow();
+        expect(container.querySelectorAll('.figure').length).toBeGreaterThan(0);
+        expect(internal.virtualHiddenFromTopCount).toBeLessThan(gallery.collection.length);
     });
 
     it('should return row height', () => {

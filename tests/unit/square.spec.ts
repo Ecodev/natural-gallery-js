@@ -1,5 +1,5 @@
 import {ModelAttributes, Square} from '../../src';
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 import {getContainerElement, getImages, getSize} from './utils';
 import {getBaseExpectedOptions, testGallery} from './abstract-gallery';
 
@@ -20,6 +20,17 @@ describe('Square Gallery', () => {
     it('should error with invalid column size', () => {
         const container = getContainerElement();
         expect(() => new Square(container, {itemsPerRow: -5})).toThrow('Option.itemsPerRow must be positive');
+    });
+
+    it('should neither touch the DOM nor emit pagination with an invalid option', () => {
+        const container = getContainerElement();
+        const paginationSpy = vi.fn();
+        container.addEventListener('pagination', paginationSpy);
+
+        expect(() => new Square(container, {itemsPerRow: -5})).toThrow('Option.itemsPerRow must be positive');
+        expect(paginationSpy).not.toHaveBeenCalled();
+        expect(container.className).toBe('');
+        expect(container.childNodes.length).toBe(0);
     });
 
     it('should organize items that dont fill the line', () => {

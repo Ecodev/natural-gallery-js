@@ -326,6 +326,8 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
             this.options.selectable = true;
         }
 
+        this.validateOptions();
+
         this.elementRef.classList.add('natural-gallery-js');
         this.elementRef.classList.add(this.getFormatName());
 
@@ -353,9 +355,11 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         const resizeDebounceDuration = 500;
         const startResize = debounce(() => this.startResize(), resizeDebounceDuration, {edges: ['leading'], signal});
         const onEndResize = () => {
+            this.readScrollPosition();
             this.endResize();
             this.organizedWidth = this.width;
             this.readScrollPosition();
+            this.requestNextPageWhenNeeded();
             this.updateVisibleCollection();
         };
         const endResize = debounce(onEndResize, resizeDebounceDuration, {signal});
@@ -528,15 +532,25 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     }
 
     /**
-     * Scroll so that the given item becomes visible.
+     * Scroll so that the given item becomes visible. With rowsPerPage, the gallery first shows every page up to the
+     * page of the given item.
      *
-     * Does nothing if the item is not laid out yet.
+     * Does nothing if the item is not part of the collection.
      *
      * Note: `behavior: 'smooth'` can visibly conflict with virtual scroll mounting/unmounting items while the
      * animation runs; prefer the default 'auto' (instant) unless you know your use case doesn't scroll through
      * a large virtualized range.
      */
     public scrollToItem(item: Item<Model>, options?: {behavior?: ScrollBehavior}): void {
+        const index = this.collection.indexOf(item);
+        if (index >= this.getShownItemCount()) {
+            while (index >= this.getShownItemCount()) {
+                this.shownPageCount++;
+            }
+
+            this.updateShownPages();
+        }
+
         const top = this.getItemTop(item);
         if (top === null) {
             return;
@@ -657,7 +671,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
                 w: item.model.enlargedWidth,
                 h: item.model.enlargedHeight,
                 msrc: item.model.thumbnailSrc,
-                element: item.rootElement!,
+                element: item.rootElement?.isConnected ? item.rootElement : undefined,
                 thumbCropped: item.cropped,
                 alt: item.sanitizedTitle,
                 item,
@@ -699,6 +713,12 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
 
     protected abstract getFormatName(): string;
 
+    /**
+     * Throw an error when an option is invalid. The constructor validates the options before it touches the DOM,
+     * listens to any event or emits the first pagination event.
+     */
+    protected abstract validateOptions(): void;
+
     protected abstract onVirtualScroll(): void;
 
     /**
@@ -723,6 +743,12 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     protected abstract getContentHeight(): number;
 
     /**
+     * Item that keeps the same place in the viewport across a resize, found from the scroll position and the gallery
+     * top read before the resize
+     */
+    protected abstract findAnchorItem(): Item<Model> | null;
+
+    /**
      * Return number of rows to show per page to fill the empty space until the bottom of the screen
      * Should grant all the space is used or more, but not less.
      * @returns {number}
@@ -735,10 +761,6 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      */
     protected abstract getItemTop(item: Item<Model>, galleryTop?: number): number | null;
 
-    /**
-     * Apply a scroll position on the gallery's scroll container (custom scrollElementRef, or the window itself —
-     * the counterpart of bindScroll() listening on `this.document` when no scrollElementRef is given)
-     */
     /**
      * Top offset of the gallery in the scroll container coordinates, the same coordinates as currentScrollTop.
      * elementRef.offsetTop cannot be used: it is relative to the offset parent, and differs from the scroll container
@@ -758,6 +780,10 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
         return galleryTop + this.document.documentElement.scrollTop;
     }
 
+    /**
+     * Apply a scroll position on the gallery's scroll container (custom scrollElementRef, or the window itself —
+     * the counterpart of bindScroll() listening on `this.document` when no scrollElementRef is given)
+     */
     protected applyScrollPosition(top: number, behavior: ScrollBehavior = 'auto'): void {
         const clampedTop = Math.max(0, top);
         if (this.scrollElementRef) {
@@ -772,12 +798,17 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * Information provided in the event allows to retrieve items from the server using given data :
      * "offset" and "limit" that have the same semantic that respective attributes in mySQL.
      *
-     * The gallery asks for one page of items
+     * The gallery asks for one page of items, and logs the offset so that requestNextPage() does not ask for it again
      *
      */
     protected requestItems(): void {
+        const offset = this.collection.length;
+        if (this.requestedIndexesLog.indexOf(offset) < 0) {
+            this.requestedIndexesLog.push(offset);
+        }
+
         const limit = this.getEstimatedColumnsPerRow() * this.getRowsPerPage();
-        this.dispatchEvent('pagination', {offset: this.collection.length, limit: limit});
+        this.dispatchEvent('pagination', {offset, limit});
     }
 
     /**
@@ -870,14 +901,9 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      * Ask for the items that follow the collection, once per offset
      */
     protected requestNextPage(): void {
-        const offset = this.collection.length;
-        if (this.requestedIndexesLog.indexOf(offset) >= 0) {
-            return;
+        if (this.requestedIndexesLog.indexOf(this.collection.length) < 0) {
+            this.requestItems();
         }
-
-        this.requestedIndexesLog.push(offset);
-        const limit = this.getEstimatedColumnsPerRow() * this.getRowsPerPage();
-        this.dispatchEvent('pagination', {offset, limit});
     }
 
     /**
@@ -885,6 +911,13 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      */
     protected showNextPage(): void {
         this.shownPageCount++;
+        this.updateShownPages();
+    }
+
+    /**
+     * Mount the items of the pages shown so far, after a change of the number of shown pages
+     */
+    private updateShownPages(): void {
         this.mountAroundViewport();
         this.updateNextButtonVisibility();
         this.requestNextPageWhenNeeded();
@@ -936,16 +969,48 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
     }
 
     /**
-     * Capture whatever scroll-position anchor a subclass needs in order to keep the same content visible across a
-     * resize. No-op by default.
+     * Capture the scroll anchor from the scroll position and the gallery top read before the resize, since the browser
+     * has already rearranged the items at their old sizes by then
      */
-    /* istanbul ignore next */
     protected captureResizeAnchor(): void {
-        // no-op by default
+        const anchorItem = this.currentViewportHeight > 0 ? this.findAnchorItem() : null;
+        const anchorTop = anchorItem ? this.getItemTop(anchorItem, this.currentGalleryTop) : null;
+        this.resizeAnchor =
+            anchorItem && anchorTop !== null ? {item: anchorItem, offset: this.currentScrollTop - anchorTop} : null;
     }
 
+    /**
+     * Organize every item for the new width, and keep the anchor item at the same place in the viewport
+     */
     protected endResize(): void {
-        this.bodyElementRef?.classList.remove('resizing');
+        const anchor = this.resizeAnchor;
+        this.resizeAnchor = null;
+        this.bodyElementRef.classList.remove('resizing');
+
+        this.organizeAllItems();
+
+        // The browser may have clamped the scroll position while the items had their old sizes, so the items are
+        // mounted around the position the gallery scrolls to, and not around the current scroll position
+        const anchorNewTop = anchor ? this.getItemTop(anchor.item) : null;
+        const targetTop = anchor && anchorNewTop !== null ? Math.max(0, anchorNewTop + anchor.offset) : null;
+        if (targetTop !== null) {
+            this.currentScrollTop = targetTop;
+        }
+
+        this.mountAroundViewport();
+
+        if (targetTop !== null) {
+            this.applyScrollPosition(targetTop);
+        }
+
+        this.updateNextButtonVisibility();
+    }
+
+    /**
+     * Compute the size and the position of every item of the collection, for the current gallery width
+     */
+    protected organizeAllItems(): void {
+        this.computeNewItemsSizes(0);
     }
 
     protected dispatchEvent<K extends keyof CustomEventDetailMap<Model>>(
@@ -1407,7 +1472,7 @@ export abstract class AbstractGallery<Model extends ModelAttributes = ModelAttri
      */
     private readScrollPosition(): void {
         const wrapper = this.scrollElementRef ?? this.document.documentElement;
-        this.currentScrollTop = (wrapper.scrollTop || 0) - (wrapper.clientTop || 0);
+        this.currentScrollTop = wrapper.scrollTop || 0;
         this.currentViewportHeight = wrapper.clientHeight || this.document.defaultView?.innerHeight || 0;
         if (this.currentViewportHeight > 0) {
             this.currentGalleryTop = this.getGalleryTop();

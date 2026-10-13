@@ -1,4 +1,5 @@
 import {Item} from '../Item';
+import {setChildren} from '../Utility';
 import {AbstractGallery, GalleryOptions, ModelAttributes} from './AbstractGallery';
 
 export abstract class AbstractRowGallery<
@@ -105,48 +106,6 @@ export abstract class AbstractRowGallery<
     }
 
     /**
-     * Capture the scroll anchor at the first resize event, from the scroll position and the gallery top read before
-     * the resize, since the browser has already rearranged the figures at their old width by then
-     */
-    protected captureResizeAnchor(): void {
-        const anchorItem = this.currentViewportHeight > 0 ? this.findAnchorItem() : null;
-        const anchorTop = anchorItem ? this.getItemTop(anchorItem, this.currentGalleryTop) : null;
-        this.resizeAnchor =
-            anchorItem && anchorTop !== null ? {item: anchorItem, offset: this.currentScrollTop - anchorTop} : null;
-    }
-
-    protected endResize(): void {
-        const anchor = this.resizeAnchor;
-        this.resizeAnchor = null;
-
-        super.endResize();
-
-        if (!this.collection.length) {
-            return;
-        }
-
-        this.organizeItems(this.collection);
-
-        // The browser may have already silently clamped the real scroll position by now (e.g. CSS flex-wrap
-        // re-wrapping figures at their old width as soon as the container got wider/narrower, before any of our
-        // JS ran) — currentScrollTop can no longer be trusted to reflect where the user actually was. Use the
-        // anchor-derived target instead, so the mount window below is consistent with where we're about to
-        // scroll, rather than a stale/corrupted value.
-        const anchorNewTop = anchor ? this.getItemTop(anchor.item) : null;
-        const targetTop = anchor && anchorNewTop !== null ? Math.max(0, anchorNewTop + anchor.offset) : null;
-        if (targetTop !== null) {
-            this.currentScrollTop = targetTop;
-        }
-
-        // Mount only the rows around the viewport, instead of mounting everything and trimming afterwards
-        this.mountAroundViewport();
-
-        if (targetTop !== null) {
-            this.applyScrollPosition(targetTop);
-        }
-    }
-
-    /**
      * Absolute top offset of given item's row, or null if item is not part of the collection
      */
     protected getItemTop(item: Item<Model>, galleryTop = this.getGalleryTop()): number | null {
@@ -173,7 +132,7 @@ export abstract class AbstractRowGallery<
      * of the row crossing the top of the viewport instead. Used to re-anchor scroll position across a resize, so the
      * same content stays visible instead of drifting to the top.
      */
-    private findAnchorItem(): Item<Model> | null {
+    protected findAnchorItem(): Item<Model> | null {
         const viewportBottom = this.currentScrollTop + this.currentViewportHeight;
         let crossingTopItem: Item<Model> | null = null;
         let top = this.currentGalleryTop;
@@ -257,7 +216,7 @@ export abstract class AbstractRowGallery<
             }
 
             const rowHeight = this.collection[startIdx].height;
-            const firstCurrentElement = this.collection[this.virtualHiddenFromTopCount].rootElement;
+            const firstCurrentElement = this.bodyElementRef.firstChild;
 
             for (let i = startIdx; i < this.virtualHiddenFromTopCount; i++) {
                 this.bodyElementRef.insertBefore(this.mountItem(this.collection[i]), firstCurrentElement);
@@ -274,9 +233,6 @@ export abstract class AbstractRowGallery<
         const viewportBottom = this.currentScrollTop + this.currentViewportHeight;
 
         while (this.virtualHiddenFromTopCount + this.virtualHiddenFromBottomCount < this.collection.length) {
-            const contentBottom = galleryTop + this.virtualTotalHeight - this.virtualBottomPadding;
-            if (contentBottom - viewportBottom <= overscan) break;
-
             const lastVisibleIdx = this.collection.length - this.virtualHiddenFromBottomCount - 1;
             const lastRow = this.collection[lastVisibleIdx].row;
 
@@ -286,6 +242,9 @@ export abstract class AbstractRowGallery<
             }
 
             const rowHeight = this.collection[startIdx].height;
+            const rowTop =
+                galleryTop + this.virtualTotalHeight - this.virtualBottomPadding - rowHeight - this.options.gap;
+            if (rowTop - viewportBottom <= overscan) break;
 
             for (let i = startIdx; i <= lastVisibleIdx; i++) {
                 this.collection[i].remove();
@@ -369,14 +328,13 @@ export abstract class AbstractRowGallery<
         this.virtualBottomPadding = 0;
         this.bodyElementRef.style.paddingTop = '0';
         this.bodyElementRef.style.paddingBottom = '0';
-        this.bodyElementRef.innerHTML = '';
-        shown.forEach(element => this.bodyElementRef.appendChild(element));
+        setChildren(this.bodyElementRef, shown);
     }
 
     /**
      * Mount only the rows whose [top, bottom] intersects [windowTop, windowBottom], and fold every other row into
      * the top or bottom padding. Row positions come from the row heights alone, with no DOM read, and the DOM is
-     * touched once at the end. Existing rootElement nodes are reused, so images neither reload nor flicker.
+     * touched once at the end. Existing root elements are reused, so the images neither reload nor flicker.
      */
     private mountVisibleWindow(windowTop: number, windowBottom: number, galleryTop: number): void {
         let cumulative = 0;
@@ -420,7 +378,6 @@ export abstract class AbstractRowGallery<
         this.virtualBottomPadding = bottomPadding;
         this.bodyElementRef.style.paddingTop = topPadding + 'px';
         this.bodyElementRef.style.paddingBottom = bottomPadding + 'px';
-        this.bodyElementRef.innerHTML = '';
-        visible.forEach(element => this.bodyElementRef.appendChild(element));
+        setChildren(this.bodyElementRef, visible);
     }
 }
